@@ -758,11 +758,11 @@
     }
   },
   "consent": {
-    "title": "Cookies on rentaro",
-    "message": "We use essential cookies to run the site and, with your consent, analytics cookies to understand how it's used. You can change your choice anytime.",
-    "accept": "Accept all",
-    "decline": "Decline",
-    "necessaryOnly": "Necessary only",
-    "learnMore": "Privacy policy"
+    "title": "Sīkdatnes vietnē rentaro",
+    "message": "Mēs izmantojam vietnes darbībai nepieciešamās sīkdatnes un, ar tavu piekrišanu, analītikas sīkdatnes, lai saprastu, kā vietne tiek lietota. Savu izvēli vari mainīt jebkurā laikā.",
+    "accept": "Pieņemt visas",
+    "decline": "Noraidīt",
+    "necessaryOnly": "Tikai nepieciešamās",
+    "learnMore": "Privātuma politika"
   }
 }

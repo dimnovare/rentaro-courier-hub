@@ -758,11 +758,11 @@
     }
   },
   "consent": {
-    "title": "Cookies on rentaro",
-    "message": "We use essential cookies to run the site and, with your consent, analytics cookies to understand how it's used. You can change your choice anytime.",
-    "accept": "Accept all",
-    "decline": "Decline",
-    "necessaryOnly": "Necessary only",
-    "learnMore": "Privacy policy"
+    "title": "Evästeet rentaro-sivustolla",
+    "message": "Käytämme sivuston toiminnan kannalta välttämättömiä evästeitä ja suostumuksellasi analytiikkaevästeitä ymmärtääksemme, miten sivustoa käytetään. Voit muuttaa valintaasi milloin tahansa.",
+    "accept": "Hyväksy kaikki",
+    "decline": "Hylkää",
+    "necessaryOnly": "Vain välttämättömät",
+    "learnMore": "Tietosuojakäytäntö"
   }
 }

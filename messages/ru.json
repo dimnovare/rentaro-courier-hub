@@ -758,11 +758,11 @@
     }
   },
   "consent": {
-    "title": "Cookies on rentaro",
-    "message": "We use essential cookies to run the site and, with your consent, analytics cookies to understand how it's used. You can change your choice anytime.",
-    "accept": "Accept all",
-    "decline": "Decline",
-    "necessaryOnly": "Necessary only",
-    "learnMore": "Privacy policy"
+    "title": "Файлы cookie на rentaro",
+    "message": "Мы используем необходимые для работы сайта файлы cookie и, с вашего согласия, аналитические файлы cookie, чтобы понимать, как используется сайт. Вы можете изменить свой выбор в любое время.",
+    "accept": "Принять все",
+    "decline": "Отклонить",
+    "necessaryOnly": "Только необходимые",
+    "learnMore": "Политика конфиденциальности"
   }
 }
