@@ -12,8 +12,8 @@ import { submitBooking } from "@/services/bookingService";
 import { createBookingPayment } from "@/services/paymentService";
 import type { PlanId } from "@/types";
 
-/** Step label keys, in display order — copy lives in the `booking.steps` namespace. */
-const STEP_KEYS = ["city", "model", "plan", "addons", "details", "review"] as const;
+/** The single-select steps that a deep link can pre-satisfy and thus skip. */
+type StepKey = "city" | "model" | "plan" | "details" | "review";
 
 /** Map the data `country` value onto its `cities.countries` message key. */
 const countryKey: Record<string, string> = {
@@ -30,19 +30,20 @@ export function BookingWizard() {
   const tp = useTranslations("pricing");
   const ta = useTranslations("accessories");
 
-  const [step, setStep] = useState(0);
-  const [cityId, setCityId] = useState(() => {
-    const q = params.get("city");
-    return cities.find((c) => c.id === q && c.status !== "soon") ? (q as string) : "";
-  });
-  const [modelId, setModelId] = useState(() => {
-    const q = params.get("model");
-    return bikeModels.find((m) => m.id === q) ? (q as string) : "";
-  });
-  const [planId, setPlanId] = useState<PlanId | "">(() => {
-    const q = params.get("plan");
-    return pricingPlans.find((p) => p.id === q) ? (q as PlanId) : "";
-  });
+  // Pre-fill from deep-link query params (e.g. "Reserve this bike" → ?model=…,
+  // "Reserve in Tallinn" → ?city=…, "Choose 6 months" → ?plan=…). A pre-filled
+  // single-select step is dropped from the flow entirely, so an intent-driven
+  // visitor never re-picks what they already chose.
+  const qCity = params.get("city");
+  const initialCity = cities.find((c) => c.id === qCity && c.status !== "soon") ? (qCity as string) : "";
+  const qModel = params.get("model");
+  const initialModel = bikeModels.find((m) => m.id === qModel) ? (qModel as string) : "";
+  const qPlan = params.get("plan");
+  const initialPlan = pricingPlans.find((p) => p.id === qPlan) ? (qPlan as PlanId) : "";
+
+  const [cityId, setCityId] = useState(initialCity);
+  const [modelId, setModelId] = useState(initialModel);
+  const [planId, setPlanId] = useState<PlanId | "">(initialPlan);
   const [accessoryIds, setAccessoryIds] = useState<string[]>([]);
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
@@ -53,26 +54,53 @@ export function BookingWizard() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Steps actually shown: skip any single-select already provided by a deep link.
+  // Add-ons are folded into the Details screen, so there is no separate step.
+  const steps = (
+    [
+      !initialCity && "city",
+      !initialModel && "model",
+      !initialPlan && "plan",
+      "details",
+      "review",
+    ] as (StepKey | false)[]
+  ).filter(Boolean) as StepKey[];
+
+  const [step, setStep] = useState(0);
+  const key = steps[Math.min(step, steps.length - 1)];
+
   const model = bikeModels.find((m) => m.id === modelId);
   const plan = planId ? getPlanById(planId) : undefined;
   const city = cities.find((c) => c.id === cityId);
   const today = new Date().toISOString().slice(0, 10);
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const detailsValid =
+    !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && !!startDate;
 
-  const stepValid = [
-    !!cityId,
-    !!modelId,
-    !!planId,
-    true,
-    !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && !!startDate,
-    true,
-  ][step];
+  const stepValid =
+    key === "city"
+      ? !!cityId
+      : key === "model"
+        ? !!modelId
+        : key === "plan"
+          ? !!planId
+          : key === "details"
+            ? detailsValid
+            : true;
 
+  const isLast = step >= steps.length - 1;
   const toggleAcc = (id: string) =>
     setAccessoryIds((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
 
-  const next = () => stepValid && step < 5 && setStep(step + 1);
+  const goNext = () => setStep((s) => Math.min(s + 1, steps.length - 1));
+  const next = () => stepValid && !isLast && goNext();
   const back = () => (step > 0 ? setStep(step - 1) : router.push("/"));
+
+  // Single-select steps select AND advance in one tap (no separate Continue).
+  const pick = (set: () => void) => {
+    set();
+    if (!isLast) goNext();
+  };
 
   const submit = async () => {
     if (!cityId || !modelId || !planId) return;
@@ -128,18 +156,18 @@ export function BookingWizard() {
       </div>
 
       <div className="wizard-rail">
-        {STEP_KEYS.map((key, i) => (
-          <div key={key} className={`st ${i === step ? "active" : i < step ? "done" : ""}`}>
+        {steps.map((k, i) => (
+          <div key={k} className={`st ${i === step ? "active" : i < step ? "done" : ""}`}>
             <div className="bar" />
             <div className="lbl">
-              {i + 1}. {t(`steps.${key}`)}
+              {i + 1}. {t(`steps.${k === "details" ? "details" : k}`)}
             </div>
           </div>
         ))}
       </div>
 
       <article className="card wizard-panel">
-        {step === 0 && (
+        {key === "city" && (
           <>
             <h3>{t("city.heading")}</h3>
             <p className="sub">{t("city.sub")}</p>
@@ -151,7 +179,7 @@ export function BookingWizard() {
                     key={c.id}
                     className={`opt ${cityId === c.id ? "selected" : ""} ${soon ? "disabled" : ""}`}
                     disabled={soon}
-                    onClick={() => !soon && setCityId(c.id)}
+                    onClick={() => !soon && pick(() => setCityId(c.id))}
                   >
                     <span className="opt-t">{tc(`names.${c.id}`)}</span>
                     <span className="opt-m">{tc(`countries.${countryKey[c.country]}`)}</span>
@@ -169,7 +197,7 @@ export function BookingWizard() {
           </>
         )}
 
-        {step === 1 && (
+        {key === "model" && (
           <>
             <h3>{t("model.heading")}</h3>
             <p className="sub">{t("model.sub")}</p>
@@ -178,7 +206,7 @@ export function BookingWizard() {
                 <button
                   key={m.id}
                   className={`opt ${modelId === m.id ? "selected" : ""}`}
-                  onClick={() => setModelId(m.id)}
+                  onClick={() => pick(() => setModelId(m.id))}
                 >
                   <span className="opt-t">{m.name}</span>
                   <span className="opt-m">
@@ -194,7 +222,7 @@ export function BookingWizard() {
           </>
         )}
 
-        {step === 2 && (
+        {key === "plan" && (
           <>
             <h3>{t("plan.heading")}</h3>
             <p className="sub">{t("plan.sub")}</p>
@@ -203,7 +231,7 @@ export function BookingWizard() {
                 <button
                   key={p.id}
                   className={`opt ${planId === p.id ? "selected" : ""}`}
-                  onClick={() => setPlanId(p.id)}
+                  onClick={() => pick(() => setPlanId(p.id))}
                 >
                   <span className="opt-t">{tp(`terms.${p.id}`)}</span>
                   <span className="opt-p">
@@ -216,55 +244,28 @@ export function BookingWizard() {
           </>
         )}
 
-        {step === 3 && (
-          <>
-            <h3>{t("addons.heading")}</h3>
-            <p className="sub">{t("addons.sub")}</p>
-            <div className="opt-grid">
-              {accessories.map((a) => {
-                const on = accessoryIds.includes(a.id);
-                return (
-                  <button
-                    key={a.id}
-                    className={`opt row ${on ? "selected" : ""}`}
-                    onClick={() => toggleAcc(a.id)}
-                  >
-                    <span>
-                      <span className="opt-t" style={{ display: "block" }}>
-                        {ta(`names.${a.id}`)}
-                      </span>
-                      <span className="opt-p">{a.price}</span>
-                    </span>
-                    <span className="opt-check">{on && <Ic.check s={12} />}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {step === 4 && (
+        {key === "details" && (
           <>
             <h3>{t("details.heading")}</h3>
             <p className="sub">{t("details.sub")}</p>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="first">{t("details.firstName")}</label>
-                <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} autoComplete="given-name" />
+                <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} autoComplete="given-name" enterKeyHint="next" />
               </div>
               <div className="field">
                 <label htmlFor="last">{t("details.lastName")}</label>
-                <input id="last" value={last} onChange={(e) => setLast(e.target.value)} autoComplete="family-name" />
+                <input id="last" value={last} onChange={(e) => setLast(e.target.value)} autoComplete="family-name" enterKeyHint="next" />
               </div>
             </div>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="email">{t("details.email")}</label>
-                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+                <input id="email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" enterKeyHint="next" />
               </div>
               <div className="field">
                 <label htmlFor="phone">{t("details.phone")}</label>
-                <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
+                <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" enterKeyHint="next" />
               </div>
             </div>
             <div className="field">
@@ -275,10 +276,37 @@ export function BookingWizard() {
               <label htmlFor="notes">{t("details.notes")}</label>
               <textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("details.notesPlaceholder")} />
             </div>
+
+            {/* Add-ons folded in here (optional) so they're never a separate step. */}
+            <div className="wizard-addons">
+              <h4 className="wizard-subhead">{t("addons.heading")}</h4>
+              <p className="sub">{t("addons.sub")}</p>
+              <div className="opt-grid">
+                {accessories.map((a) => {
+                  const on = accessoryIds.includes(a.id);
+                  return (
+                    <button
+                      key={a.id}
+                      type="button"
+                      className={`opt row ${on ? "selected" : ""}`}
+                      onClick={() => toggleAcc(a.id)}
+                    >
+                      <span>
+                        <span className="opt-t" style={{ display: "block" }}>
+                          {ta(`names.${a.id}`)}
+                        </span>
+                        <span className="opt-p">{a.price}</span>
+                      </span>
+                      <span className="opt-check">{on && <Ic.check s={12} />}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </>
         )}
 
-        {step === 5 && (
+        {key === "review" && (
           <>
             <h3>{t("review.heading")}</h3>
             <p className="sub">{t("review.sub")}</p>
@@ -336,7 +364,7 @@ export function BookingWizard() {
           <button className="btn btn-ghost" onClick={back}>
             {step === 0 ? t("buttons.cancel") : t("buttons.back")}
           </button>
-          {step < 5 ? (
+          {!isLast ? (
             <button
               className="btn btn-primary"
               onClick={next}
