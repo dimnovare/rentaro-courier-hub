@@ -367,6 +367,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 
 /* ─── Footer ────────────────────────────────────────────── */
 .foot { margin-top: 70px; padding: 40px 0 20px; border-top: 1px solid var(--border); }
+.foot-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; padding-bottom: 34px; margin-bottom: 30px; border-bottom: 1px solid var(--border); }
+@media (max-width: 760px) { .foot-nav { grid-template-columns: 1fr 1fr; gap: 24px; } }
+.foot-col h5 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin: 0 0 14px; font-weight: 500; }
+.foot-col a { display: block; color: var(--text-muted); text-decoration: none; font-size: 14px; padding: 5px 0; transition: color .2s; }
+.foot-col a:hover { color: var(--text); }
 .foot-grid { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .foot .brand .word { font-size: 18px; }
 .foot-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); display: flex; gap: 24px; flex-wrap: wrap; }
