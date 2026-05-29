@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
@@ -12,20 +13,21 @@ import {
   type LookupResult,
 } from "@/services/bookingStatusService";
 
-/** Map the API status (lowercased enum name) to a friendly label + badge tone. */
-const STATUS_META: Record<string, { label: string; variant: "popular" | "cargo" | "light" }> = {
-  submitted: { label: "Submitted", variant: "cargo" },
-  awaitingreview: { label: "Awaiting review", variant: "cargo" },
-  approved: { label: "Approved", variant: "popular" },
-  rejected: { label: "Not approved", variant: "light" },
-  cancelled: { label: "Cancelled", variant: "light" },
+/** Map the API status (lowercased enum name) to its badge tone. Labels come from the `enums` namespace. */
+const STATUS_VARIANT: Record<string, "popular" | "cargo" | "light"> = {
+  submitted: "cargo",
+  awaitingreview: "cargo",
+  approved: "popular",
+  rejected: "light",
+  cancelled: "light",
 };
 
-function statusMeta(status: string) {
-  return STATUS_META[status.toLowerCase()] ?? { label: status, variant: "light" as const };
+function statusVariant(status: string) {
+  return STATUS_VARIANT[status.toLowerCase()] ?? "light";
 }
 
 export function BookingStatusLookup() {
+  const t = useTranslations("bookingStatus");
   const params = useSearchParams();
   const prefill = params.get("ref") ?? params.get("id") ?? "";
 
@@ -57,11 +59,10 @@ export function BookingStatusLookup() {
   return (
     <>
       <Reveal className="section-head">
-        <Kicker>Track your booking</Kicker>
-        <h2 className="h-section">Check your reservation status.</h2>
+        <Kicker>{t("kicker")}</Kicker>
+        <h2 className="h-section">{t("heading")}</h2>
         <p className="lead">
-          Enter the booking reference from your confirmation to see your model, plan, city and
-          start date. No login needed — keep your reference handy.
+          {t("lead")}
         </p>
       </Reveal>
 
@@ -70,12 +71,12 @@ export function BookingStatusLookup() {
           <div style={{ padding: "26px 24px 22px" }}>
             <form onSubmit={onSubmit}>
               <div className="field" style={{ marginBottom: 14 }}>
-                <label htmlFor="ref">Booking reference</label>
+                <label htmlFor="ref">{t("refLabel")}</label>
                 <input
                   id="ref"
                   value={ref}
                   onChange={(e) => setRef(e.target.value)}
-                  placeholder="e.g. 3f9a1c20-…"
+                  placeholder={t("refPlaceholder")}
                   autoComplete="off"
                   spellCheck={false}
                 />
@@ -86,7 +87,7 @@ export function BookingStatusLookup() {
                 disabled={loading || !ref.trim()}
                 style={loading || !ref.trim() ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
               >
-                {loading ? "Checking…" : "Check status"}
+                {loading ? t("checking") : t("checkStatus")}
                 {!loading && (
                   <span className="arrow">
                     <Ic.arrow />
@@ -107,9 +108,9 @@ export function BookingStatusLookup() {
           className="lead"
           style={{ maxWidth: 520, margin: "18px auto 0", textAlign: "center", fontSize: 14 }}
         >
-          Can&apos;t find your reference?{" "}
+          {t("cantFindPrefix")}{" "}
           <Link href="/book" style={{ color: "var(--lime)" }}>
-            Start a new reservation
+            {t("cantFindLink")}
           </Link>
           .
         </p>
@@ -119,12 +120,14 @@ export function BookingStatusLookup() {
 }
 
 function StatusResult({ result }: { result: LookupResult }) {
+  const t = useTranslations("bookingStatus");
+
   if (result.kind === "ok") return <StatusCard data={result.data} />;
 
   if (result.kind === "not_found") {
     return (
       <p className="wizard-err" role="status">
-        No booking found for that reference. Double-check the code from your confirmation email.
+        {t("notFound")}
       </p>
     );
   }
@@ -132,20 +135,24 @@ function StatusResult({ result }: { result: LookupResult }) {
   if (result.kind === "no_api") {
     return (
       <p className="lead" role="status" style={{ fontSize: 14 }}>
-        Status lookup is in preview — connect the rentaro API to track live bookings.
+        {t("preview")}
       </p>
     );
   }
 
   return (
     <p className="wizard-err" role="status">
-      Something went wrong looking that up. Please try again in a moment.
+      {t("error")}
     </p>
   );
 }
 
 function StatusCard({ data }: { data: BookingStatus }) {
-  const meta = statusMeta(data.status);
+  const t = useTranslations("bookingStatus");
+  const tEnum = useTranslations("enums");
+  const variant = statusVariant(data.status);
+  const statusKey = `bookingStatus.${data.status.toLowerCase()}`;
+  const label = tEnum.has(statusKey) ? tEnum(statusKey) : data.status;
   return (
     <div>
       <div
@@ -158,32 +165,32 @@ function StatusCard({ data }: { data: BookingStatus }) {
         }}
       >
         <span className="l" style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-dim)" }}>
-          Status
+          {t("statusLabel")}
         </span>
-        <span className={`model-badge ${meta.variant}`} style={{ position: "static" }}>
-          {meta.label}
+        <span className={`model-badge ${variant}`} style={{ position: "static" }}>
+          {label}
         </span>
       </div>
 
       <div className="summary-row">
-        <span className="l">Reference</span>
+        <span className="l">{t("reference")}</span>
         <span className="v mono">{data.reference}</span>
       </div>
       <div className="summary-row">
-        <span className="l">Model</span>
+        <span className="l">{t("model")}</span>
         <span className="v">{data.modelName}</span>
       </div>
       <div className="summary-row">
-        <span className="l">Plan</span>
+        <span className="l">{t("plan")}</span>
         <span className="v">{data.planTerm}</span>
       </div>
       <div className="summary-row">
-        <span className="l">City</span>
+        <span className="l">{t("city")}</span>
         <span className="v">{data.cityName}</span>
       </div>
       <div className="summary-row" style={{ borderBottom: "none" }}>
-        <span className="l">Start date</span>
-        <span className="v">{data.preferredStartDate ?? "To be confirmed"}</span>
+        <span className="l">{t("startDate")}</span>
+        <span className="v">{data.preferredStartDate ?? t("toBeConfirmed")}</span>
       </div>
     </div>
   );

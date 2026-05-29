@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
@@ -14,40 +15,70 @@ import {
   type PortalResult,
 } from "@/services/portalService";
 
-/** Map the API status (lowercased enum name) to a friendly label + badge tone. */
-const STATUS_META: Record<string, { label: string; variant: "popular" | "cargo" | "light" }> = {
+/**
+ * Map the API status (lowercased enum name) to its badge tone. Friendly labels
+ * live in the `enums.bookingStatus` / `enums.rentalStatus` namespaces.
+ */
+const STATUS_VARIANT: Record<string, "popular" | "cargo" | "light"> = {
   // Booking statuses (before a bike is assigned)
-  submitted: { label: "Submitted", variant: "cargo" },
-  awaitingreview: { label: "Awaiting review", variant: "cargo" },
-  approved: { label: "Approved", variant: "popular" },
-  rejected: { label: "Not approved", variant: "light" },
-  cancelled: { label: "Cancelled", variant: "light" },
-  paymentpending: { label: "Payment pending", variant: "cargo" },
-  bikeassigned: { label: "Bike assigned", variant: "popular" },
-  completed: { label: "Completed", variant: "light" },
+  submitted: "cargo",
+  awaitingreview: "cargo",
+  approved: "popular",
+  rejected: "light",
+  cancelled: "light",
+  paymentpending: "cargo",
+  bikeassigned: "popular",
+  completed: "light",
   // Rental statuses (once active)
-  active: { label: "Active", variant: "popular" },
-  endingsoon: { label: "Ending soon", variant: "cargo" },
-  returned: { label: "Returned", variant: "light" },
-  closed: { label: "Closed", variant: "light" },
-  overdue: { label: "Overdue", variant: "light" },
+  active: "popular",
+  endingsoon: "cargo",
+  returned: "light",
+  closed: "light",
+  overdue: "light",
 };
 
-function statusMeta(status: string) {
-  return STATUS_META[status.toLowerCase()] ?? { label: status, variant: "light" as const };
+function statusVariant(status: string) {
+  return STATUS_VARIANT[status.toLowerCase()] ?? "light";
 }
 
-/** Issue types — values match the backend MaintenanceIssueType enum (parsed case-insensitively). */
-const ISSUE_TYPES: { value: string; label: string }[] = [
-  { value: "Puncture", label: "Puncture / flat tyre" },
-  { value: "Brakes", label: "Brakes" },
-  { value: "Battery", label: "Battery" },
-  { value: "Motor", label: "Motor" },
-  { value: "Lock", label: "Lock" },
-  { value: "Charger", label: "Charger" },
-  { value: "GeneralService", label: "General service" },
-  { value: "Accident", label: "Accident / crash damage" },
-];
+/**
+ * Resolve a status (lowercased enum name) to its friendly label. The same value
+ * is never both a booking and a rental status, so we try rental first, then
+ * booking, then fall back to the raw value — matching the previous flat map.
+ */
+function useStatusLabel() {
+  const tEnum = useTranslations("enums");
+  return (status: string) => {
+    const key = status.toLowerCase();
+    if (tEnum.has(`rentalStatus.${key}`)) return tEnum(`rentalStatus.${key}`);
+    if (tEnum.has(`bookingStatus.${key}`)) return tEnum(`bookingStatus.${key}`);
+    return status;
+  };
+}
+
+/** Issue type values match the backend MaintenanceIssueType enum (parsed case-insensitively). */
+const ISSUE_TYPE_VALUES = [
+  "Puncture",
+  "Brakes",
+  "Battery",
+  "Motor",
+  "Lock",
+  "Charger",
+  "GeneralService",
+  "Accident",
+] as const;
+
+/** Map an issue type value onto its `enums.issueType` message key. */
+const issueTypeKey: Record<string, string> = {
+  Puncture: "puncture",
+  Brakes: "brakes",
+  Battery: "battery",
+  Motor: "motor",
+  Lock: "lock",
+  Charger: "charger",
+  GeneralService: "generalService",
+  Accident: "accident",
+};
 
 const selectStyle: React.CSSProperties = {
   width: "100%",
@@ -63,6 +94,7 @@ const selectStyle: React.CSSProperties = {
 };
 
 export function ManageRental() {
+  const t = useTranslations("portal");
   const params = useSearchParams();
   const token = params.get("token") ?? "";
 
@@ -78,25 +110,25 @@ export function ManageRental() {
 
   // Missing token, or the API rejected it → one clean message.
   if (!token.trim() || state?.kind === "invalid") {
-    return <PortalNotice tone="error" title="This link is invalid or expired." />;
+    return <PortalNotice tone="error" title={t("invalidLink")} />;
   }
 
   if (state === null) {
-    return <PortalNotice title="Loading your rental…" />;
+    return <PortalNotice title={t("loading")} />;
   }
 
   if (state.kind === "no_api") {
     return (
-      <PortalNotice title="Portal preview">
-        Your rental portal is in preview — connect the rentaro API to manage live rentals.
+      <PortalNotice title={t("previewTitle")}>
+        {t("previewBody")}
       </PortalNotice>
     );
   }
 
   if (state.kind === "error") {
     return (
-      <PortalNotice tone="error" title="Something went wrong.">
-        We couldn&apos;t load your rental just now. Please refresh in a moment.
+      <PortalNotice tone="error" title={t("errorTitle")}>
+        {t("errorBody")}
       </PortalNotice>
     );
   }
@@ -107,19 +139,21 @@ export function ManageRental() {
 /* ── The signed-in view: details card + two action forms ─────────────────── */
 
 function PortalView({ rental, token }: { rental: PortalRental; token: string }) {
-  const meta = statusMeta(rental.status);
+  const t = useTranslations("portal");
+  const statusLabel = useStatusLabel();
+  const variant = statusVariant(rental.status);
+  const label = statusLabel(rental.status);
   const greeting = rental.customerFirstName?.trim();
 
   return (
     <>
       <Reveal className="section-head">
-        <Kicker>Manage your rental</Kicker>
+        <Kicker>{t("kicker")}</Kicker>
         <h2 className="h-section">
-          {greeting ? `Hi ${greeting} — here's your rental.` : "Here's your rental."}
+          {greeting ? t("headingNamed", { name: greeting }) : t("heading")}
         </h2>
         <p className="lead">
-          View your details, report an issue with your bike or message the team. No login needed —
-          this page is tied to the secure link from your confirmation email.
+          {t("lead")}
         </p>
       </Reveal>
 
@@ -145,48 +179,48 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
                   color: "var(--text-dim)",
                 }}
               >
-                {rental.hasRental ? "Rental status" : "Booking status"}
+                {rental.hasRental ? t("rentalStatus") : t("bookingStatus")}
               </span>
-              <span className={`model-badge ${meta.variant}`} style={{ position: "static" }}>
-                {meta.label}
+              <span className={`model-badge ${variant}`} style={{ position: "static" }}>
+                {label}
               </span>
             </div>
 
             <div className="summary-row">
-              <span className="l">Reference</span>
+              <span className="l">{t("reference")}</span>
               <span className="v mono">{rental.reference}</span>
             </div>
             <div className="summary-row">
-              <span className="l">Bike</span>
+              <span className="l">{t("bike")}</span>
               <span className="v">{rental.modelName}</span>
             </div>
             <div className="summary-row">
-              <span className="l">Plan</span>
+              <span className="l">{t("plan")}</span>
               <span className="v">{rental.planTerm}</span>
             </div>
             <div className="summary-row">
-              <span className="l">City</span>
+              <span className="l">{t("city")}</span>
               <span className="v">{rental.cityName}</span>
             </div>
             {rental.pickup && (
               <div className="summary-row">
-                <span className="l">Pickup</span>
+                <span className="l">{t("pickup")}</span>
                 <span className="v">{rental.pickup}</span>
               </div>
             )}
             <div className="summary-row">
-              <span className="l">Start date</span>
-              <span className="v">{rental.startDate ?? "To be confirmed"}</span>
+              <span className="l">{t("startDate")}</span>
+              <span className="v">{rental.startDate ?? t("toBeConfirmed")}</span>
             </div>
             {rental.plannedEndDate && (
               <div className="summary-row">
-                <span className="l">Planned end</span>
+                <span className="l">{t("plannedEnd")}</span>
                 <span className="v">{rental.plannedEndDate}</span>
               </div>
             )}
             <div className="summary-row" style={{ borderBottom: "none" }}>
-              <span className="l">Assigned bike</span>
-              <span className="v mono">{rental.unitCode ?? "Not yet assigned"}</span>
+              <span className="l">{t("assignedBike")}</span>
+              <span className="v mono">{rental.unitCode ?? t("notYetAssigned")}</span>
             </div>
           </div>
         </article>
@@ -211,9 +245,9 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         className="lead"
         style={{ maxWidth: 560, margin: "18px auto 0", textAlign: "center", fontSize: 14 }}
       >
-        Need something else?{" "}
+        {t("needElsePrefix")}{" "}
         <Link href="/faq" style={{ color: "var(--lime)" }}>
-          Check the FAQ
+          {t("needElseLink")}
         </Link>
         .
       </p>
@@ -226,7 +260,9 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
 type SubmitState = "idle" | "sending" | "ok" | "error";
 
 function RepairForm({ token }: { token: string }) {
-  const [issueType, setIssueType] = useState(ISSUE_TYPES[0]!.value);
+  const t = useTranslations("portal");
+  const tEnum = useTranslations("enums");
+  const [issueType, setIssueType] = useState<(typeof ISSUE_TYPE_VALUES)[number]>(ISSUE_TYPE_VALUES[0]);
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<SubmitState>("idle");
   const [message, setMessage] = useState("");
@@ -242,46 +278,42 @@ function RepairForm({ token }: { token: string }) {
       setDescription("");
     } else {
       setStatus("error");
-      setMessage(
-        res.kind === "invalid"
-          ? "This link is invalid or expired."
-          : "Couldn't send that just now. Please try again.",
-      );
+      setMessage(res.kind === "invalid" ? t("invalidLink") : t("sendFailed"));
     }
   };
 
   return (
     <article className="card">
       <form onSubmit={onSubmit} style={{ padding: "22px 22px 20px" }}>
-        <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 4 }}>Request a repair</h3>
+        <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 4 }}>{t("repair.heading")}</h3>
         <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
-          Something not right with your bike? Tell us and our service team will follow up.
+          {t("repair.lead")}
         </p>
 
         <div className="field" style={{ marginBottom: 14 }}>
-          <label htmlFor="issueType">Issue type</label>
+          <label htmlFor="issueType">{t("repair.issueType")}</label>
           <select
             id="issueType"
             value={issueType}
-            onChange={(e) => setIssueType(e.target.value)}
+            onChange={(e) => setIssueType(e.target.value as (typeof ISSUE_TYPE_VALUES)[number])}
             style={selectStyle}
           >
-            {ISSUE_TYPES.map((it) => (
-              <option key={it.value} value={it.value}>
-                {it.label}
+            {ISSUE_TYPE_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {tEnum(`issueType.${issueTypeKey[value]}`)}
               </option>
             ))}
           </select>
         </div>
 
         <div className="field" style={{ marginBottom: 16 }}>
-          <label htmlFor="repairDesc">What&apos;s wrong?</label>
+          <label htmlFor="repairDesc">{t("repair.descLabel")}</label>
           <textarea
             id="repairDesc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="e.g. Rear brake feels loose and squeaks."
+            placeholder={t("repair.descPlaceholder")}
           />
         </div>
 
@@ -295,7 +327,7 @@ function RepairForm({ token }: { token: string }) {
               : undefined
           }
         >
-          {status === "sending" ? "Sending…" : "Send repair request"}
+          {status === "sending" ? t("sending") : t("repair.submit")}
           {status !== "sending" && (
             <span className="arrow">
               <Ic.arrow />
@@ -310,6 +342,7 @@ function RepairForm({ token }: { token: string }) {
 }
 
 function SupportForm({ token }: { token: string }) {
+  const t = useTranslations("portal");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<SubmitState>("idle");
   const [feedback, setFeedback] = useState("");
@@ -325,30 +358,26 @@ function SupportForm({ token }: { token: string }) {
       setMessage("");
     } else {
       setStatus("error");
-      setFeedback(
-        res.kind === "invalid"
-          ? "This link is invalid or expired."
-          : "Couldn't send that just now. Please try again.",
-      );
+      setFeedback(res.kind === "invalid" ? t("invalidLink") : t("sendFailed"));
     }
   };
 
   return (
     <article className="card">
       <form onSubmit={onSubmit} style={{ padding: "22px 22px 20px" }}>
-        <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 4 }}>Contact support</h3>
+        <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 4 }}>{t("support.heading")}</h3>
         <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
-          A question about your plan, pickup or anything else? Send us a message.
+          {t("support.lead")}
         </p>
 
         <div className="field" style={{ marginBottom: 16 }}>
-          <label htmlFor="supportMsg">Your message</label>
+          <label htmlFor="supportMsg">{t("support.msgLabel")}</label>
           <textarea
             id="supportMsg"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={5}
-            placeholder="How can we help?"
+            placeholder={t("support.msgPlaceholder")}
           />
         </div>
 
@@ -362,7 +391,7 @@ function SupportForm({ token }: { token: string }) {
               : undefined
           }
         >
-          {status === "sending" ? "Sending…" : "Send message"}
+          {status === "sending" ? t("sending") : t("support.submit")}
         </button>
 
         <FormFeedback status={status} message={feedback} />
@@ -411,11 +440,12 @@ function PortalNotice({
   children?: React.ReactNode;
   tone?: "neutral" | "error";
 }) {
+  const t = useTranslations("portal");
   return (
     <Reveal>
       <article className="card" style={{ maxWidth: 520, margin: "8px auto 0" }}>
         <div style={{ padding: "30px 26px", textAlign: "center" }}>
-          <Kicker muted>Manage your rental</Kicker>
+          <Kicker muted>{t("kicker")}</Kicker>
           <h2 className="h-section" style={{ fontSize: 26, marginTop: 6, marginBottom: 10 }}>
             {title}
           </h2>
@@ -426,11 +456,11 @@ function PortalNotice({
           )}
           {tone === "error" && (
             <p className="lead" style={{ margin: "16px auto 0", fontSize: 14 }}>
-              Check the link in your confirmation email, or{" "}
+              {t("errorHelpPrefix")}{" "}
               <Link href="/booking/status" style={{ color: "var(--lime)" }}>
-                track your booking
+                {t("errorHelpLink")}
               </Link>{" "}
-              instead.
+              {t("errorHelpSuffix")}
             </p>
           )}
         </div>

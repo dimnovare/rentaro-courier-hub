@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
@@ -15,48 +16,35 @@ export const metadata: Metadata = {
     "rentaro is e-bike rental built for delivery couriers. Start quickly on a monthly plan, ride with service support and keep your bike — your income tool — moving. Tallinn, Riga and Helsinki.",
 };
 
-const points: { title: string; copy: string }[] = [
-  {
-    title: "Start delivering this week",
-    copy: "Choose your model online, sign the contract on your phone and pick up the same week. No long wait, no big purchase before your first shift.",
-  },
-  {
-    title: "Your bike is your income tool",
-    copy: "If it's off the road, you're not earning. Service support is built into every plan, so small issues get fixed fast and you stay on the road.",
-  },
-  {
-    title: "A price that fits your hours",
-    copy: "Riding part-time? Start on a flexible 30-day plan. Full-time? A 6 or 12-month plan drops your daily rate. You're never locked into more than you need.",
-  },
-  {
-    title: "Stamina for long shifts",
-    copy: "Bikes picked for delivery work, with extra-battery options for the days you stitch together back-to-back orders across the city.",
-  },
-];
+const pointKeys = [
+  "startThisWeek",
+  "incomeTool",
+  "priceFitsHours",
+  "staminaLongShifts",
+] as const;
 
-export default function EbikeRentalForCouriersPage() {
+export default async function EbikeRentalForCouriersPage() {
+  const t = await getTranslations("seo.couriers");
+  const th = await getTranslations("howItWorks");
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 56 }}>
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>E-bike rental for couriers</Kicker>
-            <h1 className="h-section">Made for couriers, not weekend riders.</h1>
+            <Kicker>{t("hero.kicker")}</Kicker>
+            <h1 className="h-section">{t("hero.heading")}</h1>
             <p className="lead">
-              rentaro exists for one job: keeping delivery couriers earning. You rent a
-              delivery-built e-bike by the month, start quickly, and ride with service support
-              behind you. No big purchase, no resale headache, no day lost to a bike you can’t
-              fix. Choose your model, sign online and start your next shift.
+              {t("hero.lead")}
             </p>
             <div style={{ display: "flex", gap: 13, flexWrap: "wrap", marginTop: 26 }}>
               <Link className="btn btn-primary btn-lg" href="/book">
-                Start booking
+                {t("hero.ctaBook")}
                 <span className="arrow">
                   <Ic.arrow />
                 </span>
               </Link>
               <Link className="btn btn-ghost btn-lg" href="/models">
-                Explore the fleet
+                {t("hero.ctaExplore")}
               </Link>
             </div>
           </Reveal>
@@ -68,8 +56,8 @@ export default function EbikeRentalForCouriersPage() {
               gap: 16,
             }}
           >
-            {points.map((p, i) => (
-              <Reveal key={p.title} delay={(i % 2) * 80}>
+            {pointKeys.map((key, i) => (
+              <Reveal key={key} delay={(i % 2) * 80}>
                 <article className="card" style={{ padding: 24, height: "100%" }}>
                   <span
                     style={{
@@ -86,8 +74,8 @@ export default function EbikeRentalForCouriersPage() {
                   >
                     <Ic.bolt s={15} />
                   </span>
-                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{p.title}</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{p.copy}</p>
+                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{t(`points.${key}.title`)}</h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{t(`points.${key}.copy`)}</p>
                 </article>
               </Reveal>
             ))}
@@ -99,10 +87,10 @@ export default function EbikeRentalForCouriersPage() {
       <section className="section-pad">
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>How couriers start</Kicker>
-            <h2 className="h-section">Choose. Sign. Ride.</h2>
+            <Kicker>{t("howItWorks.kicker")}</Kicker>
+            <h2 className="h-section">{t("howItWorks.heading")}</h2>
             <p className="lead">
-              Three steps from picking a bike to your first delivery — most of it from your phone.
+              {t("howItWorks.lead")}
             </p>
           </Reveal>
           <div
@@ -132,8 +120,8 @@ export default function EbikeRentalForCouriersPage() {
                   >
                     {s.n}
                   </div>
-                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{s.title}</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{s.copy}</p>
+                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{th(`steps.${s.n}.title`)}</h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{th(`steps.${s.n}.copy`)}</p>
                 </article>
               </Reveal>
             ))}
@@ -145,11 +133,10 @@ export default function EbikeRentalForCouriersPage() {
       <section className="section-pad">
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>Courier favourites</Kicker>
-            <h2 className="h-section">Bikes that hold up to the work.</h2>
+            <Kicker>{t("models.kicker")}</Kicker>
+            <h2 className="h-section">{t("models.heading")}</h2>
             <p className="lead">
-              Hand-picked for delivery shifts. Browse the most popular picks, or see the full
-              fleet.
+              {t("models.lead")}
             </p>
           </Reveal>
           <div className="models-grid">
@@ -171,14 +158,13 @@ export default function EbikeRentalForCouriersPage() {
           <Reveal>
             <div className="final">
               <div className="final-inner">
-                <h2>Ready to start earning?</h2>
+                <h2>{t("cta.heading")}</h2>
                 <p>
-                  Choose your rentaro e-bike, pick a plan and reserve in a few steps — service
-                  support included from day one.
+                  {t("cta.lead")}
                 </p>
                 <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
                   <Link className="btn btn-primary btn-lg" href="/book">
-                    Start booking
+                    {t("cta.button")}
                     <span className="arrow">
                       <Ic.arrow />
                     </span>

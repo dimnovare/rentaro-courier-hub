@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
@@ -14,48 +15,34 @@ export const metadata: Metadata = {
     "Rent an e-bike by the month instead of buying. One predictable monthly price covers the bike, service support, lock and charger — with no large upfront cost. Tallinn, Riga and Helsinki.",
 };
 
-const points: { title: string; copy: string }[] = [
-  {
-    title: "One predictable price",
-    copy: "Pay a daily rate billed every 30 days. No big upfront purchase, no surprise repair bills — you know exactly what the bike costs each month.",
-  },
-  {
-    title: "Repairs are on us",
-    copy: "Service support is part of every plan. If something needs fixing, we sort it — so a worn brake pad or a flat tyre doesn't become your problem.",
-  },
-  {
-    title: "Commit as little or as long as you like",
-    copy: "Start on a 30-day plan to test it, then move to a 6 or 12-month plan for a lower daily rate when you're ready. The longer the term, the less you pay per day.",
-  },
-  {
-    title: "Nothing tied up in a bike",
-    copy: "Buying an e-bike means hundreds up front, plus batteries, locks and maintenance. Renting keeps your cash free and the bike someone else's responsibility to maintain.",
-  },
-];
+const pointKeys = [
+  "predictablePrice",
+  "repairsOnUs",
+  "commitFlexible",
+  "nothingTiedUp",
+] as const;
 
-export default function MonthlyEbikeRentalPage() {
+export default async function MonthlyEbikeRentalPage() {
+  const t = await getTranslations("seo.monthly");
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 56 }}>
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>Monthly e-bike rental</Kicker>
-            <h1 className="h-section">Rent the bike. Skip the price tag.</h1>
+            <Kicker>{t("hero.kicker")}</Kicker>
+            <h1 className="h-section">{t("hero.heading")}</h1>
             <p className="lead">
-              A monthly e-bike rental is the simplest way onto a quality bike without buying one.
-              You pay a clear daily rate, billed every 30 days, and the bike, service support,
-              lock and charger come together as one package. When your needs change, so does your
-              plan — no resale, no depreciation, no workshop bills.
+              {t("hero.lead")}
             </p>
             <div style={{ display: "flex", gap: 13, flexWrap: "wrap", marginTop: 26 }}>
               <Link className="btn btn-primary btn-lg" href="/book">
-                Reserve a bike
+                {t("hero.ctaReserve")}
                 <span className="arrow">
                   <Ic.arrow />
                 </span>
               </Link>
               <Link className="btn btn-ghost btn-lg" href="/models">
-                Explore the fleet
+                {t("hero.ctaExplore")}
               </Link>
             </div>
           </Reveal>
@@ -67,8 +54,8 @@ export default function MonthlyEbikeRentalPage() {
               gap: 16,
             }}
           >
-            {points.map((p, i) => (
-              <Reveal key={p.title} delay={(i % 2) * 80}>
+            {pointKeys.map((key, i) => (
+              <Reveal key={key} delay={(i % 2) * 80}>
                 <article className="card" style={{ padding: 24, height: "100%" }}>
                   <span
                     style={{
@@ -85,8 +72,8 @@ export default function MonthlyEbikeRentalPage() {
                   >
                     <Ic.bolt s={15} />
                   </span>
-                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{p.title}</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{p.copy}</p>
+                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{t(`points.${key}.title`)}</h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{t(`points.${key}.copy`)}</p>
                 </article>
               </Reveal>
             ))}
@@ -101,11 +88,10 @@ export default function MonthlyEbikeRentalPage() {
       <section className="section-pad">
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>Available monthly</Kicker>
-            <h2 className="h-section">Bikes you can rent today.</h2>
+            <Kicker>{t("models.kicker")}</Kicker>
+            <h2 className="h-section">{t("models.heading")}</h2>
             <p className="lead">
-              Every bike in the fleet rents on the same monthly terms. Browse the most popular
-              picks below, or see the full range.
+              {t("models.lead")}
             </p>
           </Reveal>
           <div className="models-grid">
@@ -125,14 +111,13 @@ export default function MonthlyEbikeRentalPage() {
           <Reveal>
             <div className="final">
               <div className="final-inner">
-                <h2>Start your monthly plan.</h2>
+                <h2>{t("cta.heading")}</h2>
                 <p>
-                  Pick a bike, choose a 30-day, 6 or 12-month plan and reserve in a few steps —
-                  no payment now, service support from day one.
+                  {t("cta.lead")}
                 </p>
                 <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
                   <Link className="btn btn-primary btn-lg" href="/book">
-                    Reserve your e-bike
+                    {t("cta.button")}
                     <span className="arrow">
                       <Ic.arrow />
                     </span>

@@ -1,44 +1,46 @@
+import { getTranslations } from "next-intl/server";
 import type { BikeModel } from "@/types";
 
 type Cell = { k: string; v: string; u?: string };
 
-function buildCells(m: BikeModel): Cell[] {
+function buildCells(m: BikeModel, t: (key: string) => string): Cell[] {
   const s = m.spec;
   if (!s) return m.specs;
   const c: Cell[] = [];
   const push = (k: string, v?: string | number, u?: string) => {
     if (v !== undefined && v !== null && v !== "") c.push({ k, v: String(v), u });
   };
-  push("Type", s.bikeType);
-  push("Motor", s.motorPowerW, "W");
-  push("Peak power", s.peakPowerW, "W");
-  push("Torque", s.torqueNm, "Nm");
-  if (s.batteryWh) push("Battery", s.batteryWh, "Wh");
-  else if (s.batteryVoltage && s.batteryAh) push("Battery", `${s.batteryVoltage}V · ${s.batteryAh}Ah`);
-  push("Range", s.rangeKm, "km");
-  push("Top speed", s.topSpeedKmh, "km/h");
-  push("Charging", s.chargingHours, "h");
-  push("Drive", s.driveSystem);
-  push("Transmission", s.transmission);
-  push("Riding modes", s.ridingModes);
-  push("Brakes", s.brakes);
-  push("Suspension", s.suspension);
-  push("Tyres", s.tyres);
-  push("Display", s.display);
-  push("Sensor", s.sensor);
-  push("Lighting", s.lighting);
-  push("Smart", s.smartFeatures);
-  push("Max load", s.maxLoadKg, "kg");
-  push("Weight", s.netWeightKg, "kg");
-  push("Max climb", s.maxClimbDeg, "°");
+  push(t("type"), s.bikeType);
+  push(t("motor"), s.motorPowerW, "W");
+  push(t("peakPower"), s.peakPowerW, "W");
+  push(t("torque"), s.torqueNm, "Nm");
+  if (s.batteryWh) push(t("battery"), s.batteryWh, "Wh");
+  else if (s.batteryVoltage && s.batteryAh) push(t("battery"), `${s.batteryVoltage}V · ${s.batteryAh}Ah`);
+  push(t("range"), s.rangeKm, "km");
+  push(t("topSpeed"), s.topSpeedKmh, "km/h");
+  push(t("charging"), s.chargingHours, "h");
+  push(t("drive"), s.driveSystem);
+  push(t("transmission"), s.transmission);
+  push(t("ridingModes"), s.ridingModes);
+  push(t("brakes"), s.brakes);
+  push(t("suspension"), s.suspension);
+  push(t("tyres"), s.tyres);
+  push(t("display"), s.display);
+  push(t("sensor"), s.sensor);
+  push(t("lighting"), s.lighting);
+  push(t("smart"), s.smartFeatures);
+  push(t("maxLoad"), s.maxLoadKg, "kg");
+  push(t("weight"), s.netWeightKg, "kg");
+  push(t("maxClimb"), s.maxClimbDeg, "°");
   if (s.riderHeightMinCm && s.riderHeightMaxCm)
-    push("Rider height", `${s.riderHeightMinCm}–${s.riderHeightMaxCm}`, "cm");
-  push("Certification", s.certification);
+    push(t("riderHeight"), `${s.riderHeightMinCm}–${s.riderHeightMaxCm}`, "cm");
+  push(t("certification"), s.certification);
   return c;
 }
 
-export function SpecTable({ m }: { m: BikeModel }) {
-  const cells = buildCells(m);
+export async function SpecTable({ m }: { m: BikeModel }) {
+  const t = await getTranslations("specTable");
+  const cells = buildCells(m, t);
   const hasRange = !!m.spec?.rangeKm;
   return (
     <div>
@@ -55,8 +57,7 @@ export function SpecTable({ m }: { m: BikeModel }) {
       </div>
       {hasRange && (
         <div className="spec-note">
-          Range is a manufacturer estimate — real distance varies with load, terrain, weather
-          and rider.
+          {t("rangeNote")}
         </div>
       )}
     </div>

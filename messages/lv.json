@@ -240,5 +240,500 @@
     "lead": "Izvēlies savu rentaro e-velosipēdu, izvēlies plānu un sāc braukt — servisa atbalsts iekļauts no pirmās dienas.",
     "ctaReserve": "Rezervēt savu e-velosipēdu",
     "ctaPricing": "Skatīt cenas"
+  },
+  "booking": {
+    "title": "Rezervē savu e-velosipēdu",
+    "intro": "Seši ātri soļi. Maksājums tagad nav vajadzīgs — pirms saņemšanas apstiprināsim pieejamību un nosūtīsim digitālo līgumu.",
+    "steps": {
+      "city": "Pilsēta",
+      "model": "Modelis",
+      "plan": "Plāns",
+      "addons": "Papildaprīkojums",
+      "details": "Dati",
+      "review": "Pārskats"
+    },
+    "errors": {
+      "submit": "Iesniedzot pieprasījumu, kaut kas nogāja greizi. Lūdzu, mēģini vēlreiz."
+    },
+    "city": {
+      "heading": "Kur tu brauc?",
+      "sub": "Izvēlies savu pilsētu. Šobrīd darbojamies Tallinā un Rīgā.",
+      "soon": "Drīzumā",
+      "limited": "Ierobežots skaits",
+      "available": "Pieejami {count}"
+    },
+    "model": {
+      "heading": "Izvēlies savu velosipēdu",
+      "sub": "Visi modeļi pieejami uz vieniem un tiem pašiem plāniem — izvēlies to, kas der tavām maiņām.",
+      "fromDay": "No €{price}/dienā",
+      "waitlistSuffix": " · gaidīšanas saraksts"
+    },
+    "plan": {
+      "heading": "Izvēlies plānu",
+      "sub": "Jo ilgāks termiņš, jo zemāka dienas cena. Minimālais termiņš 30 dienas.",
+      "perDay": "€{price}/dienā",
+      "per30": "€{price} par 30 dienām"
+    },
+    "addons": {
+      "heading": "Papildaprīkojums",
+      "sub": "Pēc izvēles. Pievieno aprīkojumu, kas palīdz nopelnīt — to vari mainīt arī vēlāk."
+    },
+    "details": {
+      "heading": "Tavi dati",
+      "sub": "Lai varam apstiprināt pieejamību un nosūtīt tavu līgumu.",
+      "firstName": "Vārds",
+      "lastName": "Uzvārds",
+      "email": "E-pasts",
+      "phone": "Tālrunis",
+      "startDate": "Vēlamais sākuma datums",
+      "notes": "Piezīmes (pēc izvēles)",
+      "notesPlaceholder": "Piegādes platforma, vēlamā saņemšanas vieta, jebkas, kas mums būtu jāzina…"
+    },
+    "review": {
+      "heading": "Pārskati un apstiprini",
+      "sub": "Pārbaudi datus — maksājums tagad netiek ieturēts.",
+      "city": "Pilsēta",
+      "model": "Modelis",
+      "plan": "Plāns",
+      "addons": "Papildaprīkojums",
+      "none": "Nav",
+      "startDate": "Sākuma datums",
+      "contact": "Kontaktinformācija",
+      "from": "No",
+      "per30Addons": "/ 30 dienas + papildaprīkojums",
+      "paymentNote": "Pirmo 30 dienu periodu apmaksā droši ar Montonio — ar karti vai bankas pārskaitījumu."
+    },
+    "buttons": {
+      "cancel": "Atcelt",
+      "back": "Atpakaļ",
+      "continue": "Turpināt",
+      "submitting": "Iesniedz…",
+      "submit": "Iesniegt pieprasījumu"
+    }
+  },
+  "bookingSuccess": {
+    "heading": "Pieprasījums saņemts.",
+    "headingNamed": "Pieprasījums saņemts, {name}.",
+    "body": "Drīzumā e-pastā apstiprināsim pieejamību un nosūtīsim tavu digitālo līgumu — maksājums nav ieturēts.",
+    "reference": "Atsauces numurs",
+    "model": "Modelis",
+    "plan": "Plāns",
+    "city": "Pilsēta",
+    "startDate": "Sākuma datums",
+    "browseFleet": "Apskatīt parku",
+    "backHome": "Atpakaļ uz sākumu"
+  },
+  "bookingStatus": {
+    "kicker": "Seko savai rezervācijai",
+    "heading": "Pārbaudi savas rezervācijas statusu.",
+    "lead": "Ievadi rezervācijas atsauces numuru no apstiprinājuma, lai redzētu savu modeli, plānu, pilsētu un sākuma datumu. Pieslēgšanās nav vajadzīga — turi atsauces numuru pa rokai.",
+    "refLabel": "Rezervācijas atsauces numurs",
+    "refPlaceholder": "piem., 3f9a1c20-…",
+    "checking": "Pārbauda…",
+    "checkStatus": "Pārbaudīt statusu",
+    "cantFindPrefix": "Neatrodi savu atsauces numuru?",
+    "cantFindLink": "Sākt jaunu rezervāciju",
+    "notFound": "Ar šo atsauces numuru rezervācija netika atrasta. Vēlreiz pārbaudi kodu apstiprinājuma e-pastā.",
+    "preview": "Statusa pārbaude ir priekšskatījuma režīmā — pievieno rentaro API, lai sekotu rezervācijām reāllaikā.",
+    "error": "Meklējot kaut kas nogāja greizi. Lūdzu, pēc brīža mēģini vēlreiz.",
+    "statusLabel": "Statuss",
+    "reference": "Atsauces numurs",
+    "model": "Modelis",
+    "plan": "Plāns",
+    "city": "Pilsēta",
+    "startDate": "Sākuma datums",
+    "toBeConfirmed": "Tiks apstiprināts"
+  },
+  "portal": {
+    "invalidLink": "Šī saite ir nederīga vai tās derīgums beidzies.",
+    "loading": "Ielādē tavu nomu…",
+    "previewTitle": "Portāla priekšskatījums",
+    "previewBody": "Tavs nomas portāls ir priekšskatījuma režīmā — pievieno rentaro API, lai pārvaldītu nomas reāllaikā.",
+    "errorTitle": "Kaut kas nogāja greizi.",
+    "errorBody": "Šobrīd neizdevās ielādēt tavu nomu. Lūdzu, pēc brīža atsvaidzini lapu.",
+    "kicker": "Pārvaldi savu nomu",
+    "heading": "Lūk, tava noma.",
+    "headingNamed": "Sveiks, {name} — lūk, tava noma.",
+    "lead": "Apskati savus datus, ziņo par problēmu ar velosipēdu vai sazinies ar komandu. Pieslēgšanās nav vajadzīga — šī lapa ir piesaistīta drošajai saitei no tava apstiprinājuma e-pasta.",
+    "rentalStatus": "Nomas statuss",
+    "bookingStatus": "Rezervācijas statuss",
+    "reference": "Atsauces numurs",
+    "bike": "Velosipēds",
+    "plan": "Plāns",
+    "city": "Pilsēta",
+    "pickup": "Saņemšana",
+    "startDate": "Sākuma datums",
+    "toBeConfirmed": "Tiks apstiprināts",
+    "plannedEnd": "Plānotais beigu datums",
+    "assignedBike": "Piešķirtais velosipēds",
+    "notYetAssigned": "Vēl nav piešķirts",
+    "needElsePrefix": "Vajag vēl ko citu?",
+    "needElseLink": "Apskati BUJ",
+    "sending": "Sūta…",
+    "sendFailed": "Šobrīd neizdevās to nosūtīt. Lūdzu, mēģini vēlreiz.",
+    "repair": {
+      "heading": "Pieprasi remontu",
+      "lead": "Kaut kas nav kārtībā ar tavu velosipēdu? Pastāsti mums, un mūsu servisa komanda sazināsies.",
+      "issueType": "Problēmas veids",
+      "descLabel": "Kas nav kārtībā?",
+      "descPlaceholder": "piem., Aizmugurējā bremze ir vaļīga un čīkst.",
+      "submit": "Nosūtīt remonta pieprasījumu"
+    },
+    "support": {
+      "heading": "Sazinies ar atbalstu",
+      "lead": "Jautājums par tavu plānu, saņemšanu vai ko citu? Atsūti mums ziņu.",
+      "msgLabel": "Tava ziņa",
+      "msgPlaceholder": "Kā varam palīdzēt?",
+      "submit": "Nosūtīt ziņu"
+    },
+    "errorHelpPrefix": "Pārbaudi saiti savā apstiprinājuma e-pastā vai",
+    "errorHelpLink": "seko savai rezervācijai",
+    "errorHelpSuffix": "tā vietā."
+  },
+  "enums": {
+    "bookingStatus": {
+      "submitted": "Iesniegts",
+      "awaitingreview": "Gaida izskatīšanu",
+      "approved": "Apstiprināts",
+      "rejected": "Nav apstiprināts",
+      "cancelled": "Atcelts",
+      "paymentpending": "Gaida apmaksu",
+      "bikeassigned": "Velosipēds piešķirts",
+      "completed": "Pabeigts"
+    },
+    "rentalStatus": {
+      "active": "Aktīva",
+      "endingsoon": "Drīz beigsies",
+      "returned": "Atgriezts",
+      "closed": "Slēgta",
+      "overdue": "Nokavēta"
+    },
+    "issueType": {
+      "puncture": "Pārdurta / tukša riepa",
+      "brakes": "Bremzes",
+      "battery": "Akumulators",
+      "motor": "Motors",
+      "lock": "Slēdzene",
+      "charger": "Lādētājs",
+      "generalService": "Vispārējā apkope",
+      "inspection": "Apskate",
+      "accident": "Negadījums / sadursmes bojājumi"
+    },
+    "priority": {
+      "low": "Zema",
+      "medium": "Vidēja",
+      "high": "Augsta"
+    }
+  },
+  "cityPage": {
+    "meta": {
+      "notFoundTitle": "Pilsēta nav atrasta — rentaro",
+      "titleSoon": "E-velosipēdu noma {city} — drīzumā · rentaro",
+      "titleLive": "E-velosipēdu noma uz mēnesi {city} — rentaro",
+      "descriptionSoon": "rentaro ievieš piegādēm gatavu e-velosipēdu nomu uz mēnesi pilsētā {city}, {country}. Pievienojies gaidīšanas sarakstam, lai uzzinātu palaišanas datumus un saņemšanas informāciju.",
+      "descriptionLive": "Nomā piegādēm būvētu e-velosipēdu uz mēnesi pilsētā {city}, {country}. 30 dienu, 6 un 12 mēnešu plāni ar servisa atbalstu, slēdzeni, lādētāju un papildu akumulatora iespējām."
+    },
+    "hero": {
+      "joinWaitlist": "Pievienoties gaidīšanas sarakstam",
+      "reserveIn": "Rezervēt pilsētā {city}"
+    },
+    "whyHere": {
+      "kicker": "Kāpēc kurjeri brauc šeit",
+      "headingSoon": "Veidots {city} maiņām.",
+      "headingLive": "Veidots {city} piegādes maiņām."
+    },
+    "popular": {
+      "kicker": "Populāri pilsētā {city}",
+      "heading": "Velosipēdi, ko kurjeri izvēlas pirmos.",
+      "leadBase": "Visi rentaro e-velosipēdi pieejami uz vieniem un tiem pašiem noteikumiem — 30 dienu, 6 vai 12 mēnešu plāni ar iekļautu servisa atbalstu. ",
+      "leadSoon": "Šie velosipēdi pilsētā {city} ieradīsies palaišanas brīdī.",
+      "leadLive": "Izvēlies to, kas der tavām maiņām."
+    },
+    "finalCta": {
+      "headingSoon": "Gribi rentaro velosipēdu pilsētā {city}?",
+      "headingLive": "Gatavs braukt pilsētā {city}?",
+      "copySoon": "Pievienojies gaidīšanas sarakstam, un mēs paziņosim brīdī, kad piegādēm gatavi e-velosipēdi nonāks pilsētā {city}.",
+      "copyLive": "Izvēlies savu modeli, izvēlies plānu un sāc piegādāt pilsētā {city} jau šonedēļ — servisa atbalsts iekļauts no pirmās dienas.",
+      "joinWaitlist": "Pievienoties gaidīšanas sarakstam",
+      "reserveIn": "Rezervēt pilsētā {city}",
+      "exploreFleet": "Izpētīt parku"
+    }
+  },
+  "cityContent": {
+    "tallinn": {
+      "headline": "E-velosipēdu noma uz mēnesi Tallinā.",
+      "intro": "Tallina ir vieta, kur rentaro sākās. Vai tu brauc Kesklinn pusdienlaika skrējienos, vai garākos maršrutos uz Lasnamäe un Mustamäe — tu saņem piegādēm būvētu e-velosipēdu ar vienkāršu mēneša plānu, ar slēdzeni, lādētāju un servisa atbalstu, kas ļauj nopelnīt katrā maiņā.",
+      "whyHere": [
+        "Kompaktās Vecpilsētas un Kesklinn ielas atalgo ar ātru, veiklu e-velosipēdu starp piegādēm.",
+        "Bruģis, tramvaja sliedes un ziemas slapjdraņķis — mūsu velosipēdi ir izvēlēti reāliem Tallinas apstākļiem.",
+        "Saņemšana tās pašas nedēļas laikā centrā, plus papildu akumulatora iespējas maiņām pēc kārtas.",
+        "Servisa atbalsts visā pilsētā, lai pārdurta riepa nekad neizmaksā veselu dienu."
+      ],
+      "pickupNote": "Saņem savu velosipēdu mūsu Telliskivi vai Kesklinn saņemšanas punktā vai pajautā par nodošanu uz vietas. Pirms tavas pirmās maiņas izstāstīsim par velosipēdu, slēdzeni un uzlādi.",
+      "neighbourhoods": [
+        "Kesklinn",
+        "Telliskivi",
+        "Kalamaja",
+        "Lasnamäe",
+        "Mustamäe",
+        "Kristiine"
+      ]
+    },
+    "riga": {
+      "headline": "E-velosipēdu noma uz mēnesi Rīgā.",
+      "intro": "Rīgas kurjeri nobrauc nopietnus attālumus — no Centra un Vecrīgas pāri upei līdz Āgenskalnam un Pārdaugavai. rentaro e-velosipēds uz mēnesi padara šos kilometrus lētus un paredzamus, ar servisa atbalstu un papildu akumulatora iespējām, kas veidotas ilgām piegādes dienām.",
+      "whyHere": [
+        "Plati bulvāri un gari maršruti pāri upei — e-velosipēds pārvērš lielus attālumus par viegliem.",
+        "Viena vienkārša mēneša cena degvielas, stāvvietu un neuzticama velosipēda izmaksu vietā.",
+        "Papildu akumulatori pieejami kurjeriem, kas savieno pilnas dienas visā pilsētā.",
+        "Vietējais servisa atbalsts, lai mazas problēmas tiek ātri atrisinātas un tu paliec ceļā."
+      ],
+      "pickupNote": "Saņem Centrā vai Āgenskalnā vai vienojies par nodošanu uz vietas. Mēs sagatavojam velosipēdu kopā ar tevi, pārbaudām slēdzeni un parādām, kā darbojas uzlāde, pirms tu sāc braukt.",
+      "neighbourhoods": [
+        "Centrs",
+        "Vecrīga",
+        "Āgenskalns",
+        "Pārdaugava",
+        "Teika",
+        "Purvciems"
+      ]
+    },
+    "helsinki": {
+      "headline": "E-velosipēdu noma uz mēnesi Helsinki — drīzumā.",
+      "intro": "Helsinki ir nākamā rentaro kartē. Mēs gatavojam piegādēm gatavu parku kurjeriem, kas strādā Kallio, Punavuori un plašākā pilsētā — tie paši mēneša plāni, tas pats servisa atbalsts, tā pati uzmanība uz to, lai tavs velosipēds turpina kustēties. Pievienojies gaidīšanas sarakstam, un mēs paziņosim brīdī, kad velosipēdi būs klāt.",
+      "whyHere": [
+        "Spēcīga velobraukšanas infrastruktūra padara Helsinki par dabisku vietu piegādes e-velosipēdiem.",
+        "Braucējiem visu gadu vajadzīgi velosipēdi, kas gatavi aukstām, slapjām un tumšām ziemas maiņām — tieši tam mēs tos būvējam.",
+        "Mēneša plāni nodrošina pilnas slodzes kurjeriem paredzamas izmaksas, ar papildu akumulatora iespējām garām dienām.",
+        "Servisa atbalsts ir daļa no plāna jau no darbības sākuma dienas."
+      ],
+      "pickupNote": "Helsinki saņemšanas punkti ap Kallio un Punavuori tiek pabeigti. Pievienojies gaidīšanas sarakstam, un mēs paziņosim saņemšanas informāciju un palaišanas datumu, tiklīdz parks būs gatavs.",
+      "neighbourhoods": [
+        "Kallio",
+        "Punavuori",
+        "Kamppi",
+        "Töölö",
+        "Sörnäinen",
+        "Kallio"
+      ]
+    }
+  },
+  "pageHeaders": {
+    "pricing": {
+      "kicker": "Plāni un cenas",
+      "heading": "Viena dienas cena. Rēķins ik pēc 30 dienām.",
+      "lead": "Visi rentaro e-velosipēdi pieejami uz vieniem un tiem pašiem vienkāršajiem noteikumiem — izvēlies 30 dienu, 6 vai 12 mēnešu plānu un maksā dienas cenu × 30. Apņemies uz ilgāku termiņu, un tava dienas cena samazinās. Minimālais nomas termiņš ir 30 dienas."
+    },
+    "howItWorks": {
+      "kicker": "Kā sākt",
+      "heading": "Izvēlies, paraksti, brauc.",
+      "lead": "Nokļūt uz rentaro e-velosipēda ir veidots tā, lai būtu ātri. Izvēlies modeli un plānu, nokārto dokumentus digitāli no sava tālruņa un saņem savu velosipēdu — ar servisa atbalstu, kas iekļauts no pirmās dienas, lai tavas maiņas turpinātos."
+    },
+    "faq": {
+      "kicker": "BUJ",
+      "heading": "Viss, kas tev jāzina.",
+      "lead": "Biežākie jautājumi par rentaro e-velosipēda nomu piegādes darbam — plāni, drošības naudas, apkope un saņemšana. Vajag vēl ko citu? Sazinies ar mums, un mēs palīdzēsim."
+    },
+    "accessories": {
+      "kicker": "Papildaprīkojums",
+      "heading": "Aprīkojums, kas palīdz nopelnīt.",
+      "lead": "Pievieno aprīkojumu, kas der tavai ikdienai. No papildu akumulatoriem garām piegādes dienām līdz somām, turētājiem un aizsardzībai pret laikapstākļiem — katrs piederums ir veidots kurjera darbam un pievienojams jebkuram rentaro plānam."
+    }
+  },
+  "modelsPage": {
+    "kicker": "Viss parks",
+    "heading": "Visi modeļi.",
+    "lead": "Visi rentaro e-velosipēdi pieejami uz vieniem un tiem pašiem vienkāršajiem noteikumiem — 30 dienu, 6 vai 12 mēnešu plāni ar iekļautu servisa atbalstu. Izvēlies velosipēdu, kas der tavām maiņām.",
+    "allModels": "Visi modeļi",
+    "from": "NO",
+    "perDay": "/ dienā",
+    "reserve": "Rezervēt",
+    "joinWaitlist": "Gaidīšanas sarakstā",
+    "reserveThisBike": "Rezervēt šo velosipēdu",
+    "joinWaitlistLong": "Pievienoties gaidīšanas sarakstam",
+    "planNote": "Pieejams uz 30 dienu, 6 vai 12 mēnešu plāniem — no €3.90/dienā uz 12 mēnešu plāna.",
+    "fullSpec": "Pilna specifikācija",
+    "galleryThumbAria": "Skatīt attēlu {index} no {total}",
+    "avail": {
+      "inStock": "{count} noliktavā",
+      "left": "Atlikuši {count}",
+      "waitlist": "Gaidīšanas saraksts"
+    },
+    "status": {
+      "available": "Pieejams",
+      "limited": "Ierobežots",
+      "waitlist": "Gaidīšanas saraksts",
+      "comingSoon": "Drīzumā"
+    }
+  },
+  "modelItems": {
+    "engine-pro": {
+      "tagline": "Piegāžu darbarūķis",
+      "blurb": "750W (1200W maksimālais) aizmugurējā rumbas motors, griezes momenta sensors un pilna balstiekārta uz 20×4.0 platajām riepām. Būvēts, lai vestu kravas cauri pilnām piegādes dienām pa jebkuru segumu."
+    },
+    "air-one-pro": {
+      "tagline": "Ģimenes un kravu vedējs",
+      "blurb": "Integrēts alumīnija kravas plaukts, divu akumulatoru režīms un 150 kg kravnesība. Izvēle smagiem vairāku pasūtījumu maršrutiem."
+    },
+    "air-28pro": {
+      "tagline": "Gariem pilsētas attālumiem",
+      "blurb": "28 collu trekinga ģeometrija, automātiska Bafang pārnesumu pārslēgšana un 3.5\" IPX7 displejs. Gluda, mazas apkopes oglekļa siksnas piedziņa gariem pilsētas kilometriem."
+    },
+    "air-20pro": {
+      "tagline": "Gudrs auto-pārslēgšanās braucējs",
+      "blurb": "Salokāms ikdienas velosipēds ar automātisku Bafang pārnesumu pārslēgšanu, mazas apkopes oglekļa siksnu un 21 kg rāmi, ko viegli nest un uzglabāt."
+    },
+    "air-20s": {
+      "tagline": "Vieglākais un vienkāršākais",
+      "blurb": "Vieglākais, vienkāršākais velosipēds parkā: 18 kg viena pārnesuma salokāmais ar klusu oglekļa siksnu — viegli vadāms īsākām pilsētas maiņām."
+    },
+    "air-30pro": {
+      "tagline": "Pilsētai, ar pagrieziena rādītājiem",
+      "blurb": "Pilsētas 700C velosipēds ar GPS pretaizdzīšanas sistēmu, integrētiem pagrieziena rādītājiem un Eco / Sport režīmiem — visapzinīgākais velosipēds parkā attiecībā uz ceļu."
+    }
+  },
+  "specTable": {
+    "type": "Tips",
+    "motor": "Motors",
+    "peakPower": "Maksimālā jauda",
+    "torque": "Griezes moments",
+    "battery": "Akumulators",
+    "range": "Nobraukums",
+    "topSpeed": "Maksimālais ātrums",
+    "charging": "Uzlāde",
+    "drive": "Piedziņa",
+    "transmission": "Transmisija",
+    "ridingModes": "Braukšanas režīmi",
+    "brakes": "Bremzes",
+    "suspension": "Balstiekārta",
+    "tyres": "Riepas",
+    "display": "Displejs",
+    "sensor": "Sensors",
+    "lighting": "Apgaismojums",
+    "smart": "Viedfunkcijas",
+    "maxLoad": "Maksimālā krava",
+    "weight": "Svars",
+    "maxClimb": "Maksimālais kāpums",
+    "riderHeight": "Braucēja augums",
+    "certification": "Sertifikācija",
+    "rangeNote": "Nobraukums ir ražotāja aplēse — reālais attālums atšķiras atkarībā no kravas, reljefa, laikapstākļiem un braucēja."
+  },
+  "seo": {
+    "monthly": {
+      "hero": {
+        "kicker": "E-velosipēdu noma uz mēnesi",
+        "heading": "Nomā velosipēdu. Aizmirsti par cenas zīmi.",
+        "lead": "E-velosipēda noma uz mēnesi ir vienkāršākais ceļš pie kvalitatīva velosipēda, to nepērkot. Tu maksā skaidru dienas cenu ar rēķinu ik pēc 30 dienām, un velosipēds, servisa atbalsts, slēdzene un lādētājs nāk kopā kā viena pakete. Kad mainās tavas vajadzības, mainās arī tavs plāns — bez tālākpārdošanas, bez vērtības krituma, bez darbnīcas rēķiniem.",
+        "ctaReserve": "Rezervēt velosipēdu",
+        "ctaExplore": "Izpētīt parku"
+      },
+      "points": {
+        "predictablePrice": {
+          "title": "Viena paredzama cena",
+          "copy": "Maksā dienas cenu ar rēķinu ik pēc 30 dienām. Nav liela sākotnējā pirkuma, nav negaidītu remonta rēķinu — tu precīzi zini, cik velosipēds maksā katru mēnesi."
+        },
+        "repairsOnUs": {
+          "title": "Remontu sedzam mēs",
+          "copy": "Servisa atbalsts ir daļa no katra plāna. Ja kaut kas jālabo, mēs to nokārtojam — lai nodilis bremžu kluči vai pārdurta riepa nekļūst par tavu problēmu."
+        },
+        "commitFlexible": {
+          "title": "Apņemies uz tik īsu vai garu termiņu, cik vēlies",
+          "copy": "Sāc ar 30 dienu plānu, lai izmēģinātu, tad pāriet uz 6 vai 12 mēnešu plānu zemākai dienas cenai, kad esi gatavs. Jo ilgāks termiņš, jo mazāk maksā dienā."
+        },
+        "nothingTiedUp": {
+          "title": "Nekas nav iesaldēts velosipēdā",
+          "copy": "E-velosipēda pirkums nozīmē simtus jau iesākumā, plus akumulatorus, slēdzenes un apkopi. Noma atstāj tavu naudu brīvu, un velosipēda uzturēšana ir kāda cita atbildība."
+        }
+      },
+      "models": {
+        "kicker": "Pieejami uz mēnesi",
+        "heading": "Velosipēdi, ko vari nomāt jau šodien.",
+        "lead": "Visi parka velosipēdi pieejami uz vieniem un tiem pašiem mēneša noteikumiem. Apskati populārākās izvēles zemāk vai redzi visu klāstu."
+      },
+      "cta": {
+        "heading": "Sāc savu mēneša plānu.",
+        "lead": "Izvēlies velosipēdu, izvēlies 30 dienu, 6 vai 12 mēnešu plānu un rezervē dažos soļos — maksājums tagad nav vajadzīgs, servisa atbalsts no pirmās dienas.",
+        "button": "Rezervē savu e-velosipēdu"
+      }
+    },
+    "delivery": {
+      "hero": {
+        "kicker": "Piegādes e-velosipēdu noma",
+        "heading": "E-velosipēds, kas būvēts darbam.",
+        "lead": "Piegādes braukšana velosipēdam ir smaga: garas stundas, smagas kravas un visu veidu laikapstākļi. rentaro nomā piegādēm būvētus e-velosipēdus uz mēnesi, ar atbilstošu motoru, kravnesību un servisa atbalstu — lai savu maiņu tu pavadi pelnot, nevis stumjot velosipēdu ar tukšu akumulatoru. Maksā dienā, rēķins ik mēnesi, ar remontu, ko nokārtojam mēs.",
+        "ctaReserve": "Rezervēt velosipēdu",
+        "ctaExplore": "Izpētīt parku"
+      },
+      "points": {
+        "builtToCarry": {
+          "title": "Būvēts vest, nevis izklaidei",
+          "copy": "Spēcīgi motori, reāls griezes moments un augsti kravnesības ierobežojumi. Šie velosipēdi izvēlēti plauktiem, somām un garām dienām zem kravas — nevis atslābinātam nedēļas nogales braucienam."
+        },
+        "downtimeCosts": {
+          "title": "Dīkstāve tev izmaksā naudu",
+          "copy": "Tavs velosipēds ir tavs ienākumu rīks, tāpēc servisa atbalsts ir iebūvēts katrā plānā. Mēs to uzturam kustībā ar ātriem remontiem un papildu akumulatora iespējām maiņām pēc kārtas."
+        },
+        "readyForWeather": {
+          "title": "Gatavs jebkuriem laikapstākļiem",
+          "copy": "Hidrauliskās bremzes, izturīgas riepas un rāmji, kas izvēlēti ikdienas pilsētas lietošanai — lietus, bruģis un ziemas slapjdraņķis ieskaitīts. Velosipēds ierodas gatavs maiņai."
+        },
+        "cityDelivery": {
+          "title": "Piemērots pilsētas piegādes darbam",
+          "copy": "Lai kādai lietotnei vai pakalpojumam tu brauc, šie velosipēdi ir sagatavoti pilsētas piegādēm: veikli satiksmē, ērti garākos attālumos un viegli noslēdzami starp piegādēm."
+        }
+      },
+      "models": {
+        "kicker": "Izvēlēti piegādēm",
+        "heading": "Velosipēdi, ko kurjeri izvēlas.",
+        "lead": "Jauda, kravnesība un izturība, kas notur pilnas piegādes dienas. Apskati populārākos piegādes komplektus vai redzi visu parku."
+      },
+      "cta": {
+        "heading": "Sagatavojies savai nākamajai maiņai.",
+        "lead": "Izvēlies piegādēm gatavu e-velosipēdu un plānu un rezervē dažos soļos — servisa atbalsts un papildu akumulatora iespējas iekļautas.",
+        "button": "Rezervē savu e-velosipēdu"
+      }
+    },
+    "couriers": {
+      "hero": {
+        "kicker": "E-velosipēdu noma kurjeriem",
+        "heading": "Veidots kurjeriem, nevis nedēļas nogales braucējiem.",
+        "lead": "rentaro pastāv viena darba dēļ: lai piegādes kurjeri turpinātu pelnīt. Tu nomā piegādēm būvētu e-velosipēdu uz mēnesi, sāc ātri un brauc ar servisa atbalstu aiz muguras. Bez liela pirkuma, bez tālākpārdošanas raizēm, bez dienas, kas zaudēta velosipēda dēļ, ko nevari salabot. Izvēlies savu modeli, paraksti tiešsaistē un sāc savu nākamo maiņu.",
+        "ctaBook": "Sākt rezervēšanu",
+        "ctaExplore": "Izpētīt parku"
+      },
+      "points": {
+        "startThisWeek": {
+          "title": "Sāc piegādāt jau šonedēļ",
+          "copy": "Izvēlies savu modeli tiešsaistē, paraksti līgumu savā tālrunī un saņem velosipēdu tās pašas nedēļas laikā. Bez ilgas gaidīšanas, bez liela pirkuma pirms tavas pirmās maiņas."
+        },
+        "incomeTool": {
+          "title": "Tavs velosipēds ir tavs ienākumu rīks",
+          "copy": "Ja tas nav uz ceļa, tu nepelni. Servisa atbalsts ir iebūvēts katrā plānā, lai mazas problēmas tiek ātri atrisinātas un tu paliec ceļā."
+        },
+        "priceFitsHours": {
+          "title": "Cena, kas der tavām stundām",
+          "copy": "Brauc nepilnu slodzi? Sāc ar elastīgu 30 dienu plānu. Pilnu slodzi? 6 vai 12 mēnešu plāns samazina tavu dienas cenu. Tu nekad neesi piesaistīts vairāk, nekā tev vajag."
+        },
+        "staminaLongShifts": {
+          "title": "Izturība garām maiņām",
+          "copy": "Velosipēdi, kas izvēlēti piegādes darbam, ar papildu akumulatora iespējām dienām, kad savieno pasūtījumus pēc kārtas visā pilsētā."
+        }
+      },
+      "howItWorks": {
+        "kicker": "Kā kurjeri sāk",
+        "heading": "Izvēlies. Paraksti. Brauc.",
+        "lead": "Trīs soļi no velosipēda izvēles līdz tavai pirmajai piegādei — lielāko daļu no sava tālruņa."
+      },
+      "models": {
+        "kicker": "Kurjeru favorīti",
+        "heading": "Velosipēdi, kas iztur darbu.",
+        "lead": "Rūpīgi izvēlēti piegādes maiņām. Apskati populārākās izvēles vai redzi visu parku."
+      },
+      "cta": {
+        "heading": "Gatavs sākt pelnīt?",
+        "lead": "Izvēlies savu rentaro e-velosipēdu, izvēlies plānu un rezervē dažos soļos — servisa atbalsts iekļauts no pirmās dienas.",
+        "button": "Sākt rezervēšanu"
+      }
+    }
   }
 }

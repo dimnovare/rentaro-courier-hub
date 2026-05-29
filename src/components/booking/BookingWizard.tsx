@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { cities } from "@/data/cities";
 import { bikeModels } from "@/data/bikeModels";
@@ -11,11 +12,23 @@ import { submitBooking } from "@/services/bookingService";
 import { createBookingPayment } from "@/services/paymentService";
 import type { PlanId } from "@/types";
 
-const STEP_LABELS = ["City", "Model", "Plan", "Add-ons", "Details", "Review"];
+/** Step label keys, in display order — copy lives in the `booking.steps` namespace. */
+const STEP_KEYS = ["city", "model", "plan", "addons", "details", "review"] as const;
+
+/** Map the data `country` value onto its `cities.countries` message key. */
+const countryKey: Record<string, string> = {
+  Estonia: "estonia",
+  Latvia: "latvia",
+  Finland: "finland",
+};
 
 export function BookingWizard() {
   const router = useRouter();
   const params = useSearchParams();
+  const t = useTranslations("booking");
+  const tc = useTranslations("cities");
+  const tp = useTranslations("pricing");
+  const ta = useTranslations("accessories");
 
   const [step, setStep] = useState(0);
   const [cityId, setCityId] = useState(() => {
@@ -100,7 +113,7 @@ export function BookingWizard() {
       }
       router.push("/booking/success");
     } catch {
-      setError("Something went wrong submitting your request. Please try again.");
+      setError(t("errors.submit"));
       setSubmitting(false);
     }
   };
@@ -108,19 +121,18 @@ export function BookingWizard() {
   return (
     <div className="wizard">
       <div className="wizard-head">
-        <h1>Reserve your e-bike</h1>
+        <h1>{t("title")}</h1>
         <p className="lead" style={{ marginTop: 8 }}>
-          Six quick steps. No payment now — we confirm availability and send your digital
-          contract before pickup.
+          {t("intro")}
         </p>
       </div>
 
       <div className="wizard-rail">
-        {STEP_LABELS.map((l, i) => (
-          <div key={l} className={`st ${i === step ? "active" : i < step ? "done" : ""}`}>
+        {STEP_KEYS.map((key, i) => (
+          <div key={key} className={`st ${i === step ? "active" : i < step ? "done" : ""}`}>
             <div className="bar" />
             <div className="lbl">
-              {i + 1}. {l}
+              {i + 1}. {t(`steps.${key}`)}
             </div>
           </div>
         ))}
@@ -129,8 +141,8 @@ export function BookingWizard() {
       <article className="card wizard-panel">
         {step === 0 && (
           <>
-            <h3>Where do you ride?</h3>
-            <p className="sub">Choose your city. We operate in Tallinn and Riga today.</p>
+            <h3>{t("city.heading")}</h3>
+            <p className="sub">{t("city.sub")}</p>
             <div className="opt-grid three">
               {cities.map((c) => {
                 const soon = c.status === "soon";
@@ -141,10 +153,14 @@ export function BookingWizard() {
                     disabled={soon}
                     onClick={() => !soon && setCityId(c.id)}
                   >
-                    <span className="opt-t">{c.name}</span>
-                    <span className="opt-m">{c.country}</span>
+                    <span className="opt-t">{tc(`names.${c.id}`)}</span>
+                    <span className="opt-m">{tc(`countries.${countryKey[c.country]}`)}</span>
                     <span className="opt-p">
-                      {soon ? "Coming soon" : c.status === "limited" ? "Limited stock" : `${c.available} available`}
+                      {soon
+                        ? t("city.soon")
+                        : c.status === "limited"
+                          ? t("city.limited")
+                          : t("city.available", { count: c.available })}
                     </span>
                   </button>
                 );
@@ -155,8 +171,8 @@ export function BookingWizard() {
 
         {step === 1 && (
           <>
-            <h3>Pick your bike</h3>
-            <p className="sub">Every model rents on the same plans — choose the one that fits your shifts.</p>
+            <h3>{t("model.heading")}</h3>
+            <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
               {bikeModels.map((m) => (
                 <button
@@ -169,7 +185,8 @@ export function BookingWizard() {
                     {m.brand} · {m.tagline}
                   </span>
                   <span className="opt-p">
-                    From €{m.fromDay.toFixed(2)}/day{m.status === "wait" ? " · waitlist" : ""}
+                    {t("model.fromDay", { price: m.fromDay.toFixed(2) })}
+                    {m.status === "wait" ? t("model.waitlistSuffix") : ""}
                   </span>
                 </button>
               ))}
@@ -179,8 +196,8 @@ export function BookingWizard() {
 
         {step === 2 && (
           <>
-            <h3>Choose a plan</h3>
-            <p className="sub">The longer the term, the lower the daily price. Minimum 30 days.</p>
+            <h3>{t("plan.heading")}</h3>
+            <p className="sub">{t("plan.sub")}</p>
             <div className="opt-grid three">
               {pricingPlans.map((p) => (
                 <button
@@ -188,11 +205,11 @@ export function BookingWizard() {
                   className={`opt ${planId === p.id ? "selected" : ""}`}
                   onClick={() => setPlanId(p.id)}
                 >
-                  <span className="opt-t">{p.term}</span>
+                  <span className="opt-t">{tp(`terms.${p.id}`)}</span>
                   <span className="opt-p">
-                    €{p.daily.toFixed(2)}/day
+                    {t("plan.perDay", { price: p.daily.toFixed(2) })}
                   </span>
-                  <span className="opt-m">€{p.monthly} per 30 days · {p.tag}</span>
+                  <span className="opt-m">{t("plan.per30", { price: p.monthly })} · {tp(`tags.${p.id}`)}</span>
                 </button>
               ))}
             </div>
@@ -201,8 +218,8 @@ export function BookingWizard() {
 
         {step === 3 && (
           <>
-            <h3>Add-ons</h3>
-            <p className="sub">Optional. Add gear that earns shifts — you can change this later.</p>
+            <h3>{t("addons.heading")}</h3>
+            <p className="sub">{t("addons.sub")}</p>
             <div className="opt-grid">
               {accessories.map((a) => {
                 const on = accessoryIds.includes(a.id);
@@ -214,7 +231,7 @@ export function BookingWizard() {
                   >
                     <span>
                       <span className="opt-t" style={{ display: "block" }}>
-                        {a.name}
+                        {ta(`names.${a.id}`)}
                       </span>
                       <span className="opt-p">{a.price}</span>
                     </span>
@@ -228,72 +245,72 @@ export function BookingWizard() {
 
         {step === 4 && (
           <>
-            <h3>Your details</h3>
-            <p className="sub">So we can confirm availability and send your contract.</p>
+            <h3>{t("details.heading")}</h3>
+            <p className="sub">{t("details.sub")}</p>
             <div className="field-row">
               <div className="field">
-                <label htmlFor="first">First name</label>
+                <label htmlFor="first">{t("details.firstName")}</label>
                 <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} autoComplete="given-name" />
               </div>
               <div className="field">
-                <label htmlFor="last">Last name</label>
+                <label htmlFor="last">{t("details.lastName")}</label>
                 <input id="last" value={last} onChange={(e) => setLast(e.target.value)} autoComplete="family-name" />
               </div>
             </div>
             <div className="field-row">
               <div className="field">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t("details.email")}</label>
                 <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
               </div>
               <div className="field">
-                <label htmlFor="phone">Phone</label>
+                <label htmlFor="phone">{t("details.phone")}</label>
                 <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
               </div>
             </div>
             <div className="field">
-              <label htmlFor="start">Preferred start date</label>
+              <label htmlFor="start">{t("details.startDate")}</label>
               <input id="start" type="date" min={today} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
             </div>
             <div className="field">
-              <label htmlFor="notes">Notes (optional)</label>
-              <textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Delivery platform, pickup preference, anything we should know…" />
+              <label htmlFor="notes">{t("details.notes")}</label>
+              <textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("details.notesPlaceholder")} />
             </div>
           </>
         )}
 
         {step === 5 && (
           <>
-            <h3>Review &amp; confirm</h3>
-            <p className="sub">Check the details — no payment is taken now.</p>
+            <h3>{t("review.heading")}</h3>
+            <p className="sub">{t("review.sub")}</p>
             <div>
               <div className="summary-row">
-                <span className="l">City</span>
-                <span className="v">{city?.name}</span>
+                <span className="l">{t("review.city")}</span>
+                <span className="v">{cityId ? tc(`names.${cityId}`) : city?.name}</span>
               </div>
               <div className="summary-row">
-                <span className="l">Model</span>
+                <span className="l">{t("review.model")}</span>
                 <span className="v">{model?.name}</span>
               </div>
               <div className="summary-row">
-                <span className="l">Plan</span>
+                <span className="l">{t("review.plan")}</span>
                 <span className="v">
-                  {plan?.term} · €{plan?.daily.toFixed(2)}/day
+                  {planId ? tp(`terms.${planId}`) : plan?.term} · {t("plan.perDay", { price: plan?.daily.toFixed(2) ?? "" })}
                 </span>
               </div>
               <div className="summary-row">
-                <span className="l">Add-ons</span>
+                <span className="l">{t("review.addons")}</span>
                 <span className="v">
                   {accessoryIds.length
-                    ? accessoryIds.map((id) => accessories.find((a) => a.id === id)?.name).join(", ")
-                    : "None"}
+                    ? accessoryIds.map((id) => ta(`names.${id}`)).join(", ")
+                    : t("review.none")}
                 </span>
               </div>
               <div className="summary-row">
-                <span className="l">Start date</span>
+                <span className="l">{t("review.startDate")}</span>
                 <span className="v">{startDate}</span>
               </div>
               <div className="summary-row">
-                <span className="l">Contact</span>
+                <span className="l">{t("review.contact")}</span>
                 <span className="v">
                   {first} {last}
                   <br />
@@ -301,15 +318,15 @@ export function BookingWizard() {
                 </span>
               </div>
               <div className="summary-total">
-                <span className="l">From</span>
+                <span className="l">{t("review.from")}</span>
                 <span className="big">
                   €{plan?.monthly}
-                  <span className="per"> / 30 days + add-ons</span>
+                  <span className="per"> {t("review.per30Addons")}</span>
                 </span>
               </div>
             </div>
             <p className="sub" style={{ marginTop: 16 }}>
-              Pay the first 30-day period securely via Montonio — card or bank transfer.
+              {t("review.paymentNote")}
             </p>
             {error && <div className="wizard-err">{error}</div>}
           </>
@@ -317,7 +334,7 @@ export function BookingWizard() {
 
         <div className="wizard-foot">
           <button className="btn btn-ghost" onClick={back}>
-            {step === 0 ? "Cancel" : "Back"}
+            {step === 0 ? t("buttons.cancel") : t("buttons.back")}
           </button>
           {step < 5 ? (
             <button
@@ -326,14 +343,14 @@ export function BookingWizard() {
               disabled={!stepValid}
               style={!stepValid ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
             >
-              Continue
+              {t("buttons.continue")}
               <span className="arrow">
                 <Ic.arrow />
               </span>
             </button>
           ) : (
             <button className="btn btn-primary" onClick={submit} disabled={submitting}>
-              {submitting ? "Submitting…" : "Submit request"}
+              {submitting ? t("buttons.submitting") : t("buttons.submit")}
               {!submitting && (
                 <span className="arrow">
                   <Ic.arrow />

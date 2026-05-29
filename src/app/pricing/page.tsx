@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Pricing } from "@/components/sections/Pricing";
@@ -25,18 +26,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const t = await getTranslations("pageHeaders.pricing");
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 56 }}>
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>Plans & pricing</Kicker>
-            <h2 className="h-section">One daily rate. Billed every 30 days.</h2>
+            <Kicker>{t("kicker")}</Kicker>
+            <h2 className="h-section">{t("heading")}</h2>
             <p className="lead">
-              Every rentaro e-bike rents on the same simple terms — pick a 30-day, 6 or 12-month
-              plan and pay the daily rate × 30. Commit to a longer term and your daily price drops.
-              The minimum rental period is 30 days.
+              {t("lead")}
             </p>
           </Reveal>
         </div>

@@ -40,6 +40,66 @@ vi.mock("next/link", () => ({
   },
 }));
 
+// next-intl needs a request/provider context the jsdom test runtime doesn't
+// have. Resolve translations against the real `messages/en.json` so component
+// tests assert on actual English copy (not key names). `vi.hoisted` builds the
+// pure resolver above the hoisted `vi.mock` factories; each factory imports the
+// catalog itself to stay clear of mock-hoisting initialization order.
+const intl = vi.hoisted(() => {
+  type Messages = Record<string, unknown>;
+  const lookup = (msgs: Messages, path: string): unknown =>
+    path
+      .split(".")
+      .reduce<unknown>(
+        (o, k) =>
+          o && typeof o === "object"
+            ? (o as Record<string, unknown>)[k]
+            : undefined,
+        msgs,
+      );
+  const makeT = (msgs: Messages, namespace?: string) => {
+    const t = (key: string, values?: Record<string, unknown>) => {
+      const full = namespace ? `${namespace}.${key}` : key;
+      const msg = lookup(msgs, full);
+      if (typeof msg !== "string") return full;
+      return values
+        ? msg.replace(/\{(\w+)\}/g, (_, k: string) =>
+            k in values ? String(values[k]) : `{${k}}`,
+          )
+        : msg;
+    };
+    t.raw = (key: string) =>
+      lookup(msgs, namespace ? `${namespace}.${key}` : key);
+    t.has = (key: string) =>
+      typeof lookup(msgs, namespace ? `${namespace}.${key}` : key) !==
+      "undefined";
+    return t;
+  };
+  return { makeT };
+});
+
+vi.mock("next-intl", async () => {
+  const enMessages = (await import("./messages/en.json"))
+    .default as Record<string, unknown>;
+  return {
+    useTranslations: (namespace?: string) => intl.makeT(enMessages, namespace),
+    useLocale: () => "en",
+    useMessages: () => enMessages,
+    NextIntlClientProvider: ({ children }: { children: ReactNode }) => children,
+  };
+});
+
+vi.mock("next-intl/server", async () => {
+  const enMessages = (await import("./messages/en.json"))
+    .default as Record<string, unknown>;
+  return {
+    getTranslations: async (namespace?: string) =>
+      intl.makeT(enMessages, namespace),
+    getLocale: async () => "en",
+    getMessages: async () => enMessages,
+  };
+});
+
 // Unmount React trees and clear jsdom between tests to avoid cross-test bleed.
 afterEach(() => {
   cleanup();

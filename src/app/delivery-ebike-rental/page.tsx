@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
@@ -14,48 +15,34 @@ export const metadata: Metadata = {
     "Delivery-built e-bikes you can rent by the month. Strong motors, real payload and service support to keep your downtime low — suitable for city delivery work in Tallinn, Riga and Helsinki.",
 };
 
-const points: { title: string; copy: string }[] = [
-  {
-    title: "Built to carry, not to cruise",
-    copy: "Strong motors, real torque and high payload limits. These bikes are chosen for racks, bags and long days under load — not for a relaxed weekend ride.",
-  },
-  {
-    title: "Downtime costs you money",
-    copy: "Your bike is your income tool, so service support is built into every plan. We keep it moving with fast fixes and extra-battery options for back-to-back shifts.",
-  },
-  {
-    title: "Ready for any weather",
-    copy: "Hydraulic brakes, durable tyres and frames picked for daily city use — rain, cobbles and winter slush included. The bike turns up ready for the shift.",
-  },
-  {
-    title: "Suitable for city delivery work",
-    copy: "Whatever app or service you ride for, these bikes are set up for urban delivery: nimble in traffic, comfortable over distance and easy to lock up between drops.",
-  },
-];
+const pointKeys = [
+  "builtToCarry",
+  "downtimeCosts",
+  "readyForWeather",
+  "cityDelivery",
+] as const;
 
-export default function DeliveryEbikeRentalPage() {
+export default async function DeliveryEbikeRentalPage() {
+  const t = await getTranslations("seo.delivery");
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 56 }}>
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>Delivery e-bike rental</Kicker>
-            <h1 className="h-section">An e-bike built for the job.</h1>
+            <Kicker>{t("hero.kicker")}</Kicker>
+            <h1 className="h-section">{t("hero.heading")}</h1>
             <p className="lead">
-              Delivery riding is hard on a bike: long hours, heavy loads and every kind of
-              weather. rentaro rents delivery-built e-bikes by the month, with the motor, payload
-              and service support to match — so you spend your shift earning, not pushing a bike
-              with a flat battery. Pay daily, billed monthly, with repairs handled for you.
+              {t("hero.lead")}
             </p>
             <div style={{ display: "flex", gap: 13, flexWrap: "wrap", marginTop: 26 }}>
               <Link className="btn btn-primary btn-lg" href="/book">
-                Reserve a bike
+                {t("hero.ctaReserve")}
                 <span className="arrow">
                   <Ic.arrow />
                 </span>
               </Link>
               <Link className="btn btn-ghost btn-lg" href="/models">
-                Explore the fleet
+                {t("hero.ctaExplore")}
               </Link>
             </div>
           </Reveal>
@@ -67,8 +54,8 @@ export default function DeliveryEbikeRentalPage() {
               gap: 16,
             }}
           >
-            {points.map((p, i) => (
-              <Reveal key={p.title} delay={(i % 2) * 80}>
+            {pointKeys.map((key, i) => (
+              <Reveal key={key} delay={(i % 2) * 80}>
                 <article className="card" style={{ padding: 24, height: "100%" }}>
                   <span
                     style={{
@@ -85,8 +72,8 @@ export default function DeliveryEbikeRentalPage() {
                   >
                     <Ic.bolt s={15} />
                   </span>
-                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{p.title}</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{p.copy}</p>
+                  <h3 style={{ fontSize: 19, letterSpacing: "-0.02em", marginBottom: 8 }}>{t(`points.${key}.title`)}</h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{t(`points.${key}.copy`)}</p>
                 </article>
               </Reveal>
             ))}
@@ -98,11 +85,10 @@ export default function DeliveryEbikeRentalPage() {
       <section className="section-pad">
         <div className="wrap">
           <Reveal className="section-head">
-            <Kicker>Picked for delivery</Kicker>
-            <h2 className="h-section">The bikes couriers reach for.</h2>
+            <Kicker>{t("models.kicker")}</Kicker>
+            <h2 className="h-section">{t("models.heading")}</h2>
             <p className="lead">
-              Power, payload and stamina that hold up to full delivery days. Browse the most
-              popular delivery setups, or see the full fleet.
+              {t("models.lead")}
             </p>
           </Reveal>
           <div className="models-grid">
@@ -124,14 +110,13 @@ export default function DeliveryEbikeRentalPage() {
           <Reveal>
             <div className="final">
               <div className="final-inner">
-                <h2>Gear up for your next shift.</h2>
+                <h2>{t("cta.heading")}</h2>
                 <p>
-                  Choose a delivery-ready e-bike and a plan, and reserve in a few steps — service
-                  support and extra-battery options included.
+                  {t("cta.lead")}
                 </p>
                 <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
                   <Link className="btn btn-primary btn-lg" href="/book">
-                    Reserve your e-bike
+                    {t("cta.button")}
                     <span className="arrow">
                       <Ic.arrow />
                     </span>

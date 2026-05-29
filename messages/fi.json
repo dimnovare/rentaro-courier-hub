@@ -240,5 +240,500 @@
     "lead": "Valitse rentaro-sähköpyöräsi, valitse suunnitelma ja lähde ajamaan — huoltotuki mukana ensimmäisestä päivästä alkaen.",
     "ctaReserve": "Varaa sähköpyöräsi",
     "ctaPricing": "Katso hinnoittelu"
+  },
+  "booking": {
+    "title": "Varaa sähköpyöräsi",
+    "intro": "Kuusi nopeaa vaihetta. Ei maksua nyt — vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen ennen noutoa.",
+    "steps": {
+      "city": "Kaupunki",
+      "model": "Malli",
+      "plan": "Suunnitelma",
+      "addons": "Lisävarusteet",
+      "details": "Tiedot",
+      "review": "Tarkistus"
+    },
+    "errors": {
+      "submit": "Pyynnön lähettämisessä tapahtui virhe. Yritä uudelleen."
+    },
+    "city": {
+      "heading": "Missä ajat?",
+      "sub": "Valitse kaupunkisi. Toimimme tällä hetkellä Tallinnassa ja Riiassa.",
+      "soon": "Tulossa pian",
+      "limited": "Rajoitetusti",
+      "available": "{count} saatavilla"
+    },
+    "model": {
+      "heading": "Valitse pyöräsi",
+      "sub": "Jokainen malli vuokrataan samoilla suunnitelmilla — valitse vuoroihisi sopiva.",
+      "fromDay": "Alkaen €{price}/pv",
+      "waitlistSuffix": " · jonotuslista"
+    },
+    "plan": {
+      "heading": "Valitse suunnitelma",
+      "sub": "Mitä pidempi aika, sitä edullisempi päivähinta. Vähintään 30 päivää.",
+      "perDay": "€{price}/pv",
+      "per30": "€{price} per 30 päivää"
+    },
+    "addons": {
+      "heading": "Lisävarusteet",
+      "sub": "Valinnaisia. Lisää varusteita, jotka tuovat vuoroja — voit muuttaa tätä myöhemmin."
+    },
+    "details": {
+      "heading": "Tietosi",
+      "sub": "Jotta voimme vahvistaa saatavuuden ja lähettää sopimuksesi.",
+      "firstName": "Etunimi",
+      "lastName": "Sukunimi",
+      "email": "Sähköposti",
+      "phone": "Puhelin",
+      "startDate": "Toivottu aloituspäivä",
+      "notes": "Lisätiedot (valinnainen)",
+      "notesPlaceholder": "Lähettialusta, noutotoive, mitä tahansa meidän tulisi tietää…"
+    },
+    "review": {
+      "heading": "Tarkista ja vahvista",
+      "sub": "Tarkista tiedot — maksua ei peritä nyt.",
+      "city": "Kaupunki",
+      "model": "Malli",
+      "plan": "Suunnitelma",
+      "addons": "Lisävarusteet",
+      "none": "Ei mitään",
+      "startDate": "Aloituspäivä",
+      "contact": "Yhteystiedot",
+      "from": "Alkaen",
+      "per30Addons": "/ 30 päivää + lisävarusteet",
+      "paymentNote": "Maksa ensimmäinen 30 päivän jakso turvallisesti Montonion kautta — kortilla tai pankkisiirrolla."
+    },
+    "buttons": {
+      "cancel": "Peruuta",
+      "back": "Takaisin",
+      "continue": "Jatka",
+      "submitting": "Lähetetään…",
+      "submit": "Lähetä pyyntö"
+    }
+  },
+  "bookingSuccess": {
+    "heading": "Pyyntö vastaanotettu.",
+    "headingNamed": "Pyyntö vastaanotettu, {name}.",
+    "body": "Vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen sähköpostitse pian — maksua ei ole peritty.",
+    "reference": "Viite",
+    "model": "Malli",
+    "plan": "Suunnitelma",
+    "city": "Kaupunki",
+    "startDate": "Aloituspäivä",
+    "browseFleet": "Selaa kalustoa",
+    "backHome": "Takaisin etusivulle"
+  },
+  "bookingStatus": {
+    "kicker": "Seuraa varaustasi",
+    "heading": "Tarkista varauksesi tila.",
+    "lead": "Syötä vahvistuksessa saamasi varausviite nähdäksesi mallisi, suunnitelmasi, kaupunkisi ja aloituspäiväsi. Kirjautumista ei tarvita — pidä viite tallessa.",
+    "refLabel": "Varausviite",
+    "refPlaceholder": "esim. 3f9a1c20-…",
+    "checking": "Tarkistetaan…",
+    "checkStatus": "Tarkista tila",
+    "cantFindPrefix": "Etkö löydä viitettäsi?",
+    "cantFindLink": "Aloita uusi varaus",
+    "notFound": "Tällä viitteellä ei löytynyt varausta. Tarkista koodi vahvistussähköpostistasi.",
+    "preview": "Tilan tarkistus on esikatselutilassa — yhdistä rentaro-API seurataksesi varauksia reaaliajassa.",
+    "error": "Haussa tapahtui virhe. Yritä hetken kuluttua uudelleen.",
+    "statusLabel": "Tila",
+    "reference": "Viite",
+    "model": "Malli",
+    "plan": "Suunnitelma",
+    "city": "Kaupunki",
+    "startDate": "Aloituspäivä",
+    "toBeConfirmed": "Vahvistetaan myöhemmin"
+  },
+  "portal": {
+    "invalidLink": "Tämä linkki on virheellinen tai vanhentunut.",
+    "loading": "Ladataan vuokraustasi…",
+    "previewTitle": "Portaalin esikatselu",
+    "previewBody": "Vuokrausportaalisi on esikatselutilassa — yhdistä rentaro-API hallitaksesi vuokrauksia reaaliajassa.",
+    "errorTitle": "Jotain meni pieleen.",
+    "errorBody": "Vuokraustasi ei voitu ladata juuri nyt. Päivitä hetken kuluttua.",
+    "kicker": "Hallitse vuokraustasi",
+    "heading": "Tässä on vuokrauksesi.",
+    "headingNamed": "Hei {name} — tässä on vuokrauksesi.",
+    "lead": "Tarkastele tietojasi, ilmoita pyörän viasta tai viestittele tiimimme kanssa. Kirjautumista ei tarvita — tämä sivu on sidottu vahvistussähköpostisi turvalliseen linkkiin.",
+    "rentalStatus": "Vuokrauksen tila",
+    "bookingStatus": "Varauksen tila",
+    "reference": "Viite",
+    "bike": "Pyörä",
+    "plan": "Suunnitelma",
+    "city": "Kaupunki",
+    "pickup": "Nouto",
+    "startDate": "Aloituspäivä",
+    "toBeConfirmed": "Vahvistetaan myöhemmin",
+    "plannedEnd": "Suunniteltu päättymispäivä",
+    "assignedBike": "Osoitettu pyörä",
+    "notYetAssigned": "Ei vielä osoitettu",
+    "needElsePrefix": "Tarvitsetko jotain muuta?",
+    "needElseLink": "Katso UKK",
+    "sending": "Lähetetään…",
+    "sendFailed": "Lähetys ei onnistunut juuri nyt. Yritä uudelleen.",
+    "repair": {
+      "heading": "Pyydä korjausta",
+      "lead": "Onko pyörässäsi jotain vialla? Kerro meille, niin huoltotiimimme ottaa yhteyttä.",
+      "issueType": "Vian tyyppi",
+      "descLabel": "Mikä on vialla?",
+      "descPlaceholder": "esim. Takajarru tuntuu löysältä ja vinkuu.",
+      "submit": "Lähetä korjauspyyntö"
+    },
+    "support": {
+      "heading": "Ota yhteyttä tukeen",
+      "lead": "Kysymys suunnitelmastasi, noudosta tai jostain muusta? Lähetä meille viesti.",
+      "msgLabel": "Viestisi",
+      "msgPlaceholder": "Miten voimme auttaa?",
+      "submit": "Lähetä viesti"
+    },
+    "errorHelpPrefix": "Tarkista vahvistussähköpostisi linkki, tai",
+    "errorHelpLink": "seuraa varaustasi",
+    "errorHelpSuffix": "sen sijaan."
+  },
+  "enums": {
+    "bookingStatus": {
+      "submitted": "Lähetetty",
+      "awaitingreview": "Odottaa käsittelyä",
+      "approved": "Hyväksytty",
+      "rejected": "Ei hyväksytty",
+      "cancelled": "Peruutettu",
+      "paymentpending": "Maksu kesken",
+      "bikeassigned": "Pyörä osoitettu",
+      "completed": "Valmis"
+    },
+    "rentalStatus": {
+      "active": "Aktiivinen",
+      "endingsoon": "Päättyy pian",
+      "returned": "Palautettu",
+      "closed": "Suljettu",
+      "overdue": "Myöhässä"
+    },
+    "issueType": {
+      "puncture": "Rengasrikko",
+      "brakes": "Jarrut",
+      "battery": "Akku",
+      "motor": "Moottori",
+      "lock": "Lukko",
+      "charger": "Laturi",
+      "generalService": "Yleishuolto",
+      "inspection": "Tarkastus",
+      "accident": "Onnettomuus / kolarivaurio"
+    },
+    "priority": {
+      "low": "Matala",
+      "medium": "Keskitaso",
+      "high": "Korkea"
+    }
+  },
+  "cityPage": {
+    "meta": {
+      "notFoundTitle": "Kaupunkia ei löytynyt — rentaro",
+      "titleSoon": "Sähköpyörän vuokraus — {city}, tulossa pian · rentaro",
+      "titleLive": "Sähköpyörän kuukausivuokraus — {city} · rentaro",
+      "descriptionSoon": "rentaro tuo lähettivalmiit kuukausittaiset sähköpyörävuokraukset kaupunkiin {city}, {country}. Liity jonotuslistalle ja saat tiedon lanseerauspäivistä ja noudosta.",
+      "descriptionLive": "Vuokraa lähettityöhön rakennettu sähköpyörä kuukaudeksi — {city}, {country}. 30 päivän, 6 ja 12 kuukauden suunnitelmat, joihin kuuluu huoltotuki, lukko, laturi ja lisäakkuvaihtoehdot."
+    },
+    "hero": {
+      "joinWaitlist": "Liity jonotuslistalle",
+      "reserveIn": "Varaa — {city}"
+    },
+    "whyHere": {
+      "kicker": "Miksi lähetit ajavat täällä",
+      "headingSoon": "Rakennettu vuoroihin — {city}.",
+      "headingLive": "Rakennettu lähettivuoroihin — {city}."
+    },
+    "popular": {
+      "kicker": "Suosittu — {city}",
+      "heading": "Pyörät, joihin lähetit tarttuvat ensimmäisenä.",
+      "leadBase": "Jokainen rentaro-sähköpyörä vuokrataan samoilla ehdoilla — 30 päivän, 6 tai 12 kuukauden suunnitelmat, joihin huoltotuki sisältyy. ",
+      "leadSoon": "Nämä pyörät saapuvat lanseerauksessa — {city}.",
+      "leadLive": "Valitse vuoroihisi sopiva."
+    },
+    "finalCta": {
+      "headingSoon": "Haluatko rentaro-pyörän? {city}",
+      "headingLive": "Valmis ajamaan? {city}",
+      "copySoon": "Liity jonotuslistalle, niin ilmoitamme heti kun lähettivalmiit sähköpyörät saapuvat — {city}.",
+      "copyLive": "Valitse mallisi, valitse suunnitelma ja aloita lähetit jo tällä viikolla — {city}; huoltotuki mukana ensimmäisestä päivästä alkaen.",
+      "joinWaitlist": "Liity jonotuslistalle",
+      "reserveIn": "Varaa — {city}",
+      "exploreFleet": "Tutustu kalustoon"
+    }
+  },
+  "cityContent": {
+    "tallinn": {
+      "headline": "Sähköpyörän kuukausivuokraus Tallinnassa.",
+      "intro": "Tallinnasta rentaro sai alkunsa. Ajatpa sitten Kesklinnin lounasruuhkia tai pidempiä reittejä Lasnamäelle ja Mustamäelle, saat lähettityöhön rakennetun sähköpyörän yksinkertaisella kuukausisuunnitelmalla — lukon, laturin ja huoltotuen kera, jotka pitävät ansiosi juoksemassa joka vuorossa.",
+      "whyHere": [
+        "Tiivis vanhakaupunki ja Kesklinnin kadut palkitsevat nopean ja ketterän sähköpyörän toimitusten välillä.",
+        "Mukulakivet, raitiovaunukiskot ja talven loska — pyörämme on valittu Tallinnan todellisiin olosuhteisiin.",
+        "Nouto keskustasta jo saman viikon aikana, plus lisäakkuvaihtoehdot peräkkäisiin vuoroihin.",
+        "Huoltotuki ympäri kaupunkia, joten rengasrikko ei koskaan maksa sinulle kokonaista työpäivää."
+      ],
+      "pickupNote": "Nouda pyöräsi Telliskivin tai Kesklinnin noutopisteeltä, tai kysy paikallisesta luovutuksesta. Käymme kanssasi läpi pyörän, lukon ja lataamisen ennen ensimmäistä vuoroasi.",
+      "neighbourhoods": [
+        "Kesklinn",
+        "Telliskivi",
+        "Kalamaja",
+        "Lasnamäe",
+        "Mustamäe",
+        "Kristiine"
+      ]
+    },
+    "riga": {
+      "headline": "Sähköpyörän kuukausivuokraus Riiassa.",
+      "intro": "Riian lähetit kattavat tosissaan matkaa — Centrsistä ja Vecrīgasta joen yli Āgenskalnsiin ja Pārdaugavaan. Kuukausittainen rentaro-sähköpyörä pitää nuo kilometrit edullisina ja ennakoitavina, huoltotuella ja lisäakkuvaihtoehdoilla, jotka on rakennettu pitkiä lähettipäiviä varten.",
+      "whyHere": [
+        "Leveät bulevardit ja pitkät joen ylittävät reitit — sähköpyörä muuttaa pitkät matkat helpoiksi.",
+        "Yksi yksinkertainen kuukausihinta polttoaineen, pysäköinnin ja epäluotettavan pyörän kustannusten sijaan.",
+        "Lisäakut saatavilla läheteille, jotka kokoavat täydet työpäivät ympäri kaupunkia.",
+        "Paikallinen huoltotuki, joten pienet viat korjataan nopeasti ja pysyt tien päällä."
+      ],
+      "pickupNote": "Nouda Centrsistä tai Āgenskalnsista, tai sovi paikallinen luovutus. Säädämme pyörän yhdessä kanssasi, tarkistamme lukon ja näytämme miten lataaminen toimii ennen kuin lähdet ajamaan.",
+      "neighbourhoods": [
+        "Centrs",
+        "Vecrīga",
+        "Āgenskalns",
+        "Pārdaugava",
+        "Teika",
+        "Purvciems"
+      ]
+    },
+    "helsinki": {
+      "headline": "Sähköpyörän kuukausivuokraus Helsingissä — tulossa pian.",
+      "intro": "Helsinki on seuraavana rentaron kartalla. Kokoamme lähettivalmista kalustoa läheteille, jotka työskentelevät Kalliossa, Punavuoressa ja laajemmin kaupungissa — samat kuukausisuunnitelmat, sama huoltotuki, sama keskittyminen pyöräsi liikkeessä pitämiseen. Liity jonotuslistalle, niin ilmoitamme heti kun pyörät saapuvat.",
+      "whyHere": [
+        "Vahva pyöräilyinfrastruktuuri tekee Helsingistä luontevan paikan lähettisähköpyörille.",
+        "Ympäri vuoden ajavat tarvitsevat pyörät, jotka ovat valmiita kylmiin, märkiin ja pimeisiin talvivuoroihin — juuri sitä varten rakennamme.",
+        "Kuukausisuunnitelmat antavat täysiaikaisille läheteille ennakoitavan kustannuksen, lisäakkuvaihtoehdoilla pitkiä päiviä varten.",
+        "Huoltotuki kuuluu suunnitelmaan siitä päivästä, kun aloitamme toimintamme."
+      ],
+      "pickupNote": "Helsingin noutopisteitä Kallion ja Punavuoren tienoilla viimeistellään. Liity jonotuslistalle, niin jaamme noutotiedot ja lanseerauspäivän heti kun kalusto on valmis.",
+      "neighbourhoods": [
+        "Kallio",
+        "Punavuori",
+        "Kamppi",
+        "Töölö",
+        "Sörnäinen",
+        "Kallio"
+      ]
+    }
+  },
+  "pageHeaders": {
+    "pricing": {
+      "kicker": "Suunnitelmat ja hinnoittelu",
+      "heading": "Yksi päivähinta. Laskutus joka 30. päivä.",
+      "lead": "Jokainen rentaro-sähköpyörä vuokrataan samoilla yksinkertaisilla ehdoilla — valitse 30 päivän, 6 tai 12 kuukauden suunnitelma ja maksa päivähinta × 30. Sitoudu pidempään aikaan, niin päivähintasi laskee. Vähimmäisvuokra-aika on 30 päivää."
+    },
+    "howItWorks": {
+      "kicker": "Aloittaminen",
+      "heading": "Valitse, allekirjoita, aja.",
+      "lead": "rentaro-sähköpyörälle pääseminen on tehty nopeaksi. Valitse malli ja suunnitelma, hoida paperityöt digitaalisesti puhelimellasi ja nouda pyöräsi — huoltotuki mukana ensimmäisestä päivästä alkaen, jotta vuorosi jatkuvat keskeytyksettä."
+    },
+    "faq": {
+      "kicker": "UKK",
+      "heading": "Kaikki mitä sinun tarvitsee tietää.",
+      "lead": "Yleisimmät kysymykset rentaro-sähköpyörän vuokraamisesta lähettityöhön — suunnitelmat, vakuudet, huolto ja nouto. Tarvitsetko jotain muuta? Ota yhteyttä, niin autamme."
+    },
+    "accessories": {
+      "kicker": "Lisävarusteet",
+      "heading": "Varusteet, jotka tuovat vuoroja.",
+      "lead": "Lisää varustus, joka sopii rutiiniisi. Pitkien lähettipäivien lisäakuista laukkuihin, telineisiin ja säänsuojaukseen — jokainen lisävaruste on rakennettu lähettityöhön ja voidaan lisätä mihin tahansa rentaro-suunnitelmaan."
+    }
+  },
+  "modelsPage": {
+    "kicker": "Koko kalusto",
+    "heading": "Kaikki mallit.",
+    "lead": "Jokainen rentaro-sähköpyörä vuokrataan samoilla yksinkertaisilla ehdoilla — 30 päivän, 6 tai 12 kuukauden suunnitelmat, joihin huoltotuki sisältyy. Valitse vuoroihisi sopiva pyörä.",
+    "allModels": "Kaikki mallit",
+    "from": "ALKAEN",
+    "perDay": "/ pv",
+    "reserve": "Varaa",
+    "joinWaitlist": "Liity jonotuslistalle",
+    "reserveThisBike": "Varaa tämä pyörä",
+    "joinWaitlistLong": "Liity jonotuslistalle",
+    "planNote": "Saatavilla 30 päivän, 6 tai 12 kuukauden suunnitelmilla — alkaen €3.90/pv 12 kuukauden suunnitelmalla.",
+    "fullSpec": "Tekniset tiedot",
+    "galleryThumbAria": "Näytä kuva {index} / {total}",
+    "avail": {
+      "inStock": "{count} varastossa",
+      "left": "{count} jäljellä",
+      "waitlist": "Jonotuslista"
+    },
+    "status": {
+      "available": "Saatavilla",
+      "limited": "Rajoitetusti",
+      "waitlist": "Jonotuslista",
+      "comingSoon": "Tulossa pian"
+    }
+  },
+  "modelItems": {
+    "engine-pro": {
+      "tagline": "Lähettityön työjuhta",
+      "blurb": "750W (1200W huipputeho) takanapamoottori, vääntöanturi ja täysjousitus 20×4.0 läskirenkailla. Rakennettu kantamaan kuormaa läpi täysien lähettipäivien, millä tahansa pinnalla."
+    },
+    "air-one-pro": {
+      "tagline": "Perheen ja tavaran kuljettaja",
+      "blurb": "Integroitu alumiininen tavarateline, kaksoisakkutila ja 150 kg kantavuus. Valinta raskaisiin monitilausreitteihin."
+    },
+    "air-28pro": {
+      "tagline": "Pitkät kaupunkimatkat",
+      "blurb": "28-tuumainen trekkinggeometria, automaattinen Bafang-vaihteisto ja 3.5\" IPX7-näyttö. Pehmeä, vähähuoltoinen hiilikuituhihnaveto pitkiä kaupunkikilometrejä varten."
+    },
+    "air-20pro": {
+      "tagline": "Älykäs automaattivaihteinen työmatkapyörä",
+      "blurb": "Taittuva työmatkapyörä automaattisella Bafang-vaihteistolla, vähähuoltoisella hiilikuituhihnalla ja 21 kg rungolla, jota on helppo kantaa ja säilyttää."
+    },
+    "air-20s": {
+      "tagline": "Kevyin ja yksinkertaisin",
+      "blurb": "Kaluston kevyin ja yksinkertaisin pyörä: 18 kg yksivaihteinen taittopyörä hiljaisella hiilikuituhihnalla — helppo käsitellä lyhyempiin kaupunkivuoroihin."
+    },
+    "air-30pro": {
+      "tagline": "Urbaani, suuntavilkuilla",
+      "blurb": "Urbaani 700C-pyörä GPS-varkaussuojalla, integroiduilla suuntavilkuilla ja Eco / Sport -tiloilla — kaluston liikennetietoisin pyörä."
+    }
+  },
+  "specTable": {
+    "type": "Tyyppi",
+    "motor": "Moottori",
+    "peakPower": "Huipputeho",
+    "torque": "Vääntö",
+    "battery": "Akku",
+    "range": "Toimintamatka",
+    "topSpeed": "Huippunopeus",
+    "charging": "Lataus",
+    "drive": "Veto",
+    "transmission": "Voimansiirto",
+    "ridingModes": "Ajotilat",
+    "brakes": "Jarrut",
+    "suspension": "Jousitus",
+    "tyres": "Renkaat",
+    "display": "Näyttö",
+    "sensor": "Anturi",
+    "lighting": "Valaistus",
+    "smart": "Älyominaisuudet",
+    "maxLoad": "Maksimikuorma",
+    "weight": "Paino",
+    "maxClimb": "Maksiminousu",
+    "riderHeight": "Kuljettajan pituus",
+    "certification": "Sertifiointi",
+    "rangeNote": "Toimintamatka on valmistajan arvio — todellinen matka vaihtelee kuorman, maaston, sään ja kuljettajan mukaan."
+  },
+  "seo": {
+    "monthly": {
+      "hero": {
+        "kicker": "Sähköpyörän kuukausivuokraus",
+        "heading": "Vuokraa pyörä. Unohda hintalappu.",
+        "lead": "Sähköpyörän kuukausivuokraus on yksinkertaisin tapa päästä laadukkaan pyörän selkään ilman ostamista. Maksat selkeän päivähinnan, laskutus joka 30. päivä, ja pyörä, huoltotuki, lukko ja laturi tulevat yhtenä pakettina. Kun tarpeesi muuttuvat, niin muuttuu suunnitelmasikin — ei jälleenmyyntiä, ei arvonalennusta, ei korjaamolaskuja.",
+        "ctaReserve": "Varaa pyörä",
+        "ctaExplore": "Tutustu kalustoon"
+      },
+      "points": {
+        "predictablePrice": {
+          "title": "Yksi ennakoitava hinta",
+          "copy": "Maksa päivähinta, laskutus joka 30. päivä. Ei suurta etukäteisostosta, ei yllättäviä korjauslaskuja — tiedät tarkalleen mitä pyörä maksaa kuukaudessa."
+        },
+        "repairsOnUs": {
+          "title": "Korjaukset hoidamme me",
+          "copy": "Huoltotuki kuuluu jokaiseen suunnitelmaan. Jos jokin pitää korjata, me hoidamme sen — joten kulunut jarrupala tai rengasrikko ei muutu sinun ongelmaksesi."
+        },
+        "commitFlexible": {
+          "title": "Sitoudu niin lyhyeksi tai pitkäksi aikaa kuin haluat",
+          "copy": "Aloita 30 päivän suunnitelmalla kokeillaksesi, ja siirry sitten 6 tai 12 kuukauden suunnitelmaan edullisemmalla päivähinnalla, kun olet valmis. Mitä pidempi aika, sitä vähemmän maksat päivässä."
+        },
+        "nothingTiedUp": {
+          "title": "Mikään ei ole kiinni pyörässä",
+          "copy": "Sähköpyörän ostaminen tarkoittaa satoja etukäteen, plus akut, lukot ja huolto. Vuokraaminen pitää rahasi vapaina ja pyörän huollon jonkun muun vastuulla."
+        }
+      },
+      "models": {
+        "kicker": "Saatavilla kuukausittain",
+        "heading": "Pyörät, jotka voit vuokrata tänään.",
+        "lead": "Jokainen kaluston pyörä vuokrataan samoilla kuukausiehdoilla. Selaa suosituimpia valintoja alta, tai katso koko valikoima."
+      },
+      "cta": {
+        "heading": "Aloita kuukausisuunnitelmasi.",
+        "lead": "Valitse pyörä, valitse 30 päivän, 6 tai 12 kuukauden suunnitelma ja varaa muutamassa vaiheessa — ei maksua nyt, huoltotuki ensimmäisestä päivästä alkaen.",
+        "button": "Varaa sähköpyöräsi"
+      }
+    },
+    "delivery": {
+      "hero": {
+        "kicker": "Lähettisähköpyörän vuokraus",
+        "heading": "Sähköpyörä rakennettu työhön.",
+        "lead": "Lähettiajo on pyörälle kovaa: pitkiä tunteja, raskaita kuormia ja kaikenlaista säätä. rentaro vuokraa lähettityöhön rakennettuja sähköpyöriä kuukausittain, moottorilla, kantavuudella ja huoltotuella, jotka vastaavat työtä — joten käytät vuorosi ansaitsemiseen, et tyhjäakkuisen pyörän työntämiseen. Maksa päivässä, laskutus kuukausittain, korjaukset hoidetaan puolestasi.",
+        "ctaReserve": "Varaa pyörä",
+        "ctaExplore": "Tutustu kalustoon"
+      },
+      "points": {
+        "builtToCarry": {
+          "title": "Rakennettu kantamaan, ei rentoiluun",
+          "copy": "Tehokkaat moottorit, todellinen vääntö ja korkeat kantavuusrajat. Nämä pyörät on valittu telineille, laukuille ja pitkille kuormatuille päiville — ei rennolle viikonloppuajelulle."
+        },
+        "downtimeCosts": {
+          "title": "Seisokit maksavat sinulle rahaa",
+          "copy": "Pyöräsi on tulonlähteesi, joten huoltotuki kuuluu jokaiseen suunnitelmaan. Pidämme sen liikkeessä nopeilla korjauksilla ja lisäakkuvaihtoehdoilla peräkkäisiin vuoroihin."
+        },
+        "readyForWeather": {
+          "title": "Valmis mihin tahansa säähän",
+          "copy": "Hydrauliset jarrut, kestävät renkaat ja päivittäiseen kaupunkikäyttöön valitut rungot — sade, mukulakivet ja talven loska mukaan lukien. Pyörä saapuu valmiina vuoroon."
+        },
+        "cityDelivery": {
+          "title": "Sopii kaupungin lähettityöhön",
+          "copy": "Ajatpa mille tahansa alustalle tai palvelulle, nämä pyörät on viritetty kaupunkilähetyksiin: ketteriä liikenteessä, mukavia pitkillä matkoilla ja helppoja lukita toimitusten välillä."
+        }
+      },
+      "models": {
+        "kicker": "Valittu lähettityöhön",
+        "heading": "Pyörät, joihin lähetit tarttuvat.",
+        "lead": "Tehoa, kantavuutta ja kestävyyttä, jotka kestävät täydet lähettipäivät. Selaa suosituimpia lähettikokoonpanoja, tai katso koko kalusto."
+      },
+      "cta": {
+        "heading": "Varustaudu seuraavaan vuoroosi.",
+        "lead": "Valitse lähettivalmis sähköpyörä ja suunnitelma, ja varaa muutamassa vaiheessa — huoltotuki ja lisäakkuvaihtoehdot mukana.",
+        "button": "Varaa sähköpyöräsi"
+      }
+    },
+    "couriers": {
+      "hero": {
+        "kicker": "Sähköpyörän vuokraus läheteille",
+        "heading": "Tehty läheteille, ei viikonloppuajajille.",
+        "lead": "rentaro on olemassa yhtä työtä varten: pitää lähetit ansaitsemassa. Vuokraat lähettityöhön rakennetun sähköpyörän kuukaudeksi, aloitat nopeasti ja ajat huoltotuki takanasi. Ei suurta ostosta, ei jälleenmyynnin vaivaa, ei menetettyä päivää pyörän takia, jota et voi korjata. Valitse mallisi, allekirjoita verkossa ja aloita seuraava vuorosi.",
+        "ctaBook": "Aloita varaus",
+        "ctaExplore": "Tutustu kalustoon"
+      },
+      "points": {
+        "startThisWeek": {
+          "title": "Aloita lähetit jo tällä viikolla",
+          "copy": "Valitse mallisi verkossa, allekirjoita sopimus puhelimellasi ja nouda pyörä jo saman viikon aikana. Ei pitkää odotusta, ei suurta ostosta ennen ensimmäistä vuoroasi."
+        },
+        "incomeTool": {
+          "title": "Pyöräsi on tulonlähteesi",
+          "copy": "Jos se on poissa tieltä, et ansaitse. Huoltotuki kuuluu jokaiseen suunnitelmaan, joten pienet viat korjataan nopeasti ja pysyt tien päällä."
+        },
+        "priceFitsHours": {
+          "title": "Hinta, joka sopii tunteihisi",
+          "copy": "Ajatko osa-aikaisesti? Aloita joustavalla 30 päivän suunnitelmalla. Täysiaikaisesti? 6 tai 12 kuukauden suunnitelma laskee päivähintaasi. Et koskaan sitoudu enempään kuin tarvitset."
+        },
+        "staminaLongShifts": {
+          "title": "Kestävyyttä pitkiin vuoroihin",
+          "copy": "Pyörät valittu lähettityöhön, lisäakkuvaihtoehdoilla niihin päiviin, jolloin kokoat peräkkäisiä tilauksia ympäri kaupunkia."
+        }
+      },
+      "howItWorks": {
+        "kicker": "Näin lähetit aloittavat",
+        "heading": "Valitse. Allekirjoita. Aja.",
+        "lead": "Kolme vaihetta pyörän valinnasta ensimmäiseen toimitukseen — suurin osa puhelimellasi."
+      },
+      "models": {
+        "kicker": "Lähettien suosikit",
+        "heading": "Pyörät, jotka kestävät työn.",
+        "lead": "Käsin valittu lähettivuoroihin. Selaa suosituimpia valintoja, tai katso koko kalusto."
+      },
+      "cta": {
+        "heading": "Valmis aloittamaan ansaitsemisen?",
+        "lead": "Valitse rentaro-sähköpyöräsi, valitse suunnitelma ja varaa muutamassa vaiheessa — huoltotuki mukana ensimmäisestä päivästä alkaen.",
+        "button": "Aloita varaus"
+      }
+    }
   }
 }

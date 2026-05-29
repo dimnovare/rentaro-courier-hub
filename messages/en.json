@@ -240,5 +240,500 @@
     "lead": "Choose your rentaro e-bike, pick a plan and start riding — service support included from day one.",
     "ctaReserve": "Reserve your e-bike",
     "ctaPricing": "See pricing"
+  },
+  "booking": {
+    "title": "Reserve your e-bike",
+    "intro": "Six quick steps. No payment now — we confirm availability and send your digital contract before pickup.",
+    "steps": {
+      "city": "City",
+      "model": "Model",
+      "plan": "Plan",
+      "addons": "Add-ons",
+      "details": "Details",
+      "review": "Review"
+    },
+    "errors": {
+      "submit": "Something went wrong submitting your request. Please try again."
+    },
+    "city": {
+      "heading": "Where do you ride?",
+      "sub": "Choose your city. We operate in Tallinn and Riga today.",
+      "soon": "Coming soon",
+      "limited": "Limited stock",
+      "available": "{count} available"
+    },
+    "model": {
+      "heading": "Pick your bike",
+      "sub": "Every model rents on the same plans — choose the one that fits your shifts.",
+      "fromDay": "From €{price}/day",
+      "waitlistSuffix": " · waitlist"
+    },
+    "plan": {
+      "heading": "Choose a plan",
+      "sub": "The longer the term, the lower the daily price. Minimum 30 days.",
+      "perDay": "€{price}/day",
+      "per30": "€{price} per 30 days"
+    },
+    "addons": {
+      "heading": "Add-ons",
+      "sub": "Optional. Add gear that earns shifts — you can change this later."
+    },
+    "details": {
+      "heading": "Your details",
+      "sub": "So we can confirm availability and send your contract.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "startDate": "Preferred start date",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Delivery platform, pickup preference, anything we should know…"
+    },
+    "review": {
+      "heading": "Review & confirm",
+      "sub": "Check the details — no payment is taken now.",
+      "city": "City",
+      "model": "Model",
+      "plan": "Plan",
+      "addons": "Add-ons",
+      "none": "None",
+      "startDate": "Start date",
+      "contact": "Contact",
+      "from": "From",
+      "per30Addons": "/ 30 days + add-ons",
+      "paymentNote": "Pay the first 30-day period securely via Montonio — card or bank transfer."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "back": "Back",
+      "continue": "Continue",
+      "submitting": "Submitting…",
+      "submit": "Submit request"
+    }
+  },
+  "bookingSuccess": {
+    "heading": "Request received.",
+    "headingNamed": "Request received, {name}.",
+    "body": "We'll confirm availability and send your digital contract by email shortly — no payment has been taken.",
+    "reference": "Reference",
+    "model": "Model",
+    "plan": "Plan",
+    "city": "City",
+    "startDate": "Start date",
+    "browseFleet": "Browse the fleet",
+    "backHome": "Back home"
+  },
+  "bookingStatus": {
+    "kicker": "Track your booking",
+    "heading": "Check your reservation status.",
+    "lead": "Enter the booking reference from your confirmation to see your model, plan, city and start date. No login needed — keep your reference handy.",
+    "refLabel": "Booking reference",
+    "refPlaceholder": "e.g. 3f9a1c20-…",
+    "checking": "Checking…",
+    "checkStatus": "Check status",
+    "cantFindPrefix": "Can't find your reference?",
+    "cantFindLink": "Start a new reservation",
+    "notFound": "No booking found for that reference. Double-check the code from your confirmation email.",
+    "preview": "Status lookup is in preview — connect the rentaro API to track live bookings.",
+    "error": "Something went wrong looking that up. Please try again in a moment.",
+    "statusLabel": "Status",
+    "reference": "Reference",
+    "model": "Model",
+    "plan": "Plan",
+    "city": "City",
+    "startDate": "Start date",
+    "toBeConfirmed": "To be confirmed"
+  },
+  "portal": {
+    "invalidLink": "This link is invalid or expired.",
+    "loading": "Loading your rental…",
+    "previewTitle": "Portal preview",
+    "previewBody": "Your rental portal is in preview — connect the rentaro API to manage live rentals.",
+    "errorTitle": "Something went wrong.",
+    "errorBody": "We couldn't load your rental just now. Please refresh in a moment.",
+    "kicker": "Manage your rental",
+    "heading": "Here's your rental.",
+    "headingNamed": "Hi {name} — here's your rental.",
+    "lead": "View your details, report an issue with your bike or message the team. No login needed — this page is tied to the secure link from your confirmation email.",
+    "rentalStatus": "Rental status",
+    "bookingStatus": "Booking status",
+    "reference": "Reference",
+    "bike": "Bike",
+    "plan": "Plan",
+    "city": "City",
+    "pickup": "Pickup",
+    "startDate": "Start date",
+    "toBeConfirmed": "To be confirmed",
+    "plannedEnd": "Planned end",
+    "assignedBike": "Assigned bike",
+    "notYetAssigned": "Not yet assigned",
+    "needElsePrefix": "Need something else?",
+    "needElseLink": "Check the FAQ",
+    "sending": "Sending…",
+    "sendFailed": "Couldn't send that just now. Please try again.",
+    "repair": {
+      "heading": "Request a repair",
+      "lead": "Something not right with your bike? Tell us and our service team will follow up.",
+      "issueType": "Issue type",
+      "descLabel": "What's wrong?",
+      "descPlaceholder": "e.g. Rear brake feels loose and squeaks.",
+      "submit": "Send repair request"
+    },
+    "support": {
+      "heading": "Contact support",
+      "lead": "A question about your plan, pickup or anything else? Send us a message.",
+      "msgLabel": "Your message",
+      "msgPlaceholder": "How can we help?",
+      "submit": "Send message"
+    },
+    "errorHelpPrefix": "Check the link in your confirmation email, or",
+    "errorHelpLink": "track your booking",
+    "errorHelpSuffix": "instead."
+  },
+  "enums": {
+    "bookingStatus": {
+      "submitted": "Submitted",
+      "awaitingreview": "Awaiting review",
+      "approved": "Approved",
+      "rejected": "Not approved",
+      "cancelled": "Cancelled",
+      "paymentpending": "Payment pending",
+      "bikeassigned": "Bike assigned",
+      "completed": "Completed"
+    },
+    "rentalStatus": {
+      "active": "Active",
+      "endingsoon": "Ending soon",
+      "returned": "Returned",
+      "closed": "Closed",
+      "overdue": "Overdue"
+    },
+    "issueType": {
+      "puncture": "Puncture / flat tyre",
+      "brakes": "Brakes",
+      "battery": "Battery",
+      "motor": "Motor",
+      "lock": "Lock",
+      "charger": "Charger",
+      "generalService": "General service",
+      "inspection": "Inspection",
+      "accident": "Accident / crash damage"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
+  },
+  "cityPage": {
+    "meta": {
+      "notFoundTitle": "City not found — rentaro",
+      "titleSoon": "E-bike rental in {city} — coming soon · rentaro",
+      "titleLive": "Monthly e-bike rental in {city} — rentaro",
+      "descriptionSoon": "rentaro is bringing delivery-ready monthly e-bike rental to {city}, {country}. Join the waitlist for launch dates and pickup details.",
+      "descriptionLive": "Rent a delivery-built e-bike by the month in {city}, {country}. 30-day, 6 and 12-month plans with service support, lock, charger and extra-battery options."
+    },
+    "hero": {
+      "joinWaitlist": "Join the waitlist",
+      "reserveIn": "Reserve in {city}"
+    },
+    "whyHere": {
+      "kicker": "Why couriers ride here",
+      "headingSoon": "Built for {city} shifts.",
+      "headingLive": "Built for {city} delivery shifts."
+    },
+    "popular": {
+      "kicker": "Popular in {city}",
+      "heading": "Bikes couriers reach for first.",
+      "leadBase": "Every rentaro e-bike rents on the same terms — 30-day, 6 or 12-month plans with service support included. ",
+      "leadSoon": "These bikes arrive in {city} at launch.",
+      "leadLive": "Pick the one that fits your shifts."
+    },
+    "finalCta": {
+      "headingSoon": "Want a rentaro bike in {city}?",
+      "headingLive": "Ready to ride in {city}?",
+      "copySoon": "Join the waitlist and we'll let you know the moment delivery-ready e-bikes land in {city}.",
+      "copyLive": "Choose your model, pick a plan and start delivering in {city} this week — service support included from day one.",
+      "joinWaitlist": "Join the waitlist",
+      "reserveIn": "Reserve in {city}",
+      "exploreFleet": "Explore the fleet"
+    }
+  },
+  "cityContent": {
+    "tallinn": {
+      "headline": "Monthly e-bike rental in Tallinn.",
+      "intro": "Tallinn is where rentaro started. Whether you ride Kesklinn lunch rushes or longer runs out to Lasnamäe and Mustamäe, you get a delivery-built e-bike on a simple monthly plan — with the lock, charger and service support that keep you earning every shift.",
+      "whyHere": [
+        "Compact Old Town and Kesklinn streets reward a quick, agile e-bike between drops.",
+        "Cobbles, tram tracks and winter slush — our bikes are picked for real Tallinn conditions.",
+        "Same-week pickup in the centre, plus extra-battery options for back-to-back shifts.",
+        "Service support across the city, so a flat tyre never costs you a full day."
+      ],
+      "pickupNote": "Collect your bike at our Telliskivi or Kesklinn pickup point, or ask about local handover. We walk you through the bike, the lock and charging before your first shift.",
+      "neighbourhoods": [
+        "Kesklinn",
+        "Telliskivi",
+        "Kalamaja",
+        "Lasnamäe",
+        "Mustamäe",
+        "Kristiine"
+      ]
+    },
+    "riga": {
+      "headline": "Monthly e-bike rental in Riga.",
+      "intro": "Riga couriers cover serious ground — from Centrs and Vecrīga across the river to Āgenskalns and Pārdaugava. A monthly rentaro e-bike keeps that mileage cheap and predictable, with service support and extra-battery options built around long delivery days.",
+      "whyHere": [
+        "Wide boulevards and long cross-river routes — an e-bike turns big distances into easy ones.",
+        "One simple monthly price instead of fuel, parking and the cost of an unreliable bike.",
+        "Extra batteries available for couriers stitching together full days across the city.",
+        "Local service support so small issues get fixed fast and you stay on the road."
+      ],
+      "pickupNote": "Pick up in Centrs or Āgenskalns, or arrange local handover. We set the bike up with you, check the lock and show you how charging works before you ride.",
+      "neighbourhoods": [
+        "Centrs",
+        "Vecrīga",
+        "Āgenskalns",
+        "Pārdaugava",
+        "Teika",
+        "Purvciems"
+      ]
+    },
+    "helsinki": {
+      "headline": "Monthly e-bike rental in Helsinki — coming soon.",
+      "intro": "Helsinki is next on the rentaro map. We are lining up a delivery-ready fleet for couriers working Kallio, Punavuori and the wider city — same monthly plans, same service support, same focus on keeping your bike moving. Join the waitlist and we will let you know the moment bikes land.",
+      "whyHere": [
+        "Strong cycling infrastructure makes Helsinki a natural fit for delivery e-bikes.",
+        "Year-round riders need bikes ready for cold, wet and dark winter shifts — that is what we build for.",
+        "Monthly plans give full-time couriers a predictable cost, with extra-battery options for long days.",
+        "Service support is part of the plan from the day we go live."
+      ],
+      "pickupNote": "Helsinki pickup points around Kallio and Punavuori are being finalised. Join the waitlist and we will share collection details and a launch date as soon as the fleet is ready.",
+      "neighbourhoods": [
+        "Kallio",
+        "Punavuori",
+        "Kamppi",
+        "Töölö",
+        "Sörnäinen",
+        "Kallio"
+      ]
+    }
+  },
+  "pageHeaders": {
+    "pricing": {
+      "kicker": "Plans & pricing",
+      "heading": "One daily rate. Billed every 30 days.",
+      "lead": "Every rentaro e-bike rents on the same simple terms — pick a 30-day, 6 or 12-month plan and pay the daily rate × 30. Commit to a longer term and your daily price drops. The minimum rental period is 30 days."
+    },
+    "howItWorks": {
+      "kicker": "Getting started",
+      "heading": "Choose, sign, ride.",
+      "lead": "Getting on a rentaro e-bike is built to be fast. Pick a model and plan, handle the paperwork digitally from your phone and collect your bike — with service support included from day one so your shifts keep running."
+    },
+    "faq": {
+      "kicker": "FAQ",
+      "heading": "Everything you need to know.",
+      "lead": "The most common questions about renting a rentaro e-bike for delivery work — plans, deposits, maintenance and pickup. Need something else? Reach out and we will help."
+    },
+    "accessories": {
+      "kicker": "Add-ons",
+      "heading": "Gear that earns shifts.",
+      "lead": "Add the kit that fits your routine. From extra batteries for long delivery days to bags, holders and weatherproofing — every accessory is built for courier work and can be added to any rentaro plan."
+    }
+  },
+  "modelsPage": {
+    "kicker": "The full fleet",
+    "heading": "All models.",
+    "lead": "Every rentaro e-bike rents on the same simple terms — 30-day, 6 or 12-month plans with service support included. Pick the bike that fits your shifts.",
+    "allModels": "All models",
+    "from": "FROM",
+    "perDay": "/ day",
+    "reserve": "Reserve",
+    "joinWaitlist": "Join waitlist",
+    "reserveThisBike": "Reserve this bike",
+    "joinWaitlistLong": "Join the waitlist",
+    "planNote": "Available on 30-day, 6 or 12-month plans — from €3.90/day on the 12-month plan.",
+    "fullSpec": "Full specification",
+    "galleryThumbAria": "View image {index} of {total}",
+    "avail": {
+      "inStock": "{count} in stock",
+      "left": "{count} left",
+      "waitlist": "Waitlist"
+    },
+    "status": {
+      "available": "Available",
+      "limited": "Limited",
+      "waitlist": "Waitlist",
+      "comingSoon": "Coming soon"
+    }
+  },
+  "modelItems": {
+    "engine-pro": {
+      "tagline": "The delivery workhorse",
+      "blurb": "750W (1200W peak) rear hub motor, torque sensor and full suspension on 20×4.0 fat tires. Built to carry loads through full delivery days, on any surface."
+    },
+    "air-one-pro": {
+      "tagline": "Family & cargo hauler",
+      "blurb": "Integrated aluminum cargo rack, dual-battery mode and a 150 kg payload. The pick for heavy multi-order runs."
+    },
+    "air-28pro": {
+      "tagline": "Long city distances",
+      "blurb": "28-inch trekking geometry, automatic Bafang shifting and a 3.5\" IPX7 display. Smooth, low-maintenance carbon belt drive for long city kilometres."
+    },
+    "air-20pro": {
+      "tagline": "Smart auto-shift commuter",
+      "blurb": "A folding commuter with automatic Bafang shifting, a maintenance-light carbon belt and a 21 kg frame that's easy to carry and store."
+    },
+    "air-20s": {
+      "tagline": "Lightest & simplest",
+      "blurb": "The lightest, simplest bike in the fleet: an 18 kg single-speed folder with a quiet carbon belt — easy to handle for shorter city shifts."
+    },
+    "air-30pro": {
+      "tagline": "Urban, with turn signals",
+      "blurb": "An urban 700C bike with GPS anti-theft, integrated turn signals and Eco / Sport modes — the most road-aware bike in the fleet."
+    }
+  },
+  "specTable": {
+    "type": "Type",
+    "motor": "Motor",
+    "peakPower": "Peak power",
+    "torque": "Torque",
+    "battery": "Battery",
+    "range": "Range",
+    "topSpeed": "Top speed",
+    "charging": "Charging",
+    "drive": "Drive",
+    "transmission": "Transmission",
+    "ridingModes": "Riding modes",
+    "brakes": "Brakes",
+    "suspension": "Suspension",
+    "tyres": "Tyres",
+    "display": "Display",
+    "sensor": "Sensor",
+    "lighting": "Lighting",
+    "smart": "Smart",
+    "maxLoad": "Max load",
+    "weight": "Weight",
+    "maxClimb": "Max climb",
+    "riderHeight": "Rider height",
+    "certification": "Certification",
+    "rangeNote": "Range is a manufacturer estimate — real distance varies with load, terrain, weather and rider."
+  },
+  "seo": {
+    "monthly": {
+      "hero": {
+        "kicker": "Monthly e-bike rental",
+        "heading": "Rent the bike. Skip the price tag.",
+        "lead": "A monthly e-bike rental is the simplest way onto a quality bike without buying one. You pay a clear daily rate, billed every 30 days, and the bike, service support, lock and charger come together as one package. When your needs change, so does your plan — no resale, no depreciation, no workshop bills.",
+        "ctaReserve": "Reserve a bike",
+        "ctaExplore": "Explore the fleet"
+      },
+      "points": {
+        "predictablePrice": {
+          "title": "One predictable price",
+          "copy": "Pay a daily rate billed every 30 days. No big upfront purchase, no surprise repair bills — you know exactly what the bike costs each month."
+        },
+        "repairsOnUs": {
+          "title": "Repairs are on us",
+          "copy": "Service support is part of every plan. If something needs fixing, we sort it — so a worn brake pad or a flat tyre doesn't become your problem."
+        },
+        "commitFlexible": {
+          "title": "Commit as little or as long as you like",
+          "copy": "Start on a 30-day plan to test it, then move to a 6 or 12-month plan for a lower daily rate when you're ready. The longer the term, the less you pay per day."
+        },
+        "nothingTiedUp": {
+          "title": "Nothing tied up in a bike",
+          "copy": "Buying an e-bike means hundreds up front, plus batteries, locks and maintenance. Renting keeps your cash free and the bike someone else's responsibility to maintain."
+        }
+      },
+      "models": {
+        "kicker": "Available monthly",
+        "heading": "Bikes you can rent today.",
+        "lead": "Every bike in the fleet rents on the same monthly terms. Browse the most popular picks below, or see the full range."
+      },
+      "cta": {
+        "heading": "Start your monthly plan.",
+        "lead": "Pick a bike, choose a 30-day, 6 or 12-month plan and reserve in a few steps — no payment now, service support from day one.",
+        "button": "Reserve your e-bike"
+      }
+    },
+    "delivery": {
+      "hero": {
+        "kicker": "Delivery e-bike rental",
+        "heading": "An e-bike built for the job.",
+        "lead": "Delivery riding is hard on a bike: long hours, heavy loads and every kind of weather. rentaro rents delivery-built e-bikes by the month, with the motor, payload and service support to match — so you spend your shift earning, not pushing a bike with a flat battery. Pay daily, billed monthly, with repairs handled for you.",
+        "ctaReserve": "Reserve a bike",
+        "ctaExplore": "Explore the fleet"
+      },
+      "points": {
+        "builtToCarry": {
+          "title": "Built to carry, not to cruise",
+          "copy": "Strong motors, real torque and high payload limits. These bikes are chosen for racks, bags and long days under load — not for a relaxed weekend ride."
+        },
+        "downtimeCosts": {
+          "title": "Downtime costs you money",
+          "copy": "Your bike is your income tool, so service support is built into every plan. We keep it moving with fast fixes and extra-battery options for back-to-back shifts."
+        },
+        "readyForWeather": {
+          "title": "Ready for any weather",
+          "copy": "Hydraulic brakes, durable tyres and frames picked for daily city use — rain, cobbles and winter slush included. The bike turns up ready for the shift."
+        },
+        "cityDelivery": {
+          "title": "Suitable for city delivery work",
+          "copy": "Whatever app or service you ride for, these bikes are set up for urban delivery: nimble in traffic, comfortable over distance and easy to lock up between drops."
+        }
+      },
+      "models": {
+        "kicker": "Picked for delivery",
+        "heading": "The bikes couriers reach for.",
+        "lead": "Power, payload and stamina that hold up to full delivery days. Browse the most popular delivery setups, or see the full fleet."
+      },
+      "cta": {
+        "heading": "Gear up for your next shift.",
+        "lead": "Choose a delivery-ready e-bike and a plan, and reserve in a few steps — service support and extra-battery options included.",
+        "button": "Reserve your e-bike"
+      }
+    },
+    "couriers": {
+      "hero": {
+        "kicker": "E-bike rental for couriers",
+        "heading": "Made for couriers, not weekend riders.",
+        "lead": "rentaro exists for one job: keeping delivery couriers earning. You rent a delivery-built e-bike by the month, start quickly, and ride with service support behind you. No big purchase, no resale headache, no day lost to a bike you can’t fix. Choose your model, sign online and start your next shift.",
+        "ctaBook": "Start booking",
+        "ctaExplore": "Explore the fleet"
+      },
+      "points": {
+        "startThisWeek": {
+          "title": "Start delivering this week",
+          "copy": "Choose your model online, sign the contract on your phone and pick up the same week. No long wait, no big purchase before your first shift."
+        },
+        "incomeTool": {
+          "title": "Your bike is your income tool",
+          "copy": "If it's off the road, you're not earning. Service support is built into every plan, so small issues get fixed fast and you stay on the road."
+        },
+        "priceFitsHours": {
+          "title": "A price that fits your hours",
+          "copy": "Riding part-time? Start on a flexible 30-day plan. Full-time? A 6 or 12-month plan drops your daily rate. You're never locked into more than you need."
+        },
+        "staminaLongShifts": {
+          "title": "Stamina for long shifts",
+          "copy": "Bikes picked for delivery work, with extra-battery options for the days you stitch together back-to-back orders across the city."
+        }
+      },
+      "howItWorks": {
+        "kicker": "How couriers start",
+        "heading": "Choose. Sign. Ride.",
+        "lead": "Three steps from picking a bike to your first delivery — most of it from your phone."
+      },
+      "models": {
+        "kicker": "Courier favourites",
+        "heading": "Bikes that hold up to the work.",
+        "lead": "Hand-picked for delivery shifts. Browse the most popular picks, or see the full fleet."
+      },
+      "cta": {
+        "heading": "Ready to start earning?",
+        "lead": "Choose your rentaro e-bike, pick a plan and reserve in a few steps — service support included from day one.",
+        "button": "Start booking"
+      }
+    }
   }
 }

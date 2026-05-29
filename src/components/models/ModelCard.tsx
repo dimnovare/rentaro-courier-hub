@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Ic } from "@/components/ui/Icon";
 import type { BikeModel } from "@/types";
 
 export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: boolean }) {
   const { reserve } = useInteractions();
+  const t = useTranslations("modelsPage");
+  const tm = useTranslations("modelItems");
   const avail =
     m.status === "in"
-      ? { label: `${m.availability} in stock`, cls: "in" }
+      ? { label: t("avail.inStock", { count: m.availability }), cls: "in" }
       : m.status === "low"
-        ? { label: `${m.availability} left`, cls: "low" }
-        : { label: "Waitlist", cls: "wait" };
+        ? { label: t("avail.left", { count: m.availability }), cls: "low" }
+        : { label: t("avail.waitlist"), cls: "wait" };
   const pills = compact ? m.pills.slice(0, 2) : m.pills;
   const isWait = m.status === "wait";
 
@@ -33,7 +36,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           </Link>
         </h3>
         <div className="model-tagline">
-          {m.brand} · {m.tagline}
+          {m.brand} · {tm(`${m.id}.tagline`)}
         </div>
         <div className="spec-row">
           {pills.map((p) => (
@@ -45,17 +48,17 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
         </div>
         <div className="model-foot">
           <div className="from">
-            FROM
+            {t("from")}
             <strong>
               €{m.fromDay.toFixed(2)}
-              <span className="per"> / day</span>
+              <span className="per"> {t("perDay")}</span>
             </strong>
           </div>
           <button
             className={`reserve-btn ${isWait ? "wait" : ""}`}
             onClick={() => reserve(isWait ? `waitlist:${m.id}` : m.id)}
           >
-            {isWait ? "Join waitlist" : "Reserve"}
+            {isWait ? t("joinWaitlist") : t("reserve")}
             {!isWait && <Ic.arrow s={13} />}
           </button>
         </div>

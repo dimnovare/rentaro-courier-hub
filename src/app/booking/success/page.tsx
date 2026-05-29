@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Ic } from "@/components/ui/Icon";
 
@@ -17,6 +18,7 @@ type Summary = {
 };
 
 export default function BookingSuccessPage() {
+  const t = useTranslations("bookingSuccess");
   const [s, setS] = useState<Summary | null>(null);
 
   useEffect(() => {
@@ -50,10 +52,9 @@ export default function BookingSuccessPage() {
                 >
                   <Ic.check s={28} />
                 </div>
-                <h2>Request received{s?.firstName ? `, ${s.firstName}` : ""}.</h2>
+                <h2>{s?.firstName ? t("headingNamed", { name: s.firstName }) : t("heading")}</h2>
                 <p>
-                  We&apos;ll confirm availability and send your digital contract by email shortly
-                  — no payment has been taken.
+                  {t("body")}
                 </p>
 
                 {s && (
@@ -63,23 +64,23 @@ export default function BookingSuccessPage() {
                   >
                     <div style={{ padding: "6px 20px" }}>
                       <div className="summary-row">
-                        <span className="l">Reference</span>
+                        <span className="l">{t("reference")}</span>
                         <span className="v mono">{s.id}</span>
                       </div>
                       <div className="summary-row">
-                        <span className="l">Model</span>
+                        <span className="l">{t("model")}</span>
                         <span className="v">{s.model}</span>
                       </div>
                       <div className="summary-row">
-                        <span className="l">Plan</span>
+                        <span className="l">{t("plan")}</span>
                         <span className="v">{s.plan}</span>
                       </div>
                       <div className="summary-row">
-                        <span className="l">City</span>
+                        <span className="l">{t("city")}</span>
                         <span className="v">{s.city}</span>
                       </div>
                       <div className="summary-row" style={{ borderBottom: "none" }}>
-                        <span className="l">Start date</span>
+                        <span className="l">{t("startDate")}</span>
                         <span className="v">{s.startDate}</span>
                       </div>
                     </div>
@@ -88,13 +89,13 @@ export default function BookingSuccessPage() {
 
                 <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
                   <Link className="btn btn-primary btn-lg" href="/models">
-                    Browse the fleet
+                    {t("browseFleet")}
                     <span className="arrow">
                       <Ic.arrow />
                     </span>
                   </Link>
                   <Link className="btn btn-ghost btn-lg" href="/">
-                    Back home
+                    {t("backHome")}
                   </Link>
                 </div>
               </div>

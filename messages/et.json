@@ -240,5 +240,500 @@
     "lead": "Vali oma rentaro e-ratas, vali pakett ja hakka sõitma — teenindustugi on sees esimesest päevast.",
     "ctaReserve": "Broneeri oma e-ratas",
     "ctaPricing": "Vaata hindu"
+  },
+  "booking": {
+    "title": "Broneeri oma e-jalgratas",
+    "intro": "Kuus kiiret sammu. Praegu ei maksa midagi — kinnitame saadavuse ja saadame digilepingu enne kättesaamist.",
+    "steps": {
+      "city": "Linn",
+      "model": "Mudel",
+      "plan": "Pakett",
+      "addons": "Lisad",
+      "details": "Andmed",
+      "review": "Ülevaade"
+    },
+    "errors": {
+      "submit": "Taotluse saatmisel läks midagi valesti. Palun proovi uuesti."
+    },
+    "city": {
+      "heading": "Kus sa sõidad?",
+      "sub": "Vali oma linn. Praegu tegutseme Tallinnas ja Riias.",
+      "soon": "Tulekul",
+      "limited": "Piiratud kogus",
+      "available": "{count} saadaval"
+    },
+    "model": {
+      "heading": "Vali oma ratas",
+      "sub": "Kõiki mudeleid renditakse samade pakettidega — vali see, mis sinu vahetustele sobib.",
+      "fromDay": "Alates €{price}/päev",
+      "waitlistSuffix": " · ootenimekiri"
+    },
+    "plan": {
+      "heading": "Vali pakett",
+      "sub": "Mida pikem periood, seda madalam päevahind. Vähemalt 30 päeva.",
+      "perDay": "€{price}/päev",
+      "per30": "€{price} 30 päeva eest"
+    },
+    "addons": {
+      "heading": "Lisad",
+      "sub": "Valikuline. Lisa varustust, mis toob vahetusi sisse — saad seda hiljem muuta."
+    },
+    "details": {
+      "heading": "Sinu andmed",
+      "sub": "Et saaksime saadavuse kinnitada ja lepingu saata.",
+      "firstName": "Eesnimi",
+      "lastName": "Perekonnanimi",
+      "email": "E-post",
+      "phone": "Telefon",
+      "startDate": "Soovitud alguskuupäev",
+      "notes": "Märkused (valikuline)",
+      "notesPlaceholder": "Tarneplatvorm, kättesaamise eelistus, kõik mida peaksime teadma…"
+    },
+    "review": {
+      "heading": "Vaata üle ja kinnita",
+      "sub": "Kontrolli andmeid — praegu ei võeta makset.",
+      "city": "Linn",
+      "model": "Mudel",
+      "plan": "Pakett",
+      "addons": "Lisad",
+      "none": "Puudub",
+      "startDate": "Alguskuupäev",
+      "contact": "Kontakt",
+      "from": "Alates",
+      "per30Addons": "/ 30 päeva + lisad",
+      "paymentNote": "Maksa esimene 30-päevane periood turvaliselt Montonio kaudu — kaardiga või pangaülekandega."
+    },
+    "buttons": {
+      "cancel": "Tühista",
+      "back": "Tagasi",
+      "continue": "Edasi",
+      "submitting": "Saadan…",
+      "submit": "Saada taotlus"
+    }
+  },
+  "bookingSuccess": {
+    "heading": "Taotlus vastu võetud.",
+    "headingNamed": "Taotlus vastu võetud, {name}.",
+    "body": "Kinnitame peagi saadavuse ja saadame digilepingu e-postiga — makset ei ole võetud.",
+    "reference": "Viitenumber",
+    "model": "Mudel",
+    "plan": "Pakett",
+    "city": "Linn",
+    "startDate": "Alguskuupäev",
+    "browseFleet": "Sirvi pargi",
+    "backHome": "Tagasi avalehele"
+  },
+  "bookingStatus": {
+    "kicker": "Jälgi oma broneeringut",
+    "heading": "Kontrolli oma broneeringu olekut.",
+    "lead": "Sisesta kinnituses olnud broneeringu viitenumber, et näha oma mudelit, paketti, linna ja alguskuupäeva. Sisselogimist pole vaja — hoia viitenumber käepärast.",
+    "refLabel": "Broneeringu viitenumber",
+    "refPlaceholder": "nt 3f9a1c20-…",
+    "checking": "Kontrollin…",
+    "checkStatus": "Kontrolli olekut",
+    "cantFindPrefix": "Ei leia oma viitenumbrit?",
+    "cantFindLink": "Alusta uut broneeringut",
+    "notFound": "Selle viitenumbriga broneeringut ei leitud. Kontrolli koodi oma kinnituse e-kirjast.",
+    "preview": "Olekupäring on eelvaates — ühenda rentaro API, et jälgida broneeringuid reaalajas.",
+    "error": "Otsingul läks midagi valesti. Palun proovi hetke pärast uuesti.",
+    "statusLabel": "Olek",
+    "reference": "Viitenumber",
+    "model": "Mudel",
+    "plan": "Pakett",
+    "city": "Linn",
+    "startDate": "Alguskuupäev",
+    "toBeConfirmed": "Kinnitamisel"
+  },
+  "portal": {
+    "invalidLink": "See link on kehtetu või aegunud.",
+    "loading": "Laen sinu rendiandmeid…",
+    "previewTitle": "Portaali eelvaade",
+    "previewBody": "Sinu rendiportaal on eelvaates — ühenda rentaro API, et hallata rente reaalajas.",
+    "errorTitle": "Midagi läks valesti.",
+    "errorBody": "Praegu ei õnnestunud sinu rendiandmeid laadida. Palun värskenda hetke pärast.",
+    "kicker": "Halda oma renti",
+    "heading": "Siin on sinu rent.",
+    "headingNamed": "Tere {name} — siin on sinu rent.",
+    "lead": "Vaata oma andmeid, teata rattaga seotud probleemist või kirjuta meeskonnale. Sisselogimist pole vaja — see leht on seotud sinu kinnituse e-kirjas oleva turvalingiga.",
+    "rentalStatus": "Rendi olek",
+    "bookingStatus": "Broneeringu olek",
+    "reference": "Viitenumber",
+    "bike": "Ratas",
+    "plan": "Pakett",
+    "city": "Linn",
+    "pickup": "Kättesaamine",
+    "startDate": "Alguskuupäev",
+    "toBeConfirmed": "Kinnitamisel",
+    "plannedEnd": "Planeeritud lõpp",
+    "assignedBike": "Määratud ratas",
+    "notYetAssigned": "Veel määramata",
+    "needElsePrefix": "Vajad veel midagi?",
+    "needElseLink": "Vaata KKK-d",
+    "sending": "Saadan…",
+    "sendFailed": "Praegu ei õnnestunud seda saata. Palun proovi uuesti.",
+    "repair": {
+      "heading": "Telli remont",
+      "lead": "Midagi rattaga korrast ära? Anna teada ja meie teenindusmeeskond võtab ühendust.",
+      "issueType": "Probleemi tüüp",
+      "descLabel": "Mis on valesti?",
+      "descPlaceholder": "nt Tagumine pidur tundub lõtv ja kriiksub.",
+      "submit": "Saada remonditaotlus"
+    },
+    "support": {
+      "heading": "Võta tugiga ühendust",
+      "lead": "Küsimus paketi, kättesaamise või millegi muu kohta? Saada meile sõnum.",
+      "msgLabel": "Sinu sõnum",
+      "msgPlaceholder": "Kuidas saame aidata?",
+      "submit": "Saada sõnum"
+    },
+    "errorHelpPrefix": "Kontrolli oma kinnituse e-kirjas olevat linki või",
+    "errorHelpLink": "jälgi oma broneeringut",
+    "errorHelpSuffix": "selle asemel."
+  },
+  "enums": {
+    "bookingStatus": {
+      "submitted": "Esitatud",
+      "awaitingreview": "Ülevaatamisel",
+      "approved": "Kinnitatud",
+      "rejected": "Ei kinnitatud",
+      "cancelled": "Tühistatud",
+      "paymentpending": "Makse ootel",
+      "bikeassigned": "Ratas määratud",
+      "completed": "Lõpetatud"
+    },
+    "rentalStatus": {
+      "active": "Aktiivne",
+      "endingsoon": "Lõppemas",
+      "returned": "Tagastatud",
+      "closed": "Suletud",
+      "overdue": "Tähtaeg möödas"
+    },
+    "issueType": {
+      "puncture": "Rehvitorge / tühi rehv",
+      "brakes": "Pidurid",
+      "battery": "Aku",
+      "motor": "Mootor",
+      "lock": "Lukk",
+      "charger": "Laadija",
+      "generalService": "Üldine hooldus",
+      "inspection": "Ülevaatus",
+      "accident": "Õnnetus / avariikahjustus"
+    },
+    "priority": {
+      "low": "Madal",
+      "medium": "Keskmine",
+      "high": "Kõrge"
+    }
+  },
+  "cityPage": {
+    "meta": {
+      "notFoundTitle": "Linna ei leitud — rentaro",
+      "titleSoon": "E-jalgrataste rent linnas {city} — tulekul · rentaro",
+      "titleLive": "Igakuine e-jalgrataste rent linnas {city} — rentaro",
+      "descriptionSoon": "rentaro toob tarnevalmis igakuise e-jalgrataste rendi linna {city}, {country}. Liitu ootenimekirjaga, et saada teada käivituskuupäevad ja kättesaamise üksikasjad.",
+      "descriptionLive": "Rendi tarnevalmis e-jalgratas kuupõhiselt linnas {city}, {country}. 30-päevased, 6- ja 12-kuised paketid teenindustoe, luku, laadija ja lisaaku valikuga."
+    },
+    "hero": {
+      "joinWaitlist": "Liitu ootenimekirjaga",
+      "reserveIn": "Broneeri linnas {city}"
+    },
+    "whyHere": {
+      "kicker": "Miks kullerid siin sõidavad",
+      "headingSoon": "Loodud linna {city} vahetusteks.",
+      "headingLive": "Loodud linna {city} tarnevahetusteks."
+    },
+    "popular": {
+      "kicker": "Populaarne linnas {city}",
+      "heading": "Rattad, mille kullerid esimesena haaravad.",
+      "leadBase": "Kõiki rentaro e-jalgrattaid renditakse samadel tingimustel — 30-päevased, 6- või 12-kuised paketid koos teenindustoega. ",
+      "leadSoon": "Need rattad jõuavad linna {city} käivitamisel.",
+      "leadLive": "Vali see, mis sinu vahetustele sobib."
+    },
+    "finalCta": {
+      "headingSoon": "Soovid rentaro ratast linnas {city}?",
+      "headingLive": "Valmis sõitma linnas {city}?",
+      "copySoon": "Liitu ootenimekirjaga ja anname teada hetkel, mil tarnevalmis e-jalgrattad linna {city} jõuavad.",
+      "copyLive": "Vali oma mudel, vali pakett ja alusta sel nädalal linnas {city} tarnetega — teenindustugi kohe esimesest päevast.",
+      "joinWaitlist": "Liitu ootenimekirjaga",
+      "reserveIn": "Broneeri linnas {city}",
+      "exploreFleet": "Uuri parki"
+    }
+  },
+  "cityContent": {
+    "tallinn": {
+      "headline": "Igakuine e-jalgrataste rent Tallinnas.",
+      "intro": "Tallinnast sai rentaro alguse. Olgu sa kesklinna lõunatipptundide või pikemate sõitude peal Lasnamäele ja Mustamäele — saad tarnevalmis e-jalgratta lihtsa kuupaketiga, koos luku, laadija ja teenindustoega, mis hoiavad sind igal vahetusel teenimas.",
+      "whyHere": [
+        "Kompaktne vanalinn ja Kesklinna tänavad tasuvad kiire ja väleda e-jalgratta tarnete vahel ära.",
+        "Munakivid, trammirööpad ja talvine lobjakas — meie rattad on valitud päris Tallinna oludeks.",
+        "Sama nädala kättesaamine kesklinnas, lisaks lisaaku valikud järjestikusteks vahetusteks.",
+        "Teenindustugi üle linna, nii et tühi rehv ei maksa sulle kunagi tervet päeva."
+      ],
+      "pickupNote": "Saa oma ratas kätte meie Telliskivi või Kesklinna kättesaamispunktist või küsi kohaliku üleandmise kohta. Tutvustame sulle ratast, lukku ja laadimist enne esimest vahetust.",
+      "neighbourhoods": [
+        "Kesklinn",
+        "Telliskivi",
+        "Kalamaja",
+        "Lasnamäe",
+        "Mustamäe",
+        "Kristiine"
+      ]
+    },
+    "riga": {
+      "headline": "Igakuine e-jalgrataste rent Riias.",
+      "intro": "Riia kullerid läbivad korralikult maad — Centrsist ja Vecrīgast üle jõe Āgenskalnsi ja Pārdaugavasse. Igakuine rentaro e-jalgratas hoiab selle läbisõidu odava ja etteaimatavana, koos teenindustoe ja pikkadeks tarnepäevadeks mõeldud lisaaku valikutega.",
+      "whyHere": [
+        "Laiad bulvarid ja pikad jõeületavad marsruudid — e-jalgratas teeb suured vahemaad kergeks.",
+        "Üks lihtne kuuhind kütuse, parkimise ja ebausaldusväärse ratta kulu asemel.",
+        "Lisaakud saadaval kulleritele, kes panevad terveid päevi üle linna kokku.",
+        "Kohalik teenindustugi, et väikesed probleemid saaksid kiiresti lahendatud ja sa püsiksid teel."
+      ],
+      "pickupNote": "Saa ratas kätte Centrsis või Āgenskalnsis või lepi kokku kohalik üleandmine. Seadistame ratta koos sinuga, kontrollime luku ja näitame, kuidas laadimine toimib, enne kui sõitma lähed.",
+      "neighbourhoods": [
+        "Centrs",
+        "Vecrīga",
+        "Āgenskalns",
+        "Pārdaugava",
+        "Teika",
+        "Purvciems"
+      ]
+    },
+    "helsinki": {
+      "headline": "Igakuine e-jalgrataste rent Helsingis — tulekul.",
+      "intro": "Helsingi on rentaro kaardil järgmine. Paneme kokku tarnevalmis parki kulleritele, kes töötavad Kallios, Punavuoris ja laiemas linnas — samad kuupaketid, sama teenindustugi, sama fookus sellele, et sinu ratas püsiks liikvel. Liitu ootenimekirjaga ja anname teada hetkel, mil rattad kohale jõuavad.",
+      "whyHere": [
+        "Tugev jalgrattataristu teeb Helsingist tarne-e-jalgratastele loomuliku valiku.",
+        "Aastaringsed sõitjad vajavad rattaid, mis on valmis külmadeks, märgadeks ja pimedateks talvevahetusteks — just selleks me ehitamegi.",
+        "Kuupaketid annavad täiskohaga kulleritele etteaimatava kulu, koos lisaaku valikutega pikkadeks päevadeks.",
+        "Teenindustugi on osa paketist alates päevast, mil käivitame."
+      ],
+      "pickupNote": "Helsingi kättesaamispunktid Kallio ja Punavuori ümbruses on viimistlemisel. Liitu ootenimekirjaga ja jagame kättesaamise üksikasju ning käivituskuupäeva niipea, kui park on valmis.",
+      "neighbourhoods": [
+        "Kallio",
+        "Punavuori",
+        "Kamppi",
+        "Töölö",
+        "Sörnäinen",
+        "Kallio"
+      ]
+    }
+  },
+  "pageHeaders": {
+    "pricing": {
+      "kicker": "Paketid ja hinnad",
+      "heading": "Üks päevahind. Arve iga 30 päeva tagant.",
+      "lead": "Kõiki rentaro e-jalgrattaid renditakse samadel lihtsatel tingimustel — vali 30-päevane, 6- või 12-kuine pakett ja maksa päevahind × 30. Vali pikem periood ja sinu päevahind langeb. Minimaalne renditähtaeg on 30 päeva."
+    },
+    "howItWorks": {
+      "kicker": "Alustamine",
+      "heading": "Vali, allkirjasta, sõida.",
+      "lead": "Rentaro e-jalgratta peale saamine on ehitatud kiireks. Vali mudel ja pakett, aja paberimajandus digitaalselt telefonist korda ja saa oma ratas kätte — teenindustugi kohe esimesest päevast, et sinu vahetused kestaksid."
+    },
+    "faq": {
+      "kicker": "KKK",
+      "heading": "Kõik, mida pead teadma.",
+      "lead": "Kõige sagedasemad küsimused rentaro e-jalgratta rentimise kohta tarnetööks — paketid, tagatisrahad, hooldus ja kättesaamine. Vajad veel midagi? Võta ühendust ja aitame."
+    },
+    "accessories": {
+      "kicker": "Lisad",
+      "heading": "Varustus, mis toob vahetusi sisse.",
+      "lead": "Lisa varustus, mis sinu rutiini sobib. Pikkadeks tarnepäevadeks mõeldud lisaakudest kottide, hoidikute ja ilmastikukaitseni — iga lisa on loodud kullertööks ja selle saab lisada igale rentaro paketile."
+    }
+  },
+  "modelsPage": {
+    "kicker": "Kogu park",
+    "heading": "Kõik mudelid.",
+    "lead": "Kõiki rentaro e-jalgrattaid renditakse samadel lihtsatel tingimustel — 30-päevased, 6- või 12-kuised paketid koos teenindustoega. Vali ratas, mis sinu vahetustele sobib.",
+    "allModels": "Kõik mudelid",
+    "from": "ALATES",
+    "perDay": "/ päev",
+    "reserve": "Broneeri",
+    "joinWaitlist": "Liitu ootenimekirjaga",
+    "reserveThisBike": "Broneeri see ratas",
+    "joinWaitlistLong": "Liitu ootenimekirjaga",
+    "planNote": "Saadaval 30-päevase, 6- või 12-kuise paketiga — alates €3.90/päev 12-kuise paketiga.",
+    "fullSpec": "Täielik spetsifikatsioon",
+    "galleryThumbAria": "Vaata pilti {index}/{total}",
+    "avail": {
+      "inStock": "{count} laos",
+      "left": "{count} alles",
+      "waitlist": "Ootenimekiri"
+    },
+    "status": {
+      "available": "Saadaval",
+      "limited": "Piiratud",
+      "waitlist": "Ootenimekiri",
+      "comingSoon": "Tulekul"
+    }
+  },
+  "modelItems": {
+    "engine-pro": {
+      "tagline": "Tarnetöö tööhobune",
+      "blurb": "750W (1200W tipp) tagumine rummumootor, jõumomendiandur ja täisvedrustus 20×4.0 jämedatel rehvidel. Ehitatud koormaid kandma läbi tervete tarnepäevade, igasugusel pinnal."
+    },
+    "air-one-pro": {
+      "tagline": "Pere- ja kaubavedaja",
+      "blurb": "Integreeritud alumiiniumist pakiraam, kaheakurežiim ja 150 kg kandevõime. Valik rasketeks mitme tellimuse sõitudeks."
+    },
+    "air-28pro": {
+      "tagline": "Pikad linnavahemaad",
+      "blurb": "28-tolline trekkinggeomeetria, automaatne Bafang käiguvahetus ja 3.5\" IPX7 ekraan. Sujuv ja vähehooldav süsinikrihmülekanne pikkadeks linnakilomeetriteks."
+    },
+    "air-20pro": {
+      "tagline": "Nutikas automaatkäiguga linnaratas",
+      "blurb": "Kokkupandav linnaratas automaatse Bafang käiguvahetuse, vähehooldava süsinikrihma ja 21 kg raamiga, mida on lihtne kaasas kanda ja hoiustada."
+    },
+    "air-20s": {
+      "tagline": "Kõige kergem ja lihtsam",
+      "blurb": "Pargi kõige kergem ja lihtsam ratas: 18 kg ühekäiguline kokkupandav ratas vaikse süsinikrihmaga — lihtne käsitseda lühemateks linnavahetusteks."
+    },
+    "air-30pro": {
+      "tagline": "Linnaratas suunatuledega",
+      "blurb": "700C linnaratas GPS-vargakaitse, integreeritud suunatulede ning Eco / Sport režiimidega — pargi kõige liiklusteadlikum ratas."
+    }
+  },
+  "specTable": {
+    "type": "Tüüp",
+    "motor": "Mootor",
+    "peakPower": "Tippvõimsus",
+    "torque": "Jõumoment",
+    "battery": "Aku",
+    "range": "Sõiduulatus",
+    "topSpeed": "Tippkiirus",
+    "charging": "Laadimine",
+    "drive": "Vedu",
+    "transmission": "Ülekanne",
+    "ridingModes": "Sõidurežiimid",
+    "brakes": "Pidurid",
+    "suspension": "Vedrustus",
+    "tyres": "Rehvid",
+    "display": "Ekraan",
+    "sensor": "Andur",
+    "lighting": "Valgustus",
+    "smart": "Nutifunktsioonid",
+    "maxLoad": "Maksimaalne koormus",
+    "weight": "Kaal",
+    "maxClimb": "Maksimaalne tõus",
+    "riderHeight": "Sõitja pikkus",
+    "certification": "Sertifikaat",
+    "rangeNote": "Sõiduulatus on tootja hinnang — tegelik vahemaa sõltub koormusest, maastikust, ilmast ja sõitjast."
+  },
+  "seo": {
+    "monthly": {
+      "hero": {
+        "kicker": "Igakuine e-jalgrataste rent",
+        "heading": "Rendi ratas. Jäta hinnasilt vahele.",
+        "lead": "Igakuine e-jalgrataste rent on lihtsaim viis saada kvaliteetne ratas ilma seda ostmata. Maksad selget päevahinda, mille arve esitatakse iga 30 päeva tagant, ning ratas, teenindustugi, lukk ja laadija tulevad ühe paketina. Kui sinu vajadused muutuvad, muutub ka pakett — ei mingit edasimüüki, väärtuse langust ega töökojaarveid.",
+        "ctaReserve": "Broneeri ratas",
+        "ctaExplore": "Uuri parki"
+      },
+      "points": {
+        "predictablePrice": {
+          "title": "Üks etteaimatav hind",
+          "copy": "Maksad päevahinda, mille arve esitatakse iga 30 päeva tagant. Ei mingit suurt ettemaksu ega ootamatuid remondiarveid — tead täpselt, mis ratas igal kuul maksab."
+        },
+        "repairsOnUs": {
+          "title": "Remondid on meie kanda",
+          "copy": "Teenindustugi on osa igast paketist. Kui midagi vajab parandamist, korraldame selle — nii et kulunud piduriklots või tühi rehv ei muutu sinu probleemiks."
+        },
+        "commitFlexible": {
+          "title": "Seo end nii vähe või kauaks, kui soovid",
+          "copy": "Alusta 30-päevase paketiga, et seda proovida, ja liigu siis valmis olles 6- või 12-kuisele paketile madalama päevahinna saamiseks. Mida pikem periood, seda vähem maksad päevas."
+        },
+        "nothingTiedUp": {
+          "title": "Midagi pole rattasse kinni pandud",
+          "copy": "E-jalgratta ostmine tähendab sadu eurosid ette, lisaks akud, lukud ja hooldus. Rentimine hoiab sinu raha vabana ja ratta hoolduse kellegi teise mureks."
+        }
+      },
+      "models": {
+        "kicker": "Saadaval kuupõhiselt",
+        "heading": "Rattad, mida saad täna rentida.",
+        "lead": "Kõiki pargi rattaid renditakse samadel kuutingimustel. Sirvi populaarsemaid valikuid all või vaata kogu valikut."
+      },
+      "cta": {
+        "heading": "Alusta oma kuupaketti.",
+        "lead": "Vali ratas, vali 30-päevane, 6- või 12-kuine pakett ja broneeri mõne sammuga — praegu ei maksa midagi, teenindustugi kohe esimesest päevast.",
+        "button": "Broneeri oma e-jalgratas"
+      }
+    },
+    "delivery": {
+      "hero": {
+        "kicker": "Tarne-e-jalgrataste rent",
+        "heading": "E-jalgratas, mis on tehtud tööks.",
+        "lead": "Tarnetöö paneb ratta proovile: pikad tunnid, rasked koormad ja igasugune ilm. rentaro rendib tarnevalmis e-jalgrattaid kuupõhiselt, sobiva mootori, kandevõime ja teenindustoega — nii et veedad oma vahetuse teenides, mitte tühja akuga ratast lükates. Maksad päevas, arve kuupõhiselt, remondid sinu eest korraldatud.",
+        "ctaReserve": "Broneeri ratas",
+        "ctaExplore": "Uuri parki"
+      },
+      "points": {
+        "builtToCarry": {
+          "title": "Ehitatud kandma, mitte lõõgastuma",
+          "copy": "Tugevad mootorid, päris jõumoment ja kõrged kandevõime piirid. Need rattad on valitud pakiraamide, kottide ja pikkade koormaga päevade jaoks — mitte lõõgastavaks nädalavahetusesõiduks."
+        },
+        "downtimeCosts": {
+          "title": "Seisuaeg maksab sulle raha",
+          "copy": "Sinu ratas on sinu sissetulekuallikas, seega on teenindustugi sisse ehitatud igasse paketti. Hoiame seda liikvel kiirete paranduste ja lisaaku valikutega järjestikusteks vahetusteks."
+        },
+        "readyForWeather": {
+          "title": "Valmis igaks ilmaks",
+          "copy": "Hüdraulilised pidurid, vastupidavad rehvid ja igapäevaseks linnakasutuseks valitud raamid — vihm, munakivid ja talvine lobjakas kaasa arvatud. Ratas saabub vahetuseks valmis."
+        },
+        "cityDelivery": {
+          "title": "Sobib linnasiseseks tarnetööks",
+          "copy": "Ükskõik millise äpi või teenuse jaoks sa sõidad, need rattad on seadistatud linnatarneteks: väledad liikluses, mugavad pikkadel vahemaadel ja lihtsalt lukustatavad tarnete vahel."
+        }
+      },
+      "models": {
+        "kicker": "Valitud tarnetööks",
+        "heading": "Rattad, mille kullerid haaravad.",
+        "lead": "Võimsus, kandevõime ja vastupidavus, mis peavad vastu tervetele tarnepäevadele. Sirvi populaarsemaid tarnekomplekte või vaata kogu parki."
+      },
+      "cta": {
+        "heading": "Valmistu järgmiseks vahetuseks.",
+        "lead": "Vali tarnevalmis e-jalgratas ja pakett ning broneeri mõne sammuga — teenindustugi ja lisaaku valikud kaasas.",
+        "button": "Broneeri oma e-jalgratas"
+      }
+    },
+    "couriers": {
+      "hero": {
+        "kicker": "E-jalgrataste rent kulleritele",
+        "heading": "Tehtud kulleritele, mitte nädalavahetuse sõitjatele.",
+        "lead": "rentaro on olemas ühe töö jaoks: hoida tarnekullerid teenimas. Rendid tarnevalmis e-jalgratta kuupõhiselt, alustad kiiresti ja sõidad teenindustugi selja taga. Ei mingit suurt ostu, edasimüügipeavalu ega päeva, mis kaob ratta peale, mida sa ise parandada ei saa. Vali oma mudel, allkirjasta veebis ja alusta järgmist vahetust.",
+        "ctaBook": "Alusta broneerimist",
+        "ctaExplore": "Uuri parki"
+      },
+      "points": {
+        "startThisWeek": {
+          "title": "Alusta tarnetega sel nädalal",
+          "copy": "Vali oma mudel veebis, allkirjasta leping telefonis ja saa ratas kätte samal nädalal. Ei mingit pikka ootamist ega suurt ostu enne esimest vahetust."
+        },
+        "incomeTool": {
+          "title": "Sinu ratas on sinu sissetulekuallikas",
+          "copy": "Kui see on teelt väljas, sa ei teeni. Teenindustugi on sisse ehitatud igasse paketti, nii et väikesed probleemid saavad kiiresti lahendatud ja sa püsid teel."
+        },
+        "priceFitsHours": {
+          "title": "Hind, mis sobib sinu tundidega",
+          "copy": "Sõidad osalise ajaga? Alusta paindliku 30-päevase paketiga. Täiskohaga? 6- või 12-kuine pakett langetab sinu päevahinda. Sa pole kunagi seotud rohkemaga, kui vajad."
+        },
+        "staminaLongShifts": {
+          "title": "Vastupidavus pikkadeks vahetusteks",
+          "copy": "Tarnetööks valitud rattad koos lisaaku valikutega päevadeks, mil paned järjestikuseid tellimusi üle linna kokku."
+        }
+      },
+      "howItWorks": {
+        "kicker": "Kuidas kullerid alustavad",
+        "heading": "Vali. Allkirjasta. Sõida.",
+        "lead": "Kolm sammu ratta valimisest esimese tarneni — enamiku sellest teed oma telefonist."
+      },
+      "models": {
+        "kicker": "Kullerite lemmikud",
+        "heading": "Rattad, mis peavad tööle vastu.",
+        "lead": "Käsitsi valitud tarnevahetusteks. Sirvi populaarsemaid valikuid või vaata kogu parki."
+      },
+      "cta": {
+        "heading": "Valmis teenima hakkama?",
+        "lead": "Vali oma rentaro e-jalgratas, vali pakett ja broneeri mõne sammuga — teenindustugi kohe esimesest päevast.",
+        "button": "Alusta broneerimist"
+      }
+    }
   }
 }
