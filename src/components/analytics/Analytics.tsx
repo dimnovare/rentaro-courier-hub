@@ -1,12 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Script from "next/script";
+import { CONSENT_EVENT } from "@/components/ui/CookieConsent";
 
 /**
- * Env-gated analytics. Renders nothing unless the matching public env var is
- * set at build time, so local/dev and preview builds stay clean and no
- * third-party script loads without configuration.
+ * Consent-gated, env-gated analytics.
+ *
+ * Renders nothing unless BOTH conditions hold:
+ *   1. The matching public env var is set at build time, so local/dev and
+ *      preview builds stay clean and no third-party script loads without
+ *      configuration.
+ *   2. The visitor has granted consent — the `rentaro_consent` cookie reads
+ *      `granted` (set by components/ui/CookieConsent.tsx). If it is `denied`
+ *      or unset, GA / PostHog never initialise.
  *
  *   NEXT_PUBLIC_POSTHOG_KEY   → PostHog (optional NEXT_PUBLIC_POSTHOG_HOST)
  *   NEXT_PUBLIC_GA_ID         → Google Analytics 4 (gtag)
+ *
+ * SSR-safe: the cookie can only be read on the client, so the component starts
+ * "ungranted" on the server and through hydration (rendering null on both
+ * sides — no mismatch). A post-mount effect reads the cookie and also listens
+ * for the same-tab consent event, so clicking "Accept" loads analytics
+ * immediately without a page reload. When consent is granted the rendered
+ * scripts are byte-for-byte identical to before.
  *
  * No external npm packages — both providers load via their CDN snippet through
  * next/script with afterInteractive strategy.
@@ -16,6 +33,11 @@ const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
   process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
+function hasConsent(): boolean {
+  if (typeof document === "undefined") return false;
+  return /(?:^|;\s*)rentaro_consent=granted/.test(document.cookie);
+}
 
 function PostHog({ apiKey, host }: { apiKey: string; host: string }) {
   return (
@@ -44,6 +66,22 @@ function GoogleAnalytics({ id }: { id: string }) {
 }
 
 export function Analytics() {
+  const [granted, setGranted] = useState(false);
+
+  useEffect(() => {
+    if (hasConsent()) setGranted(true);
+
+    function onConsentChange(e: Event) {
+      const detail = (e as CustomEvent<"granted" | "denied">).detail;
+      // Trust the event payload when present; otherwise re-read the cookie.
+      setGranted(detail === "granted" || (detail === undefined && hasConsent()));
+    }
+
+    window.addEventListener(CONSENT_EVENT, onConsentChange);
+    return () => window.removeEventListener(CONSENT_EVENT, onConsentChange);
+  }, []);
+
+  if (!granted) return null;
   if (!POSTHOG_KEY && !GA_ID) return null;
   return (
     <>

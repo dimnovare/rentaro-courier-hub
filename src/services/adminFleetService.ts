@@ -28,8 +28,7 @@ export interface FleetUnit {
 
 export interface FleetRental {
   id: string;
-  bikeUnitId: number;
-  unitInternalCode: string | null;
+  bikeUnitInternalCode: string | null;
   customerEmail: string;
   startDate: string;
   plannedEndDate: string | null;

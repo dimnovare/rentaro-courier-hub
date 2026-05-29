@@ -369,7 +369,7 @@ function RentalTimeline({
   const rows = useMemo(() => {
     const byCode = new Map<string, FleetRental[]>();
     for (const r of rentals) {
-      const code = r.unitInternalCode ?? `unit ${r.bikeUnitId}`;
+      const code = r.bikeUnitInternalCode ?? "unassigned";
       const list = byCode.get(code);
       if (list) list.push(r);
       else byCode.set(code, [r]);

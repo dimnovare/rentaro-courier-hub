@@ -185,6 +185,8 @@ function AdminNav() {
   const links: [string, string][] = [
     ["Manage bookings", "/admin/bookings"],
     ["Manage fleet", "/admin/fleet"],
+    ["Rentals", "/admin/rentals"],
+    ["Calendar", "/admin/calendar"],
     ["Manage maintenance", "/admin/maintenance"],
     ["Contract templates", "/admin/contracts"],
   ];

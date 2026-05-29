@@ -8,6 +8,7 @@ import { Background } from "@/components/layout/Background";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { Analytics } from "@/components/analytics/Analytics";
+import { CookieConsent } from "@/components/ui/CookieConsent";
 import { JsonLd, buildOrganizationSchema } from "@/components/seo/JsonLd";
 
 const siteUrl = (
@@ -73,6 +74,7 @@ export default async function RootLayout({
             <Nav />
             {children}
             <Footer />
+            <CookieConsent />
           </InteractionProvider>
         </NextIntlClientProvider>
       </body>
