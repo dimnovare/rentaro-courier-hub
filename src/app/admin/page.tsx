@@ -17,6 +17,7 @@ import { BookingsTable } from "@/components/admin/BookingsTable";
 import { FleetView } from "@/components/admin/FleetView";
 import { MaintenanceTable } from "@/components/admin/MaintenanceTable";
 import { AdminSection } from "@/components/admin/Table";
+import { MetricsCards } from "@/components/admin/MetricsCards";
 
 const TOKEN_KEY = "rentaro_admin_jwt";
 
@@ -134,6 +135,7 @@ export default function AdminPage() {
       <Header connected={connected} onRefresh={() => token && load(token)} onSignOut={signOut} />
 
       {connected && <AdminNav />}
+      {connected && <MetricsCards />}
 
       {!connected ? (
         <LoginGate

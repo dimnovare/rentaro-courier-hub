@@ -20,13 +20,29 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const c = getCityById(city);
   if (!c) return { title: "City not found — rentaro" };
   const soon = c.status === "soon";
+  const title = soon
+    ? `E-bike rental in ${c.name} — coming soon · rentaro`
+    : `Monthly e-bike rental in ${c.name} — rentaro`;
+  const description = soon
+    ? `rentaro is bringing delivery-ready monthly e-bike rental to ${c.name}, ${c.country}. Join the waitlist for launch dates and pickup details.`
+    : `Rent a delivery-built e-bike by the month in ${c.name}, ${c.country}. 30-day, 6 and 12-month plans with service support, lock, charger and extra-battery options.`;
+  const url = `/cities/${c.id}`;
   return {
-    title: soon
-      ? `E-bike rental in ${c.name} — coming soon · rentaro`
-      : `Monthly e-bike rental in ${c.name} — rentaro`,
-    description: soon
-      ? `rentaro is bringing delivery-ready monthly e-bike rental to ${c.name}, ${c.country}. Join the waitlist for launch dates and pickup details.`
-      : `Rent a delivery-built e-bike by the month in ${c.name}, ${c.country}. 30-day, 6 and 12-month plans with service support, lock, charger and extra-battery options.`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      siteName: "rentaro",
+      url,
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
