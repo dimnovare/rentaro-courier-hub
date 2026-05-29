@@ -12,6 +12,13 @@ import {
   type AdminBooking,
   type AdminFleetUnit,
 } from "@/services/adminBookingService";
+import {
+  generateContract,
+  openContractDocument,
+  ContractApiError,
+  ContractConfigError,
+  type Contract,
+} from "@/services/adminContractService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 
@@ -32,6 +39,10 @@ export default function AdminBookingsPage() {
   const [hasToken, setHasToken] = useState<boolean | null>(null);
   const [state, setState] = useState<LoadState>({ phase: "idle" });
   const [banner, setBanner] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+  // Contracts generated this session, keyed by booking id.
+  const [contracts, setContracts] = useState<Record<string, Contract>>({});
+  // Booking ids with an in-flight contract action (generate / download).
+  const [contractBusy, setContractBusy] = useState<Record<string, boolean>>({});
 
   // Detect a saved JWT on mount (client-only). The service reads it again per
   // request; this just decides whether to show the table or the sign-in prompt.
@@ -86,6 +97,63 @@ export default function AdminBookingsPage() {
     [load],
   );
 
+  // Mark a booking's contract action busy/idle.
+  const setBusy = useCallback((bookingId: string, busy: boolean) => {
+    setContractBusy((m) => {
+      if (busy) return { ...m, [bookingId]: true };
+      const next = { ...m };
+      delete next[bookingId];
+      return next;
+    });
+  }, []);
+
+  // Translate a contract-service error to a banner, dropping to the error view
+  // on a 401 so the admin re-authenticates.
+  const handleContractError = useCallback((err: unknown, fallback: string) => {
+    const text =
+      err instanceof ContractApiError || err instanceof ContractConfigError
+        ? err.message
+        : fallback;
+    setBanner({ tone: "bad", text });
+    if (err instanceof ContractApiError && err.unauthorized) {
+      setState({ phase: "error", message: err.message, unauthorized: true, config: false });
+    }
+  }, []);
+
+  // Generate (or regenerate) a contract for a booking and remember it.
+  const onGenerateContract = useCallback(
+    async (bookingId: string) => {
+      setBanner(null);
+      setBusy(bookingId, true);
+      try {
+        const contract = await generateContract(bookingId);
+        setContracts((c) => ({ ...c, [bookingId]: contract }));
+        setBanner({ tone: "ok", text: "Contract generated." });
+      } catch (err) {
+        handleContractError(err, "Could not generate the contract.");
+      } finally {
+        setBusy(bookingId, false);
+      }
+    },
+    [setBusy, handleContractError],
+  );
+
+  // Open a contract PDF (generated or signed) in a new tab.
+  const onDownloadContract = useCallback(
+    async (bookingId: string, contractId: string, kind: "generated" | "signed") => {
+      setBanner(null);
+      setBusy(bookingId, true);
+      try {
+        await openContractDocument(contractId, kind);
+      } catch (err) {
+        handleContractError(err, "Could not open the document.");
+      } finally {
+        setBusy(bookingId, false);
+      }
+    },
+    [setBusy, handleContractError],
+  );
+
   return (
     <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
       <Header onRefresh={hasToken ? () => void load() : undefined} />
@@ -127,6 +195,8 @@ export default function AdminBookingsPage() {
             <BookingsManageTable
               bookings={state.data.bookings}
               units={state.data.units}
+              contracts={contracts}
+              contractBusy={contractBusy}
               onApprove={(id) =>
                 runAction(async () => {
                   await updateStatus(id, "approved");
@@ -142,6 +212,8 @@ export default function AdminBookingsPage() {
                   await assignUnit(id, code);
                 }, `Assigned ${code} and started a rental.`)
               }
+              onGenerateContract={onGenerateContract}
+              onDownloadContract={onDownloadContract}
             />
           </AdminSection>
         </>
@@ -155,15 +227,23 @@ export default function AdminBookingsPage() {
 function BookingsManageTable({
   bookings,
   units,
+  contracts,
+  contractBusy,
   onApprove,
   onReject,
   onAssign,
+  onGenerateContract,
+  onDownloadContract,
 }: {
   bookings: AdminBooking[];
   units: AdminFleetUnit[];
+  contracts: Record<string, Contract>;
+  contractBusy: Record<string, boolean>;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onAssign: (id: string, code: string) => void;
+  onGenerateContract: (id: string) => void;
+  onDownloadContract: (id: string, contractId: string, kind: "generated" | "signed") => void;
 }) {
   return (
     <AdminTable>
@@ -177,11 +257,12 @@ function BookingsManageTable({
           <Th>Plan</Th>
           <Th>Start</Th>
           <Th>Actions</Th>
+          <Th>Contract</Th>
         </tr>
       </thead>
       <tbody>
         {bookings.length === 0 ? (
-          <EmptyRow colSpan={8} label="No bookings yet." />
+          <EmptyRow colSpan={9} label="No bookings yet." />
         ) : (
           bookings.map((b) => (
             <tr key={b.id}>
@@ -213,12 +294,119 @@ function BookingsManageTable({
                   onAssign={(code) => onAssign(b.id, code)}
                 />
               </Td>
+              <Td>
+                <ContractCell
+                  contract={contracts[b.id]}
+                  busy={Boolean(contractBusy[b.id])}
+                  onGenerate={() => onGenerateContract(b.id)}
+                  onDownload={(kind) => {
+                    const c = contracts[b.id];
+                    if (c) onDownloadContract(b.id, c.id, kind);
+                  }}
+                />
+              </Td>
             </tr>
           ))
         )}
       </tbody>
     </AdminTable>
   );
+}
+
+/**
+ * Per-booking contract control. Before generation it offers a single
+ * "Generate contract" button; afterwards it shows the signature status and
+ * download links for whichever PDFs exist. A contract id is only known after
+ * generating it in this session (there is no list-by-booking endpoint), so a
+ * page refresh resets these back to the generate button — generation is
+ * idempotent on the backend, so re-running it is safe.
+ */
+function ContractCell({
+  contract,
+  busy,
+  onGenerate,
+  onDownload,
+}: {
+  contract: Contract | undefined;
+  busy: boolean;
+  onGenerate: () => void;
+  onDownload: (kind: "generated" | "signed") => void;
+}) {
+  if (!contract) {
+    return (
+      <button
+        type="button"
+        className="btn btn-ghost"
+        style={{ padding: "8px 14px", fontSize: 12.5, whiteSpace: "nowrap" }}
+        disabled={busy}
+        onClick={onGenerate}
+      >
+        {busy ? "Generating…" : "Generate contract"}
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 150 }}>
+      <StatusPill value={contractStatusLabel(contract.status)} tone={contractStatusTone(contract.status)} />
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {contract.hasGeneratedPdf && (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ padding: "6px 11px", fontSize: 11.5 }}
+            disabled={busy}
+            onClick={() => onDownload("generated")}
+          >
+            Generated
+          </button>
+        )}
+        {contract.hasSignedPdf && (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ padding: "6px 11px", fontSize: 11.5 }}
+            disabled={busy}
+            onClick={() => onDownload("signed")}
+          >
+            Signed
+          </button>
+        )}
+      </div>
+      <button
+        type="button"
+        className="btn btn-ghost"
+        style={{ padding: "6px 11px", fontSize: 11.5, alignSelf: "flex-start" }}
+        disabled={busy}
+        onClick={onGenerate}
+      >
+        {busy ? "Working…" : "Regenerate"}
+      </button>
+    </div>
+  );
+}
+
+/** Coarse pill tone for a contract signature status. */
+function contractStatusTone(status: Contract["status"]) {
+  switch (status) {
+    case "Signed":
+      return "good" as const;
+    case "Declined":
+    case "Expired":
+    case "Failed":
+      return "bad" as const;
+    case "SentForSignature":
+    case "Viewed":
+    case "Generated":
+      return "warn" as const;
+    default:
+      return "neutral" as const;
+  }
+}
+
+/** Spaced label for a contract status (e.g. SentForSignature → "sent for signature"). */
+function contractStatusLabel(status: Contract["status"]): string {
+  return status.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
 }
 
 function RowActions({

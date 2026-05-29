@@ -186,6 +186,7 @@ function AdminNav() {
     ["Manage bookings", "/admin/bookings"],
     ["Manage fleet", "/admin/fleet"],
     ["Manage maintenance", "/admin/maintenance"],
+    ["Contract templates", "/admin/contracts"],
   ];
   return (
     <nav style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 30 }}>

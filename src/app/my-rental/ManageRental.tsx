@@ -14,6 +14,13 @@ import {
   type PortalRental,
   type PortalResult,
 } from "@/services/portalService";
+import {
+  getContract,
+  startSigning,
+  contractDocumentUrl,
+  type PortalContract,
+  type ContractResult,
+} from "@/services/contractService";
 
 /**
  * Map the API status (lowercased enum name) to its badge tone. Friendly labels
@@ -226,6 +233,8 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         </article>
       </Reveal>
 
+      <ContractCard token={token} />
+
       <Reveal delay={80}>
         <div
           style={{
@@ -252,6 +261,152 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         .
       </p>
     </>
+  );
+}
+
+/* ── Rental contract card ─────────────────────────────────────────────────── */
+
+/** Map a contract status (PascalCase enum name) to a badge variant. */
+function contractStatusVariant(status: string): "popular" | "cargo" | "light" {
+  switch (status) {
+    case "Signed":
+      return "popular";
+    case "SentForSignature":
+    case "Viewed":
+    case "Generated":
+      return "cargo";
+    default:
+      return "light";
+  }
+}
+
+/**
+ * "Rental contract" card. Fetches the contract via the portal token. Hides
+ * itself entirely until a contract exists (the backend 404s before generation).
+ * When unsigned and a signing provider is configured, offers a sign button that
+ * starts signing then opens the provider URL; when signed, offers a download.
+ */
+function ContractCard({ token }: { token: string }) {
+  const t = useTranslations("contract");
+  const [state, setState] = useState<ContractResult<PortalContract> | null>(null);
+  const [signing, setSigning] = useState(false);
+  const [signError, setSignError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setState(await getContract(token));
+  }, [token]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Hide the card entirely while loading, when there's no contract yet, or on a
+  // soft failure — the rest of the portal still works without it.
+  if (state === null || state.kind === "none" || state.kind === "invalid") return null;
+  if (state.kind === "no_api" || state.kind === "error" || state.kind === "not_configured") return null;
+
+  const contract = state.data;
+  const variant = contractStatusVariant(contract.status);
+  const isSigned = contract.status === "Signed" || contract.hasSignedPdf;
+
+  async function onSign() {
+    if (signing) return;
+    setSigning(true);
+    setSignError(null);
+    const res = await startSigning(token);
+    if (res.kind === "ok" && res.data.signingUrl) {
+      window.open(res.data.signingUrl, "_blank", "noopener,noreferrer");
+      // Refresh status (it likely moved to SentForSignature).
+      await load();
+    } else if (res.kind === "not_configured") {
+      // Provider went away between load and click — reflect it inline.
+      setState({ kind: "ok", data: { ...contract, providerConfigured: false } });
+    } else {
+      setSignError(t("signFailed"));
+    }
+    setSigning(false);
+  }
+
+  return (
+    <Reveal delay={60}>
+      <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+        <div style={{ padding: "24px 24px 22px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 14,
+            }}
+          >
+            <h3 style={{ fontSize: 18, letterSpacing: "-0.02em" }}>{t("heading")}</h3>
+            <span className={`model-badge ${variant}`} style={{ position: "static" }}>
+              {t(`status.${contract.status}`)}
+            </span>
+          </div>
+
+          <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
+            {isSigned
+              ? t("signedLead")
+              : contract.providerConfigured
+                ? t("unsignedLead")
+                : t("notAvailableLead")}
+          </p>
+
+          {isSigned ? (
+            contract.hasSignedPdf ? (
+              <a
+                href={contractDocumentUrl(token, "signed")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-ghost btn-block"
+                style={{ textDecoration: "none" }}
+              >
+                {t("downloadSigned")}
+                <span className="arrow">
+                  <Ic.arrow />
+                </span>
+              </a>
+            ) : null
+          ) : contract.providerConfigured ? (
+            <>
+              <button
+                type="button"
+                className="btn btn-primary btn-block"
+                disabled={signing}
+                onClick={onSign}
+                style={signing ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+              >
+                {signing ? t("opening") : t("sign")}
+                {!signing && (
+                  <span className="arrow">
+                    <Ic.arrow />
+                  </span>
+                )}
+              </button>
+              {signError && (
+                <p className="wizard-err" role="status">
+                  {signError}
+                </p>
+              )}
+            </>
+          ) : (
+            <p
+              className="mono"
+              style={{
+                fontSize: 12,
+                color: "var(--text-dim)",
+                letterSpacing: "0.02em",
+                margin: 0,
+              }}
+            >
+              {t("notAvailableNote")}
+            </p>
+          )}
+        </div>
+      </article>
+    </Reveal>
   );
 }
 
