@@ -45,7 +45,7 @@ export default function EbikeRentalForCouriersPage() {
             <p className="lead">
               rentaro exists for one job: keeping delivery couriers earning. You rent a
               delivery-built e-bike by the month, start quickly, and ride with service support
-              behind you. No big purchase, no resale headache, no day lost to a bike you can't
+              behind you. No big purchase, no resale headache, no day lost to a bike you can’t
               fix. Choose your model, sign online and start your next shift.
             </p>
             <div style={{ display: "flex", gap: 13, flexWrap: "wrap", marginTop: 26 }}>

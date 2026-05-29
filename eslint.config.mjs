@@ -10,6 +10,10 @@ const eslintConfig = defineConfig([
       // The locked design sizes product/hero/gallery images via CSS
       // (.model-pic img { width: 84% } etc.), so we intentionally use <img>.
       "@next/next/no-img-element": "off",
+      // We intentionally read browser storage (token / booking summary) in an
+      // effect-then-setState pattern — it's hydration-safe (lazy init would
+      // mismatch SSR). Keep the rule visible as a warning, not a build failure.
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   // Override default ignores of eslint-config-next.
