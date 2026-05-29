@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
       // effect-then-setState pattern — it's hydration-safe (lazy init would
       // mismatch SSR). Keep the rule visible as a warning, not a build failure.
       "react-hooks/set-state-in-effect": "warn",
+      // The booking wizard redirects to Montonio's hosted checkout via
+      // window.location; the React-Compiler immutability rule flags that external
+      // assignment. We're not on the compiler, so it's advisory here → warn.
+      "react-hooks/immutability": "warn",
     },
   },
   // Override default ignores of eslint-config-next.

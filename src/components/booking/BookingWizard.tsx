@@ -8,6 +8,7 @@ import { bikeModels } from "@/data/bikeModels";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
+import { createBookingPayment } from "@/services/paymentService";
 import type { PlanId } from "@/types";
 
 const STEP_LABELS = ["City", "Model", "Plan", "Add-ons", "Details", "Review"];
@@ -88,6 +89,15 @@ export function BookingWizard() {
           .filter(Boolean),
       };
       sessionStorage.setItem("rentaro_booking", JSON.stringify(summary));
+
+      // Start payment for the first 30-day period. When Montonio is configured the
+      // backend returns a hosted checkout URL to redirect to; otherwise it skips
+      // payment (no keys) and we continue straight to the success page.
+      const payment = await createBookingPayment(result.id);
+      if (payment.checkoutUrl) {
+        window.location.href = payment.checkoutUrl;
+        return;
+      }
       router.push("/booking/success");
     } catch {
       setError("Something went wrong submitting your request. Please try again.");
@@ -298,6 +308,9 @@ export function BookingWizard() {
                 </span>
               </div>
             </div>
+            <p className="sub" style={{ marginTop: 16 }}>
+              Pay the first 30-day period securely via Montonio — card or bank transfer.
+            </p>
             {error && <div className="wizard-err">{error}</div>}
           </>
         )}
