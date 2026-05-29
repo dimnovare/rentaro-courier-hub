@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
@@ -8,6 +9,7 @@ import { enginePro } from "@/data/bikeModels";
 
 export function Showcase() {
   const { reserve } = useInteractions();
+  const t = useTranslations("showcase");
   const m = enginePro;
   const hasRange = m.specs.some((s) => s.k === "Range");
   return (
@@ -17,15 +19,15 @@ export function Showcase() {
           <div className="showcase">
             <div className="showcase-grid">
               <div className="showcase-media">
-                <img src="/assets/lifestyle-rider.webp" alt="Rider on the rentaro Engine Pro 2.0" />
+                <img src="/assets/lifestyle-rider.webp" alt={t("mediaAlt")} />
                 <span className="tag">
                   <Ic.spark s={13} />
-                  Engine Pro 2.0 · in the field
+                  {t("tag")}
                 </span>
               </div>
               <div className="showcase-body">
-                <Kicker>Flagship · built to haul</Kicker>
-                <h2>Power that finishes the shift.</h2>
+                <Kicker>{t("kicker")}</Kicker>
+                <h2>{t("heading")}</h2>
                 <p className="lead">{m.blurb}</p>
                 <div className="spec-table">
                   {m.specs.map((s) => (
@@ -40,13 +42,12 @@ export function Showcase() {
                 </div>
                 {hasRange && (
                   <div className="spec-note">
-                    Range is a manufacturer estimate — real distance varies with load, terrain,
-                    weather and rider.
+                    {t("rangeNote")}
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 12, marginTop: 26, flexWrap: "wrap" }}>
                   <button className="btn btn-primary" onClick={() => reserve("engine-pro")}>
-                    Reserve Engine Pro
+                    {t("cta")}
                     <span className="arrow">
                       <Ic.arrow />
                     </span>

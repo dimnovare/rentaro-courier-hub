@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import { InteractionProvider } from "@/components/providers/Interactions";
 import { Background } from "@/components/layout/Background";
@@ -55,20 +57,24 @@ export const viewport: Viewport = {
   themeColor: "#0A0C11",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang={locale} className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body>
         <Analytics />
         <JsonLd data={buildOrganizationSchema()} />
-        <InteractionProvider>
-          <Background />
-          <Nav />
-          {children}
-          <Footer />
-        </InteractionProvider>
+        <NextIntlClientProvider messages={messages}>
+          <InteractionProvider>
+            <Background />
+            <Nav />
+            {children}
+            <Footer />
+          </InteractionProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

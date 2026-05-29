@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "models": "Mallit",
+    "pricing": "Hinnoittelu",
+    "howItWorks": "Näin se toimii",
+    "cities": "Kaupungit",
+    "viewFleet": "Katso kalusto",
+    "reserve": "Varaa",
+    "menu": "Valikko"
+  },
+  "localeSwitcher": {
+    "label": "Kieli"
+  },
+  "footer": {
+    "columns": {
+      "product": "Tuote",
+      "cities": "Kaupungit",
+      "company": "Yritys",
+      "getStarted": "Aloita"
+    },
+    "links": {
+      "models": "Mallit",
+      "pricing": "Hinnoittelu",
+      "howItWorks": "Näin se toimii",
+      "accessories": "Lisävarusteet",
+      "tallinn": "Tallinna",
+      "riga": "Riika",
+      "helsinki": "Helsinki",
+      "faq": "UKK",
+      "rules": "Vuokrausehdot",
+      "privacy": "Tietosuoja",
+      "terms": "Käyttöehdot",
+      "reserveBike": "Varaa pyörä",
+      "monthlyRental": "Kuukausivuokraus",
+      "forCouriers": "Läheteille"
+    },
+    "copyright": "© 2026 rentaro",
+    "cityLine": "Tallinna · Riika · Helsinki",
+    "independent": "Riippumaton vuokrauspalvelu"
+  },
+  "hero": {
+    "pill": "KALUSTO LIVENÄ · TALLINNA & RIIKA",
+    "headingLine1": "Lähettivalmiit",
+    "headingLine2": "sähköpyörät",
+    "headingLine3Pre": "",
+    "headingLine3Accent": "kuukaudessa.",
+    "lead": "Vuokraa kaupunkityöhön rakennettu sähköpyörä — 30 päivän, 6 tai 12 kuukauden suunnitelmat, joihin kuuluu huolto, lukko, laturi ja lisäakkuvaihtoehdot. Maksat päivähinnan, laskutus kuukausittain.",
+    "ctaReserve": "Varaa pyörä",
+    "ctaExplore": "Tutustu kalustoon",
+    "stats": {
+      "priceValue": "€3.90",
+      "priceUnit": "/pv",
+      "priceLabel": "Alkaen, 12 kk suunnitelma",
+      "termValue": "30",
+      "termUnit": "päivää",
+      "termLabel": "Vähimmäisaika",
+      "citiesValue": "3",
+      "citiesUnit": "kaupunkia",
+      "citiesLabel": "Käytössä nyt"
+    },
+    "bikeAlt": "rentaro Engine Pro 2.0 -lähettisähköpyörä",
+    "specChips": {
+      "torqueValue": "75 Nm",
+      "torqueLabel": "Vääntöanturi",
+      "powerValue": "1200 W",
+      "powerLabel": "Huipputeho",
+      "batteryValue": "832 Wh",
+      "batteryLabel": "Akku"
+    }
+  },
+  "marquee": {
+    "minDays": "Vähintään 30 päivää",
+    "serviceSupport": "Huoltotuki sisältyy",
+    "lockCharger": "Lukko + laturi joka suunnitelmassa",
+    "extraBattery": "Lisäakku saatavilla",
+    "digitalContract": "Digitaalinen sopimus — allekirjoita puhelimellasi",
+    "builtForShifts": "Rakennettu lähettivuoroihin",
+    "pickupDelivery": "Nouto tai paikallinen toimitus"
+  },
+  "popularModels": {
+    "kicker": "Suosituimmat mallit",
+    "heading": "Pyörät, joihin lähetit tarttuvat ensimmäisenä.",
+    "lead": "Valittu lähettivuoroihin — tehoa, kantavuutta ja kestävyyttä, jotka kestävät täydet työpäivät tien päällä.",
+    "cta": "Katso koko kalusto"
+  },
+  "showcase": {
+    "tag": "Engine Pro 2.0 · kentällä",
+    "mediaAlt": "Kuljettaja rentaro Engine Pro 2.0 -pyörän selässä",
+    "kicker": "Lippulaiva · rakennettu kuljettamaan",
+    "heading": "Tehoa, joka vie vuoron loppuun.",
+    "rangeNote": "Toimintamatka on valmistajan arvio — todellinen matka vaihtelee kuorman, maaston, sään ja kuljettajan mukaan.",
+    "cta": "Varaa Engine Pro"
+  },
+  "pricing": {
+    "kicker": "Hinnoittelu · per 30 päivän jakso",
+    "heading": "Maksa päivässä. Laskutus kuukausittain.",
+    "lead": "Yksi yksinkertainen malli joka pyörälle: päivähinta × 30 päivää. Sitoudu pidempään aikaan, maksa vähemmän päivässä.",
+    "perDay": "/ pv",
+    "per30Suffix": "per 30 päivää · päivähinta × 30",
+    "choose": "Valitse {term}",
+    "terms": {
+      "p30": "30 päivää",
+      "p180": "6 kuukautta",
+      "p365": "12 kuukautta"
+    },
+    "tags": {
+      "p30": "Joustava",
+      "p180": "Suosituin",
+      "p365": "Paras hinta"
+    },
+    "perks": {
+      "serviceSupport": "Huoltotuki sisältyy",
+      "lockCharger": "Lukko + laturi sisältyvät",
+      "extendSwitch": "Jatka tai vaihda milloin tahansa",
+      "everythingIn30": "Kaikki 30 päivän suunnitelmasta",
+      "lowerDailyRate": "Edullisempi päivähinta",
+      "priorityMaintenance": "Etusijahuolto",
+      "freeModelSwap": "Maksuton mallinvaihto kerran",
+      "everythingIn6mo": "Kaikki 6 kuukauden suunnitelmasta",
+      "lowestDailyRate": "Edullisin päivähinta",
+      "freeAccessoryBundle": "Maksuton lisävarustepaketti"
+    }
+  },
+  "fleet": {
+    "kicker": "Koko kalusto",
+    "heading": "Kuusi pyörää. Yksi yksinkertainen suunnitelma.",
+    "lead": "Järeästä Engine Prosta kevyisiin taittopyöriin — jokainen malli vuokrataan samoilla 30 päivän, 6 tai 12 kuukauden ehdoilla."
+  },
+  "howItWorks": {
+    "kicker": "Näin se toimii",
+    "heading": "Rekisteröitymisestä lähetille kolmessa vaiheessa.",
+    "steps": {
+      "01": {
+        "title": "Valitse malli ja suunnitelma",
+        "copy": "Valitse vuoroihisi sopiva pyörä ja 30 päivän, 6 tai 12 kuukauden suunnitelma. Mitä pidempi aika, sitä edullisempi päivähinta."
+      },
+      "02": {
+        "title": "Allekirjoita verkossa ja maksa vakuus",
+        "copy": "Suorita henkilöllisyyden tarkistus, allekirjoita digitaalinen sopimus ja maksa palautettava vakuus — kaikki puhelimellasi."
+      },
+      "03": {
+        "title": "Nouda ja aloita lähetit",
+        "copy": "Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta, ja aloita ensimmäinen vuorosi jo saman viikon aikana."
+      }
+    }
+  },
+  "cities": {
+    "kicker": "Saatavuus kaupungeittain",
+    "heading": "Käytössä kolmessa kaupungissa.",
+    "lead": "Reaaliaikainen saatavuus lanseerausmarkkinoillamme. Varaa sekunneissa, nouda jo saman viikon aikana.",
+    "status": {
+      "available": "Saatavilla",
+      "limited": "Rajoitetusti",
+      "soon": "Tulossa pian"
+    },
+    "availableBikes": "Saatavilla olevat pyörät",
+    "pickupArea": "Noutoalue",
+    "notifyMe": "Ilmoita minulle",
+    "reserveIn": "Varaa — {city}",
+    "names": {
+      "tallinn": "Tallinna",
+      "riga": "Riika",
+      "helsinki": "Helsinki"
+    },
+    "countries": {
+      "estonia": "Viro",
+      "latvia": "Latvia",
+      "finland": "Suomi"
+    }
+  },
+  "accessories": {
+    "kicker": "Lisävarusteet",
+    "heading": "Varusteet, jotka tuovat vuoroja.",
+    "names": {
+      "battery": "Lisäakku",
+      "bag": "Lähettilaukku",
+      "rack": "Tavarateline",
+      "phone": "Puhelinteline",
+      "lock": "Järeä lukko",
+      "helmet": "Kypärä",
+      "rain": "Sadesuoja",
+      "winter": "Talvirenkaat"
+    }
+  },
+  "service": {
+    "kicker": "Sinun tulonlähteesi",
+    "heading": "Pyöräsi on tulonlähteesi. Me pidämme sen liikkeessä.",
+    "copy": "Jarrujen säädöt, rengasrikot ja yleishuolto kuuluvat jokaiseen suunnitelmaan. Jos pyörä vaatii pidemmän korjauksen, vaihdamme sen varaston salliessa — vuorosi jatkuvat keskeytyksettä. Vahingot ja varkaudet noudattavat selkeää prosessia, jonka hyväksyt etukäteen.",
+    "stats": {
+      "supportValue": "24h",
+      "supportLabel": "Tukiaika",
+      "citiesValue": "3",
+      "citiesLabel": "Kaupunkia käytössä",
+      "modelsValue": "6",
+      "modelsLabel": "Mallia",
+      "minPlanValue": "30d",
+      "minPlanLabel": "Vähimmäissuunnitelma"
+    }
+  },
+  "faq": {
+    "kicker": "UKK",
+    "heading": "Nopeat vastaukset.",
+    "items": {
+      "delivery": {
+        "q": "Voinko käyttää pyörää lähettityöhön?",
+        "a": "Kyllä. rentaro-kalusto on rakennettu kaupungin lähettivuoroihin ja sopii lähetille millä tahansa suurella alustalla. Olemme riippumaton vuokrauspalvelu emmekä ole virallisessa yhteistyössä minkään lähettialustan kanssa."
+      },
+      "minPeriod": {
+        "q": "Mikä on vähimmäisvuokra-aika?",
+        "a": "30 päivää. Ensimmäisen kuukauden jälkeen voit jatkaa kuukausi kerrallaan tai vaihtaa pidempään suunnitelmaan edullisemmalla päivähinnalla."
+      },
+      "pricing": {
+        "q": "Miten hinnoittelu toimii?",
+        "a": "Hinnoittelu perustuu 30 päivän jaksoon. 30 päivän suunnitelma on €5.90/pv, 6 kuukauden suunnitelma €4.90/pv ja 12 kuukauden suunnitelma €3.90/pv. Sama suunnitelmahinnoittelu koskee jokaista mallia."
+      },
+      "maintenance": {
+        "q": "Sisältyykö huolto?",
+        "a": "Kyllä. Jarrujen säädöt, rengasrikkojen korjaus ja yleishuolto sisältyvät jokaiseen suunnitelmaan. Jos pyörä vaatii pidemmän korjauksen, vaihdamme sen varaston salliessa, jotta vuorosi jatkuvat keskeytyksettä."
+      },
+      "extraBattery": {
+        "q": "Voinko vuokrata lisäakun?",
+        "a": "Kyllä. Lisäakku on saatavilla lisävarusteena pitkiä lähettipäiviä varten. Engine Pro 2.0:ssa on 832 Wh:n akku ja Air One Pro tukee kaksoisakkutilaa lisätehoa vaativina päivinä."
+      },
+      "deposit": {
+        "q": "Mikä vakuus vaaditaan?",
+        "a": "Noudon yhteydessä peritään palautettava vakuus. Summa riippuu mallista ja vuokra-ajasta, ja se palautetaan vuokra-ajan päättyessä vähennettynä mahdollisilla normaalin kulumisen ylittävillä vahingoilla."
+      },
+      "pickup": {
+        "q": "Mistä voin noutaa pyörän?",
+        "a": "Toimimme tällä hetkellä Tallinnassa ja Riiassa, ja Helsinki on tulossa pian. Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta alueellasi."
+      },
+      "contract": {
+        "q": "Allekirjoitanko sopimuksen verkossa?",
+        "a": "Kyllä — koko vuokrasopimus on digitaalinen ja allekirjoitetaan puhelimella ennen noutoa. Ei papereita noutopisteellä."
+      }
+    }
+  },
+  "finalCta": {
+    "heading": "Valmiina seuraavaan vuoroon?",
+    "lead": "Valitse rentaro-sähköpyöräsi, valitse suunnitelma ja lähde ajamaan — huoltotuki mukana ensimmäisestä päivästä alkaen.",
+    "ctaReserve": "Varaa sähköpyöräsi",
+    "ctaPricing": "Katso hinnoittelu"
+  }
+}

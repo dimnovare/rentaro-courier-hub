@@ -1,46 +1,57 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Ic } from "@/components/ui/Icon";
-import { trust } from "@/data/content";
+
+/** Marquee item keys, in display order — copy lives in the `marquee` namespace. */
+const marqueeKeys = [
+  "minDays",
+  "serviceSupport",
+  "lockCharger",
+  "extraBattery",
+  "digitalContract",
+  "builtForShifts",
+  "pickupDelivery",
+] as const;
 
 export function Hero() {
   const { reserve, goModels } = useInteractions();
+  const t = useTranslations("hero");
+  const tm = useTranslations("marquee");
   return (
     <section className="hero" id="top">
       <div className="wrap hero-grid">
         <div>
           <Reveal className="hero-pill">
             <span className="live" />
-            FLEET LIVE · TALLINN &amp; RIGA
+            {t("pill")}
           </Reveal>
           <Reveal delay={60}>
             <h1 className="h-hero">
-              Delivery-ready
+              {t("headingLine1")}
               <br />
-              e-bikes by
+              {t("headingLine2")}
               <br />
-              the <span className="accent">month.</span>
+              {t("headingLine3Pre")}<span className="accent">{t("headingLine3Accent")}</span>
             </h1>
           </Reveal>
           <Reveal delay={120}>
             <p className="lead">
-              Rent a delivery-built e-bike for city work — 30-day, 6 or 12-month plans with
-              service, lock, charger and extra-battery options included. Pay daily, billed
-              monthly.
+              {t("lead")}
             </p>
           </Reveal>
           <Reveal delay={180}>
             <div className="cta-row">
               <button className="btn btn-primary btn-lg" onClick={() => reserve()}>
-                Reserve a bike
+                {t("ctaReserve")}
                 <span className="arrow">
                   <Ic.arrow />
                 </span>
               </button>
               <button className="btn btn-ghost btn-lg" onClick={() => goModels()}>
-                Explore the fleet
+                {t("ctaExplore")}
               </button>
             </div>
           </Reveal>
@@ -48,21 +59,21 @@ export function Hero() {
             <div className="hero-stats">
               <div className="hero-stat">
                 <div className="n">
-                  €3.90<span className="u">/day</span>
+                  {t("stats.priceValue")}<span className="u">{t("stats.priceUnit")}</span>
                 </div>
-                <div className="l">From, 12-mo plan</div>
+                <div className="l">{t("stats.priceLabel")}</div>
               </div>
               <div className="hero-stat">
                 <div className="n">
-                  30<span className="u">days</span>
+                  {t("stats.termValue")}<span className="u">{t("stats.termUnit")}</span>
                 </div>
-                <div className="l">Minimum term</div>
+                <div className="l">{t("stats.termLabel")}</div>
               </div>
               <div className="hero-stat">
                 <div className="n">
-                  3<span className="u">cities</span>
+                  {t("stats.citiesValue")}<span className="u">{t("stats.citiesUnit")}</span>
                 </div>
-                <div className="l">Live now</div>
+                <div className="l">{t("stats.citiesLabel")}</div>
               </div>
             </div>
           </Reveal>
@@ -81,19 +92,19 @@ export function Hero() {
           <img
             className="hero-bike"
             src="/assets/hero-bike.png"
-            alt="rentaro Engine Pro 2.0 delivery e-bike"
+            alt={t("bikeAlt")}
           />
           <div className="spec-chip c1">
-            <span className="v">75 Nm</span>
-            <span className="k">Torque sensor</span>
+            <span className="v">{t("specChips.torqueValue")}</span>
+            <span className="k">{t("specChips.torqueLabel")}</span>
           </div>
           <div className="spec-chip c2">
-            <span className="v">1200 W</span>
-            <span className="k">Peak power</span>
+            <span className="v">{t("specChips.powerValue")}</span>
+            <span className="k">{t("specChips.powerLabel")}</span>
           </div>
           <div className="spec-chip c3">
-            <span className="v">832 Wh</span>
-            <span className="k">Battery</span>
+            <span className="v">{t("specChips.batteryValue")}</span>
+            <span className="k">{t("specChips.batteryLabel")}</span>
           </div>
         </Reveal>
       </div>
@@ -102,10 +113,10 @@ export function Hero() {
       <div className="wrap" style={{ marginTop: 0 }}>
         <div className="marquee">
           <div className="marquee-track">
-            {[...trust, ...trust].map((t, i) => (
+            {[...marqueeKeys, ...marqueeKeys].map((key, i) => (
               <span className="marquee-item" key={i}>
                 <Ic.check s={13} />
-                {t}
+                {tm(key)}
                 <span className="sep">/</span>
               </span>
             ))}

@@ -1,11 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import { Ic } from "@/components/ui/Icon";
 
 export function Nav() {
   const { reserve, nav, goModels } = useInteractions();
+  const t = useTranslations("nav");
   return (
     <nav className="nav">
       <div className="nav-inner">
@@ -14,17 +17,18 @@ export function Nav() {
           <span className="word">rentaro</span>
         </a>
         <div className="nav-links">
-          <a onClick={() => nav("models")}>Models</a>
-          <a onClick={() => nav("pricing")}>Pricing</a>
-          <a onClick={() => nav("how")}>How it works</a>
-          <a onClick={() => nav("cities")}>Cities</a>
+          <a onClick={() => nav("models")}>{t("models")}</a>
+          <a onClick={() => nav("pricing")}>{t("pricing")}</a>
+          <a onClick={() => nav("how")}>{t("howItWorks")}</a>
+          <a onClick={() => nav("cities")}>{t("cities")}</a>
         </div>
         <div className="nav-cta">
-          <button className="btn btn-ghost" onClick={() => goModels()}>View fleet</button>
+          <LocaleSwitcher />
+          <button className="btn btn-ghost" onClick={() => goModels()}>{t("viewFleet")}</button>
           <button className="btn btn-primary" onClick={() => reserve()}>
-            Reserve<span className="arrow"><Ic.arrow /></span>
+            {t("reserve")}<span className="arrow"><Ic.arrow /></span>
           </button>
-          <div className="nav-menu" onClick={() => nav("models")} role="button" aria-label="Menu">
+          <div className="nav-menu" onClick={() => nav("models")} role="button" aria-label={t("menu")}>
             <Ic.menu />
           </div>
         </div>

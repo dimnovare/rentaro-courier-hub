@@ -167,7 +167,14 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .nav-links a:hover { color: var(--text); }
 .nav-cta { display: flex; align-items: center; gap: 12px; }
 .nav-menu { display: none; width: 42px; height: 42px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); place-items: center; cursor: pointer; color: var(--text); }
-@media (max-width: 900px) { .nav-links { display: none; } .nav-cta .btn-ghost { display: none; } .nav-menu { display: grid; } }
+.locale-switcher { position: relative; display: inline-flex; align-items: center; }
+.locale-switcher select { appearance: none; -webkit-appearance: none; -moz-appearance: none; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--text-muted); background: transparent; border: 1px solid var(--border); border-radius: var(--r-full); padding: 8px 30px 8px 14px; cursor: pointer; transition: color .2s, border-color .2s, background .2s; }
+.locale-switcher select:hover { color: var(--text); border-color: var(--border-strong); }
+.locale-switcher select:focus-visible { outline: none; border-color: var(--border-strong); }
+.locale-switcher select:disabled { opacity: 0.55; cursor: progress; }
+.locale-switcher select option { background: var(--panel); color: var(--text); }
+.locale-caret { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); display: inline-flex; pointer-events: none; color: var(--text-muted); }
+@media (max-width: 900px) { .nav-links { display: none; } .nav-cta .btn-ghost { display: none; } .nav-cta .locale-switcher { display: none; } .nav-menu { display: grid; } }
 
 /* ─── Hero ───────────────────────────────────────────────── */
 .hero { padding-top: 40px; }

@@ -1,31 +1,32 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Ic } from "@/components/ui/Icon";
 
 export function FinalCta() {
   const { reserve, nav } = useInteractions();
+  const t = useTranslations("finalCta");
   return (
     <section>
       <div className="wrap">
         <Reveal>
           <div className="final">
             <div className="final-inner">
-              <h2>Ready for your next shift?</h2>
+              <h2>{t("heading")}</h2>
               <p>
-                Choose your rentaro e-bike, pick a plan and start riding — service support
-                included from day one.
+                {t("lead")}
               </p>
               <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
                 <button className="btn btn-primary btn-lg" onClick={() => reserve()}>
-                  Reserve your e-bike
+                  {t("ctaReserve")}
                   <span className="arrow">
                     <Ic.arrow />
                   </span>
                 </button>
                 <button className="btn btn-ghost btn-lg" onClick={() => nav("pricing")}>
-                  See pricing
+                  {t("ctaPricing")}
                 </button>
               </div>
             </div>

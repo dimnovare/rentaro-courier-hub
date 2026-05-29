@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "models": "Mudelid",
+    "pricing": "Hinnad",
+    "howItWorks": "Kuidas see töötab",
+    "cities": "Linnad",
+    "viewFleet": "Vaata parki",
+    "reserve": "Broneeri",
+    "menu": "Menüü"
+  },
+  "localeSwitcher": {
+    "label": "Keel"
+  },
+  "footer": {
+    "columns": {
+      "product": "Toode",
+      "cities": "Linnad",
+      "company": "Ettevõte",
+      "getStarted": "Alusta"
+    },
+    "links": {
+      "models": "Mudelid",
+      "pricing": "Hinnad",
+      "howItWorks": "Kuidas see töötab",
+      "accessories": "Lisavarustus",
+      "tallinn": "Tallinn",
+      "riga": "Riia",
+      "helsinki": "Helsingi",
+      "faq": "KKK",
+      "rules": "Rendireeglid",
+      "privacy": "Privaatsus",
+      "terms": "Tingimused",
+      "reserveBike": "Broneeri ratas",
+      "monthlyRental": "Kuurent",
+      "forCouriers": "Kulleritele"
+    },
+    "copyright": "© 2026 rentaro",
+    "cityLine": "Tallinn · Riia · Helsingi",
+    "independent": "Sõltumatu renditeenus"
+  },
+  "hero": {
+    "pill": "PARK TÖÖS · TALLINN & RIIA",
+    "headingLine1": "Tarneks valmis",
+    "headingLine2": "e-rattad",
+    "headingLine3Pre": "kuu ",
+    "headingLine3Accent": "kaupa.",
+    "lead": "Rendi linnatööks ehitatud e-ratas — 30 päeva, 6 või 12 kuu paketid, milles on teenindus, lukk, laadija ja lisaaku valikud. Maksa päevatasu, arve kord kuus.",
+    "ctaReserve": "Broneeri ratas",
+    "ctaExplore": "Tutvu pargiga",
+    "stats": {
+      "priceValue": "€3.90",
+      "priceUnit": "/päev",
+      "priceLabel": "Alates, 12-kuu pakett",
+      "termValue": "30",
+      "termUnit": "päeva",
+      "termLabel": "Minimaalne periood",
+      "citiesValue": "3",
+      "citiesUnit": "linna",
+      "citiesLabel": "Juba töös"
+    },
+    "bikeAlt": "rentaro Engine Pro 2.0 tarne-e-ratas",
+    "specChips": {
+      "torqueValue": "75 Nm",
+      "torqueLabel": "Pöördemomendi andur",
+      "powerValue": "1200 W",
+      "powerLabel": "Tippvõimsus",
+      "batteryValue": "832 Wh",
+      "batteryLabel": "Aku"
+    }
+  },
+  "marquee": {
+    "minDays": "Minimaalselt 30 päeva",
+    "serviceSupport": "Teenindustugi sees",
+    "lockCharger": "Lukk + laadija igas paketis",
+    "extraBattery": "Lisaaku saadaval",
+    "digitalContract": "Digileping — allkirjasta telefonis",
+    "builtForShifts": "Ehitatud tarnevahetusteks",
+    "pickupDelivery": "Järeletulek või kohale toomine"
+  },
+  "popularModels": {
+    "kicker": "Populaarseimad mudelid",
+    "heading": "Rattad, mille kullerid esimesena valivad.",
+    "lead": "Valitud tarnevahetusteks — võimsus, kandevõime ja vastupidavus, mis peavad vastu täispikkadele päevadele teel.",
+    "cta": "Vaata kogu parki"
+  },
+  "showcase": {
+    "tag": "Engine Pro 2.0 · väljal",
+    "mediaAlt": "Sõitja rattal rentaro Engine Pro 2.0",
+    "kicker": "Lipulaev · ehitatud vedama",
+    "heading": "Võimsus, mis viib vahetuse lõpuni.",
+    "rangeNote": "Sõiduulatus on tootja hinnang — tegelik vahemaa sõltub koormast, maastikust, ilmast ja sõitjast.",
+    "cta": "Broneeri Engine Pro"
+  },
+  "pricing": {
+    "kicker": "Hinnad · 30-päevase perioodi kohta",
+    "heading": "Maksa päevatasu. Arve kord kuus.",
+    "lead": "Üks lihtne mudel kõigile ratastele: päevatasu × 30 päeva. Vali pikem periood ja maksa päevas vähem.",
+    "perDay": "/ päev",
+    "per30Suffix": "30 päeva kohta · päevatasu × 30",
+    "choose": "Vali {term}",
+    "terms": {
+      "p30": "30 päeva",
+      "p180": "6 kuud",
+      "p365": "12 kuud"
+    },
+    "tags": {
+      "p30": "Paindlik",
+      "p180": "Populaarseim",
+      "p365": "Parim hind"
+    },
+    "perks": {
+      "serviceSupport": "Teenindustugi sees",
+      "lockCharger": "Lukk + laadija sees",
+      "extendSwitch": "Pikenda või vaheta igal ajal",
+      "everythingIn30": "Kõik, mis 30 päeva paketis",
+      "lowerDailyRate": "Madalam päevatasu",
+      "priorityMaintenance": "Eelishooldus",
+      "freeModelSwap": "Tasuta mudelivahetus üks kord",
+      "everythingIn6mo": "Kõik, mis 6 kuu paketis",
+      "lowestDailyRate": "Madalaim päevatasu",
+      "freeAccessoryBundle": "Tasuta lisavarustuse komplekt"
+    }
+  },
+  "fleet": {
+    "kicker": "Kogu park",
+    "heading": "Kuus ratast. Üks lihtne pakett.",
+    "lead": "Alates vastupidavast Engine Prost kuni kergete kokkupandavate linnaratasteni — iga mudel renditakse samadel 30 päeva, 6 või 12 kuu tingimustel."
+  },
+  "howItWorks": {
+    "kicker": "Kuidas see töötab",
+    "heading": "Registreerumisest tarneteni kolme sammuga.",
+    "steps": {
+      "01": {
+        "title": "Vali mudel ja pakett",
+        "copy": "Vali ratas, mis sobib su vahetustega, ning 30 päeva, 6 või 12 kuu pakett. Mida pikem periood, seda madalam päevatasu."
+      },
+      "02": {
+        "title": "Allkirjasta veebis ja maksa tagatisraha",
+        "copy": "Läbi isikutuvastus, allkirjasta digileping ja maksa tagastatav tagatisraha — kõik telefonist."
+      },
+      "03": {
+        "title": "Tule järele ja alusta tarnimist",
+        "copy": "Tule rattale järele linna järeletulekupunkti või telli kohale toomine ning alusta esimest vahetust juba samal nädalal."
+      }
+    }
+  },
+  "cities": {
+    "kicker": "Saadavus linnades",
+    "heading": "Töös kolmes linnas.",
+    "lead": "Reaalajas saadavus meie esimestel turgudel. Broneeri sekunditega, tule järele juba samal nädalal.",
+    "status": {
+      "available": "Saadaval",
+      "limited": "Piiratud",
+      "soon": "Tulekul"
+    },
+    "availableBikes": "Saadaolevad rattad",
+    "pickupArea": "Järeletulekuala",
+    "notifyMe": "Anna mulle teada",
+    "reserveIn": "Broneeri linnas {city}",
+    "names": {
+      "tallinn": "Tallinn",
+      "riga": "Riia",
+      "helsinki": "Helsingi"
+    },
+    "countries": {
+      "estonia": "Eesti",
+      "latvia": "Läti",
+      "finland": "Soome"
+    }
+  },
+  "accessories": {
+    "kicker": "Lisad",
+    "heading": "Varustus, mis toob vahetusi.",
+    "names": {
+      "battery": "Lisaaku",
+      "bag": "Tarnekott",
+      "rack": "Kaubaraam",
+      "phone": "Telefonihoidik",
+      "lock": "Tugev lukk",
+      "helmet": "Kiiver",
+      "rain": "Vihmakate",
+      "winter": "Talverehvid"
+    }
+  },
+  "service": {
+    "kicker": "Sinu sissetulekuvahend",
+    "heading": "Sinu ratas on su sissetulekuvahend. Hoiame selle käigus.",
+    "copy": "Pidurite reguleerimine, rehviaugud ja üldhooldus kuuluvad igasse paketti. Kui ratas vajab pikemat remonti, vahetame selle välja, kui laoseis lubab — su vahetused jätkuvad. Kahjustuste ja varguse korral kehtib selge kord, mille kinnitad juba alguses.",
+    "stats": {
+      "supportValue": "24h",
+      "supportLabel": "Tugiaken",
+      "citiesValue": "3",
+      "citiesLabel": "Linna töös",
+      "modelsValue": "6",
+      "modelsLabel": "Mudelit",
+      "minPlanValue": "30d",
+      "minPlanLabel": "Minimaalne pakett"
+    }
+  },
+  "faq": {
+    "kicker": "KKK",
+    "heading": "Kiired vastused.",
+    "items": {
+      "delivery": {
+        "q": "Kas saan ratast kasutada tarnetööks?",
+        "a": "Jah. rentaro park on ehitatud linna tarnevahetusteks ja sobib kulleritele igal suuremal platvormil. Oleme sõltumatu renditeenus ega ole ametlikult seotud ühegi tarneplatvormiga."
+      },
+      "minPeriod": {
+        "q": "Mis on minimaalne renditingimuse periood?",
+        "a": "30 päeva. Pärast esimest kuud saad pikendada kuu kaupa või valida pikema paketi madalama päevatasuga."
+      },
+      "pricing": {
+        "q": "Kuidas hinnastamine toimib?",
+        "a": "Hind on 30-päevase perioodi kohta. 30 päeva pakett on €5.90/päev, 6 kuu pakett €4.90/päev ja 12 kuu pakett €3.90/päev. Sama paketihind kehtib kõigile mudelitele."
+      },
+      "maintenance": {
+        "q": "Kas hooldus on sees?",
+        "a": "Jah. Pidurite reguleerimine, rehviaukude parandus ja üldhooldus on sees igas paketis. Kui ratas vajab pikemat remonti, vahetame selle välja, kui laoseis lubab, et su vahetused jätkuksid."
+      },
+      "extraBattery": {
+        "q": "Kas saan rentida lisaaku?",
+        "a": "Jah. Lisaaku on saadaval lisana pikkadeks tarnepäevadeks. Engine Pro 2.0 kannab 832 Wh akut ning Air One Pro toetab kaheakurežiimi, mis annab nõudlikel päevadel lisasõiduulatust."
+      },
+      "deposit": {
+        "q": "Kui suur tagatisraha on nõutav?",
+        "a": "Järeletulekul võetakse tagastatav tagatisraha. Summa sõltub mudelist ja perioodist ning tagastatakse rendi lõpus, millest arvatakse maha tavakulumist suuremad kahjustused."
+      },
+      "pickup": {
+        "q": "Kust saan rattale järele tulla?",
+        "a": "Praegu tegutseme Tallinnas ja Riias, peagi lisandub Helsingi. Tule järele linna järeletulekupunkti või telli kohale toomine oma piirkonnas."
+      },
+      "contract": {
+        "q": "Kas allkirjastan lepingu veebis?",
+        "a": "Jah — kogu rendileping on digitaalne ja allkirjastatakse telefonis enne järeletulekut. Depoos paberimajandust pole."
+      }
+    }
+  },
+  "finalCta": {
+    "heading": "Valmis järgmiseks vahetuseks?",
+    "lead": "Vali oma rentaro e-ratas, vali pakett ja hakka sõitma — teenindustugi on sees esimesest päevast.",
+    "ctaReserve": "Broneeri oma e-ratas",
+    "ctaPricing": "Vaata hindu"
+  }
+}

@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "models": "Models",
+    "pricing": "Pricing",
+    "howItWorks": "How it works",
+    "cities": "Cities",
+    "viewFleet": "View fleet",
+    "reserve": "Reserve",
+    "menu": "Menu"
+  },
+  "localeSwitcher": {
+    "label": "Language"
+  },
+  "footer": {
+    "columns": {
+      "product": "Product",
+      "cities": "Cities",
+      "company": "Company",
+      "getStarted": "Get started"
+    },
+    "links": {
+      "models": "Models",
+      "pricing": "Pricing",
+      "howItWorks": "How it works",
+      "accessories": "Accessories",
+      "tallinn": "Tallinn",
+      "riga": "Riga",
+      "helsinki": "Helsinki",
+      "faq": "FAQ",
+      "rules": "Rental rules",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "reserveBike": "Reserve a bike",
+      "monthlyRental": "Monthly rental",
+      "forCouriers": "For couriers"
+    },
+    "copyright": "© 2026 rentaro",
+    "cityLine": "Tallinn · Riga · Helsinki",
+    "independent": "Independent rental service"
+  },
+  "hero": {
+    "pill": "FLEET LIVE · TALLINN & RIGA",
+    "headingLine1": "Delivery-ready",
+    "headingLine2": "e-bikes by",
+    "headingLine3Pre": "the ",
+    "headingLine3Accent": "month.",
+    "lead": "Rent a delivery-built e-bike for city work — 30-day, 6 or 12-month plans with service, lock, charger and extra-battery options included. Pay daily, billed monthly.",
+    "ctaReserve": "Reserve a bike",
+    "ctaExplore": "Explore the fleet",
+    "stats": {
+      "priceValue": "€3.90",
+      "priceUnit": "/day",
+      "priceLabel": "From, 12-mo plan",
+      "termValue": "30",
+      "termUnit": "days",
+      "termLabel": "Minimum term",
+      "citiesValue": "3",
+      "citiesUnit": "cities",
+      "citiesLabel": "Live now"
+    },
+    "bikeAlt": "rentaro Engine Pro 2.0 delivery e-bike",
+    "specChips": {
+      "torqueValue": "75 Nm",
+      "torqueLabel": "Torque sensor",
+      "powerValue": "1200 W",
+      "powerLabel": "Peak power",
+      "batteryValue": "832 Wh",
+      "batteryLabel": "Battery"
+    }
+  },
+  "marquee": {
+    "minDays": "Minimum 30 days",
+    "serviceSupport": "Service support included",
+    "lockCharger": "Lock + charger in every plan",
+    "extraBattery": "Extra battery available",
+    "digitalContract": "Digital contract — sign on your phone",
+    "builtForShifts": "Built for delivery shifts",
+    "pickupDelivery": "Pickup or local delivery"
+  },
+  "popularModels": {
+    "kicker": "Most popular models",
+    "heading": "The bikes couriers reach for first.",
+    "lead": "Hand-picked for delivery shifts — power, payload and stamina that hold up to full days on the road.",
+    "cta": "See the full fleet"
+  },
+  "showcase": {
+    "tag": "Engine Pro 2.0 · in the field",
+    "mediaAlt": "Rider on the rentaro Engine Pro 2.0",
+    "kicker": "Flagship · built to haul",
+    "heading": "Power that finishes the shift.",
+    "rangeNote": "Range is a manufacturer estimate — real distance varies with load, terrain, weather and rider.",
+    "cta": "Reserve Engine Pro"
+  },
+  "pricing": {
+    "kicker": "Pricing · per 30-day period",
+    "heading": "Pay daily. Billed monthly.",
+    "lead": "One simple model across every bike: the daily rate × 30 days. Commit to a longer term, pay less per day.",
+    "perDay": "/ day",
+    "per30Suffix": "per 30 days · daily × 30",
+    "choose": "Choose {term}",
+    "terms": {
+      "p30": "30 days",
+      "p180": "6 months",
+      "p365": "12 months"
+    },
+    "tags": {
+      "p30": "Flexible",
+      "p180": "Most popular",
+      "p365": "Best price"
+    },
+    "perks": {
+      "serviceSupport": "Service support included",
+      "lockCharger": "Lock + charger included",
+      "extendSwitch": "Extend or switch anytime",
+      "everythingIn30": "Everything in 30 days",
+      "lowerDailyRate": "Lower daily rate",
+      "priorityMaintenance": "Priority maintenance",
+      "freeModelSwap": "Free model swap once",
+      "everythingIn6mo": "Everything in 6 months",
+      "lowestDailyRate": "Lowest daily rate",
+      "freeAccessoryBundle": "Free accessory bundle"
+    }
+  },
+  "fleet": {
+    "kicker": "The full fleet",
+    "heading": "Six bikes. One simple plan.",
+    "lead": "From the heavy-duty Engine Pro to lightweight folding commuters — every model rents on the same 30-day, 6 or 12-month terms."
+  },
+  "howItWorks": {
+    "kicker": "How it works",
+    "heading": "From signup to delivery in three steps.",
+    "steps": {
+      "01": {
+        "title": "Choose your model and plan",
+        "copy": "Pick the bike that fits your shifts and a 30-day, 6 or 12-month plan. The longer the term, the lower the daily price."
+      },
+      "02": {
+        "title": "Sign online & pay deposit",
+        "copy": "Complete identity check, sign the digital contract and pay the refundable deposit — all from your phone."
+      },
+      "03": {
+        "title": "Pick up and start delivering",
+        "copy": "Collect at a city pickup point or request local delivery, then start your first shift the same week."
+      }
+    }
+  },
+  "cities": {
+    "kicker": "City availability",
+    "heading": "Live in three cities.",
+    "lead": "Real-time availability across our launch markets. Reserve in seconds, pick up the same week.",
+    "status": {
+      "available": "Available",
+      "limited": "Limited",
+      "soon": "Coming soon"
+    },
+    "availableBikes": "Available bikes",
+    "pickupArea": "Pickup area",
+    "notifyMe": "Notify me",
+    "reserveIn": "Reserve in {city}",
+    "names": {
+      "tallinn": "Tallinn",
+      "riga": "Riga",
+      "helsinki": "Helsinki"
+    },
+    "countries": {
+      "estonia": "Estonia",
+      "latvia": "Latvia",
+      "finland": "Finland"
+    }
+  },
+  "accessories": {
+    "kicker": "Add-ons",
+    "heading": "Gear that earns shifts.",
+    "names": {
+      "battery": "Extra battery",
+      "bag": "Delivery bag",
+      "rack": "Cargo rack",
+      "phone": "Phone holder",
+      "lock": "Heavy-duty lock",
+      "helmet": "Helmet",
+      "rain": "Rain cover",
+      "winter": "Winter tires"
+    }
+  },
+  "service": {
+    "kicker": "Your income tool",
+    "heading": "Your bike is your income tool. We keep it moving.",
+    "copy": "Brake adjustments, punctures and general maintenance are part of every plan. If a bike needs longer repair we replace it where stock allows — your shifts keep running. Damage and theft follow a clear process you sign for up front.",
+    "stats": {
+      "supportValue": "24h",
+      "supportLabel": "Support window",
+      "citiesValue": "3",
+      "citiesLabel": "Cities live",
+      "modelsValue": "6",
+      "modelsLabel": "Models",
+      "minPlanValue": "30d",
+      "minPlanLabel": "Minimum plan"
+    }
+  },
+  "faq": {
+    "kicker": "FAQ",
+    "heading": "Quick answers.",
+    "items": {
+      "delivery": {
+        "q": "Can I use the bike for delivery work?",
+        "a": "Yes. The rentaro fleet is built for city delivery shifts and suits couriers on any major platform. We are an independent rental service and are not officially affiliated with any delivery platform."
+      },
+      "minPeriod": {
+        "q": "What is the minimum rental period?",
+        "a": "30 days. After your first month you can extend month-to-month or switch to a longer plan with a lower daily rate."
+      },
+      "pricing": {
+        "q": "How does the pricing work?",
+        "a": "Pricing is per 30-day period. The 30-day plan is €5.90/day, the 6-month plan €4.90/day, and the 12-month plan €3.90/day. The same plan pricing applies across every model."
+      },
+      "maintenance": {
+        "q": "Is maintenance included?",
+        "a": "Yes. Brake adjustments, puncture handling and general service are included in every plan. If a bike needs longer repair we replace it where stock allows, so your shifts keep running."
+      },
+      "extraBattery": {
+        "q": "Can I rent an extra battery?",
+        "a": "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack and the Air One Pro supports a dual-battery mode for extra range on demanding days."
+      },
+      "deposit": {
+        "q": "What deposit is required?",
+        "a": "A refundable security deposit is taken at pickup. The amount depends on the model and term, and is returned at the end of the rental minus any damage beyond fair wear."
+      },
+      "pickup": {
+        "q": "Where can I pick up the bike?",
+        "a": "We operate in Tallinn and Riga today, with Helsinki coming soon. Collect at a city pickup point or request local delivery in your area."
+      },
+      "contract": {
+        "q": "Do I sign a contract online?",
+        "a": "Yes — the full rental agreement is digital and signed on your phone before pickup. No paperwork at the depot."
+      }
+    }
+  },
+  "finalCta": {
+    "heading": "Ready for your next shift?",
+    "lead": "Choose your rentaro e-bike, pick a plan and start riding — service support included from day one.",
+    "ctaReserve": "Reserve your e-bike",
+    "ctaPricing": "See pricing"
+  }
+}

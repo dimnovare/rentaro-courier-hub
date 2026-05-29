@@ -1,18 +1,19 @@
+import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { ModelCard } from "@/components/models/ModelCard";
 import { bikeModels } from "@/data/bikeModels";
 
-export function Fleet() {
+export async function Fleet() {
+  const t = await getTranslations("fleet");
   return (
     <section className="section-pad" id="fleet">
       <div className="wrap">
         <Reveal className="section-head">
-          <Kicker>The full fleet</Kicker>
-          <h2 className="h-section">Six bikes. One simple plan.</h2>
+          <Kicker>{t("kicker")}</Kicker>
+          <h2 className="h-section">{t("heading")}</h2>
           <p className="lead">
-            From the heavy-duty Engine Pro to lightweight folding commuters — every model
-            rents on the same 30-day, 6 or 12-month terms.
+            {t("lead")}
           </p>
         </Reveal>
         <div className="models-grid">

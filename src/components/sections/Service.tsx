@@ -1,7 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 
-export function Service() {
+export async function Service() {
+  const t = await getTranslations("service");
   return (
     <section className="section-pad">
       <div className="wrap">
@@ -9,30 +11,28 @@ export function Service() {
           <div className="service">
             <div className="service-grid">
               <div>
-                <Kicker>Your income tool</Kicker>
-                <h2>Your bike is your income tool. We keep it moving.</h2>
+                <Kicker>{t("kicker")}</Kicker>
+                <h2>{t("heading")}</h2>
                 <p>
-                  Brake adjustments, punctures and general maintenance are part of every plan.
-                  If a bike needs longer repair we replace it where stock allows — your shifts
-                  keep running. Damage and theft follow a clear process you sign for up front.
+                  {t("copy")}
                 </p>
               </div>
               <div className="svc-stats">
                 <div className="svc-stat">
-                  <div className="n">24h</div>
-                  <div className="l">Support window</div>
+                  <div className="n">{t("stats.supportValue")}</div>
+                  <div className="l">{t("stats.supportLabel")}</div>
                 </div>
                 <div className="svc-stat">
-                  <div className="n">3</div>
-                  <div className="l">Cities live</div>
+                  <div className="n">{t("stats.citiesValue")}</div>
+                  <div className="l">{t("stats.citiesLabel")}</div>
                 </div>
                 <div className="svc-stat">
-                  <div className="n">6</div>
-                  <div className="l">Models</div>
+                  <div className="n">{t("stats.modelsValue")}</div>
+                  <div className="l">{t("stats.modelsLabel")}</div>
                 </div>
                 <div className="svc-stat">
-                  <div className="n">30d</div>
-                  <div className="l">Minimum plan</div>
+                  <div className="n">{t("stats.minPlanValue")}</div>
+                  <div className="l">{t("stats.minPlanLabel")}</div>
                 </div>
               </div>
             </div>

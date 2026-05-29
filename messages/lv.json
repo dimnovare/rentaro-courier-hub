@@ -1,0 +1,244 @@
+{
+  "nav": {
+    "models": "Modeļi",
+    "pricing": "Cenas",
+    "howItWorks": "Kā tas notiek",
+    "cities": "Pilsētas",
+    "viewFleet": "Skatīt parku",
+    "reserve": "Rezervēt",
+    "menu": "Izvēlne"
+  },
+  "localeSwitcher": {
+    "label": "Valoda"
+  },
+  "footer": {
+    "columns": {
+      "product": "Produkts",
+      "cities": "Pilsētas",
+      "company": "Uzņēmums",
+      "getStarted": "Sākt"
+    },
+    "links": {
+      "models": "Modeļi",
+      "pricing": "Cenas",
+      "howItWorks": "Kā tas notiek",
+      "accessories": "Piederumi",
+      "tallinn": "Tallina",
+      "riga": "Rīga",
+      "helsinki": "Helsinki",
+      "faq": "BUJ",
+      "rules": "Nomas noteikumi",
+      "privacy": "Privātums",
+      "terms": "Noteikumi",
+      "reserveBike": "Rezervēt velosipēdu",
+      "monthlyRental": "Mēneša noma",
+      "forCouriers": "Kurjeriem"
+    },
+    "copyright": "© 2026 rentaro",
+    "cityLine": "Tallina · Rīga · Helsinki",
+    "independent": "Neatkarīgs nomas serviss"
+  },
+  "hero": {
+    "pill": "PARKS DARBOJAS · TALLINA & RĪGA",
+    "headingLine1": "Piegādēm gatavi",
+    "headingLine2": "e-velosipēdi uz",
+    "headingLine3Pre": "katru ",
+    "headingLine3Accent": "mēnesi.",
+    "lead": "Nomā piegādēm būvētu e-velosipēdu pilsētas darbam — 30 dienu, 6 vai 12 mēnešu plāni ar servisu, slēdzeni, lādētāju un papildu akumulatora iespējām. Maksā par dienu, rēķins reizi mēnesī.",
+    "ctaReserve": "Rezervēt velosipēdu",
+    "ctaExplore": "Apskatīt parku",
+    "stats": {
+      "priceValue": "€3.90",
+      "priceUnit": "/dienā",
+      "priceLabel": "No, 12 mēn. plāns",
+      "termValue": "30",
+      "termUnit": "dienas",
+      "termLabel": "Minimālais termiņš",
+      "citiesValue": "3",
+      "citiesUnit": "pilsētas",
+      "citiesLabel": "Darbojas tagad"
+    },
+    "bikeAlt": "rentaro Engine Pro 2.0 piegādes e-velosipēds",
+    "specChips": {
+      "torqueValue": "75 Nm",
+      "torqueLabel": "Griezes momenta sensors",
+      "powerValue": "1200 W",
+      "powerLabel": "Maksimālā jauda",
+      "batteryValue": "832 Wh",
+      "batteryLabel": "Akumulators"
+    }
+  },
+  "marquee": {
+    "minDays": "Minimums 30 dienas",
+    "serviceSupport": "Servisa atbalsts iekļauts",
+    "lockCharger": "Slēdzene + lādētājs katrā plānā",
+    "extraBattery": "Pieejams papildu akumulators",
+    "digitalContract": "Digitāls līgums — paraksti telefonā",
+    "builtForShifts": "Būvēti piegādes maiņām",
+    "pickupDelivery": "Saņemšana vai vietējā piegāde"
+  },
+  "popularModels": {
+    "kicker": "Populārākie modeļi",
+    "heading": "Velosipēdi, pēc kuriem kurjeri ķeras vispirms.",
+    "lead": "Rūpīgi atlasīti piegādes maiņām — jauda, kravnesība un izturība, kas iztur pilnas dienas uz ceļa.",
+    "cta": "Skatīt visu parku"
+  },
+  "showcase": {
+    "tag": "Engine Pro 2.0 · darbā",
+    "mediaAlt": "Braucējs uz rentaro Engine Pro 2.0",
+    "kicker": "Flagmanis · būvēts pārvadāšanai",
+    "heading": "Jauda, kas pabeidz maiņu.",
+    "rangeNote": "Nobraukums ir ražotāja aprēķins — reālais attālums mainās atkarībā no kravas, reljefa, laikapstākļiem un braucēja.",
+    "cta": "Rezervēt Engine Pro"
+  },
+  "pricing": {
+    "kicker": "Cenas · par 30 dienu periodu",
+    "heading": "Maksā par dienu. Rēķins reizi mēnesī.",
+    "lead": "Viens vienkāršs modelis visiem velosipēdiem: dienas likme × 30 dienas. Izvēlies garāku termiņu — maksā mazāk par dienu.",
+    "perDay": "/ dienā",
+    "per30Suffix": "par 30 dienām · dienā × 30",
+    "choose": "Izvēlēties {term}",
+    "terms": {
+      "p30": "30 dienas",
+      "p180": "6 mēneši",
+      "p365": "12 mēneši"
+    },
+    "tags": {
+      "p30": "Elastīgs",
+      "p180": "Populārākais",
+      "p365": "Labākā cena"
+    },
+    "perks": {
+      "serviceSupport": "Servisa atbalsts iekļauts",
+      "lockCharger": "Slēdzene + lādētājs iekļauts",
+      "extendSwitch": "Pagarini vai maini jebkurā brīdī",
+      "everythingIn30": "Viss, kas 30 dienu plānā",
+      "lowerDailyRate": "Zemāka dienas likme",
+      "priorityMaintenance": "Prioritārā apkope",
+      "freeModelSwap": "Bezmaksas modeļa maiņa vienreiz",
+      "everythingIn6mo": "Viss, kas 6 mēnešu plānā",
+      "lowestDailyRate": "Zemākā dienas likme",
+      "freeAccessoryBundle": "Bezmaksas piederumu komplekts"
+    }
+  },
+  "fleet": {
+    "kicker": "Viss parks",
+    "heading": "Seši velosipēdi. Viens vienkāršs plāns.",
+    "lead": "No izturīgā Engine Pro līdz viegliem salokāmiem ikdienas velosipēdiem — katrs modelis tiek nomāts ar tiem pašiem 30 dienu, 6 vai 12 mēnešu nosacījumiem."
+  },
+  "howItWorks": {
+    "kicker": "Kā tas notiek",
+    "heading": "No reģistrācijas līdz piegādei trīs soļos.",
+    "steps": {
+      "01": {
+        "title": "Izvēlies modeli un plānu",
+        "copy": "Izvēlies velosipēdu, kas piemērots tavām maiņām, un 30 dienu, 6 vai 12 mēnešu plānu. Jo garāks termiņš, jo zemāka dienas cena."
+      },
+      "02": {
+        "title": "Paraksti tiešsaistē un samaksā depozītu",
+        "copy": "Izej identitātes pārbaudi, paraksti digitālo līgumu un samaksā atmaksājamo depozītu — viss no telefona."
+      },
+      "03": {
+        "title": "Saņem un sāc piegādāt",
+        "copy": "Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi un sāc pirmo maiņu jau tajā pašā nedēļā."
+      }
+    }
+  },
+  "cities": {
+    "kicker": "Pieejamība pilsētās",
+    "heading": "Darbojamies trīs pilsētās.",
+    "lead": "Pieejamība reālajā laikā mūsu sākuma tirgos. Rezervē dažās sekundēs, saņem tajā pašā nedēļā.",
+    "status": {
+      "available": "Pieejams",
+      "limited": "Ierobežots",
+      "soon": "Drīzumā"
+    },
+    "availableBikes": "Pieejamie velosipēdi",
+    "pickupArea": "Saņemšanas vieta",
+    "notifyMe": "Paziņot man",
+    "reserveIn": "Rezervēt pilsētā {city}",
+    "names": {
+      "tallinn": "Tallina",
+      "riga": "Rīga",
+      "helsinki": "Helsinki"
+    },
+    "countries": {
+      "estonia": "Igaunija",
+      "latvia": "Latvija",
+      "finland": "Somija"
+    }
+  },
+  "accessories": {
+    "kicker": "Papildinājumi",
+    "heading": "Aprīkojums, kas pelna maiņas.",
+    "names": {
+      "battery": "Papildu akumulators",
+      "bag": "Piegādes soma",
+      "rack": "Kravas bagāžnieks",
+      "phone": "Telefona turētājs",
+      "lock": "Pastiprināta slēdzene",
+      "helmet": "Ķivere",
+      "rain": "Lietus pārvalks",
+      "winter": "Ziemas riepas"
+    }
+  },
+  "service": {
+    "kicker": "Tavs ienākumu rīks",
+    "heading": "Tavs velosipēds ir tavs ienākumu rīks. Mēs uzturam to kustībā.",
+    "copy": "Bremžu regulēšana, riepu caurumi un vispārējā apkope ir daļa no katra plāna. Ja velosipēdam nepieciešams ilgāks remonts, mēs to nomainām, kur to ļauj krājumi — tavas maiņas turpinās. Bojājumiem un zādzībai ir skaidra kārtība, ko paraksti jau sākumā.",
+    "stats": {
+      "supportValue": "24h",
+      "supportLabel": "Atbalsta logs",
+      "citiesValue": "3",
+      "citiesLabel": "Aktīvas pilsētas",
+      "modelsValue": "6",
+      "modelsLabel": "Modeļi",
+      "minPlanValue": "30d",
+      "minPlanLabel": "Minimālais plāns"
+    }
+  },
+  "faq": {
+    "kicker": "BUJ",
+    "heading": "Ātras atbildes.",
+    "items": {
+      "delivery": {
+        "q": "Vai velosipēdu drīkstu izmantot piegādes darbam?",
+        "a": "Jā. rentaro parks ir būvēts pilsētas piegādes maiņām un piemērots kurjeriem jebkurā lielajā platformā. Mēs esam neatkarīgs nomas serviss un neesam oficiāli saistīti ne ar vienu piegādes platformu."
+      },
+      "minPeriod": {
+        "q": "Kāds ir minimālais nomas periods?",
+        "a": "30 dienas. Pēc pirmā mēneša vari pagarināt no mēneša uz mēnesi vai pāriet uz garāku plānu ar zemāku dienas likmi."
+      },
+      "pricing": {
+        "q": "Kā darbojas cenas?",
+        "a": "Cena tiek aprēķināta par 30 dienu periodu. 30 dienu plāns ir €5.90/dienā, 6 mēnešu plāns €4.90/dienā un 12 mēnešu plāns €3.90/dienā. Visiem modeļiem tiek piemērotas tādas pašas plānu cenas."
+      },
+      "maintenance": {
+        "q": "Vai apkope ir iekļauta?",
+        "a": "Jā. Bremžu regulēšana, riepu caurumu novēršana un vispārējais serviss ir iekļauti katrā plānā. Ja velosipēdam nepieciešams ilgāks remonts, mēs to nomainām, kur to ļauj krājumi, lai tavas maiņas turpinātos."
+      },
+      "extraBattery": {
+        "q": "Vai varu nomāt papildu akumulatoru?",
+        "a": "Jā. Papildu akumulators ir pieejams kā papildinājums garām piegādes dienām. Engine Pro 2.0 nes 832 Wh akumulatoru, un Air One Pro atbalsta divu akumulatoru režīmu lielākam nobraukumam smagās dienās."
+      },
+      "deposit": {
+        "q": "Kāds depozīts ir nepieciešams?",
+        "a": "Saņemšanas brīdī tiek ieturēts atmaksājams drošības depozīts. Summa atkarīga no modeļa un termiņa, un to atmaksā nomas beigās, atskaitot bojājumus, kas pārsniedz normālu nolietojumu."
+      },
+      "pickup": {
+        "q": "Kur varu saņemt velosipēdu?",
+        "a": "Šobrīd darbojamies Tallinā un Rīgā, drīzumā arī Helsinkos. Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi savā apkārtnē."
+      },
+      "contract": {
+        "q": "Vai līgumu paraksta tiešsaistē?",
+        "a": "Jā — pilns nomas līgums ir digitāls un tiek parakstīts telefonā pirms saņemšanas. Bāzē nekādu papīru kārtošanas."
+      }
+    }
+  },
+  "finalCta": {
+    "heading": "Gatavs nākamajai maiņai?",
+    "lead": "Izvēlies savu rentaro e-velosipēdu, izvēlies plānu un sāc braukt — servisa atbalsts iekļauts no pirmās dienas.",
+    "ctaReserve": "Rezervēt savu e-velosipēdu",
+    "ctaPricing": "Skatīt cenas"
+  }
+}
