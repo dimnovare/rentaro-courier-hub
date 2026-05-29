@@ -391,24 +391,24 @@
     "errorHelpSuffix": "sen sijaan."
   },
   "contract": {
-    "heading": "Rental contract",
-    "signedLead": "Your rental agreement is signed. You can download a copy for your records.",
-    "unsignedLead": "Sign your rental agreement online to confirm your booking. It only takes a minute on your phone.",
-    "notAvailableLead": "Your rental agreement will be ready to sign here shortly.",
-    "notAvailableNote": "Signing isn't available just yet — we'll email you when your contract is ready.",
-    "sign": "Sign your contract",
-    "opening": "Opening…",
-    "downloadSigned": "Download signed contract",
-    "signFailed": "Couldn't start signing just now. Please try again.",
+    "heading": "Vuokrasopimus",
+    "signedLead": "Vuokrasopimuksesi on allekirjoitettu. Voit ladata kopion itsellesi.",
+    "unsignedLead": "Allekirjoita vuokrasopimuksesi verkossa vahvistaaksesi varauksesi. Se vie vain minuutin puhelimellasi.",
+    "notAvailableLead": "Vuokrasopimuksesi on pian valmis allekirjoitettavaksi täällä.",
+    "notAvailableNote": "Allekirjoitus ei ole vielä käytettävissä — lähetämme sähköpostia, kun sopimuksesi on valmis.",
+    "sign": "Allekirjoita sopimus",
+    "opening": "Avataan…",
+    "downloadSigned": "Lataa allekirjoitettu sopimus",
+    "signFailed": "Allekirjoituksen aloittaminen ei onnistunut juuri nyt. Yritä uudelleen.",
     "status": {
-      "NotStarted": "Not started",
-      "Generated": "Ready to sign",
-      "SentForSignature": "Awaiting signature",
-      "Viewed": "Viewed",
-      "Signed": "Signed",
-      "Declined": "Declined",
-      "Expired": "Expired",
-      "Failed": "Failed"
+      "NotStarted": "Ei aloitettu",
+      "Generated": "Valmis allekirjoitettavaksi",
+      "SentForSignature": "Odottaa allekirjoitusta",
+      "Viewed": "Katsottu",
+      "Signed": "Allekirjoitettu",
+      "Declined": "Hylätty",
+      "Expired": "Vanhentunut",
+      "Failed": "Epäonnistui"
     }
   },
   "enums": {

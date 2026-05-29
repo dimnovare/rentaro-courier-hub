@@ -391,24 +391,24 @@
     "errorHelpSuffix": "selle asemel."
   },
   "contract": {
-    "heading": "Rental contract",
-    "signedLead": "Your rental agreement is signed. You can download a copy for your records.",
-    "unsignedLead": "Sign your rental agreement online to confirm your booking. It only takes a minute on your phone.",
-    "notAvailableLead": "Your rental agreement will be ready to sign here shortly.",
-    "notAvailableNote": "Signing isn't available just yet — we'll email you when your contract is ready.",
-    "sign": "Sign your contract",
-    "opening": "Opening…",
-    "downloadSigned": "Download signed contract",
-    "signFailed": "Couldn't start signing just now. Please try again.",
+    "heading": "Rendileping",
+    "signedLead": "Sinu rendileping on allkirjastatud. Saad oma tarvis koopia alla laadida.",
+    "unsignedLead": "Allkirjasta oma rendileping veebis, et broneering kinnitada. See võtab telefonis vaid minuti.",
+    "notAvailableLead": "Sinu rendileping on siin peagi allkirjastamiseks valmis.",
+    "notAvailableNote": "Allkirjastamine pole veel saadaval — saadame sulle e-kirja, kui leping on valmis.",
+    "sign": "Allkirjasta leping",
+    "opening": "Avan…",
+    "downloadSigned": "Laadi allkirjastatud leping alla",
+    "signFailed": "Praegu ei õnnestunud allkirjastamist alustada. Palun proovi uuesti.",
     "status": {
-      "NotStarted": "Not started",
-      "Generated": "Ready to sign",
-      "SentForSignature": "Awaiting signature",
-      "Viewed": "Viewed",
-      "Signed": "Signed",
-      "Declined": "Declined",
-      "Expired": "Expired",
-      "Failed": "Failed"
+      "NotStarted": "Alustamata",
+      "Generated": "Valmis allkirjastamiseks",
+      "SentForSignature": "Allkirja ootel",
+      "Viewed": "Vaadatud",
+      "Signed": "Allkirjastatud",
+      "Declined": "Tagasi lükatud",
+      "Expired": "Aegunud",
+      "Failed": "Ebaõnnestus"
     }
   },
   "enums": {

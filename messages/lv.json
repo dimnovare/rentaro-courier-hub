@@ -391,24 +391,24 @@
     "errorHelpSuffix": "tā vietā."
   },
   "contract": {
-    "heading": "Rental contract",
-    "signedLead": "Your rental agreement is signed. You can download a copy for your records.",
-    "unsignedLead": "Sign your rental agreement online to confirm your booking. It only takes a minute on your phone.",
-    "notAvailableLead": "Your rental agreement will be ready to sign here shortly.",
-    "notAvailableNote": "Signing isn't available just yet — we'll email you when your contract is ready.",
-    "sign": "Sign your contract",
-    "opening": "Opening…",
-    "downloadSigned": "Download signed contract",
-    "signFailed": "Couldn't start signing just now. Please try again.",
+    "heading": "Nomas līgums",
+    "signedLead": "Tavs nomas līgums ir parakstīts. Vari lejupielādēt kopiju savai uzskaitei.",
+    "unsignedLead": "Paraksti savu nomas līgumu tiešsaistē, lai apstiprinātu rezervāciju. Tas aizņem tikai minūti tavā telefonā.",
+    "notAvailableLead": "Tavs nomas līgums drīz būs šeit gatavs parakstīšanai.",
+    "notAvailableNote": "Parakstīšana vēl nav pieejama — nosūtīsim tev e-pastu, kad līgums būs gatavs.",
+    "sign": "Parakstīt līgumu",
+    "opening": "Atver…",
+    "downloadSigned": "Lejupielādēt parakstīto līgumu",
+    "signFailed": "Šobrīd neizdevās sākt parakstīšanu. Lūdzu, mēģini vēlreiz.",
     "status": {
-      "NotStarted": "Not started",
-      "Generated": "Ready to sign",
-      "SentForSignature": "Awaiting signature",
-      "Viewed": "Viewed",
-      "Signed": "Signed",
-      "Declined": "Declined",
-      "Expired": "Expired",
-      "Failed": "Failed"
+      "NotStarted": "Nav sākts",
+      "Generated": "Gatavs parakstīšanai",
+      "SentForSignature": "Gaida parakstu",
+      "Viewed": "Apskatīts",
+      "Signed": "Parakstīts",
+      "Declined": "Noraidīts",
+      "Expired": "Beidzies derīgums",
+      "Failed": "Neizdevās"
     }
   },
   "enums": {
