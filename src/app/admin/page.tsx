@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import {
   adminLogin,
@@ -132,6 +133,8 @@ export default function AdminPage() {
     <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
       <Header connected={connected} onRefresh={() => token && load(token)} onSignOut={signOut} />
 
+      {connected && <AdminNav />}
+
       {!connected ? (
         <LoginGate
           username={username}
@@ -175,6 +178,28 @@ export default function AdminPage() {
 }
 
 /* ── Pieces ────────────────────────────────────────────────────────────── */
+
+function AdminNav() {
+  const links: [string, string][] = [
+    ["Manage bookings", "/admin/bookings"],
+    ["Manage fleet", "/admin/fleet"],
+    ["Manage maintenance", "/admin/maintenance"],
+  ];
+  return (
+    <nav style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 30 }}>
+      {links.map(([label, href]) => (
+        <Link
+          key={href}
+          href={href}
+          className="btn btn-ghost"
+          style={{ padding: "10px 18px", fontSize: 13.5 }}
+        >
+          {label} →
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
 function Header({
   connected,
