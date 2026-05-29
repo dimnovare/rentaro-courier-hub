@@ -10,7 +10,7 @@ import type { BikeModel } from "@/types";
  */
 
 const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://rentaro-courier-hub.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app"
 ).replace(/\/$/, "");
 
 type JsonLdProps = {

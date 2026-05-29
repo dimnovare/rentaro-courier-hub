@@ -11,8 +11,10 @@ import { Analytics } from "@/components/analytics/Analytics";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { JsonLd, buildOrganizationSchema } from "@/components/seo/JsonLd";
 
+// Use `|| ` (not `??`) so an empty/blank env var falls back to the default —
+// `new URL("")` throws (ERR_INVALID_URL) and breaks the build otherwise.
 const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://rentaro-courier-hub.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app"
 ).replace(/\/$/, "");
 
 const spaceGrotesk = Space_Grotesk({

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { bikeModels } from "@/data/bikeModels";
 import { cities } from "@/data/cities";
 
-const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://rentaro-courier-hub.vercel.app").replace(/\/$/, "");
+const base = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app").replace(/\/$/, "");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
