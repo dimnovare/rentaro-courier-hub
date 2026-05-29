@@ -1,8 +1,10 @@
 /**
  * Read-only admin API client. Unlike the public services (which fall back to
- * local mock data via apiGet), the admin UI requires the live .NET API and an
- * admin token. Every request sends `X-Admin-Token`. A 401 is surfaced as a
- * typed AdminApiError so the dashboard can prompt for a fresh token.
+ * local mock data via apiGet), the admin UI requires the live .NET API and a
+ * logged-in admin. The admin signs in with username + password via adminLogin
+ * to obtain a JWT, which every subsequent request sends as
+ * `Authorization: Bearer <token>`. A 401 is surfaced as a typed AdminApiError
+ * so the dashboard can prompt for a fresh sign-in.
  */
 import { API_BASE } from "./api";
 
@@ -85,7 +87,7 @@ async function adminGet<T>(path: string, token: string): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_BASE}${path}`, {
-      headers: { "X-Admin-Token": token, Accept: "application/json" },
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       cache: "no-store",
     });
   } catch {
@@ -93,11 +95,42 @@ async function adminGet<T>(path: string, token: string): Promise<T> {
   }
 
   if (!res.ok) {
-    if (res.status === 401) throw new AdminApiError("Invalid admin token", 401);
+    if (res.status === 401) throw new AdminApiError("Your session has expired. Sign in again.", 401);
     throw new AdminApiError(`Request failed (${res.status})`, res.status);
   }
 
   return (await res.json()) as T;
+}
+
+/* ── Authentication ────────────────────────────────────────────────────── */
+
+/**
+ * Exchanges admin credentials for a JWT. Resolves with the bearer token on
+ * success; throws AdminApiError(401) on invalid credentials and
+ * AdminConfigError when the API base URL is not set.
+ */
+export async function adminLogin(username: string, password: string): Promise<string> {
+  if (!API_BASE) throw new AdminConfigError();
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ username, password }),
+      cache: "no-store",
+    });
+  } catch {
+    throw new AdminApiError("Could not reach the admin API. Check your connection.", 0);
+  }
+
+  if (!res.ok) {
+    if (res.status === 401) throw new AdminApiError("Invalid username or password", 401);
+    throw new AdminApiError(`Sign-in failed (${res.status})`, res.status);
+  }
+
+  const data = (await res.json()) as { token: string; expiresAt: string };
+  return data.token;
 }
 
 /* ── Public surface ────────────────────────────────────────────────────── */

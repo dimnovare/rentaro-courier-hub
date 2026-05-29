@@ -9,6 +9,7 @@ import { SpecTable } from "@/components/models/SpecTable";
 import { ReserveButton } from "@/components/models/ReserveButton";
 import { bikeModels, getModelBySlug } from "@/data/bikeModels";
 import { modelService } from "@/services/modelService";
+import { JsonLd, buildProductSchema } from "@/components/seo/JsonLd";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -20,9 +21,29 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const m = getModelBySlug(slug);
   if (!m) return { title: "Model not found — rentaro" };
+  const title = `${m.name} — rentaro`;
+  const description =
+    m.blurb ?? `${m.name} — available on 30-day, 6 or 12-month rentaro plans.`;
+  const path = `/models/${m.slug}`;
   return {
-    title: `${m.name} — rentaro`,
-    description: m.blurb ?? `${m.name} — available on 30-day, 6 or 12-month rentaro plans.`,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      siteName: "rentaro",
+      title,
+      description,
+      url: path,
+      locale: "en",
+      images: [{ url: m.img, alt: m.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [m.img],
+    },
   };
 }
 
@@ -42,6 +63,7 @@ export default async function ModelDetail({ params }: Params) {
 
   return (
     <main>
+      <JsonLd data={buildProductSchema(m)} />
       <section className="detail">
         <div className="wrap">
           <Link className="detail-back" href="/models">

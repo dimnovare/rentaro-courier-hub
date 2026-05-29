@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  adminLogin,
   getAdminBookings,
   getAdminFleet,
   getAdminMaintenance,
@@ -16,7 +17,7 @@ import { FleetView } from "@/components/admin/FleetView";
 import { MaintenanceTable } from "@/components/admin/MaintenanceTable";
 import { AdminSection } from "@/components/admin/Table";
 
-const TOKEN_KEY = "rentaro_admin_token";
+const TOKEN_KEY = "rentaro_admin_jwt";
 
 interface DashboardData {
   bookings: AdminBooking[];
@@ -32,10 +33,15 @@ type LoadState =
 
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
   const [state, setState] = useState<LoadState>({ phase: "idle" });
 
-  // Restore a saved token on mount (client-only).
+  // Login form state.
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [signingIn, setSigningIn] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Restore a saved JWT on mount (client-only).
   useEffect(() => {
     try {
       const saved = localStorage.getItem(TOKEN_KEY);
@@ -80,15 +86,31 @@ export default function AdminPage() {
     if (token) void load(token);
   }, [token, load]);
 
-  function connect() {
-    const t = draft.trim();
-    if (!t) return;
+  async function signIn() {
+    const u = username.trim();
+    if (!u || !password || signingIn) return;
+    setSigningIn(true);
+    setLoginError(null);
     try {
-      localStorage.setItem(TOKEN_KEY, t);
-    } catch {
-      /* ignore persistence failure — still connect for this session. */
+      const jwt = await adminLogin(u, password);
+      try {
+        localStorage.setItem(TOKEN_KEY, jwt);
+      } catch {
+        /* ignore persistence failure — still sign in for this session. */
+      }
+      setPassword("");
+      setToken(jwt);
+    } catch (err) {
+      if (err instanceof AdminConfigError) {
+        setLoginError(err.message);
+      } else if (err instanceof AdminApiError) {
+        setLoginError(err.message);
+      } else {
+        setLoginError("Something went wrong signing in.");
+      }
+    } finally {
+      setSigningIn(false);
     }
-    setToken(t);
   }
 
   function signOut() {
@@ -98,7 +120,9 @@ export default function AdminPage() {
       /* ignore */
     }
     setToken(null);
-    setDraft("");
+    setUsername("");
+    setPassword("");
+    setLoginError(null);
     setState({ phase: "idle" });
   }
 
@@ -109,10 +133,14 @@ export default function AdminPage() {
       <Header connected={connected} onRefresh={() => token && load(token)} onSignOut={signOut} />
 
       {!connected ? (
-        <TokenGate
-          draft={draft}
-          onDraft={setDraft}
-          onConnect={connect}
+        <LoginGate
+          username={username}
+          password={password}
+          onUsername={setUsername}
+          onPassword={setPassword}
+          onSubmit={signIn}
+          submitting={signingIn}
+          error={loginError}
         />
       ) : state.phase === "loading" || state.phase === "idle" ? (
         <Notice>Loading admin data…</Notice>
@@ -193,41 +221,73 @@ function Header({
   );
 }
 
-function TokenGate({
-  draft,
-  onDraft,
-  onConnect,
+function LoginGate({
+  username,
+  password,
+  onUsername,
+  onPassword,
+  onSubmit,
+  submitting,
+  error,
 }: {
-  draft: string;
-  onDraft: (v: string) => void;
-  onConnect: () => void;
+  username: string;
+  password: string;
+  onUsername: (v: string) => void;
+  onPassword: (v: string) => void;
+  onSubmit: () => void;
+  submitting: boolean;
+  error: string | null;
 }) {
   return (
     <div className="card" style={{ padding: 32, maxWidth: 460 }}>
-      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Connect</h2>
+      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Sign in</h2>
       <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 22, lineHeight: 1.6 }}>
-        Paste your admin token to view bookings, fleet and maintenance. The token is stored only
-        in this browser.
+        Sign in with your admin credentials to view bookings, fleet and maintenance. Your session
+        is stored only in this browser.
       </p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onConnect();
+          onSubmit();
         }}
       >
         <div className="field">
-          <label htmlFor="admin-token">Admin token</label>
+          <label htmlFor="admin-username">Username</label>
           <input
-            id="admin-token"
-            type="password"
-            autoComplete="off"
-            value={draft}
-            onChange={(e) => onDraft(e.target.value)}
-            placeholder="X-Admin-Token"
+            id="admin-username"
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(e) => onUsername(e.target.value)}
+            placeholder="admin"
           />
         </div>
-        <button type="submit" className="btn btn-primary btn-block" disabled={!draft.trim()} style={{ marginTop: 4 }}>
-          Connect
+        <div className="field">
+          <label htmlFor="admin-password">Password</label>
+          <input
+            id="admin-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => onPassword(e.target.value)}
+            placeholder="••••••••"
+          />
+        </div>
+        {error && (
+          <p
+            className="mono"
+            style={{ color: "var(--danger)", fontSize: 12.5, margin: "0 0 16px", lineHeight: 1.5 }}
+          >
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          className="btn btn-primary btn-block"
+          disabled={!username.trim() || !password || submitting}
+          style={{ marginTop: 4 }}
+        >
+          {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>
     </div>
@@ -272,7 +332,7 @@ function ErrorPanel({
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         {unauthorized ? (
           <button type="button" className="btn btn-primary" onClick={onReenter} style={{ padding: "12px 22px", fontSize: 14 }}>
-            Re-enter token
+            Sign in again
           </button>
         ) : config ? null : (
           <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
