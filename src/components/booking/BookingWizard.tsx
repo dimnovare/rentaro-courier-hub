@@ -153,6 +153,18 @@ export function BookingWizard() {
         <p className="lead" style={{ marginTop: 8 }}>
           {t("intro")}
         </p>
+        {/* Running selection + price, visible across every step. */}
+        {(cityId || modelId || planId) && (
+          <div className="wizard-pick">
+            {cityId && <span className="chip">{tc(`names.${cityId}`)}</span>}
+            {model && <span className="chip">{model.name}</span>}
+            {plan && (
+              <span className="chip accent">
+                {tp(`terms.${planId}`)} · {t("plan.per30", { price: plan.monthly })}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="wizard-rail">
