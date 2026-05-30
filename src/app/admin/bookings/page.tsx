@@ -6,10 +6,13 @@ import {
   listUnitCodes,
   updateStatus,
   assignUnit,
+  getPayment,
+  confirmPayment,
   BookingApiError,
   BookingConfigError,
   type AdminBooking,
   type AdminFleetUnit,
+  type AdminPayment,
 } from "@/services/adminBookingService";
 import {
   generateContract,
@@ -19,7 +22,7 @@ import {
   type Contract,
 } from "@/services/adminContractService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate, fmtDay } from "@/components/admin/Table";
-import { StatusPill } from "@/components/admin/StatusPill";
+import { StatusPill, type PillTone } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -42,6 +45,9 @@ export default function AdminBookingsPage() {
   const [contracts, setContracts] = useState<Record<string, Contract>>({});
   // Booking ids with an in-flight contract action (generate / download).
   const [contractBusy, setContractBusy] = useState<Record<string, boolean>>({});
+  // Latest payment per booking, fetched lazily when a Manage panel opens.
+  // `"loading"` while in flight; `null` once we know there is no payment.
+  const [payments, setPayments] = useState<Record<string, AdminPayment | null | "loading">>({});
   // The booking id whose management panel is currently expanded (one at a time).
   const [openId, setOpenId] = useState<string | null>(null);
   // Per-row action error, shown inside the open management panel. Keyed by
@@ -72,11 +78,43 @@ export default function AdminBookingsPage() {
 
   useAdminRefresh(load);
 
-  // Toggle a booking's management panel; clears any stale per-row error.
-  const toggleOpen = useCallback((bookingId: string) => {
-    setRowError(null);
-    setOpenId((cur) => (cur === bookingId ? null : bookingId));
-  }, []);
+  // Fetch (once) the latest payment for a booking. Errors are swallowed: the
+  // payment readout is non-critical, so a hiccup just leaves it unknown rather
+  // than blocking the panel. A 401 still drops to sign-in.
+  const loadPayment = useCallback(
+    async (bookingId: string) => {
+      setPayments((m) => ({ ...m, [bookingId]: "loading" }));
+      try {
+        const payment = await getPayment(bookingId);
+        setPayments((m) => ({ ...m, [bookingId]: payment }));
+      } catch (err) {
+        if (err instanceof BookingApiError && err.unauthorized) {
+          signOut();
+          return;
+        }
+        setPayments((m) => {
+          const next = { ...m };
+          delete next[bookingId];
+          return next;
+        });
+      }
+    },
+    [signOut],
+  );
+
+  // Toggle a booking's management panel; clears any stale per-row error. Opening
+  // a row lazily loads its payment status (unless already known).
+  const toggleOpen = useCallback(
+    (bookingId: string) => {
+      setRowError(null);
+      setOpenId((cur) => {
+        const next = cur === bookingId ? null : bookingId;
+        if (next && payments[bookingId] === undefined) void loadPayment(bookingId);
+        return next;
+      });
+    },
+    [payments, loadPayment],
+  );
 
   // Surface a per-row error inside the management panel for a booking.
   const setRowErr = useCallback((bookingId: string, text: string) => {
@@ -104,6 +142,33 @@ export default function AdminBookingsPage() {
           err instanceof BookingApiError || err instanceof BookingConfigError
             ? err.message
             : "Action failed.";
+        setRowErr(bookingId, text);
+      }
+    },
+    [load, signOut, setRowErr],
+  );
+
+  // Manually confirm a booking's payment as received. On success we patch the
+  // local payment readout (so the panel flips to "paid" and the assign gate
+  // unblocks immediately) and refresh the list. Errors surface inline.
+  const onConfirmPayment = useCallback(
+    async (bookingId: string) => {
+      setBanner(null);
+      setRowError(null);
+      try {
+        const updated = await confirmPayment(bookingId);
+        setPayments((m) => ({ ...m, [bookingId]: updated }));
+        setBanner({ tone: "ok", text: "Payment marked as received." });
+        await load();
+      } catch (err) {
+        if (err instanceof BookingApiError && err.unauthorized) {
+          signOut();
+          return;
+        }
+        const text =
+          err instanceof BookingApiError || err instanceof BookingConfigError
+            ? err.message
+            : "Could not confirm the payment.";
         setRowErr(bookingId, text);
       }
     },
@@ -206,9 +271,11 @@ export default function AdminBookingsPage() {
               units={state.data.units}
               contracts={contracts}
               contractBusy={contractBusy}
+              payments={payments}
               openId={openId}
               rowError={rowError}
               onToggle={toggleOpen}
+              onConfirmPayment={onConfirmPayment}
               onApprove={(id) =>
                 runAction(
                   id,
@@ -261,12 +328,14 @@ function BookingsManageTable({
   units,
   contracts,
   contractBusy,
+  payments,
   openId,
   rowError,
   onToggle,
   onApprove,
   onReject,
   onAssign,
+  onConfirmPayment,
   onGenerateContract,
   onDownloadContract,
 }: {
@@ -274,12 +343,14 @@ function BookingsManageTable({
   units: AdminFleetUnit[];
   contracts: Record<string, Contract>;
   contractBusy: Record<string, boolean>;
+  payments: Record<string, AdminPayment | null | "loading">;
   openId: string | null;
   rowError: { bookingId: string; text: string } | null;
   onToggle: (id: string) => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onAssign: (id: string, code: string) => void;
+  onConfirmPayment: (id: string) => void;
   onGenerateContract: (id: string) => void;
   onDownloadContract: (id: string, contractId: string, kind: "generated" | "signed") => void;
 }) {
@@ -310,12 +381,14 @@ function BookingsManageTable({
                 units={units}
                 contract={contracts[b.id]}
                 contractBusy={Boolean(contractBusy[b.id])}
+                payment={payments[b.id]}
                 open={open}
                 error={rowError && rowError.bookingId === b.id ? rowError.text : null}
                 onToggle={() => onToggle(b.id)}
                 onApprove={() => onApprove(b.id)}
                 onReject={() => onReject(b.id)}
                 onAssign={(code) => onAssign(b.id, code)}
+                onConfirmPayment={() => onConfirmPayment(b.id)}
                 onGenerateContract={() => onGenerateContract(b.id)}
                 onDownloadContract={(kind) => {
                   const c = contracts[b.id];
@@ -335,12 +408,14 @@ function BookingRow({
   units,
   contract,
   contractBusy,
+  payment,
   open,
   error,
   onToggle,
   onApprove,
   onReject,
   onAssign,
+  onConfirmPayment,
   onGenerateContract,
   onDownloadContract,
 }: {
@@ -348,12 +423,14 @@ function BookingRow({
   units: AdminFleetUnit[];
   contract: Contract | undefined;
   contractBusy: boolean;
+  payment: AdminPayment | null | "loading" | undefined;
   open: boolean;
   error: string | null;
   onToggle: () => void;
   onApprove: () => void;
   onReject: () => void;
   onAssign: (code: string) => void;
+  onConfirmPayment: () => void;
   onGenerateContract: () => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
 }) {
@@ -400,10 +477,12 @@ function BookingRow({
               units={units}
               contract={contract}
               contractBusy={contractBusy}
+              payment={payment}
               error={error}
               onApprove={onApprove}
               onReject={onReject}
               onAssign={onAssign}
+              onConfirmPayment={onConfirmPayment}
               onGenerateContract={onGenerateContract}
               onDownloadContract={onDownloadContract}
             />
@@ -424,10 +503,12 @@ function ManagePanel({
   units,
   contract,
   contractBusy,
+  payment,
   error,
   onApprove,
   onReject,
   onAssign,
+  onConfirmPayment,
   onGenerateContract,
   onDownloadContract,
 }: {
@@ -435,10 +516,12 @@ function ManagePanel({
   units: AdminFleetUnit[];
   contract: Contract | undefined;
   contractBusy: boolean;
+  payment: AdminPayment | null | "loading" | undefined;
   error: string | null;
   onApprove: () => void;
   onReject: () => void;
   onAssign: (code: string) => void;
+  onConfirmPayment: () => void;
   onGenerateContract: () => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
 }) {
@@ -505,7 +588,11 @@ function ManagePanel({
         />
       </PanelGroup>
 
-      <PanelGroup title="3 · Assign a bike">
+      <PanelGroup title="3 · Payment">
+        <PaymentControl payment={payment} onConfirm={onConfirmPayment} />
+      </PanelGroup>
+
+      <PanelGroup title="4 · Assign a bike">
         <AssignControl booking={b} units={units} onAssign={onAssign} />
       </PanelGroup>
     </div>
@@ -531,6 +618,91 @@ function PanelGroup({ title, children }: { title: string; children: React.ReactN
       {children}
     </div>
   );
+}
+
+/**
+ * Per-booking payment readout + manual-confirmation control. Payment is fetched
+ * lazily when the panel opens:
+ *   - `"loading"`  → still fetching.
+ *   - `undefined`  → not fetched (treated like "unknown").
+ *   - `null`       → no payment exists for this booking yet.
+ *   - object       → the latest payment.
+ *
+ * When the payment is unsettled (`pending` / `pending_manual` — e.g. Montonio is
+ * not configured, so no money was auto-collected), it offers "Mark payment
+ * received", which confirms it server-side. A bike cannot be assigned until the
+ * payment is settled, so this control gates step 4.
+ */
+function PaymentControl({
+  payment,
+  onConfirm,
+}: {
+  payment: AdminPayment | null | "loading" | undefined;
+  onConfirm: () => void;
+}) {
+  if (payment === "loading") {
+    return <p style={hintStyle}>Checking payment…</p>;
+  }
+
+  if (payment == null) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <StatusPill value="no payment" tone="neutral" />
+        <p style={hintStyle}>No payment recorded for this booking.</p>
+      </div>
+    );
+  }
+
+  const status = payment.status.toLowerCase();
+  const settled = status === "paid";
+  // "pending" (awaiting the provider) and "pending_manual" (no auto-charge) both
+  // allow a manual confirmation. Terminal states (cancelled/refunded) and the
+  // settled "paid" state do not.
+  const confirmable = status === "pending" || status === "pending_manual";
+  const amount = `${payment.amount.toFixed(2)} ${payment.currency}`;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <StatusPill value={status} tone={paymentStatusTone(status)} />
+        <span className="mono" style={{ fontSize: 11.5, color: "var(--text-muted)" }}>{amount}</span>
+      </div>
+      {confirmable && (
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ ...miniBtn, alignSelf: "flex-start" }}
+          onClick={onConfirm}
+        >
+          Mark payment received
+        </button>
+      )}
+      <p style={hintStyle}>
+        {settled
+          ? "Payment confirmed — bike assignment is unlocked."
+          : confirmable
+            ? "No automatic charge was taken. Confirm once you have received payment to unlock bike assignment."
+            : `Payment is ${status.replace(/_/g, " ")} — bike assignment stays blocked.`}
+      </p>
+    </div>
+  );
+}
+
+/** Coarse pill tone for a payment status. */
+function paymentStatusTone(status: string): PillTone {
+  switch (status) {
+    case "paid":
+      return "good";
+    case "pending":
+    case "pending_manual":
+      return "warn";
+    case "failed":
+    case "cancelled":
+    case "refunded":
+      return "bad";
+    default:
+      return "neutral";
+  }
 }
 
 /**

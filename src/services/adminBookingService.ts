@@ -6,10 +6,12 @@
  * BookingApiError so the page can prompt for a fresh sign-in.
  *
  * Endpoints:
- *   GET   /api/admin/bookings              (list — reused from the dashboard)
- *   PATCH /api/admin/bookings/{id}/status  (set status)
- *   POST  /api/admin/bookings/{id}/assign  (assign a bike unit → rental)
- *   GET   /api/admin/fleet                 (unit codes for the assign control)
+ *   GET   /api/admin/bookings                       (list — reused from the dashboard)
+ *   PATCH /api/admin/bookings/{id}/status           (set status)
+ *   POST  /api/admin/bookings/{id}/assign           (assign a bike unit → rental)
+ *   GET   /api/admin/bookings/{id}/payment          (latest payment for a booking)
+ *   POST  /api/admin/bookings/{id}/confirm-payment  (manually mark payment received)
+ *   GET   /api/admin/fleet                          (unit codes for the assign control)
  */
 import { API_BASE } from "@/services/api";
 
@@ -57,6 +59,22 @@ export interface AdminRentalSummary {
   depositAmount: number;
   status: string;
   createdAt: string;
+}
+
+/**
+ * Latest payment for a booking. `status` is a lower-cased PaymentStatus, e.g.
+ * "paid", "pending", "pending_manual", "failed". "pending_manual" means no money
+ * was collected automatically and an admin must confirm receipt before a bike can
+ * be assigned.
+ */
+export interface AdminPayment {
+  id: string;
+  status: string;
+  amount: number;
+  currency: string;
+  provider: string;
+  method: string;
+  paidAt: string | null;
 }
 
 /* ── Typed errors ──────────────────────────────────────────────────────── */
@@ -162,5 +180,20 @@ export function assignUnit(bookingId: string, bikeUnitInternalCode: string): Pro
   return request<AdminRentalSummary>(`/api/admin/bookings/${bookingId}/assign`, {
     method: "POST",
     body: JSON.stringify({ bikeUnitInternalCode }),
+  });
+}
+
+/**
+ * Returns the latest payment for a booking, or null when the booking has no
+ * payment yet (the backend answers 200 with a JSON `null` body in that case).
+ */
+export function getPayment(bookingId: string): Promise<AdminPayment | null> {
+  return request<AdminPayment | null>(`/api/admin/bookings/${bookingId}/payment`);
+}
+
+/** Manually marks a booking's latest payment as received (Paid). */
+export function confirmPayment(bookingId: string): Promise<AdminPayment> {
+  return request<AdminPayment>(`/api/admin/bookings/${bookingId}/confirm-payment`, {
+    method: "POST",
   });
 }
