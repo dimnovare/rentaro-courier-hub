@@ -12,7 +12,7 @@
  *
  * A 401 anywhere calls signOut() so the shell drops back to the sign-in screen.
  */
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
