@@ -40,6 +40,39 @@ vi.mock("next/link", () => ({
   },
 }));
 
+// @/i18n/navigation re-exports next-intl-aware versions of Link/useRouter/
+// usePathname. In tests, delegate to the same inert stubs as next/link +
+// next/navigation so component tests can render without a router context.
+vi.mock("@/i18n/navigation", () => ({
+  __esModule: true,
+  Link: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string | { pathname?: string };
+    children: import("react").ReactNode;
+  } & Record<string, unknown>) => {
+    const url = typeof href === "string" ? href : (href?.pathname ?? "");
+    return (
+      <a href={url} {...rest}>
+        {children}
+      </a>
+    );
+  },
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  usePathname: () => "/",
+  redirect: vi.fn(),
+  getPathname: vi.fn(() => "/"),
+}));
+
 // next-intl needs a request/provider context the jsdom test runtime doesn't
 // have. Resolve translations against the real `messages/en.json` so component
 // tests assert on actual English copy (not key names). `vi.hoisted` builds the
@@ -97,6 +130,7 @@ vi.mock("next-intl/server", async () => {
       intl.makeT(enMessages, namespace),
     getLocale: async () => "en",
     getMessages: async () => enMessages,
+    setRequestLocale: vi.fn(), // no-op in tests
   };
 });
 
