@@ -9,8 +9,10 @@ import { ModelCard } from "@/components/models/ModelCard";
 import { cities, getCityById } from "@/data/cities";
 import { getCityContent } from "@/data/cityContent";
 import { modelService } from "@/services/modelService";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 
-type Params = { params: Promise<{ city: string }> };
+type Params = { params: Promise<{ locale: string; city: string }> };
 
 /** Maps a City.country display value to its `cities.countries.*` message key. */
 const countryKey = (country: string) => country.toLowerCase();
@@ -20,7 +22,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const { city } = await params;
+  const { locale, city } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
   const c = getCityById(city);
   const t = await getTranslations("cityPage");
   const tc = await getTranslations("cities");
@@ -34,15 +37,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description = soon
     ? t("meta.descriptionSoon", { city: cityName, country })
     : t("meta.descriptionLive", { city: cityName, country });
-  const url = `/cities/${c.id}`;
+  const path = `/cities/${c.id}`;
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: buildAlternates(loc, path),
     openGraph: {
       type: "website",
       siteName: "rentaro",
-      url,
+      url: path,
+      locale: loc,
       title,
       description,
     },

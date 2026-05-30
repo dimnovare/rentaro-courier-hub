@@ -11,15 +11,18 @@ import { ReserveButton } from "@/components/models/ReserveButton";
 import { bikeModels, getModelBySlug } from "@/data/bikeModels";
 import { modelService, resolveImg } from "@/services/modelService";
 import { JsonLd, buildProductSchema } from "@/components/seo/JsonLd";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 
-type Params = { params: Promise<{ slug: string }> };
+type Params = { params: Promise<{ locale: string; slug: string }> };
 
 export function generateStaticParams() {
   return bikeModels.map((m) => ({ slug: m.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
   const m = getModelBySlug(slug);
   if (!m) return { title: "Model not found — rentaro" };
   const title = `${m.name} — rentaro`;
@@ -30,14 +33,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: path },
+    alternates: buildAlternates(loc, path),
     openGraph: {
       type: "website",
       siteName: "rentaro",
       title,
       description,
       url: path,
-      locale: "en",
+      locale: loc,
       images: [{ url: ogImage, alt: m.name }],
     },
     twitter: {
