@@ -19,7 +19,7 @@ export function FinalCta() {
                 {t("lead")}
               </p>
               <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
-                <button className="btn btn-primary btn-lg" onClick={() => reserve()}>
+                <button className="btn btn-primary btn-lg" onClick={() => reserve(undefined, "final-cta")}>
                   {t("ctaReserve")}
                   <span className="arrow">
                     <Ic.arrow />

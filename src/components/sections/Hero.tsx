@@ -58,13 +58,13 @@ export function Hero() {
           </Reveal>
           <Reveal delay={180}>
             <div className="cta-row">
-              <button className="btn btn-primary btn-lg" onClick={() => reserve()}>
+              <button className="btn btn-primary btn-lg" onClick={() => reserve(undefined, "hero")}>
                 {t("ctaReserve")}
                 <span className="arrow">
                   <Ic.arrow />
                 </span>
               </button>
-              <button className="btn btn-ghost btn-lg" onClick={() => goModels()}>
+              <button className="btn btn-ghost btn-lg" onClick={() => goModels("hero")}>
                 {t("ctaExplore")}
               </button>
             </div>

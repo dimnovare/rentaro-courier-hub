@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Ic } from "@/components/ui/Icon";
 import { resolveImg } from "@/services/modelService";
+import { track } from "@/services/analytics";
 import type { BikeModel } from "@/types";
 
 export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: boolean }) {
@@ -22,7 +23,12 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
 
   return (
     <article className={`card model-card ${m.popular && !compact ? "feat" : ""}`}>
-      <Link className="model-pic" href={`/models/${m.slug}`} aria-label={m.name}>
+      <Link
+        className="model-pic"
+        href={`/models/${m.slug}`}
+        aria-label={m.name}
+        onClick={() => track("cta_view_details", { model: m.id, source: "model-card-image" })}
+      >
         <span className={`model-badge ${m.badge.variant}`}>{m.badge.text}</span>
         <span className={`model-avail ${avail.cls}`}>
           <span className="dot" />
@@ -32,7 +38,11 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
       </Link>
       <div className="model-body">
         <h3>
-          <Link href={`/models/${m.slug}`} style={{ color: "inherit", textDecoration: "none" }}>
+          <Link
+            href={`/models/${m.slug}`}
+            style={{ color: "inherit", textDecoration: "none" }}
+            onClick={() => track("cta_view_details", { model: m.id, source: "model-card-title" })}
+          >
             {m.name}
           </Link>
         </h3>
@@ -57,7 +67,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           </div>
           <button
             className={`reserve-btn ${isWait ? "wait" : ""}`}
-            onClick={() => reserve(isWait ? `waitlist:${m.id}` : m.id)}
+            onClick={() => reserve(isWait ? `waitlist:${m.id}` : m.id, "model-card")}
           >
             {isWait ? t("joinWaitlist") : t("reserve")}
             {!isWait && <Ic.arrow s={13} />}

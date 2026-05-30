@@ -6,18 +6,21 @@ import { useTranslations } from "next-intl";
 import { Toast } from "@/components/ui/Toast";
 import { WaitlistModal } from "@/components/ui/WaitlistModal";
 import { bikeModels } from "@/data/bikeModels";
+import { track } from "@/services/analytics";
 
 type Interactions = {
   /** Start a reservation. `what` may be undefined, a model id, a plan id
    *  ("p30"...), "city:<id>" or "waitlist:<modelId>". Routes to /book with
-   *  prefill, or opens the waitlist capture modal. */
-  reserve: (what?: string) => void;
+   *  prefill, or opens the waitlist capture modal. `source` is analytics-only
+   *  (the CTA location, e.g. "hero" / "nav" / "pricing") and never affects
+   *  routing. */
+  reserve: (what?: string, source?: string) => void;
   /** Open the waitlist capture modal directly with explicit context. */
   openWaitlist: (opts: { cityId?: string; modelId?: string; source: string }) => void;
   /** Smooth-scroll to a section id on the landing, or route to /#id elsewhere. */
   nav: (id: string) => void;
-  /** Go to the full /models page. */
-  goModels: () => void;
+  /** Go to the full /models page. `source` is analytics-only (the CTA location). */
+  goModels: (source?: string) => void;
   /** Show a transient toast message. */
   toast: (msg: string) => void;
 };
@@ -41,7 +44,14 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
 
   const toast = useCallback((m: string) => setMsg(m), []);
 
-  const openWaitlist = useCallback((opts: WaitlistTarget) => setWaitlist(opts), []);
+  const openWaitlist = useCallback((opts: WaitlistTarget) => {
+    track("waitlist_opened", {
+      source: opts.source,
+      city: opts.cityId,
+      model: opts.modelId,
+    });
+    setWaitlist(opts);
+  }, []);
 
   const nav = useCallback(
     (id: string) => {
@@ -61,28 +71,41 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
     [router],
   );
 
-  const goModels = useCallback(() => router.push("/models"), [router]);
+  const goModels = useCallback(
+    (source?: string) => {
+      track("cta_view_all_models", { source });
+      router.push("/models");
+    },
+    [router],
+  );
 
   const reserve = useCallback(
-    (what?: string) => {
+    (what?: string, source?: string) => {
       if (!what) {
+        track("cta_reserve", { source });
         router.push("/book");
         return;
       }
       if (what.startsWith("waitlist:")) {
         const id = what.split(":")[1];
+        // A model with no stock routes into the waitlist instead of /book.
+        track("waitlist_opened", { source: source ?? `model-${id}`, model: id });
         setWaitlist({ modelId: id, source: `model-${id}` });
         return;
       }
       if (what.startsWith("city:")) {
-        router.push(`/book?city=${what.split(":")[1]}`);
+        const city = what.split(":")[1];
+        track("cta_reserve", { source: source ?? "city", city });
+        router.push(`/book?city=${city}`);
         return;
       }
       if (what.startsWith("p")) {
+        track("cta_reserve", { source: source ?? "pricing", plan: what });
         router.push(`/book?plan=${what}`);
         return;
       }
       const m = bikeModels.find((x) => x.id === what);
+      track("cta_reserve", { source: source ?? "model", model: m?.id });
       router.push(m ? `/book?model=${m.id}` : "/book");
     },
     [router],
@@ -95,6 +118,11 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
 
   // Friendly success toast after a confirmed signup. Name the model when known.
   const onWaitlistSuccess = useCallback(() => {
+    track("waitlist_submitted", {
+      source: waitlist?.source,
+      city: waitlist?.cityId,
+      model: waitlist?.modelId,
+    });
     const model = waitlist?.modelId
       ? bikeModels.find((x) => x.id === waitlist.modelId)
       : undefined;

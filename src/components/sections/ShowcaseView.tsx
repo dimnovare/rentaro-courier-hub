@@ -45,7 +45,7 @@ export function ShowcaseView({ m }: { m: BikeModel }) {
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 12, marginTop: 26, flexWrap: "wrap" }}>
-                  <button className="btn btn-primary" onClick={() => reserve(m.id)}>
+                  <button className="btn btn-primary" onClick={() => reserve(m.id, "showcase")}>
                     {t("cta")}
                     <span className="arrow">
                       <Ic.arrow />

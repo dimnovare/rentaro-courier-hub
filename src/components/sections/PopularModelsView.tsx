@@ -29,7 +29,7 @@ export function PopularModelsView({ models }: { models: BikeModel[] }) {
           ))}
         </div>
         <Reveal delay={120} style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
-          <button className="btn btn-ghost btn-lg" onClick={() => goModels()}>
+          <button className="btn btn-ghost btn-lg" onClick={() => goModels("popular-models")}>
             {t("cta")}
             <span className="arrow">
               <Ic.arrow />

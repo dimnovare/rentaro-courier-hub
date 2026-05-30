@@ -18,7 +18,7 @@ export function ReserveButton({
   return (
     <button
       className={`btn ${ghost ? "btn-ghost" : "btn-primary"} ${lg ? "btn-lg" : ""}`}
-      onClick={() => reserve(what)}
+      onClick={() => reserve(what, "model-detail")}
     >
       {label}
       {!ghost && (

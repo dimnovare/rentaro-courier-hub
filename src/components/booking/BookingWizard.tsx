@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
@@ -10,6 +10,7 @@ import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
 import { createBookingPayment } from "@/services/paymentService";
+import { track } from "@/services/analytics";
 import type { PlanId } from "@/types";
 
 /** The single-select steps that a deep link can pre-satisfy and thus skip. */
@@ -74,6 +75,19 @@ export function BookingWizard() {
   const [step, setStep] = useState(0);
   const key = steps[Math.min(step, steps.length - 1)];
 
+  // Funnel: fire `wizard_started` once on mount, then `wizard_step_viewed`
+  // whenever the visible step changes. Both are consent-gated inside `track`.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!started.current) {
+      started.current = true;
+      track("wizard_started", { step: key });
+    }
+    track("wizard_step_viewed", { step: key });
+    // `key` is the only signal that matters here — re-fire on each step change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
   const model = bikeModels.find((m) => m.id === modelId);
   const plan = planId ? getPlanById(planId) : undefined;
   const city = cities.find((c) => c.id === cityId);
@@ -97,7 +111,11 @@ export function BookingWizard() {
   const toggleAcc = (id: string) =>
     setAccessoryIds((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
 
-  const goNext = () => setStep((s) => Math.min(s + 1, steps.length - 1));
+  const goNext = () => {
+    // The step the visitor is leaving is the current visible `key`.
+    track("wizard_step_completed", { step: key });
+    setStep((s) => Math.min(s + 1, steps.length - 1));
+  };
   const next = () => stepValid && !isLast && goNext();
   const back = () => (step > 0 ? setStep(step - 1) : router.push("/"));
 
@@ -111,6 +129,8 @@ export function BookingWizard() {
     if (!cityId || !modelId || !planId) return;
     setSubmitting(true);
     setError("");
+    // PII-free: ids only, never the customer's name/email/phone.
+    track("booking_submitted", { city: cityId, model: modelId, plan: planId });
     try {
       const result = await submitBooking({
         cityId,
@@ -147,9 +167,13 @@ export function BookingWizard() {
       // payment (no keys) and we continue straight to the success page.
       const payment = await createBookingPayment(result.id);
       if (payment.checkoutUrl) {
+        // Montonio is configured → off to hosted checkout.
+        track("payment_redirect", { plan: planId });
         window.location.href = payment.checkoutUrl;
         return;
       }
+      // No payment provider keys → skip straight to the success page.
+      track("booking_success", { plan: planId });
       router.push("/booking/success");
     } catch {
       setError(t("errors.submit"));
@@ -254,7 +278,10 @@ export function BookingWizard() {
                 <button
                   key={p.id}
                   className={`opt ${planId === p.id ? "selected" : ""}`}
-                  onClick={() => pick(() => setPlanId(p.id))}
+                  onClick={() => {
+                    track("plan_selected", { plan: p.id });
+                    pick(() => setPlanId(p.id));
+                  }}
                 >
                   <span className="opt-t">{tp(`terms.${p.id}`)}</span>
                   <span className="opt-p">

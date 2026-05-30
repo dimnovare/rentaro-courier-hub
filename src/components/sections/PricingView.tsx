@@ -68,7 +68,7 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
                   </ul>
                   <button
                     className={`btn btn-block ${plan.featured ? "btn-primary" : "btn-ghost"}`}
-                    onClick={() => reserve(plan.id)}
+                    onClick={() => reserve(plan.id, "pricing")}
                   >
                     {t("choose", { term })}
                     {plan.featured && (

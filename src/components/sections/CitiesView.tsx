@@ -60,7 +60,7 @@ export function CitiesView({ cities }: { cities: City[] }) {
                     onClick={() =>
                       c.status === "soon"
                         ? openWaitlist({ cityId: c.id, source: `city-${c.id}` })
-                        : reserve(`city:${c.id}`)
+                        : reserve(`city:${c.id}`, "cities")
                     }
                   >
                     {c.status === "soon" ? t("notifyMe") : t("reserveIn", { city: cityName })}

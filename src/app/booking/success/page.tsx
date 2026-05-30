@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Ic } from "@/components/ui/Icon";
 import { company } from "@/data/company";
+import { track } from "@/services/analytics";
 
 type Summary = {
   id: string;
@@ -25,12 +26,19 @@ export default function BookingSuccessPage() {
   const [s, setS] = useState<Summary | null>(null);
 
   useEffect(() => {
+    let booking: Summary | null = null;
     try {
       const raw = sessionStorage.getItem("rentaro_booking");
-      if (raw) setS(JSON.parse(raw) as Summary);
+      if (raw) {
+        booking = JSON.parse(raw) as Summary;
+        setS(booking);
+      }
     } catch {
       /* ignore */
     }
+    // Funnel end: the success page was reached and viewed. `id` is the booking
+    // reference (not PII); consent-gated inside `track`.
+    track("booking_success_viewed", { id: booking?.id });
   }, []);
 
   // Primary action: open the secure portal when we have its URL, otherwise fall
