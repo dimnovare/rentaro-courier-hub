@@ -30,10 +30,22 @@ export function Nav() {
   return (
     <nav className="nav">
       <div className="nav-inner">
-        <a className="brand" onClick={() => nav("top")}>
+        <Link
+          className="brand"
+          href="/"
+          aria-label="rentaro — home"
+          onClick={(e) => {
+            // Already on the landing page → smooth-scroll to top instead of a
+            // hard navigation; on any other page this is a real link home.
+            if (typeof window !== "undefined" && window.location.pathname === "/") {
+              e.preventDefault();
+              nav("top");
+            }
+          }}
+        >
           <LogoMark size={38} />
           <span className="word">rentaro</span>
-        </a>
+        </Link>
         <div className="nav-links">
           <Link href="/#models" onClick={(e) => onNavClick(e, "models")}>{t("models")}</Link>
           <Link href="/#pricing" onClick={(e) => onNavClick(e, "pricing")}>{t("pricing")}</Link>

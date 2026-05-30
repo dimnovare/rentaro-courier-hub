@@ -48,6 +48,7 @@ export function Pricing() {
                   <div className="per30">
                     <strong>€{plan.monthly}</strong> {t("per30Suffix")}
                   </div>
+                  <div className="deposit-line">{t("deposit", { amount: plan.monthly })}</div>
                   <ul>
                     {perkKeys.map((pk) => (
                       <li key={pk}>

@@ -36,7 +36,11 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinna · Riika · Helsinki",
-    "independent": "Riippumaton vuokrauspalvelu"
+    "independent": "Riippumaton vuokrauspalvelu",
+    "legal": {
+      "regCode": "Y-tunnus",
+      "vat": "ALV"
+    }
   },
   "hero": {
     "pill": "KALUSTO LIVENÄ · TALLINNA & RIIKA",
@@ -97,6 +101,7 @@
     "lead": "Yksi yksinkertainen malli joka pyörälle: päivähinta × 30 päivää. Sitoudu pidempään aikaan, maksa vähemmän päivässä.",
     "perDay": "/ pv",
     "per30Suffix": "per 30 päivää · päivähinta × 30",
+    "deposit": "Vakuus: €{amount} (palautettava)",
     "choose": "Valitse {term}",
     "terms": {
       "p30": "30 päivää",
@@ -223,7 +228,7 @@
       },
       "deposit": {
         "q": "Mikä vakuus vaaditaan?",
-        "a": "Noudon yhteydessä peritään palautettava vakuus. Summa riippuu mallista ja vuokra-ajasta, ja se palautetaan vuokra-ajan päättyessä vähennettynä mahdollisilla normaalin kulumisen ylittävillä vahingoilla."
+        "a": "Noudon yhteydessä peritään palautettava vakuus, joka vastaa suunnitelmasi 30 päivän hintaa (€177 30 päivän suunnitelmassa, €147 6 kuukaudessa, €117 12 kuukaudessa). Se palautetaan vuokra-ajan päättyessä vähennettynä mahdollisilla normaalin kulumisen ylittävillä vahingoilla."
       },
       "pickup": {
         "q": "Mistä voin noutaa pyörän?",
@@ -299,6 +304,7 @@
       "none": "Ei mitään",
       "startDate": "Aloituspäivä",
       "contact": "Yhteystiedot",
+      "deposit": "Palautettava vakuus",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
       "paymentNote": "Maksua ei veloiteta nyt — vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen sähköpostitse. Maksat ensimmäisen 30 päivän jakson vasta, kun vuokrauksesi on hyväksytty."

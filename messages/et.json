@@ -36,7 +36,11 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riia · Helsingi",
-    "independent": "Sõltumatu renditeenus"
+    "independent": "Sõltumatu renditeenus",
+    "legal": {
+      "regCode": "Reg. kood",
+      "vat": "KMKR"
+    }
   },
   "hero": {
     "pill": "PARK TÖÖS · TALLINN & RIIA",
@@ -97,6 +101,7 @@
     "lead": "Üks lihtne mudel kõigile ratastele: päevatasu × 30 päeva. Vali pikem periood ja maksa päevas vähem.",
     "perDay": "/ päev",
     "per30Suffix": "30 päeva kohta · päevatasu × 30",
+    "deposit": "Tagatisraha: €{amount} (tagastatav)",
     "choose": "Vali {term}",
     "terms": {
       "p30": "30 päeva",
@@ -223,7 +228,7 @@
       },
       "deposit": {
         "q": "Kui suur tagatisraha on nõutav?",
-        "a": "Järeletulekul võetakse tagastatav tagatisraha. Summa sõltub mudelist ja perioodist ning tagastatakse rendi lõpus, millest arvatakse maha tavakulumist suuremad kahjustused."
+        "a": "Järeletulekul võetakse tagastatav tagatisraha, mis võrdub sinu paketi 30-päevase hinnaga (€177 30-päevase paketi puhul, €147 6 kuu puhul, €117 12 kuu puhul). See tagastatakse rendi lõpus, millest arvatakse maha tavakulumist suuremad kahjustused."
       },
       "pickup": {
         "q": "Kust saan rattale järele tulla?",
@@ -299,6 +304,7 @@
       "none": "Puudub",
       "startDate": "Alguskuupäev",
       "contact": "Kontakt",
+      "deposit": "Tagastatav tagatisraha",
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
       "paymentNote": "Praegu makset ei võeta — kinnitame saadavuse ja saadame digilepingu e-postiga. Esimese 30-päevase perioodi eest tasud alles pärast rendi kinnitamist."

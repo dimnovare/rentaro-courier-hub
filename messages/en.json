@@ -36,7 +36,11 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riga · Helsinki",
-    "independent": "Independent rental service"
+    "independent": "Independent rental service",
+    "legal": {
+      "regCode": "Reg. code",
+      "vat": "VAT"
+    }
   },
   "hero": {
     "pill": "FLEET LIVE · TALLINN & RIGA",
@@ -97,6 +101,7 @@
     "lead": "One simple model across every bike: the daily rate × 30 days. Commit to a longer term, pay less per day.",
     "perDay": "/ day",
     "per30Suffix": "per 30 days · daily × 30",
+    "deposit": "Deposit: €{amount} (refundable)",
     "choose": "Choose {term}",
     "terms": {
       "p30": "30 days",
@@ -223,7 +228,7 @@
       },
       "deposit": {
         "q": "What deposit is required?",
-        "a": "A refundable security deposit is taken at pickup. The amount depends on the model and term, and is returned at the end of the rental minus any damage beyond fair wear."
+        "a": "A refundable security deposit equal to your plan's 30-day price (€177 on the 30-day plan, €147 on 6 months, €117 on 12 months) is taken at pickup. It is returned at the end of your rental minus any damage beyond fair wear."
       },
       "pickup": {
         "q": "Where can I pick up the bike?",
@@ -299,6 +304,7 @@
       "none": "None",
       "startDate": "Start date",
       "contact": "Contact",
+      "deposit": "Refundable deposit",
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
       "paymentNote": "No payment is taken now — we'll confirm availability and email your digital contract. You pay the first 30-day period only after your rental is approved."

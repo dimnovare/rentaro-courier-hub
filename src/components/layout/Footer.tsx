@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { LogoMark } from "@/components/ui/LogoMark";
+import { company } from "@/data/company";
 
 /** Footer link tree. Hrefs are stable; labels are resolved from the
  *  `footer.links` namespace so copy lives in the catalog. */
@@ -61,6 +62,31 @@ export async function Footer() {
             </div>
           ))}
         </nav>
+        {/* Legal identity + contact. Literal values come from company.ts;
+            only the labels are translated. Each row is omitted when its
+            underlying value is empty, so no dangling "VAT:" ever renders. */}
+        <div className="foot-legal">
+          <span className="foot-legal-name">{company.legalName}</span>
+          {company.regCode && (
+            <span>
+              {t("legal.regCode")} {company.regCode}
+            </span>
+          )}
+          {company.vat && (
+            <span>
+              {t("legal.vat")} {company.vat}
+            </span>
+          )}
+          {company.address && <span>{company.address}</span>}
+          {company.supportEmail && (
+            <a href={`mailto:${company.supportEmail}`}>{company.supportEmail}</a>
+          )}
+          {company.supportPhone && (
+            <a href={`tel:${company.supportPhone.replace(/\s+/g, "")}`}>
+              {company.supportPhone}
+            </a>
+          )}
+        </div>
         <div className="foot-grid">
           <Link className="brand" href="/">
             <LogoMark size={32} />

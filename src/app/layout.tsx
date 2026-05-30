@@ -39,7 +39,20 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title,
   description,
-  icons: { icon: "/assets/logo-r.png" },
+  icons: {
+    // Static, multi-size assets generated from the lime "R" logo mark (under
+    // /public). The root favicon.ico (src/app/favicon.ico) is auto-served by
+    // Next at /favicon.ico; these explicit links cover modern PNG favicons,
+    // the manifest icons and the iOS home-screen touch icon.
+    icon: [
+      { url: "/favicon.ico", sizes: "any", rel: "icon" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",

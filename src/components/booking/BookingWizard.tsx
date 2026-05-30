@@ -357,6 +357,10 @@ export function BookingWizard() {
                   {email}
                 </span>
               </div>
+              <div className="summary-row">
+                <span className="l">{t("review.deposit")}</span>
+                <span className="v">€{plan?.monthly}</span>
+              </div>
               <div className="summary-total">
                 <span className="l">{t("review.from")}</span>
                 <span className="big">

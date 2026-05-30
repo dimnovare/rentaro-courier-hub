@@ -36,7 +36,11 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallina · Rīga · Helsinki",
-    "independent": "Neatkarīgs nomas serviss"
+    "independent": "Neatkarīgs nomas serviss",
+    "legal": {
+      "regCode": "Reģ. Nr.",
+      "vat": "PVN"
+    }
   },
   "hero": {
     "pill": "PARKS DARBOJAS · TALLINA & RĪGA",
@@ -97,6 +101,7 @@
     "lead": "Viens vienkāršs modelis visiem velosipēdiem: dienas likme × 30 dienas. Izvēlies garāku termiņu — maksā mazāk par dienu.",
     "perDay": "/ dienā",
     "per30Suffix": "par 30 dienām · dienā × 30",
+    "deposit": "Depozīts: €{amount} (atmaksājams)",
     "choose": "Izvēlēties {term}",
     "terms": {
       "p30": "30 dienas",
@@ -223,7 +228,7 @@
       },
       "deposit": {
         "q": "Kāds depozīts ir nepieciešams?",
-        "a": "Saņemšanas brīdī tiek ieturēts atmaksājams drošības depozīts. Summa atkarīga no modeļa un termiņa, un to atmaksā nomas beigās, atskaitot bojājumus, kas pārsniedz normālu nolietojumu."
+        "a": "Saņemšanas brīdī tiek ieturēts atmaksājams drošības depozīts, kas vienāds ar tava plāna 30 dienu cenu (€177 30 dienu plānam, €147 6 mēnešiem, €117 12 mēnešiem). To atmaksā nomas beigās, atskaitot bojājumus, kas pārsniedz normālu nolietojumu."
       },
       "pickup": {
         "q": "Kur varu saņemt velosipēdu?",
@@ -299,6 +304,7 @@
       "none": "Nav",
       "startDate": "Sākuma datums",
       "contact": "Kontaktinformācija",
+      "deposit": "Atmaksājams depozīts",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
       "paymentNote": "Tagad maksājums netiek iekasēts — apstiprināsim pieejamību un nosūtīsim digitālo līgumu e-pastā. Pirmo 30 dienu periodu apmaksā tikai pēc nomas apstiprināšanas."
