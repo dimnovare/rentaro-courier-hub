@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Ic } from "@/components/ui/Icon";
+import { company } from "@/data/company";
 
 type Summary = {
   id: string;
@@ -15,10 +16,12 @@ type Summary = {
   startDate: string;
   firstName: string;
   accessories: string[];
+  /** Secure portal deep-link, present once the booking flow has it. */
+  portalUrl?: string;
 };
 
 export default function BookingSuccessPage() {
-  const t = useTranslations("bookingSuccess");
+  const t = useTranslations("success");
   const [s, setS] = useState<Summary | null>(null);
 
   useEffect(() => {
@@ -29,6 +32,17 @@ export default function BookingSuccessPage() {
       /* ignore */
     }
   }, []);
+
+  // Primary action: open the secure portal when we have its URL, otherwise fall
+  // back to the public status tracker keyed by the booking reference.
+  const trackHref =
+    s?.portalUrl && s.portalUrl.trim()
+      ? s.portalUrl
+      : s
+        ? `/booking/status?id=${encodeURIComponent(s.id)}`
+        : "/booking/status";
+  const trackLabel = s?.portalUrl?.trim() ? t("trackAndSign") : t("trackOnly");
+  const supportEmail = company.supportEmail.trim();
 
   return (
     <main>
@@ -53,14 +67,12 @@ export default function BookingSuccessPage() {
                   <Ic.check s={28} />
                 </div>
                 <h2>{s?.firstName ? t("headingNamed", { name: s.firstName }) : t("heading")}</h2>
-                <p>
-                  {t("body")}
-                </p>
+                <p>{t("body")}</p>
 
                 {s && (
                   <article
                     className="card"
-                    style={{ maxWidth: 440, margin: "8px auto 30px", textAlign: "left" }}
+                    style={{ maxWidth: 440, margin: "8px auto 22px", textAlign: "left" }}
                   >
                     <div style={{ padding: "6px 20px" }}>
                       <div className="summary-row">
@@ -87,17 +99,62 @@ export default function BookingSuccessPage() {
                   </article>
                 )}
 
-                <div style={{ display: "flex", gap: 13, justifyContent: "center", flexWrap: "wrap" }}>
-                  <Link className="btn btn-primary btn-lg" href="/models">
-                    {t("browseFleet")}
+                {/* Restated cost: refundable deposit (= one 30-day period) plus the
+                    total due at pickup (two periods). Only shown once we have the price. */}
+                {s && s.monthly > 0 && (
+                  <p
+                    className="mono"
+                    style={{
+                      fontSize: 12.5,
+                      letterSpacing: "0.03em",
+                      color: "var(--text-dim)",
+                      margin: "0 auto 24px",
+                      maxWidth: 440,
+                    }}
+                  >
+                    {t("cost", { deposit: s.monthly, total: s.monthly * 2 })}
+                  </p>
+                )}
+
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 13,
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                    marginBottom: 22,
+                  }}
+                >
+                  <Link className="btn btn-primary btn-lg" href={trackHref}>
+                    {trackLabel}
                     <span className="arrow">
                       <Ic.arrow />
                     </span>
+                  </Link>
+                  <Link className="btn btn-ghost btn-lg" href="/models">
+                    {t("browseFleet")}
                   </Link>
                   <Link className="btn btn-ghost btn-lg" href="/">
                     {t("backHome")}
                   </Link>
                 </div>
+
+                {/* What happens next + optional support line (renders only once a
+                    support email is configured in company.ts — blank by design today). */}
+                <p className="lead" style={{ fontSize: 14, margin: "0 auto", maxWidth: 460 }}>
+                  {t("nextSteps")}
+                </p>
+                {supportEmail && (
+                  <p
+                    className="lead"
+                    style={{ fontSize: 14, margin: "8px auto 0", maxWidth: 460 }}
+                  >
+                    {t("supportPrefix")}{" "}
+                    <a href={`mailto:${supportEmail}`} style={{ color: "var(--lime)" }}>
+                      {supportEmail}
+                    </a>
+                  </p>
+                )}
               </div>
             </div>
           </Reveal>

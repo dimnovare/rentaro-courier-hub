@@ -43,7 +43,7 @@
     }
   },
   "hero": {
-    "pill": "FLEET LIVE · TALLINN & RIGA",
+    "pill": "FLEET LIVE · {live} · {soon} SOON",
     "headingLine1": "Delivery-ready",
     "headingLine2": "e-bikes by",
     "headingLine3Pre": "the ",
@@ -58,9 +58,8 @@
       "termValue": "30",
       "termUnit": "days",
       "termLabel": "Minimum term",
-      "citiesValue": "3",
       "citiesUnit": "cities",
-      "citiesLabel": "Live now"
+      "citiesLabel": "Live now · {soon} soon"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 delivery e-bike",
     "specChips": {
@@ -101,7 +100,8 @@
     "lead": "One simple model across every bike: the daily rate × 30 days. Commit to a longer term, pay less per day.",
     "perDay": "/ day",
     "per30Suffix": "per 30 days · daily × 30",
-    "deposit": "Deposit: €{amount} (refundable)",
+    "depositLine": "+€{amount} refundable deposit",
+    "dueAtPickup": "€{amount} due at pickup",
     "choose": "Choose {term}",
     "terms": {
       "p30": "30 days",
@@ -194,8 +194,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Support window",
-      "citiesValue": "3",
-      "citiesLabel": "Cities live",
+      "citiesLabel": "Cities live · {soon} soon",
       "modelsValue": "6",
       "modelsLabel": "Models",
       "minPlanValue": "30d",
@@ -248,12 +247,11 @@
   },
   "booking": {
     "title": "Reserve your e-bike",
-    "intro": "Six quick steps. No payment now — we confirm availability and send your digital contract before pickup.",
+    "intro": "{n} quick steps to your delivery bike. No payment now — we confirm availability and send your digital contract before pickup.",
     "steps": {
       "city": "City",
       "model": "Model",
       "plan": "Plan",
-      "addons": "Add-ons",
       "details": "Details",
       "review": "Review"
     },
@@ -277,7 +275,8 @@
       "heading": "Choose a plan",
       "sub": "The longer the term, the lower the daily price. Minimum 30 days.",
       "perDay": "€{price}/day",
-      "per30": "€{price} per 30 days"
+      "per30": "€{price} per 30 days",
+      "depositLine": "+€{deposit} refundable deposit · €{total} due at pickup"
     },
     "addons": {
       "heading": "Add-ons",
@@ -315,6 +314,10 @@
       "continue": "Continue",
       "submitting": "Submitting…",
       "submit": "Submit request"
+    },
+    "referral": {
+      "label": "Have a referral code?",
+      "placeholder": "Referral code (optional)"
     }
   },
   "bookingSuccess": {
@@ -328,6 +331,37 @@
     "startDate": "Start date",
     "browseFleet": "Browse the fleet",
     "backHome": "Back home"
+  },
+  "success": {
+    "heading": "Request received.",
+    "headingNamed": "Request received, {name}.",
+    "body": "We'll confirm availability and send your digital contract by email shortly — no payment has been taken.",
+    "reference": "Reference",
+    "model": "Model",
+    "plan": "Plan",
+    "city": "City",
+    "startDate": "Start date",
+    "trackAndSign": "Track your booking & sign your contract",
+    "trackOnly": "Track your booking",
+    "cost": "Refundable deposit €{deposit} · €{total} due at pickup",
+    "browseFleet": "Browse the fleet",
+    "backHome": "Back home",
+    "nextSteps": "Next: we check availability, assign your bike and email your digital contract to sign — we reply within 24h.",
+    "supportPrefix": "Questions? Email us at"
+  },
+  "waitlist": {
+    "title": "Join the waitlist",
+    "body": "Leave your email and we'll let you know the moment a bike is ready for you.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "submit": "Join waitlist",
+    "sending": "Joining…",
+    "error": "Couldn't add you just now. Please try again.",
+    "successBody": "You're on the list. We'll be in touch as soon as we have news.",
+    "done": "Done",
+    "close": "Close",
+    "toast": "You're on the waitlist — we'll be in touch.",
+    "toastModel": "You're on the {model} waitlist — we'll be in touch."
   },
   "bookingStatus": {
     "kicker": "Track your booking",
@@ -391,6 +425,13 @@
       "msgLabel": "Your message",
       "msgPlaceholder": "How can we help?",
       "submit": "Send message"
+    },
+    "referral": {
+      "heading": "Refer a courier — you both get 2 weeks free",
+      "lead": "Share your link. When a courier you refer starts a rental, you each get 2 weeks free.",
+      "linkLabel": "Your referral link",
+      "copy": "Copy link",
+      "copied": "Copied"
     },
     "errorHelpPrefix": "Check the link in your confirmation email, or",
     "errorHelpLink": "track your booking",

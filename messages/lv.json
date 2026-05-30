@@ -43,7 +43,7 @@
     }
   },
   "hero": {
-    "pill": "PARKS DARBOJAS · TALLINA & RĪGA",
+    "pill": "PARKS DARBOJAS · {live} · {soon} DRĪZ",
     "headingLine1": "Piegādēm gatavi",
     "headingLine2": "e-velosipēdi uz",
     "headingLine3Pre": "katru ",
@@ -58,9 +58,8 @@
       "termValue": "30",
       "termUnit": "dienas",
       "termLabel": "Minimālais termiņš",
-      "citiesValue": "3",
       "citiesUnit": "pilsētas",
-      "citiesLabel": "Darbojas tagad"
+      "citiesLabel": "Darbojas tagad · {soon} drīz"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 piegādes e-velosipēds",
     "specChips": {
@@ -101,7 +100,8 @@
     "lead": "Viens vienkāršs modelis visiem velosipēdiem: dienas likme × 30 dienas. Izvēlies garāku termiņu — maksā mazāk par dienu.",
     "perDay": "/ dienā",
     "per30Suffix": "par 30 dienām · dienā × 30",
-    "deposit": "Depozīts: €{amount} (atmaksājams)",
+    "depositLine": "+€{amount} atmaksājams depozīts",
+    "dueAtPickup": "€{amount} jāmaksā saņemot",
     "choose": "Izvēlēties {term}",
     "terms": {
       "p30": "30 dienas",
@@ -194,8 +194,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Atbalsta logs",
-      "citiesValue": "3",
-      "citiesLabel": "Aktīvas pilsētas",
+      "citiesLabel": "Aktīvas pilsētas · {soon} drīz",
       "modelsValue": "6",
       "modelsLabel": "Modeļi",
       "minPlanValue": "30d",
@@ -248,12 +247,11 @@
   },
   "booking": {
     "title": "Rezervē savu e-velosipēdu",
-    "intro": "Seši ātri soļi. Maksājums tagad nav vajadzīgs — pirms saņemšanas apstiprināsim pieejamību un nosūtīsim digitālo līgumu.",
+    "intro": "{n} ātri soļi līdz tavam piegādes velosipēdam. Maksājums tagad nav vajadzīgs — pirms saņemšanas apstiprināsim pieejamību un nosūtīsim digitālo līgumu.",
     "steps": {
       "city": "Pilsēta",
       "model": "Modelis",
       "plan": "Plāns",
-      "addons": "Papildaprīkojums",
       "details": "Dati",
       "review": "Pārskats"
     },
@@ -277,11 +275,16 @@
       "heading": "Izvēlies plānu",
       "sub": "Jo ilgāks termiņš, jo zemāka dienas cena. Minimālais termiņš 30 dienas.",
       "perDay": "€{price}/dienā",
-      "per30": "€{price} par 30 dienām"
+      "per30": "€{price} par 30 dienām",
+      "depositLine": "+€{deposit} atmaksājama drošības nauda · €{total} jāmaksā saņemot"
     },
     "addons": {
       "heading": "Papildaprīkojums",
       "sub": "Pēc izvēles. Pievieno aprīkojumu, kas palīdz nopelnīt — to vari mainīt arī vēlāk."
+    },
+    "referral": {
+      "label": "Vai tev ir ieteikuma kods?",
+      "placeholder": "Ieteikuma kods (pēc izvēles)"
     },
     "details": {
       "heading": "Tavi dati",
@@ -328,6 +331,37 @@
     "startDate": "Sākuma datums",
     "browseFleet": "Apskatīt parku",
     "backHome": "Atpakaļ uz sākumu"
+  },
+  "success": {
+    "heading": "Pieprasījums saņemts.",
+    "headingNamed": "Pieprasījums saņemts, {name}.",
+    "body": "Drīzumā e-pastā apstiprināsim pieejamību un nosūtīsim tavu digitālo līgumu — maksājums nav ieturēts.",
+    "reference": "Atsauces numurs",
+    "model": "Modelis",
+    "plan": "Plāns",
+    "city": "Pilsēta",
+    "startDate": "Sākuma datums",
+    "trackAndSign": "Seko rezervācijai un paraksti līgumu",
+    "trackOnly": "Seko rezervācijai",
+    "cost": "Atmaksājama drošības nauda €{deposit} · €{total} jāmaksā saņemšanas brīdī",
+    "browseFleet": "Apskatīt parku",
+    "backHome": "Atpakaļ uz sākumu",
+    "nextSteps": "Tālāk: pārbaudīsim pieejamību, piešķirsim velosipēdu un e-pastā nosūtīsim digitālo līgumu parakstīšanai — atbildēsim 24 stundu laikā.",
+    "supportPrefix": "Jautājumi? Raksti mums uz"
+  },
+  "waitlist": {
+    "title": "Pievienojies gaidīšanas sarakstam",
+    "body": "Atstāj savu e-pastu, un mēs paziņosim, tiklīdz velosipēds būs tev gatavs.",
+    "emailLabel": "E-pasts",
+    "emailPlaceholder": "tu@piemers.lv",
+    "submit": "Pievienoties sarakstam",
+    "sending": "Pievienojas…",
+    "error": "Pašlaik neizdevās tevi pievienot. Lūdzu, mēģini vēlreiz.",
+    "successBody": "Tu esi sarakstā. Sazināsimies, tiklīdz būs jaunumi.",
+    "done": "Gatavs",
+    "close": "Aizvērt",
+    "toast": "Tu esi gaidīšanas sarakstā — sazināsimies.",
+    "toastModel": "Tu esi {model} gaidīšanas sarakstā — sazināsimies."
   },
   "bookingStatus": {
     "kicker": "Seko savai rezervācijai",
@@ -391,6 +425,13 @@
       "msgLabel": "Tava ziņa",
       "msgPlaceholder": "Kā varam palīdzēt?",
       "submit": "Nosūtīt ziņu"
+    },
+    "referral": {
+      "heading": "Iesaki kurjeru — abi saņemat 2 nedēļas bez maksas",
+      "lead": "Dalies ar savu saiti. Kad tava ieteiktais kurjers sāk īri, jūs abi saņemat 2 nedēļas bez maksas.",
+      "linkLabel": "Tava ieteikuma saite",
+      "copy": "Kopēt saiti",
+      "copied": "Nokopēts"
     },
     "errorHelpPrefix": "Pārbaudi saiti savā apstiprinājuma e-pastā vai",
     "errorHelpLink": "seko savai rezervācijai",

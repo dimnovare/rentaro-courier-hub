@@ -235,6 +235,8 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
 
       <ContractCard token={token} />
 
+      <ReferralCard code={rental.reference} />
+
       <Reveal delay={80}>
         <div
           style={{
@@ -261,6 +263,87 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         .
       </p>
     </>
+  );
+}
+
+/* ── Referral share card ──────────────────────────────────────────────────── */
+
+/**
+ * "Refer a courier" card. Builds a shareable, attributable link
+ * `{siteUrl}/?ref={code}` from the current origin and the booking reference, and
+ * offers copy-to-clipboard. No payout logic here — the `?ref=` is captured when
+ * a referred rider books. The origin is read on the client to stay SSR-safe.
+ */
+function ReferralCard({ code }: { code: string }) {
+  const t = useTranslations("portal");
+  const [origin, setOrigin] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const link = `${origin}/?ref=${encodeURIComponent(code)}`;
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard blocked (e.g. insecure context) — leave the link visible to copy by hand.
+    }
+  };
+
+  return (
+    <Reveal delay={70}>
+      <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+        <div style={{ padding: "24px 24px 22px" }}>
+          <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 4 }}>
+            {t("referral.heading")}
+          </h3>
+          <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
+            {t("referral.lead")}
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "stretch",
+              flexWrap: "wrap",
+            }}
+          >
+            <input
+              readOnly
+              value={link}
+              aria-label={t("referral.linkLabel")}
+              onFocus={(e) => e.currentTarget.select()}
+              style={{
+                flex: "1 1 220px",
+                minWidth: 0,
+                boxSizing: "border-box",
+                padding: "13px 15px",
+                borderRadius: "var(--r-sm)",
+                background: "var(--bg-2)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                fontFamily: "var(--font-mono)",
+                fontSize: 13,
+              }}
+            />
+            <button type="button" className="btn btn-primary" onClick={onCopy}>
+              {copied ? t("referral.copied") : t("referral.copy")}
+              {!copied && (
+                <span className="arrow">
+                  <Ic.arrow />
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </article>
+    </Reveal>
   );
 }
 

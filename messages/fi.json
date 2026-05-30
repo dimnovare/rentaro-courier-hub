@@ -43,7 +43,7 @@
     }
   },
   "hero": {
-    "pill": "KALUSTO LIVENÄ · TALLINNA & RIIKA",
+    "pill": "KALUSTO LIVENÄ · {live} · {soon} PIAN",
     "headingLine1": "Lähettivalmiit",
     "headingLine2": "sähköpyörät",
     "headingLine3Pre": "",
@@ -58,9 +58,8 @@
       "termValue": "30",
       "termUnit": "päivää",
       "termLabel": "Vähimmäisaika",
-      "citiesValue": "3",
       "citiesUnit": "kaupunkia",
-      "citiesLabel": "Käytössä nyt"
+      "citiesLabel": "Käytössä nyt · {soon} pian"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 -lähettisähköpyörä",
     "specChips": {
@@ -101,7 +100,8 @@
     "lead": "Yksi yksinkertainen malli joka pyörälle: päivähinta × 30 päivää. Sitoudu pidempään aikaan, maksa vähemmän päivässä.",
     "perDay": "/ pv",
     "per30Suffix": "per 30 päivää · päivähinta × 30",
-    "deposit": "Vakuus: €{amount} (palautettava)",
+    "depositLine": "+€{amount} palautettava vakuus",
+    "dueAtPickup": "€{amount} maksetaan noudettaessa",
     "choose": "Valitse {term}",
     "terms": {
       "p30": "30 päivää",
@@ -194,8 +194,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Tukiaika",
-      "citiesValue": "3",
-      "citiesLabel": "Kaupunkia käytössä",
+      "citiesLabel": "Kaupunkia käytössä · {soon} pian",
       "modelsValue": "6",
       "modelsLabel": "Mallia",
       "minPlanValue": "30d",
@@ -248,12 +247,11 @@
   },
   "booking": {
     "title": "Varaa sähköpyöräsi",
-    "intro": "Kuusi nopeaa vaihetta. Ei maksua nyt — vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen ennen noutoa.",
+    "intro": "{n} nopeaa vaihetta lähetyspyörääsi. Ei maksua nyt — vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen ennen noutoa.",
     "steps": {
       "city": "Kaupunki",
       "model": "Malli",
       "plan": "Suunnitelma",
-      "addons": "Lisävarusteet",
       "details": "Tiedot",
       "review": "Tarkistus"
     },
@@ -277,11 +275,16 @@
       "heading": "Valitse suunnitelma",
       "sub": "Mitä pidempi aika, sitä edullisempi päivähinta. Vähintään 30 päivää.",
       "perDay": "€{price}/pv",
-      "per30": "€{price} per 30 päivää"
+      "per30": "€{price} per 30 päivää",
+      "depositLine": "+€{deposit} palautettava vakuus · €{total} maksetaan noudettaessa"
     },
     "addons": {
       "heading": "Lisävarusteet",
       "sub": "Valinnaisia. Lisää varusteita, jotka tuovat vuoroja — voit muuttaa tätä myöhemmin."
+    },
+    "referral": {
+      "label": "Onko sinulla suosittelukoodi?",
+      "placeholder": "Suosittelukoodi (valinnainen)"
     },
     "details": {
       "heading": "Tietosi",
@@ -328,6 +331,37 @@
     "startDate": "Aloituspäivä",
     "browseFleet": "Selaa kalustoa",
     "backHome": "Takaisin etusivulle"
+  },
+  "success": {
+    "heading": "Pyyntö vastaanotettu.",
+    "headingNamed": "Pyyntö vastaanotettu, {name}.",
+    "body": "Vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen sähköpostitse pian — maksua ei ole peritty.",
+    "reference": "Viite",
+    "model": "Malli",
+    "plan": "Suunnitelma",
+    "city": "Kaupunki",
+    "startDate": "Aloituspäivä",
+    "trackAndSign": "Seuraa varausta ja allekirjoita sopimus",
+    "trackOnly": "Seuraa varausta",
+    "cost": "Palautettava vakuus €{deposit} · €{total} maksetaan noudettaessa",
+    "browseFleet": "Selaa kalustoa",
+    "backHome": "Takaisin etusivulle",
+    "nextSteps": "Seuraavaksi: tarkistamme saatavuuden, varaamme pyörän ja lähetämme digitaalisen sopimuksen sähköpostitse allekirjoitettavaksi — vastaamme 24 tunnin kuluessa.",
+    "supportPrefix": "Kysyttävää? Lähetä meille sähköpostia osoitteeseen"
+  },
+  "waitlist": {
+    "title": "Liity jonotuslistalle",
+    "body": "Jätä sähköpostiosoitteesi, niin ilmoitamme heti kun pyörä on sinulle valmis.",
+    "emailLabel": "Sähköposti",
+    "emailPlaceholder": "sina@esimerkki.fi",
+    "submit": "Liity listalle",
+    "sending": "Liitytään…",
+    "error": "Emme voineet lisätä sinua juuri nyt. Yritä uudelleen.",
+    "successBody": "Olet listalla. Otamme yhteyttä heti kun on uutisia.",
+    "done": "Valmis",
+    "close": "Sulje",
+    "toast": "Olet jonotuslistalla — otamme yhteyttä.",
+    "toastModel": "Olet {model} jonotuslistalla — otamme yhteyttä."
   },
   "bookingStatus": {
     "kicker": "Seuraa varaustasi",
@@ -391,6 +425,13 @@
       "msgLabel": "Viestisi",
       "msgPlaceholder": "Miten voimme auttaa?",
       "submit": "Lähetä viesti"
+    },
+    "referral": {
+      "heading": "Suosittele kuriiria — saatte molemmat 2 viikkoa ilmaiseksi",
+      "lead": "Jaa linkkisi. Kun suosittelemasi kuriiri aloittaa vuokrauksen, saatte molemmat 2 viikkoa ilmaiseksi.",
+      "linkLabel": "Suosittelulinkkisi",
+      "copy": "Kopioi linkki",
+      "copied": "Kopioitu"
     },
     "errorHelpPrefix": "Tarkista vahvistussähköpostisi linkki, tai",
     "errorHelpLink": "seuraa varaustasi",

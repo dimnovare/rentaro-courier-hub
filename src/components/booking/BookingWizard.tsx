@@ -40,6 +40,9 @@ export function BookingWizard() {
   const initialModel = bikeModels.find((m) => m.id === qModel) ? (qModel as string) : "";
   const qPlan = params.get("plan");
   const initialPlan = pricingPlans.find((p) => p.id === qPlan) ? (qPlan as PlanId) : "";
+  // Referral code deep-link (e.g. a shared "?ref=ABC123" link). Prefills the
+  // optional referral input on the details step and rides along in the payload.
+  const initialReferral = params.get("ref") ?? "";
 
   const [cityId, setCityId] = useState(initialCity);
   const [modelId, setModelId] = useState(initialModel);
@@ -52,6 +55,7 @@ export function BookingWizard() {
   const [startDate, setStartDate] = useState("");
   const startRef = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState("");
+  const [referralCode, setReferralCode] = useState(initialReferral);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -116,6 +120,7 @@ export function BookingWizard() {
         preferredStartDate: startDate,
         customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() },
         notes: notes.trim() || undefined,
+        referralCode: referralCode.trim() || undefined,
       });
       const summary = {
         id: result.id,
@@ -129,6 +134,11 @@ export function BookingWizard() {
         accessories: accessoryIds
           .map((id) => accessories.find((a) => a.id === id)?.name)
           .filter(Boolean),
+        // Deep link to the rental portal (success page reads summary.portalUrl).
+        // Defensive: the backend may not return a token (e.g. mock mode).
+        portalUrl: result.portalToken
+          ? `/my-rental?token=${result.portalToken}`
+          : undefined,
       };
       sessionStorage.setItem("rentaro_booking", JSON.stringify(summary));
 
@@ -152,7 +162,7 @@ export function BookingWizard() {
       <div className="wizard-head">
         <h1>{t("title")}</h1>
         <p className="lead" style={{ marginTop: 8 }}>
-          {t("intro")}
+          {t("intro", { n: steps.length })}
         </p>
         {/* Running selection + price, visible across every step. */}
         {(cityId || modelId || planId) && (
@@ -251,6 +261,9 @@ export function BookingWizard() {
                     {t("plan.perDay", { price: p.daily.toFixed(2) })}
                   </span>
                   <span className="opt-m">{t("plan.per30", { price: p.monthly })} · {tp(`tags.${p.id}`)}</span>
+                  <span className="opt-m">
+                    {t("plan.depositLine", { deposit: p.monthly, total: p.monthly * 2 })}
+                  </span>
                 </button>
               ))}
             </div>
@@ -317,6 +330,18 @@ export function BookingWizard() {
             <div className="field">
               <label htmlFor="notes">{t("details.notes")}</label>
               <textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("details.notesPlaceholder")} />
+            </div>
+            <div className="field">
+              <label htmlFor="referral">{t("referral.label")}</label>
+              <input
+                id="referral"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
+                placeholder={t("referral.placeholder")}
+                autoComplete="off"
+                autoCapitalize="characters"
+                enterKeyHint="next"
+              />
             </div>
 
             {/* Add-ons folded in here (optional) so they're never a separate step. */}

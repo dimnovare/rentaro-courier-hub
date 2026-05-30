@@ -471,6 +471,20 @@ function ManagePanel({
         </div>
       )}
 
+      {referralCodeOf(b) && (
+        <div
+          className="mono"
+          style={{
+            flexBasis: "100%",
+            fontSize: 11.5,
+            color: "var(--text-muted)",
+          }}
+        >
+          Referred by:{" "}
+          <span style={{ color: "var(--lime)" }}>{referralCodeOf(b)}</span>
+        </div>
+      )}
+
       <PanelGroup title="1 · Review">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button type="button" className="btn btn-primary" style={miniBtn} onClick={onApprove}>
@@ -702,6 +716,18 @@ function contractStatusTone(status: Contract["status"]) {
 /** Spaced label for a contract status (e.g. SentForSignature → "sent for signature"). */
 function contractStatusLabel(status: Contract["status"]): string {
   return status.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+}
+
+/**
+ * Reads the optional `referralCode` from a booking. The backend includes it on
+ * the bookings list payload; the shared AdminBooking type doesn't declare it, so
+ * we read it defensively (trimmed, empty treated as absent) rather than widening
+ * that type here.
+ */
+function referralCodeOf(b: AdminBooking): string | null {
+  const code = (b as { referralCode?: string | null }).referralCode;
+  const trimmed = typeof code === "string" ? code.trim() : "";
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 /* ── Inline styles for the compact action controls ─────────────────────── */

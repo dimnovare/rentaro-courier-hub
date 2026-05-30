@@ -15,7 +15,7 @@ const countryKey: Record<string, string> = {
 };
 
 export function CitiesView({ cities }: { cities: City[] }) {
-  const { reserve } = useInteractions();
+  const { reserve, openWaitlist } = useInteractions();
   const t = useTranslations("cities");
   return (
     <section className="section-pad" id="cities">
@@ -57,9 +57,11 @@ export function CitiesView({ cities }: { cities: City[] }) {
                   </div>
                   <button
                     className={`btn btn-block ${c.status === "available" ? "btn-primary" : "btn-ghost"}`}
-                    disabled={c.status === "soon"}
-                    style={c.status === "soon" ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
-                    onClick={() => c.status !== "soon" && reserve(`city:${c.id}`)}
+                    onClick={() =>
+                      c.status === "soon"
+                        ? openWaitlist({ cityId: c.id, source: `city-${c.id}` })
+                        : reserve(`city:${c.id}`)
+                    }
                   >
                     {c.status === "soon" ? t("notifyMe") : t("reserveIn", { city: cityName })}
                     {c.status === "available" && (

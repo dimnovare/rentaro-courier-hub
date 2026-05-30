@@ -24,6 +24,8 @@ export interface AdminBooking {
   customerEmail: string;
   customerPhone: string;
   notes: string | null;
+  /** Optional referral / promo code the customer entered at booking time. */
+  referralCode: string | null;
 }
 
 export interface AdminFleetModel {

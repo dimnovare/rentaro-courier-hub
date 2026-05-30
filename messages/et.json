@@ -43,7 +43,7 @@
     }
   },
   "hero": {
-    "pill": "PARK TÖÖS · TALLINN & RIIA",
+    "pill": "PARK TÖÖS · {live} · {soon} VARSTI",
     "headingLine1": "Tarneks valmis",
     "headingLine2": "e-rattad",
     "headingLine3Pre": "kuu ",
@@ -58,9 +58,8 @@
       "termValue": "30",
       "termUnit": "päeva",
       "termLabel": "Minimaalne periood",
-      "citiesValue": "3",
       "citiesUnit": "linna",
-      "citiesLabel": "Juba töös"
+      "citiesLabel": "Juba töös · {soon} varsti"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 tarne-e-ratas",
     "specChips": {
@@ -101,7 +100,8 @@
     "lead": "Üks lihtne mudel kõigile ratastele: päevatasu × 30 päeva. Vali pikem periood ja maksa päevas vähem.",
     "perDay": "/ päev",
     "per30Suffix": "30 päeva kohta · päevatasu × 30",
-    "deposit": "Tagatisraha: €{amount} (tagastatav)",
+    "depositLine": "+€{amount} tagastatav tagatisraha",
+    "dueAtPickup": "€{amount} tasuda kättesaamisel",
     "choose": "Vali {term}",
     "terms": {
       "p30": "30 päeva",
@@ -194,8 +194,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Tugiaken",
-      "citiesValue": "3",
-      "citiesLabel": "Linna töös",
+      "citiesLabel": "Linna töös · {soon} varsti",
       "modelsValue": "6",
       "modelsLabel": "Mudelit",
       "minPlanValue": "30d",
@@ -248,12 +247,11 @@
   },
   "booking": {
     "title": "Broneeri oma e-jalgratas",
-    "intro": "Kuus kiiret sammu. Praegu ei maksa midagi — kinnitame saadavuse ja saadame digilepingu enne kättesaamist.",
+    "intro": "{n} kiiret sammu sinu tarnerööri juurde. Praegu ei maksa midagi — kinnitame saadavuse ja saadame digilepingu enne kättesaamist.",
     "steps": {
       "city": "Linn",
       "model": "Mudel",
       "plan": "Pakett",
-      "addons": "Lisad",
       "details": "Andmed",
       "review": "Ülevaade"
     },
@@ -277,7 +275,8 @@
       "heading": "Vali pakett",
       "sub": "Mida pikem periood, seda madalam päevahind. Vähemalt 30 päeva.",
       "perDay": "€{price}/päev",
-      "per30": "€{price} 30 päeva eest"
+      "per30": "€{price} 30 päeva eest",
+      "depositLine": "+€{deposit} tagastatav tagatisraha · €{total} tasuda kättesaamisel"
     },
     "addons": {
       "heading": "Lisad",
@@ -315,6 +314,10 @@
       "continue": "Edasi",
       "submitting": "Saadan…",
       "submit": "Saada taotlus"
+    },
+    "referral": {
+      "label": "Kas sul on soovituskood?",
+      "placeholder": "Soovituskood (valikuline)"
     }
   },
   "bookingSuccess": {
@@ -328,6 +331,37 @@
     "startDate": "Alguskuupäev",
     "browseFleet": "Sirvi pargi",
     "backHome": "Tagasi avalehele"
+  },
+  "success": {
+    "heading": "Taotlus vastu võetud.",
+    "headingNamed": "Taotlus vastu võetud, {name}.",
+    "body": "Kinnitame peagi saadavuse ja saadame digilepingu e-postiga — makset ei ole võetud.",
+    "reference": "Viitenumber",
+    "model": "Mudel",
+    "plan": "Pakett",
+    "city": "Linn",
+    "startDate": "Alguskuupäev",
+    "trackAndSign": "Jälgi broneeringut ja allkirjasta leping",
+    "trackOnly": "Jälgi broneeringut",
+    "cost": "Tagastatav tagatis €{deposit} · €{total} tasuda kättesaamisel",
+    "browseFleet": "Sirvi pargi",
+    "backHome": "Tagasi avalehele",
+    "nextSteps": "Järgmisena: kontrollime saadavust, määrame ratta ja saadame e-postiga digilepingu allkirjastamiseks — vastame 24 tunni jooksul.",
+    "supportPrefix": "Küsimused? Kirjuta meile aadressil"
+  },
+  "waitlist": {
+    "title": "Liitu ootenimekirjaga",
+    "body": "Jäta oma e-post ja anname teada kohe, kui ratas on sinu jaoks valmis.",
+    "emailLabel": "E-post",
+    "emailPlaceholder": "sina@näide.ee",
+    "submit": "Liitu ootenimekirjaga",
+    "sending": "Liitumine…",
+    "error": "Praegu ei õnnestunud sind lisada. Palun proovi uuesti.",
+    "successBody": "Oled nimekirjas. Võtame ühendust kohe, kui on uudiseid.",
+    "done": "Valmis",
+    "close": "Sulge",
+    "toast": "Oled ootenimekirjas — võtame ühendust.",
+    "toastModel": "Oled {model} ootenimekirjas — võtame ühendust."
   },
   "bookingStatus": {
     "kicker": "Jälgi oma broneeringut",
@@ -391,6 +425,13 @@
       "msgLabel": "Sinu sõnum",
       "msgPlaceholder": "Kuidas saame aidata?",
       "submit": "Saada sõnum"
+    },
+    "referral": {
+      "heading": "Soovita kullerit — saate mõlemad 2 nädalat tasuta",
+      "lead": "Jaga oma linki. Kui sinu soovitatud kuller alustab renti, saate mõlemad 2 nädalat tasuta.",
+      "linkLabel": "Sinu soovituslink",
+      "copy": "Kopeeri link",
+      "copied": "Kopeeritud"
     },
     "errorHelpPrefix": "Kontrolli oma kinnituse e-kirjas olevat linki või",
     "errorHelpLink": "jälgi oma broneeringut",

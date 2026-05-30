@@ -4,6 +4,17 @@ import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Ic } from "@/components/ui/Icon";
+import { cities } from "@/data/cities";
+
+// Single source of truth for "how many cities are live" — a city counts as live
+// once it is no longer "soon". Derived here so the pill, the hero stat and the
+// service stat can never disagree.
+const liveCities = cities.filter((c) => c.status !== "soon");
+const soonCities = cities.filter((c) => c.status === "soon");
+const liveCityCount = liveCities.length;
+// Proper-case lists for the stat label; the all-caps pill uppercases its own.
+const liveCityNames = liveCities.map((c) => c.name).join(" + ");
+const soonCityNames = soonCities.map((c) => c.name).join(", ");
 
 /** Marquee item keys, in display order — copy lives in the `marquee` namespace. */
 const marqueeKeys = [
@@ -26,7 +37,10 @@ export function Hero() {
         <div>
           <Reveal className="hero-pill">
             <span className="live" />
-            {t("pill")}
+            {t("pill", {
+              live: liveCityNames.toUpperCase(),
+              soon: soonCityNames.toUpperCase(),
+            })}
           </Reveal>
           <Reveal delay={60}>
             <h1 className="h-hero">
@@ -71,9 +85,9 @@ export function Hero() {
               </div>
               <div className="hero-stat">
                 <div className="n">
-                  {t("stats.citiesValue")}<span className="u">{t("stats.citiesUnit")}</span>
+                  {liveCityCount}<span className="u">{t("stats.citiesUnit")}</span>
                 </div>
-                <div className="l">{t("stats.citiesLabel")}</div>
+                <div className="l">{t("stats.citiesLabel", { soon: soonCityNames })}</div>
               </div>
             </div>
           </Reveal>
