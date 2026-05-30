@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import {
   getAccessories,
   createAccessory,
@@ -32,6 +31,8 @@ import {
 } from "@/services/adminCatalogService";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { useAdminAuth } from "@/components/admin/AdminAuth";
+import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
 /** City status options — must match the backend CityStatus enum (lowercased). */
 const CITY_STATUSES: readonly CityStatusValue[] = ["available", "limited", "soon"];
@@ -48,10 +49,10 @@ interface ContentData {
 type LoadState =
   | { phase: "loading" }
   | { phase: "ready"; data: ContentData }
-  | { phase: "no-auth" }
-  | { phase: "error"; message: string; unauthorized: boolean; config: boolean };
+  | { phase: "error"; message: string; config: boolean };
 
 export default function AdminContentPage() {
+  const { signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   // Page-level banner for any write error (each section also clears it on retry).
   const [actionError, setActionError] = useState<string | null>(null);
@@ -68,22 +69,32 @@ export default function AdminContentPage() {
       ]);
       setState({ phase: "ready", data: { accessories, cities, plans, faqs } });
     } catch (err) {
-      setState(toErrorState(err));
+      // Auth failure → drop to the shell's sign-in; otherwise show an error.
+      if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
+        signOut();
+      } else {
+        setState(toErrorState(err));
+      }
     }
-  }, []);
+  }, [signOut]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
+  useAdminRefresh(load);
+
   /** Shared error handler for write actions: re-gates on auth, else sets banner. */
-  const handleActionError = useCallback((err: unknown, fallback: string) => {
-    if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
-      setState({ phase: "no-auth" });
-      return;
-    }
-    setActionError(err instanceof CatalogApiError ? err.message : fallback);
-  }, []);
+  const handleActionError = useCallback(
+    (err: unknown, fallback: string) => {
+      if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
+        signOut();
+        return;
+      }
+      setActionError(err instanceof CatalogApiError ? err.message : fallback);
+    },
+    [signOut],
+  );
 
   /* Optimistic local-state patchers (called after a successful API write). */
 
@@ -92,23 +103,11 @@ export default function AdminContentPage() {
   }, []);
 
   return (
-    <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
-      <PageHeader
-        showRefresh={state.phase === "ready" || state.phase === "error"}
-        onRefresh={() => void load()}
-      />
-
+    <div>
       {state.phase === "loading" ? (
         <Notice>Loading content…</Notice>
-      ) : state.phase === "no-auth" ? (
-        <AuthGate />
       ) : state.phase === "error" ? (
-        <ErrorPanel
-          message={state.message}
-          unauthorized={state.unauthorized}
-          config={state.config}
-          onRetry={() => void load()}
-        />
+        <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
           {actionError && <ActionErrorBar message={actionError} onDismiss={() => setActionError(null)} />}
@@ -142,7 +141,7 @@ export default function AdminContentPage() {
           />
         </>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -947,60 +946,6 @@ function Section({
   );
 }
 
-function PageHeader({ showRefresh, onRefresh }: { showRefresh: boolean; onRefresh: () => void }) {
-  return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        flexWrap: "wrap",
-        paddingBottom: 24,
-        marginBottom: 32,
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div>
-        <h1 style={{ fontSize: 26, letterSpacing: "-0.03em" }}>
-          rentaro <span style={{ color: "var(--text-dim)" }}>·</span>{" "}
-          <span style={{ color: "var(--lime)" }}>content</span>
-        </h1>
-        <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", marginTop: 6 }}>
-          Accessories, cities, pricing &amp; FAQ
-        </p>
-        <Link
-          href="/admin"
-          className="mono"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 7,
-            fontSize: 11.5,
-            color: "var(--text-muted)",
-            textDecoration: "none",
-            marginTop: 12,
-          }}
-        >
-          <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>→</span> Admin home
-        </Link>
-      </div>
-      {showRefresh && (
-        <div style={{ display: "flex", gap: 10 }}>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            style={{ padding: "11px 18px", fontSize: 13.5 }}
-            onClick={onRefresh}
-          >
-            Refresh
-          </button>
-        </div>
-      )}
-    </header>
-  );
-}
-
 function ActionErrorBar({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
     <div
@@ -1048,32 +993,12 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AuthGate() {
-  return (
-    <div className="card" style={{ padding: 32, maxWidth: 460 }}>
-      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Sign in required</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 22, lineHeight: 1.6 }}>
-        You need an admin session to manage content. Sign in on the admin home, then return here.
-      </p>
-      <Link
-        href="/admin"
-        className="btn btn-primary"
-        style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-      >
-        Sign in on the admin home
-      </Link>
-    </div>
-  );
-}
-
 function ErrorPanel({
   message,
-  unauthorized,
   config,
   onRetry,
 }: {
   message: string;
-  unauthorized: boolean;
   config: boolean;
   onRetry: () => void;
 }) {
@@ -1097,48 +1022,37 @@ function ErrorPanel({
           marginBottom: 10,
         }}
       >
-        {config ? "Not configured" : unauthorized ? "Unauthorized" : "Error"}
+        {config ? "Not configured" : "Error"}
       </div>
       <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
         {message}
       </p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {unauthorized ? (
-          <Link
-            href="/admin"
-            className="btn btn-primary"
-            style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-          >
-            Sign in again
-          </Link>
-        ) : config ? null : (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={onRetry}
-            style={{ padding: "12px 22px", fontSize: 14 }}
-          >
-            Try again
-          </button>
-        )}
-      </div>
+      {!config && (
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={onRetry}
+          style={{ padding: "12px 22px", fontSize: 14 }}
+        >
+          Try again
+        </button>
+      )}
     </div>
   );
 }
 
 /* ── Small helpers ─────────────────────────────────────────────────────── */
 
-/** Build the page-level error state from any thrown error. */
+/** Build the page-level error state from a non-auth thrown error (auth failures
+ *  are handled by the caller, which signs out). */
 function toErrorState(err: unknown): LoadState {
-  if (err instanceof CatalogAuthError) return { phase: "no-auth" };
   if (err instanceof CatalogConfigError) {
-    return { phase: "error", message: err.message, unauthorized: false, config: true };
+    return { phase: "error", message: err.message, config: true };
   }
   if (err instanceof CatalogApiError) {
-    if (err.unauthorized) return { phase: "no-auth" };
-    return { phase: "error", message: err.message, unauthorized: false, config: false };
+    return { phase: "error", message: err.message, config: false };
   }
-  return { phase: "error", message: "Something went wrong loading content.", unauthorized: false, config: false };
+  return { phase: "error", message: "Something went wrong loading content.", config: false };
 }
 
 /** Parse a comma-separated text field into a trimmed, non-empty string array. */

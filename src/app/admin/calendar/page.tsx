@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getCalendar,
@@ -10,9 +9,9 @@ import {
   type CalendarUnit,
   type CalendarBlock,
 } from "@/services/adminRentalService";
-import { StatusPill } from "@/components/admin/StatusPill";
+import { useAdminAuth } from "@/components/admin/AdminAuth";
+import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
-const TOKEN_KEY = "rentaro_admin_jwt";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /* ── Date helpers (UTC-normalised so bars align on a shared day axis) ───── */
@@ -44,11 +43,10 @@ type LoadState =
   | { phase: "idle" }
   | { phase: "loading" }
   | { phase: "ready"; units: CalendarUnit[] }
-  | { phase: "no-auth" }
-  | { phase: "error"; message: string; unauthorized: boolean; config: boolean };
+  | { phase: "error"; message: string; config: boolean };
 
 export default function AdminCalendarPage() {
-  const [hasToken, setHasToken] = useState<boolean | null>(null);
+  const { token, signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "idle" });
 
   // Date window controls — default today → +30 days. Lazy initializers compute
@@ -56,60 +54,43 @@ export default function AdminCalendarPage() {
   const [from, setFrom] = useState(() => toISO(todayUTC()));
   const [to, setTo] = useState(() => plusDaysISO(todayUTC(), 30));
 
-  useEffect(() => {
-    try {
-      setHasToken(Boolean(localStorage.getItem(TOKEN_KEY)));
-    } catch {
-      setHasToken(false);
-    }
-  }, []);
-
-  const load = useCallback(async (rangeFrom: string, rangeTo: string) => {
-    setState({ phase: "loading" });
-    try {
-      const data = await getCalendar(rangeFrom, rangeTo);
-      setState({ phase: "ready", units: data.units ?? [] });
-    } catch (err) {
-      if (err instanceof RentalAuthError) {
-        setState({ phase: "no-auth" });
-      } else if (err instanceof RentalConfigError) {
-        setState({ phase: "error", message: err.message, unauthorized: false, config: true });
-      } else if (err instanceof RentalApiError) {
-        if (err.unauthorized) setState({ phase: "no-auth" });
-        else setState({ phase: "error", message: err.message, unauthorized: false, config: false });
-      } else {
-        setState({
-          phase: "error",
-          message: "Something went wrong loading the calendar.",
-          unauthorized: false,
-          config: false,
-        });
+  const load = useCallback(
+    async (rangeFrom: string, rangeTo: string) => {
+      setState({ phase: "loading" });
+      try {
+        const data = await getCalendar(rangeFrom, rangeTo);
+        setState({ phase: "ready", units: data.units ?? [] });
+      } catch (err) {
+        if (err instanceof RentalAuthError || (err instanceof RentalApiError && err.unauthorized)) {
+          signOut();
+        } else if (err instanceof RentalConfigError) {
+          setState({ phase: "error", message: err.message, config: true });
+        } else if (err instanceof RentalApiError) {
+          setState({ phase: "error", message: err.message, config: false });
+        } else {
+          setState({
+            phase: "error",
+            message: "Something went wrong loading the calendar.",
+            config: false,
+          });
+        }
       }
-    }
-  }, []);
+    },
+    [signOut],
+  );
 
-  // Load on mount (once a token is known) and whenever the window changes.
+  // Load on mount (once signed in) and whenever the window changes.
   useEffect(() => {
-    if (hasToken) void load(from, to);
-  }, [hasToken, from, to, load]);
+    if (token) void load(from, to);
+  }, [token, from, to, load]);
+
+  // Topbar Refresh reloads the current window.
+  useAdminRefresh(useCallback(() => void load(from, to), [load, from, to]));
 
   return (
-    <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
-      <Header onRefresh={hasToken && state.phase === "ready" ? () => void load(from, to) : undefined} />
-
-      {hasToken === null ? (
-        <Notice>Loading…</Notice>
-      ) : !hasToken ? (
-        <AuthGate />
-      ) : state.phase === "no-auth" ? (
-        <AuthGate />
-      ) : state.phase === "error" ? (
-        <ErrorPanel
-          message={state.message}
-          unauthorized={state.unauthorized}
-          config={state.config}
-          onRetry={() => void load(from, to)}
-        />
+    <div>
+      {state.phase === "error" ? (
+        <ErrorPanel message={state.message} config={state.config} onRetry={() => void load(from, to)} />
       ) : (
         <>
           <RangeControls
@@ -130,7 +111,7 @@ export default function AdminCalendarPage() {
           )}
         </>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -498,43 +479,6 @@ function SectionHead({ title, count }: { title: string; count?: number }) {
   );
 }
 
-function Header({ onRefresh }: { onRefresh?: () => void }) {
-  return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        flexWrap: "wrap",
-        paddingBottom: 24,
-        marginBottom: 32,
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div>
-        <h1 style={{ fontSize: 26, letterSpacing: "-0.03em" }}>
-          rentaro <span style={{ color: "var(--text-dim)" }}>·</span>{" "}
-          <span style={{ color: "var(--lime)" }}>calendar</span>
-        </h1>
-        <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", marginTop: 6 }}>
-          Fleet timeline — rentals &amp; maintenance
-        </p>
-      </div>
-      <div style={{ display: "flex", gap: 10 }}>
-        <Link href="/admin" className="btn btn-ghost" style={{ padding: "11px 18px", fontSize: 13.5 }}>
-          Dashboard
-        </Link>
-        {onRefresh && (
-          <button type="button" className="btn btn-ghost" style={{ padding: "11px 18px", fontSize: 13.5 }} onClick={onRefresh}>
-            Refresh
-          </button>
-        )}
-      </div>
-    </header>
-  );
-}
-
 function Notice({ children }: { children: React.ReactNode }) {
   return (
     <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
@@ -543,32 +487,12 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AuthGate() {
-  return (
-    <div className="card" style={{ padding: 32, maxWidth: 460 }}>
-      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Sign in required</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 22, lineHeight: 1.6 }}>
-        You need an admin session to view the fleet calendar. Sign in on the admin home, then return here.
-      </p>
-      <Link
-        href="/admin"
-        className="btn btn-primary"
-        style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-      >
-        Sign in on the admin home
-      </Link>
-    </div>
-  );
-}
-
 function ErrorPanel({
   message,
-  unauthorized,
   config,
   onRetry,
 }: {
   message: string;
-  unauthorized: boolean;
   config: boolean;
   onRetry: () => void;
 }) {
@@ -586,20 +510,14 @@ function ErrorPanel({
         className="mono"
         style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)", marginBottom: 10 }}
       >
-        {config ? "Not configured" : unauthorized ? "Unauthorized" : "Error"}
+        {config ? "Not configured" : "Error"}
       </div>
       <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {unauthorized ? (
-          <Link href="/admin" className="btn btn-primary" style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}>
-            Sign in again
-          </Link>
-        ) : config ? null : (
-          <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
-            Try again
-          </button>
-        )}
-      </div>
+      {!config && (
+        <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
+          Try again
+        </button>
+      )}
     </div>
   );
 }

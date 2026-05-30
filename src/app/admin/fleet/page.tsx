@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import {
   getUnits,
   getRentals,
@@ -14,6 +13,8 @@ import {
 } from "@/services/adminFleetService";
 import { AdminTable, Th, Td, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { useAdminAuth } from "@/components/admin/AdminAuth";
+import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
 /** Valid BikeUnitStatus values — must match the backend enum (Rentaro.Domain). */
 const UNIT_STATUSES = [
@@ -39,10 +40,10 @@ interface FleetData {
 type LoadState =
   | { phase: "loading" }
   | { phase: "ready"; data: FleetData }
-  | { phase: "no-auth" }
-  | { phase: "error"; message: string; unauthorized: boolean; config: boolean };
+  | { phase: "error"; message: string; config: boolean };
 
 export default function AdminFleetPage() {
+  const { signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   // Tracks which unit codes currently have an in-flight status update.
   const [pending, setPending] = useState<Record<string, boolean>>({});
@@ -55,31 +56,24 @@ export default function AdminFleetPage() {
       const [units, rentals] = await Promise.all([getUnits(), getRentals()]);
       setState({ phase: "ready", data: { units, rentals } });
     } catch (err) {
-      if (err instanceof FleetAuthError) {
-        setState({ phase: "no-auth" });
+      // A missing token / 401 means the session is gone — drop to sign-in.
+      if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
+        signOut();
       } else if (err instanceof FleetConfigError) {
-        setState({ phase: "error", message: err.message, unauthorized: false, config: true });
+        setState({ phase: "error", message: err.message, config: true });
       } else if (err instanceof FleetApiError) {
-        setState({
-          phase: "error",
-          message: err.message,
-          unauthorized: err.unauthorized,
-          config: false,
-        });
+        setState({ phase: "error", message: err.message, config: false });
       } else {
-        setState({
-          phase: "error",
-          message: "Something went wrong loading the fleet.",
-          unauthorized: false,
-          config: false,
-        });
+        setState({ phase: "error", message: "Something went wrong loading the fleet.", config: false });
       }
     }
-  }, []);
+  }, [signOut]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useAdminRefresh(load);
 
   async function changeStatus(internalCode: string, nextStatus: string) {
     if (state.phase !== "ready") return;
@@ -105,7 +99,7 @@ export default function AdminFleetPage() {
       );
     } catch (err) {
       if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
-        setState({ phase: "no-auth" });
+        signOut();
       } else {
         const msg =
           err instanceof FleetApiError
@@ -123,23 +117,11 @@ export default function AdminFleetPage() {
   }
 
   return (
-    <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
-      <PageHeader
-        showRefresh={state.phase === "ready" || state.phase === "error"}
-        onRefresh={() => void load()}
-      />
-
+    <div>
       {state.phase === "loading" ? (
         <Notice>Loading fleet…</Notice>
-      ) : state.phase === "no-auth" ? (
-        <AuthGate />
       ) : state.phase === "error" ? (
-        <ErrorPanel
-          message={state.message}
-          unauthorized={state.unauthorized}
-          config={state.config}
-          onRetry={() => void load()}
-        />
+        <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
           {updateError && (
@@ -168,7 +150,7 @@ export default function AdminFleetPage() {
           <RentalTimeline units={state.data.units} rentals={state.data.rentals} />
         </>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -612,60 +594,6 @@ function SectionHead({ title, count }: { title: string; count?: number }) {
   );
 }
 
-function PageHeader({ showRefresh, onRefresh }: { showRefresh: boolean; onRefresh: () => void }) {
-  return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        flexWrap: "wrap",
-        paddingBottom: 24,
-        marginBottom: 32,
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div>
-        <h1 style={{ fontSize: 26, letterSpacing: "-0.03em" }}>
-          rentaro <span style={{ color: "var(--text-dim)" }}>·</span>{" "}
-          <span style={{ color: "var(--lime)" }}>fleet</span>
-        </h1>
-        <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", marginTop: 6 }}>
-          Units, status &amp; rental timeline
-        </p>
-        <Link
-          href="/admin"
-          className="mono"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 7,
-            fontSize: 11.5,
-            color: "var(--text-muted)",
-            textDecoration: "none",
-            marginTop: 12,
-          }}
-        >
-          <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>→</span> Admin home
-        </Link>
-      </div>
-      {showRefresh && (
-        <div style={{ display: "flex", gap: 10 }}>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            style={{ padding: "11px 18px", fontSize: 13.5 }}
-            onClick={onRefresh}
-          >
-            Refresh
-          </button>
-        </div>
-      )}
-    </header>
-  );
-}
-
 function Notice({ children }: { children: React.ReactNode }) {
   return (
     <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
@@ -674,32 +602,12 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AuthGate() {
-  return (
-    <div className="card" style={{ padding: 32, maxWidth: 460 }}>
-      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Sign in required</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 22, lineHeight: 1.6 }}>
-        You need an admin session to manage the fleet. Sign in on the admin home, then return here.
-      </p>
-      <Link
-        href="/admin"
-        className="btn btn-primary"
-        style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-      >
-        Sign in on the admin home
-      </Link>
-    </div>
-  );
-}
-
 function ErrorPanel({
   message,
-  unauthorized,
   config,
   onRetry,
 }: {
   message: string;
-  unauthorized: boolean;
   config: boolean;
   onRetry: () => void;
 }) {
@@ -723,31 +631,21 @@ function ErrorPanel({
           marginBottom: 10,
         }}
       >
-        {config ? "Not configured" : unauthorized ? "Unauthorized" : "Error"}
+        {config ? "Not configured" : "Error"}
       </div>
       <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
         {message}
       </p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {unauthorized ? (
-          <Link
-            href="/admin"
-            className="btn btn-primary"
-            style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-          >
-            Sign in again
-          </Link>
-        ) : config ? null : (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={onRetry}
-            style={{ padding: "12px 22px", fontSize: 14 }}
-          >
-            Try again
-          </button>
-        )}
-      </div>
+      {!config && (
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={onRetry}
+          style={{ padding: "12px 22px", fontSize: 14 }}
+        >
+          Try again
+        </button>
+      )}
     </div>
   );
 }

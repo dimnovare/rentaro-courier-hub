@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import {
   listModels,
   createModel,
@@ -17,6 +16,8 @@ import {
 } from "@/services/adminModelService";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { useAdminAuth } from "@/components/admin/AdminAuth";
+import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
 /**
  * Valid BikeStatus values — wire values must match the backend enum/string
@@ -45,10 +46,10 @@ function statusLabel(value: string): string {
 type LoadState =
   | { phase: "loading" }
   | { phase: "ready"; models: AdminModel[] }
-  | { phase: "no-auth" }
-  | { phase: "error"; message: string; unauthorized: boolean; config: boolean };
+  | { phase: "error"; message: string; config: boolean };
 
 export default function AdminModelsPage() {
+  const { signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   const [actionError, setActionError] = useState<string | null>(null);
   // Which model code (or "__new__") currently has its editor form open.
@@ -65,22 +66,31 @@ export default function AdminModelsPage() {
       const models = await listModels();
       setState({ phase: "ready", models: sortModels(models) });
     } catch (err) {
-      setState(toErrorState(err, "Something went wrong loading models."));
+      if (err instanceof ModelAuthError || (err instanceof ModelApiError && err.unauthorized)) {
+        signOut();
+      } else {
+        setState(toErrorState(err, "Something went wrong loading models."));
+      }
     }
-  }, []);
+  }, [signOut]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  /** Drops to the auth gate on 401, otherwise shows an inline action error. */
-  const handleActionError = useCallback((err: unknown, fallback: string) => {
-    if (err instanceof ModelAuthError || (err instanceof ModelApiError && err.unauthorized)) {
-      setState({ phase: "no-auth" });
-    } else {
-      setActionError(err instanceof ModelApiError ? err.message : fallback);
-    }
-  }, []);
+  useAdminRefresh(load);
+
+  /** Drops to the shell sign-in on 401, otherwise shows an inline action error. */
+  const handleActionError = useCallback(
+    (err: unknown, fallback: string) => {
+      if (err instanceof ModelAuthError || (err instanceof ModelApiError && err.unauthorized)) {
+        signOut();
+      } else {
+        setActionError(err instanceof ModelApiError ? err.message : fallback);
+      }
+    },
+    [signOut],
+  );
 
   const setBusy = useCallback((code: string, busy: boolean) => {
     setPending((p) => {
@@ -214,26 +224,30 @@ export default function AdminModelsPage() {
   );
 
   return (
-    <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
-      <PageHeader
-        showActions={state.phase === "ready" || state.phase === "error"}
-        onRefresh={() => void load()}
-        onNew={state.phase === "ready" ? () => setEditing("__new__") : undefined}
-      />
-
+    <div>
       {state.phase === "loading" ? (
         <Notice>Loading models…</Notice>
-      ) : state.phase === "no-auth" ? (
-        <AuthGate />
       ) : state.phase === "error" ? (
-        <ErrorPanel
-          message={state.message}
-          unauthorized={state.unauthorized}
-          config={state.config}
-          onRetry={() => void load()}
-        />
+        <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: 18,
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ padding: "11px 18px", fontSize: 13.5 }}
+              onClick={() => setEditing("__new__")}
+            >
+              + New model
+            </button>
+          </div>
+
           {actionError && <InlineError message={actionError} />}
 
           {editing === "__new__" && (
@@ -290,7 +304,7 @@ export default function AdminModelsPage() {
           </section>
         </>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -1092,78 +1106,6 @@ function SectionHead({ title, count }: { title: string; count?: number }) {
   );
 }
 
-function PageHeader({
-  showActions,
-  onRefresh,
-  onNew,
-}: {
-  showActions: boolean;
-  onRefresh: () => void;
-  onNew?: () => void;
-}) {
-  return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        flexWrap: "wrap",
-        paddingBottom: 24,
-        marginBottom: 32,
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div>
-        <h1 style={{ fontSize: 26, letterSpacing: "-0.03em" }}>
-          rentaro <span style={{ color: "var(--text-dim)" }}>·</span>{" "}
-          <span style={{ color: "var(--lime)" }}>models</span>
-        </h1>
-        <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", marginTop: 6 }}>
-          Catalogue, specs, photos &amp; availability
-        </p>
-        <Link
-          href="/admin"
-          className="mono"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 7,
-            fontSize: 11.5,
-            color: "var(--text-muted)",
-            textDecoration: "none",
-            marginTop: 12,
-          }}
-        >
-          <span style={{ display: "inline-flex", transform: "rotate(180deg)" }}>→</span> Admin home
-        </Link>
-      </div>
-      {showActions && (
-        <div style={{ display: "flex", gap: 10 }}>
-          {onNew && (
-            <button
-              type="button"
-              className="btn btn-primary"
-              style={{ padding: "11px 18px", fontSize: 13.5 }}
-              onClick={onNew}
-            >
-              + New model
-            </button>
-          )}
-          <button
-            type="button"
-            className="btn btn-ghost"
-            style={{ padding: "11px 18px", fontSize: 13.5 }}
-            onClick={onRefresh}
-          >
-            Refresh
-          </button>
-        </div>
-      )}
-    </header>
-  );
-}
-
 function Notice({ children }: { children: React.ReactNode }) {
   return (
     <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
@@ -1191,32 +1133,12 @@ function InlineError({ message }: { message: string }) {
   );
 }
 
-function AuthGate() {
-  return (
-    <div className="card" style={{ padding: 32, maxWidth: 460 }}>
-      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Sign in required</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 22, lineHeight: 1.6 }}>
-        You need an admin session to manage models. Sign in on the admin home, then return here.
-      </p>
-      <Link
-        href="/admin"
-        className="btn btn-primary"
-        style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-      >
-        Sign in on the admin home
-      </Link>
-    </div>
-  );
-}
-
 function ErrorPanel({
   message,
-  unauthorized,
   config,
   onRetry,
 }: {
   message: string;
-  unauthorized: boolean;
   config: boolean;
   onRetry: () => void;
 }) {
@@ -1240,46 +1162,33 @@ function ErrorPanel({
           marginBottom: 10,
         }}
       >
-        {config ? "Not configured" : unauthorized ? "Unauthorized" : "Error"}
+        {config ? "Not configured" : "Error"}
       </div>
       <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
         {message}
       </p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {unauthorized ? (
-          <Link
-            href="/admin"
-            className="btn btn-primary"
-            style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}
-          >
-            Sign in again
-          </Link>
-        ) : config ? null : (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={onRetry}
-            style={{ padding: "12px 22px", fontSize: 14 }}
-          >
-            Try again
-          </button>
-        )}
-      </div>
+      {!config && (
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={onRetry}
+          style={{ padding: "12px 22px", fontSize: 14 }}
+        >
+          Try again
+        </button>
+      )}
     </div>
   );
 }
 
-/* ── Error mapping ─────────────────────────────────────────────────────── */
+/* ── Error mapping (auth failures are handled by the caller via signOut) ─── */
 
 function toErrorState(err: unknown, fallback: string): LoadState {
-  if (err instanceof ModelAuthError) {
-    return { phase: "no-auth" };
-  }
   if (err instanceof ModelConfigError) {
-    return { phase: "error", message: err.message, unauthorized: false, config: true };
+    return { phase: "error", message: err.message, config: true };
   }
   if (err instanceof ModelApiError) {
-    return { phase: "error", message: err.message, unauthorized: err.unauthorized, config: false };
+    return { phase: "error", message: err.message, config: false };
   }
-  return { phase: "error", message: fallback, unauthorized: false, config: false };
+  return { phase: "error", message: fallback, config: false };
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   listTemplates,
   uploadTemplate,
@@ -13,14 +12,16 @@ import {
 } from "@/services/adminContractService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { useAdminAuth } from "@/components/admin/AdminAuth";
+import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
 type LoadState =
   | { phase: "loading" }
   | { phase: "ready"; templates: ContractTemplate[] }
-  | { phase: "no-auth" }
-  | { phase: "error"; message: string; unauthorized: boolean; config: boolean };
+  | { phase: "error"; message: string; config: boolean };
 
 export default function AdminContractsPage() {
+  const { signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   const [banner, setBanner] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
   // Tracks which template ids currently have an in-flight activate call.
@@ -32,13 +33,19 @@ export default function AdminContractsPage() {
       const templates = await listTemplates();
       setState({ phase: "ready", templates });
     } catch (err) {
-      setState(toErrorState(err));
+      if (err instanceof ContractAuthError || (err instanceof ContractApiError && err.unauthorized)) {
+        signOut();
+      } else {
+        setState(toErrorState(err));
+      }
     }
-  }, []);
+  }, [signOut]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useAdminRefresh(load);
 
   const onUploaded = useCallback((created: ContractTemplate) => {
     setBanner({ tone: "ok", text: `Uploaded "${created.name}".` });
@@ -56,7 +63,7 @@ export default function AdminContractsPage() {
       await load();
     } catch (err) {
       if (err instanceof ContractApiError && err.unauthorized) {
-        setState({ phase: "no-auth" });
+        signOut();
       } else {
         const text =
           err instanceof ContractApiError || err instanceof ContractConfigError
@@ -74,20 +81,11 @@ export default function AdminContractsPage() {
   }
 
   return (
-    <main className="wrap" style={{ paddingTop: 40, paddingBottom: 80, minHeight: "70vh" }}>
-      <Header onRefresh={state.phase === "ready" ? () => void load() : undefined} />
-
+    <div>
       {state.phase === "loading" ? (
         <Notice>Loading templates…</Notice>
-      ) : state.phase === "no-auth" ? (
-        <AuthGate />
       ) : state.phase === "error" ? (
-        <ErrorPanel
-          message={state.message}
-          unauthorized={state.unauthorized}
-          config={state.config}
-          onRetry={() => void load()}
-        />
+        <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
           {banner && <Banner tone={banner.tone} text={banner.text} />}
@@ -95,7 +93,7 @@ export default function AdminContractsPage() {
           <UploadCard
             onUploaded={onUploaded}
             onError={(text) => setBanner({ tone: "bad", text })}
-            onAuthError={() => setState({ phase: "no-auth" })}
+            onAuthError={signOut}
           />
 
           <AdminSection title="Templates" count={state.templates.length}>
@@ -107,23 +105,20 @@ export default function AdminContractsPage() {
           </AdminSection>
         </>
       )}
-    </main>
+    </div>
   );
 }
 
-/** Map a thrown error onto an error/no-auth load state. */
+/** Map a non-auth thrown error onto an error load state (auth failures are
+ *  handled by the caller, which signs out). */
 function toErrorState(err: unknown): LoadState {
-  if (err instanceof ContractAuthError) {
-    return { phase: "no-auth" };
-  }
   if (err instanceof ContractConfigError) {
-    return { phase: "error", message: err.message, unauthorized: false, config: true };
+    return { phase: "error", message: err.message, config: true };
   }
   if (err instanceof ContractApiError) {
-    if (err.unauthorized) return { phase: "no-auth" };
-    return { phase: "error", message: err.message, unauthorized: err.unauthorized, config: false };
+    return { phase: "error", message: err.message, config: false };
   }
-  return { phase: "error", message: "Something went wrong loading templates.", unauthorized: false, config: false };
+  return { phase: "error", message: "Something went wrong loading templates.", config: false };
 }
 
 /* ── Upload ────────────────────────────────────────────────────────────── */
@@ -350,43 +345,6 @@ function Banner({ tone, text }: { tone: "ok" | "bad"; text: string }) {
   );
 }
 
-function Header({ onRefresh }: { onRefresh?: () => void }) {
-  return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        flexWrap: "wrap",
-        paddingBottom: 24,
-        marginBottom: 32,
-        borderBottom: "1px solid var(--border)",
-      }}
-    >
-      <div>
-        <h1 style={{ fontSize: 26, letterSpacing: "-0.03em" }}>
-          rentaro <span style={{ color: "var(--text-dim)" }}>·</span>{" "}
-          <span style={{ color: "var(--lime)" }}>contracts</span>
-        </h1>
-        <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", marginTop: 6 }}>
-          Contract templates &amp; placeholders
-        </p>
-      </div>
-      <div style={{ display: "flex", gap: 10 }}>
-        <Link href="/admin" className="btn btn-ghost" style={{ padding: "11px 18px", fontSize: 13.5 }}>
-          Dashboard
-        </Link>
-        {onRefresh && (
-          <button type="button" className="btn btn-ghost" style={{ padding: "11px 18px", fontSize: 13.5 }} onClick={onRefresh}>
-            Refresh
-          </button>
-        )}
-      </div>
-    </header>
-  );
-}
-
 function Notice({ children }: { children: React.ReactNode }) {
   return (
     <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
@@ -395,28 +353,12 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AuthGate() {
-  return (
-    <div className="card" style={{ padding: 32, maxWidth: 460 }}>
-      <h2 style={{ fontSize: 20, letterSpacing: "-0.02em", marginBottom: 6 }}>Sign in required</h2>
-      <p style={{ color: "var(--text-muted)", fontSize: 14, marginBottom: 22, lineHeight: 1.6 }}>
-        Sign in on the admin home to manage contract templates.
-      </p>
-      <Link href="/admin" className="btn btn-primary" style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}>
-        Go to admin home
-      </Link>
-    </div>
-  );
-}
-
 function ErrorPanel({
   message,
-  unauthorized,
   config,
   onRetry,
 }: {
   message: string;
-  unauthorized: boolean;
   config: boolean;
   onRetry: () => void;
 }) {
@@ -431,20 +373,14 @@ function ErrorPanel({
       }}
     >
       <div className="mono" style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)", marginBottom: 10 }}>
-        {config ? "Not configured" : unauthorized ? "Unauthorized" : "Error"}
+        {config ? "Not configured" : "Error"}
       </div>
       <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {unauthorized ? (
-          <Link href="/admin" className="btn btn-primary" style={{ padding: "12px 22px", fontSize: 14, textDecoration: "none" }}>
-            Sign in again
-          </Link>
-        ) : config ? null : (
-          <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
-            Try again
-          </button>
-        )}
-      </div>
+      {!config && (
+        <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
+          Try again
+        </button>
+      )}
     </div>
   );
 }
