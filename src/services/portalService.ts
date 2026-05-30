@@ -54,6 +54,38 @@ export async function getRental(token: string): Promise<PortalResult<PortalRenta
   }
 }
 
+/** A referral reward earned by or for this customer. */
+export interface PortalReward {
+  id: string;
+  role: "referrer" | "referred";
+  rewardType: string;
+  daysAwarded?: number | null;
+  monetaryAmount?: number | null;
+  description?: string | null;
+  status: "pending" | "applied" | "waived";
+  appliedAt?: string | null;
+  createdAt: string;
+}
+
+/** Fetch all referral rewards tied to the customer's portal token. */
+export async function getRewards(token: string): Promise<PortalResult<PortalReward[]>> {
+  if (!API_BASE) return { kind: "no_api" };
+  if (!token.trim()) return { kind: "invalid" };
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/portal/rewards?token=${encodeURIComponent(token)}`,
+      { headers: { Accept: "application/json" }, cache: "no-store" },
+    );
+    if (res.status === 401) return { kind: "invalid" };
+    if (!res.ok) throw new Error(`portal rewards → ${res.status}`);
+    return { kind: "ok", data: (await res.json()) as PortalReward[] };
+  } catch (err) {
+    console.error("[rentaro] portal getRewards failed.", err);
+    return { kind: "error" };
+  }
+}
+
 /** Raise a repair request against the customer's bike. */
 export async function requestRepair(
   token: string,

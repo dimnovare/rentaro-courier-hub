@@ -433,6 +433,20 @@
       "copy": "Kopeeri link",
       "copied": "Kopeeritud"
     },
+    "rewards": {
+      "heading": "Sinu soovitusboonused",
+      "defaultDescription": "Soovitusbonus",
+      "days": "{count} päeva tasuta",
+      "role": {
+        "referrer": "Sa soovitasid kellegi",
+        "referred": "Sind soovitati"
+      },
+      "status": {
+        "pending": "Ootel",
+        "applied": "Rakendatud",
+        "waived": "Loobutud"
+      }
+    },
     "errorHelpPrefix": "Kontrolli oma kinnituse e-kirjas olevat linki või",
     "errorHelpLink": "jälgi oma broneeringut",
     "errorHelpSuffix": "selle asemel."

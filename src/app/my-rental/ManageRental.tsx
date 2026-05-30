@@ -11,7 +11,9 @@ import {
   getRental,
   requestRepair,
   contactSupport,
+  getRewards,
   type PortalRental,
+  type PortalReward,
   type PortalResult,
 } from "@/services/portalService";
 import {
@@ -235,6 +237,8 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
 
       <ContractCard token={token} />
 
+      <RewardsCard token={token} />
+
       <ReferralCard code={rental.reference} />
 
       <Reveal delay={80}>
@@ -263,6 +267,67 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         .
       </p>
     </>
+  );
+}
+
+/* ── Earned rewards card ──────────────────────────────────────────────────── */
+
+/**
+ * Shows referral rewards earned by or for this customer. Only visible when at
+ * least one reward exists — nothing is rendered if the list is empty or loading.
+ */
+function RewardsCard({ token }: { token: string }) {
+  const t = useTranslations("portal");
+  const [rewards, setRewards] = useState<PortalReward[] | null>(null);
+
+  useEffect(() => {
+    getRewards(token).then((r) => {
+      if (r.kind === "ok" && r.data.length > 0) setRewards(r.data);
+    });
+  }, [token]);
+
+  if (!rewards) return null;
+
+  return (
+    <Reveal delay={65}>
+      <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+        <div style={{ padding: "24px 24px 22px" }}>
+          <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 4 }}>
+            {t("rewards.heading")}
+          </h3>
+          <ul style={{ listStyle: "none", margin: "12px 0 0", padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+            {rewards.map((rw) => (
+              <li key={rw.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", borderRadius: "var(--r-sm)", background: "var(--bg-2)", border: "1px solid var(--border)" }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>
+                    {rw.description ?? t("rewards.defaultDescription")}
+                  </p>
+                  <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
+                    {t(`rewards.role.${rw.role}`)}
+                    {" · "}
+                    {rw.daysAwarded != null ? t("rewards.days", { count: rw.daysAwarded }) : null}
+                  </p>
+                </div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    padding: "4px 10px",
+                    borderRadius: "var(--r-sm)",
+                    background: rw.status === "applied" ? "rgba(163,230,53,0.12)" : "rgba(255,255,255,0.06)",
+                    color: rw.status === "applied" ? "var(--lime)" : "var(--text-muted)",
+                  }}
+                >
+                  {t(`rewards.status.${rw.status}`)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </article>
+    </Reveal>
   );
 }
 

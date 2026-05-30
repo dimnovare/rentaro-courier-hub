@@ -433,6 +433,20 @@
       "copy": "Kopēt saiti",
       "copied": "Nokopēts"
     },
+    "rewards": {
+      "heading": "Tavi ieteikumu bonusi",
+      "defaultDescription": "Ieteikuma bonuss",
+      "days": "{count} dienas bez maksas",
+      "role": {
+        "referrer": "Tu ieteici kādu",
+        "referred": "Tevi ieteica"
+      },
+      "status": {
+        "pending": "Gaida",
+        "applied": "Piemērots",
+        "waived": "Atteikts"
+      }
+    },
     "errorHelpPrefix": "Pārbaudi saiti savā apstiprinājuma e-pastā vai",
     "errorHelpLink": "seko savai rezervācijai",
     "errorHelpSuffix": "tā vietā."

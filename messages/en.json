@@ -433,6 +433,20 @@
       "copy": "Copy link",
       "copied": "Copied"
     },
+    "rewards": {
+      "heading": "Your referral rewards",
+      "defaultDescription": "Referral reward",
+      "days": "{count} days free",
+      "role": {
+        "referrer": "You referred someone",
+        "referred": "You were referred"
+      },
+      "status": {
+        "pending": "Pending",
+        "applied": "Applied",
+        "waived": "Waived"
+      }
+    },
     "errorHelpPrefix": "Check the link in your confirmation email, or",
     "errorHelpLink": "track your booking",
     "errorHelpSuffix": "instead."

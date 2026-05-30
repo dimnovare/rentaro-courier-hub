@@ -433,6 +433,20 @@
       "copy": "Kopioi linkki",
       "copied": "Kopioitu"
     },
+    "rewards": {
+      "heading": "Suosittelupalkintosi",
+      "defaultDescription": "Suosittelupalkkio",
+      "days": "{count} päivää ilmaiseksi",
+      "role": {
+        "referrer": "Suosittelit jotakuta",
+        "referred": "Sinut suositeltiin"
+      },
+      "status": {
+        "pending": "Odottaa",
+        "applied": "Käytetty",
+        "waived": "Peruttu"
+      }
+    },
     "errorHelpPrefix": "Tarkista vahvistussähköpostisi linkki, tai",
     "errorHelpLink": "seuraa varaustasi",
     "errorHelpSuffix": "sen sijaan."
