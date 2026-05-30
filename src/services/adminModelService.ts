@@ -1,28 +1,25 @@
 /**
- * Admin bike-model API client for the /admin/models vertical. Self-contained:
- * it reads the admin JWT from localStorage (key `rentaro_admin_jwt`, the same
- * key the admin home writes) and sends it as `Authorization: Bearer <jwt>` to
- * the live .NET API at `${API_BASE}`. A missing token or HTTP 401 surfaces as a
- * typed ModelAuthError so the page can drop to its sign-in gate; a missing API
- * base URL surfaces as ModelConfigError.
+ * Admin bike-model API client for the /admin/models vertical. Write/read calls
+ * go through the same-origin Next BFF proxy (`/api/admin/*`), which attaches the
+ * admin JWT from an httpOnly cookie server-side — so this client holds no token.
+ * An HTTP 401 surfaces as a typed ModelApiError (unauthorized) so the page can
+ * drop to its sign-in gate; a not-configured backend surfaces as ModelConfigError.
  *
  * This mirrors the other admin slices (adminFleetService / adminContractService)
  * but owns the bike-model management contract types.
  *
- * Endpoints (JWT Bearer):
+ * Endpoints (cookie session, via the proxy):
  *   GET    /api/admin/models                  (list — every editable field)
  *   POST   /api/admin/models                  (create)
  *   PUT    /api/admin/models/{code}           (update)
  *   DELETE /api/admin/models/{code}           (delete)
  *   POST   /api/admin/models/{code}/image     (multipart upload, field `file`)
  *
- * The uploaded image is then served publicly at:
+ * The uploaded image is served publicly (no auth) and is referenced directly on
+ * the backend origin via {@link modelImageUrl}:
  *   GET    /api/public/models/{code}/image
  */
 import { API_BASE } from "@/services/api";
-
-/** localStorage key shared with the admin home (src/app/admin/page.tsx). */
-export const ADMIN_TOKEN_KEY = "rentaro_admin_jwt";
 
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
@@ -115,59 +112,50 @@ export class ModelAuthError extends ModelApiError {
   }
 }
 
-/* ── Token access ──────────────────────────────────────────────────────── */
-
-/** Read the saved admin JWT, or null if absent / localStorage unavailable. */
-export function getAdminToken(): string | null {
-  try {
-    return localStorage.getItem(ADMIN_TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
 /* ── Core fetch helper ─────────────────────────────────────────────────── */
 
-/** Turn a non-OK response into a ModelApiError, surfacing any { error }. */
+/**
+ * Turn a non-OK proxy response into a typed error: ModelConfigError when the
+ * backend base URL is unset (`{ notConfigured: true }`), otherwise a ModelApiError
+ * carrying any server-supplied `{ error }` message.
+ */
 async function fail(res: Response): Promise<never> {
   if (res.status === 401) {
     throw new ModelApiError("Your session has expired. Sign in again.", 401);
   }
   let detail = "";
   try {
-    const data = (await res.json()) as { error?: string };
+    const data = (await res.json()) as { error?: string; notConfigured?: boolean };
+    if (data?.notConfigured) throw new ModelConfigError();
     if (data?.error) detail = `: ${data.error}`;
-  } catch {
+  } catch (err) {
+    if (err instanceof ModelConfigError) throw err;
     /* non-JSON body — ignore. */
   }
   throw new ModelApiError(`Request failed (${res.status})${detail}`, res.status);
 }
 
 /**
- * Request helper. Sends the admin bearer token; sets a JSON Content-Type only
- * when there is a body. `body` may be a pre-stringified payload or FormData (in
- * which case the browser sets the multipart boundary — we must not override it).
+ * Request helper for the same-origin proxy. Sets a JSON Content-Type only when
+ * there is a body. `body` may be a pre-stringified payload or FormData (in which
+ * case the browser sets the multipart boundary — we must not override it). The
+ * session cookie is sent automatically (`credentials: "same-origin"`).
  */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!API_BASE) throw new ModelConfigError();
-
-  const token = getAdminToken();
-  if (!token) throw new ModelAuthError();
-
   const isFormData =
     typeof FormData !== "undefined" && init?.body instanceof FormData;
 
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(path, {
       ...init,
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         // Never set Content-Type for FormData — the browser adds the boundary.
         ...(init?.body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...(init?.headers ?? {}),
       },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {

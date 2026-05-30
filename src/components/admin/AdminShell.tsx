@@ -2,12 +2,12 @@
 
 /**
  * The admin console shell. Wraps every `/admin/*` page once:
- *   - while the auth context is restoring  → a minimal loader
- *   - when there is no token                → the full-screen sign-in
- *   - when signed in                        → sidebar + topbar + page content
+ *   - while the auth context is checking the session → a minimal loader
+ *   - when not signed in                             → the full-screen sign-in
+ *   - when signed in                                 → sidebar + topbar + content
  *
  * Section pages no longer carry their own sign-in gate or page header — this
- * shell provides all of the chrome, and pages read the token from useAdminAuth.
+ * shell provides all of the chrome, and pages read auth state from useAdminAuth.
  */
 import { useEffect, useState } from "react";
 import { usePathname } from "@/i18n/navigation";
@@ -18,7 +18,7 @@ import { AdminTopbar } from "./AdminTopbar";
 import { CommandPalette } from "./CommandPalette";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const { token, ready } = useAdminAuth();
+  const { authenticated, ready } = useAdminAuth();
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -33,10 +33,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     setPaletteOpen(false);
   }, [pathname]);
 
-  // Global ⌘K / Ctrl+K toggles the command palette. Only active once signed in
-  // (the listener is attached in the authed branch's effect below via `token`).
+  // Global ⌘K / Ctrl+K toggles the command palette. Only active once signed in.
   useEffect(() => {
-    if (!token) return;
+    if (!authenticated) return;
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
         e.preventDefault();
@@ -45,7 +44,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [token]);
+  }, [authenticated]);
 
   // Lock body scroll while the mobile drawer is open.
   useEffect(() => {
@@ -66,7 +65,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!token) {
+  if (!authenticated) {
     return <AdminSignIn />;
   }
 

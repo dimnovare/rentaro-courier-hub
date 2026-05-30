@@ -1,15 +1,15 @@
 /**
- * Admin contract API client. Self-contained: it reads the admin JWT from
- * localStorage (key `rentaro_admin_jwt`, the same key the admin home writes) and
- * sends it as `Authorization: Bearer <jwt>` to the live .NET API at
- * `${API_BASE}`. A missing token or HTTP 401 surfaces as a typed
- * ContractApiError so the page can prompt for a fresh sign-in; a missing API
- * base URL surfaces as ContractConfigError.
+ * Admin contract API client. Calls the same-origin Next BFF proxy
+ * (`/api/admin/*`), which attaches the admin JWT from an httpOnly cookie
+ * server-side — so this client holds no token, including for the PDF download
+ * (the cookie is sent with the blob fetch automatically). An HTTP 401 surfaces
+ * as a typed ContractApiError so the page can prompt for a fresh sign-in; a
+ * not-configured backend surfaces as ContractConfigError.
  *
  * This mirrors the other admin slices (adminFleetService / adminBookingService)
  * but owns the contract-template + contract-generation contract types.
  *
- * Endpoints:
+ * Endpoints (cookie session, via the proxy):
  *   POST  /api/admin/contract-templates              (multipart upload: file + name)
  *   GET   /api/admin/contract-templates              (list)
  *   POST  /api/admin/contract-templates/{id}/activate
@@ -17,10 +17,6 @@
  *   GET   /api/admin/contracts/{id}                  (contract DTO)
  *   GET   /api/admin/contracts/{id}/document?kind=…  (PDF bytes)
  */
-import { API_BASE } from "@/services/api";
-
-/** localStorage key shared with the admin home (src/app/admin/page.tsx). */
-export const ADMIN_TOKEN_KEY = "rentaro_admin_jwt";
 
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
@@ -96,59 +92,50 @@ export class ContractAuthError extends ContractApiError {
   }
 }
 
-/* ── Token access ──────────────────────────────────────────────────────── */
-
-/** Read the saved admin JWT, or null if absent / localStorage unavailable. */
-export function getAdminToken(): string | null {
-  try {
-    return localStorage.getItem(ADMIN_TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
 /* ── Core fetch helper ─────────────────────────────────────────────────── */
 
-/** Turn a non-OK response into a ContractApiError, surfacing any { error }. */
+/**
+ * Turn a non-OK proxy response into a typed error: ContractConfigError when the
+ * backend base URL is unset (`{ notConfigured: true }`), otherwise a
+ * ContractApiError carrying any server-supplied `{ error }` message.
+ */
 async function fail(res: Response): Promise<never> {
   if (res.status === 401) {
     throw new ContractApiError("Your session has expired. Sign in again.", 401);
   }
   let detail = "";
   try {
-    const data = (await res.json()) as { error?: string };
+    const data = (await res.json()) as { error?: string; notConfigured?: boolean };
+    if (data?.notConfigured) throw new ContractConfigError();
     if (data?.error) detail = `: ${data.error}`;
-  } catch {
+  } catch (err) {
+    if (err instanceof ContractConfigError) throw err;
     /* non-JSON body — ignore. */
   }
   throw new ContractApiError(`Request failed (${res.status})${detail}`, res.status);
 }
 
 /**
- * JSON request helper. Sends the admin bearer token; sets a JSON Content-Type
- * only when there is a body. `body` may be a pre-stringified payload or a
- * FormData (in which case we let the browser set the multipart boundary).
+ * JSON/multipart request helper for the same-origin proxy. Sets a JSON
+ * Content-Type only when there is a body. `body` may be a pre-stringified
+ * payload or a FormData (in which case we let the browser set the multipart
+ * boundary). The session cookie is sent automatically.
  */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!API_BASE) throw new ContractConfigError();
-
-  const token = getAdminToken();
-  if (!token) throw new ContractAuthError();
-
   const isFormData =
     typeof FormData !== "undefined" && init?.body instanceof FormData;
 
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(path, {
       ...init,
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         // Never set Content-Type for FormData — the browser adds the boundary.
         ...(init?.body && !isFormData ? { "Content-Type": "application/json" } : {}),
         ...(init?.headers ?? {}),
       },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {
@@ -210,34 +197,30 @@ export function getContract(id: string): Promise<Contract> {
 /* ── Document download ─────────────────────────────────────────────────── */
 
 /**
- * The relative API path for a contract's PDF. Note the document endpoint is
- * bearer-protected, so we cannot point a plain <a href> / window.open at it
- * (those can't send the Authorization header). Use {@link openContractDocument}
- * to fetch the bytes with the token and open them via a blob URL instead.
+ * The same-origin proxy path for a contract's PDF. We fetch the bytes and open
+ * them via a blob URL (rather than navigating to the path) so the document
+ * opens in a new tab without leaving the console. The session cookie is sent
+ * automatically with the fetch.
  */
 export function contractDocumentPath(id: string, kind: ContractDocumentKind): string {
   return `/api/admin/contracts/${encodeURIComponent(id)}/document?kind=${kind}`;
 }
 
 /**
- * Fetch a contract PDF (sending the admin bearer token) and open it in a new
- * browser tab via an object URL. Throws ContractApiError on failure so the
- * caller can surface a banner. The object URL is revoked after a delay so the
- * new tab has time to load it.
+ * Fetch a contract PDF through the same-origin proxy (the cookie carries auth)
+ * and open it in a new browser tab via an object URL. Throws ContractApiError on
+ * failure so the caller can surface a banner. The object URL is revoked after a
+ * delay so the new tab has time to load it.
  */
 export async function openContractDocument(
   id: string,
   kind: ContractDocumentKind,
 ): Promise<void> {
-  if (!API_BASE) throw new ContractConfigError();
-
-  const token = getAdminToken();
-  if (!token) throw new ContractAuthError();
-
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${contractDocumentPath(id, kind)}`, {
-      headers: { Authorization: `Bearer ${token}`, Accept: "application/pdf" },
+    res = await fetch(contractDocumentPath(id, kind), {
+      headers: { Accept: "application/pdf" },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {

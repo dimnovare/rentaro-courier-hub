@@ -1,10 +1,10 @@
 /**
  * Admin catalog (content) API client for the /admin/content vertical: typed CRUD
- * for accessories, cities, pricing plans and FAQ entries. Self-contained — it
- * reads the admin JWT from localStorage (the same key the admin home writes) and
- * sends it as `Authorization: Bearer <token>` on every request. A 401 is surfaced
- * as a typed CatalogAuthError so the page can prompt for a fresh sign-in; a
- * missing API base URL surfaces as CatalogConfigError.
+ * for accessories, cities, pricing plans and FAQ entries. Calls the same-origin
+ * Next BFF proxy (`/api/admin/*`), which attaches the admin JWT from an httpOnly
+ * cookie server-side — so this client holds no token. A 401 is surfaced as a
+ * typed CatalogApiError (unauthorized) so the page can prompt for a fresh
+ * sign-in; a not-configured backend surfaces as CatalogConfigError.
  *
  * This mirrors src/services/adminFleetService.ts but owns its own contract types.
  * The field shapes match the live API exactly (camelCase). The public
@@ -19,11 +19,6 @@
  *   Pricing      GET /api/admin/pricing, PUT /api/admin/pricing/{code}  (edit only)
  *   FAQ          GET/POST/PUT/DELETE /api/admin/faq[/{id}]
  */
-import { API_BASE } from "./api";
-
-/** localStorage key shared with the admin home (src/app/admin/page.tsx). */
-export const ADMIN_TOKEN_KEY = "rentaro_admin_jwt";
-
 /* ── Contract types (match the live API exactly) ───────────────────────── */
 
 /** City status enum — must match the backend CityStatus enum (lowercased). */
@@ -117,35 +112,19 @@ export class CatalogAuthError extends Error {
   }
 }
 
-/* ── Token access ──────────────────────────────────────────────────────── */
-
-/** Read the saved admin JWT, or null if absent / localStorage unavailable. */
-export function getAdminToken(): string | null {
-  try {
-    return localStorage.getItem(ADMIN_TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
 /* ── Core fetch helper ─────────────────────────────────────────────────── */
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!API_BASE) throw new CatalogConfigError();
-
-  const token = getAdminToken();
-  if (!token) throw new CatalogAuthError();
-
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(path, {
       ...init,
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         ...(init?.body ? { "Content-Type": "application/json" } : {}),
         ...(init?.headers ?? {}),
       },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {
@@ -156,15 +135,24 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (res.status === 401) {
       throw new CatalogApiError("Your session has expired. Sign in again.", 401);
     }
-    // Surface a server-supplied error message when present (e.g. 400/404/409 { error }).
+    // Surface a server-supplied error message when present (e.g. 400/404/409 { error });
+    // the proxy flags an unconfigured backend with { notConfigured: true }.
     let detail = "";
+    let notConfigured = false;
     try {
-      const data = (await res.json()) as { error?: string; message?: string; title?: string };
+      const data = (await res.json()) as {
+        error?: string;
+        message?: string;
+        title?: string;
+        notConfigured?: boolean;
+      };
+      if (data?.notConfigured) notConfigured = true;
       const msg = data?.error ?? data?.message ?? data?.title;
       if (msg) detail = `: ${msg}`;
     } catch {
       /* non-JSON body — ignore. */
     }
+    if (notConfigured) throw new CatalogConfigError();
     throw new CatalogApiError(`Request failed (${res.status})${detail}`, res.status);
   }
 

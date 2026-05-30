@@ -38,7 +38,7 @@ type LoadState =
   | { phase: "error"; message: string; config: boolean };
 
 export default function AdminRentalsPage() {
-  const { token, signOut } = useAdminAuth();
+  const { authenticated, signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "idle" });
   const [banner, setBanner] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
   // Rental ids with an in-flight action.
@@ -66,8 +66,8 @@ export default function AdminRentalsPage() {
   }, [signOut]);
 
   useEffect(() => {
-    if (token) void load();
-  }, [token, load]);
+    if (authenticated) void load();
+  }, [authenticated, load]);
 
   useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 

@@ -46,7 +46,7 @@ type LoadState =
   | { phase: "error"; message: string; config: boolean };
 
 export default function AdminCalendarPage() {
-  const { token, signOut } = useAdminAuth();
+  const { authenticated, signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "idle" });
 
   // Date window controls — default today → +30 days. Lazy initializers compute
@@ -81,8 +81,8 @@ export default function AdminCalendarPage() {
 
   // Load on mount (once signed in) and whenever the window changes.
   useEffect(() => {
-    if (token) void load(from, to);
-  }, [token, from, to, load]);
+    if (authenticated) void load(from, to);
+  }, [authenticated, from, to, load]);
 
   // Topbar Refresh reloads the current window.
   useAdminRefresh(useCallback(() => void load(from, to), [load, from, to]));

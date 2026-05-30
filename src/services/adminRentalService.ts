@@ -1,9 +1,9 @@
 /**
  * Admin rental-operations API client for the /admin/rentals and /admin/calendar
- * verticals. Self-contained: it reads the admin JWT from localStorage (the same
- * key the admin home writes) and sends it as `Authorization: Bearer <token>` on
- * every request. A 401 is surfaced as a typed RentalAuthError so the page can
- * prompt for a fresh sign-in; a missing API base URL surfaces as
+ * verticals. Calls the same-origin Next BFF proxy (`/api/admin/*`), which
+ * attaches the admin JWT from an httpOnly cookie server-side — so this client
+ * holds no token. A 401 is surfaced as a typed RentalApiError (unauthorized) so
+ * the page can prompt for a fresh sign-in; a not-configured backend surfaces as
  * RentalConfigError.
  *
  * This mirrors src/services/adminFleetService.ts / adminMaintenanceService.ts
@@ -18,11 +18,6 @@
  *   POST /api/admin/rentals/{id}/inspect             { passed, notes? }
  *   POST /api/admin/rentals/{id}/extend              { plannedEndDate }
  */
-import { API_BASE } from "@/services/api";
-
-/** localStorage key shared with the admin home (src/app/admin/page.tsx). */
-export const ADMIN_TOKEN_KEY = "rentaro_admin_jwt";
-
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
 export interface AdminRental {
@@ -95,35 +90,19 @@ export class RentalAuthError extends Error {
   }
 }
 
-/* ── Token access ──────────────────────────────────────────────────────── */
-
-/** Read the saved admin JWT, or null if absent / localStorage unavailable. */
-export function getAdminToken(): string | null {
-  try {
-    return localStorage.getItem(ADMIN_TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
 /* ── Core fetch helper ─────────────────────────────────────────────────── */
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!API_BASE) throw new RentalConfigError();
-
-  const token = getAdminToken();
-  if (!token) throw new RentalAuthError();
-
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(path, {
       ...init,
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         ...(init?.body ? { "Content-Type": "application/json" } : {}),
         ...(init?.headers ?? {}),
       },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {
@@ -132,14 +111,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     if (res.status === 401) throw new RentalApiError("Your session has expired. Sign in again.", 401);
-    // Surface a server-supplied error message when present (e.g. 400/404 bodies).
+    // Surface a server-supplied error message when present (e.g. 400/404 bodies);
+    // the proxy flags an unconfigured backend with { notConfigured: true }.
     let detail = "";
+    let notConfigured = false;
     try {
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as { error?: string; notConfigured?: boolean };
+      if (data?.notConfigured) notConfigured = true;
       if (data?.error) detail = `: ${data.error}`;
     } catch {
       /* non-JSON body — ignore. */
     }
+    if (notConfigured) throw new RentalConfigError();
     throw new RentalApiError(`Request failed (${res.status})${detail}`, res.status);
   }
 

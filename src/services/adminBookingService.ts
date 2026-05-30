@@ -1,8 +1,7 @@
 /**
- * Admin booking-management API client. Self-contained: it reads the admin JWT
- * directly from localStorage (key `rentaro_admin_jwt`, the same key the admin
- * home writes) and sends it as `Authorization: Bearer <jwt>` to the live .NET
- * API at `${API_BASE}`. A missing token or HTTP 401 surfaces as a typed
+ * Admin booking-management API client. Calls the same-origin Next BFF proxy
+ * (`/api/admin/*`), which attaches the admin JWT from an httpOnly cookie
+ * server-side — so this client holds no token. An HTTP 401 surfaces as a typed
  * BookingApiError so the page can prompt for a fresh sign-in.
  *
  * Endpoints:
@@ -13,10 +12,6 @@
  *   POST  /api/admin/bookings/{id}/confirm-payment  (manually mark payment received)
  *   GET   /api/admin/fleet                          (unit codes for the assign control)
  */
-import { API_BASE } from "@/services/api";
-
-const TOKEN_KEY = "rentaro_admin_jwt";
-
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
 export interface AdminBooking {
@@ -102,33 +97,17 @@ export class BookingConfigError extends Error {
 
 /* ── Internals ─────────────────────────────────────────────────────────── */
 
-function readToken(): string {
-  let token: string | null = null;
-  try {
-    token = localStorage.getItem(TOKEN_KEY);
-  } catch {
-    /* localStorage unavailable — treated as not signed in below. */
-  }
-  if (!token) {
-    throw new BookingApiError("You are not signed in. Sign in on the admin home.", 401);
-  }
-  return token;
-}
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!API_BASE) throw new BookingConfigError();
-  const token = readToken();
-
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(path, {
       ...init,
       headers: {
-        Authorization: `Bearer ${token}`,
         Accept: "application/json",
         ...(init?.body ? { "Content-Type": "application/json" } : {}),
         ...(init?.headers ?? {}),
       },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {
@@ -137,14 +116,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     if (res.status === 401) throw new BookingApiError("Your session has expired. Sign in again.", 401);
-    // Surface a server-provided { error } message when present.
+    // Surface a server-provided { error } message when present; the proxy flags
+    // an unconfigured backend with { notConfigured: true }.
     let detail = "";
+    let notConfigured = false;
     try {
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as { error?: string; notConfigured?: boolean };
+      if (data?.notConfigured) notConfigured = true;
       if (data?.error) detail = ` — ${data.error}`;
     } catch {
       /* non-JSON body; ignore */
     }
+    if (notConfigured) throw new BookingConfigError();
     throw new BookingApiError(`Request failed (${res.status})${detail}`, res.status);
   }
 

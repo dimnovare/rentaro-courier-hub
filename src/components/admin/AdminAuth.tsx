@@ -4,22 +4,18 @@
  * Admin authentication context — the single source of truth for the admin
  * session across the whole `/admin/*` shell.
  *
- * The JWT is persisted in `localStorage["rentaro_admin_jwt"]` — deliberately the
- * SAME key the self-contained admin services (adminFleetService,
- * adminBookingService, adminModelService, adminCatalogService, adminRental/
- * Maintenance/Contract services, adminMetricsService …) already read on every
- * request. That means those services keep working untouched: the shell just
- * owns sign-in / sign-out / restore, and the services pick the token up from
- * storage exactly as before.
+ * The JWT is NOT stored in the browser. It lives in a same-origin, httpOnly
+ * cookie set by the Next BFF (`/api/admin/login`), so client JavaScript can
+ * never read it and XSS cannot exfiltrate it. The admin services call the
+ * same-origin `/api/admin/*` proxy, which attaches the token server-side.
  *
- * Surface:
- *   token   — the current JWT, or null when signed out.
- *   ready   — false until we've checked localStorage on mount (prevents a
- *             flash of the sign-in screen for an already-signed-in admin and
- *             keeps SSR/CSR markup consistent).
- *   signIn  — exchange username + password for a JWT (via adminLogin), persist
- *             it and flip the shell to the console.
- *   signOut — clear the token everywhere; the shell falls back to sign-in.
+ * This context only tracks whether a session exists (it cannot see the token):
+ *   authenticated — true once a session cookie is known to be present.
+ *   ready         — false until the initial session check completes (prevents a
+ *                   flash of the sign-in screen for an already-signed-in admin).
+ *   signIn        — exchange username + password for a session (sets the cookie
+ *                   server-side via adminLogin), then flip the shell to the console.
+ *   signOut       — clear the session cookie (via adminLogout) and drop to sign-in.
  */
 import {
   createContext,
@@ -30,75 +26,65 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { adminLogin } from "@/services/adminService";
-
-/** Shared storage key — must match what the admin services read. */
-const TOKEN_KEY = "rentaro_admin_jwt";
+import { adminLogin, adminLogout } from "@/services/adminService";
 
 interface AdminAuthValue {
-  /** Current JWT, or null when not signed in. */
-  token: string | null;
-  /** True once the initial localStorage check has run. */
+  /** True when a session cookie is present (the admin is signed in). */
+  authenticated: boolean;
+  /** True once the initial session check has run. */
   ready: boolean;
-  /** Exchange credentials for a JWT and persist it. Throws on failure. */
+  /** Exchange credentials for a session cookie. Throws on failure. */
   signIn: (username: string, password: string) => Promise<void>;
-  /** Drop the session (clears storage + state). */
-  signOut: () => void;
+  /** Drop the session (clears the cookie server-side + local state). */
+  signOut: () => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthValue | null>(null);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
+  const [authenticated, setAuthenticated] = useState(false);
   const [ready, setReady] = useState(false);
 
-  // Restore a saved JWT once on mount (client-only). Until this runs `ready`
-  // is false and the shell shows a minimal loader rather than guessing.
+  // Ask the BFF whether a session cookie exists. Until this resolves `ready`
+  // is false and the shell shows a minimal loader rather than guessing. An
+  // expired-but-present cookie still reads as authenticated here; the first
+  // real data call's 401 then bounces to sign-in via signOut().
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(TOKEN_KEY);
-      if (saved) setToken(saved);
-    } catch {
-      /* localStorage unavailable — treat as signed out. */
-    }
-    setReady(true);
-  }, []);
-
-  // Keep the session in sync across tabs: if another tab signs in or out, the
-  // `storage` event fires here and we mirror it.
-  useEffect(() => {
-    function onStorage(e: StorageEvent) {
-      if (e.key !== TOKEN_KEY) return;
-      setToken(e.newValue && e.newValue.length > 0 ? e.newValue : null);
-    }
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/session", {
+          cache: "no-store",
+          credentials: "same-origin",
+        });
+        const data = (await res.json().catch(() => null)) as { authenticated?: boolean } | null;
+        if (active) setAuthenticated(Boolean(data?.authenticated));
+      } catch {
+        if (active) setAuthenticated(false);
+      } finally {
+        if (active) setReady(true);
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const signIn = useCallback(async (username: string, password: string) => {
     // adminLogin throws AdminApiError / AdminConfigError on failure; let the
     // caller (the sign-in form) translate it into a message.
-    const jwt = await adminLogin(username.trim(), password);
-    try {
-      localStorage.setItem(TOKEN_KEY, jwt);
-    } catch {
-      /* persistence failed — still sign in for this session. */
-    }
-    setToken(jwt);
+    await adminLogin(username.trim(), password);
+    setAuthenticated(true);
   }, []);
 
-  const signOut = useCallback(() => {
-    try {
-      localStorage.removeItem(TOKEN_KEY);
-    } catch {
-      /* ignore */
-    }
-    setToken(null);
+  const signOut = useCallback(async () => {
+    await adminLogout();
+    setAuthenticated(false);
   }, []);
 
   const value = useMemo<AdminAuthValue>(
-    () => ({ token, ready, signIn, signOut }),
-    [token, ready, signIn, signOut],
+    () => ({ authenticated, ready, signIn, signOut }),
+    [authenticated, ready, signIn, signOut],
   );
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;

@@ -1,12 +1,15 @@
 /**
  * Read-only admin API client. Unlike the public services (which fall back to
  * local mock data via apiGet), the admin UI requires the live .NET API and a
- * logged-in admin. The admin signs in with username + password via adminLogin
- * to obtain a JWT, which every subsequent request sends as
- * `Authorization: Bearer <token>`. A 401 is surfaced as a typed AdminApiError
- * so the dashboard can prompt for a fresh sign-in.
+ * logged-in admin.
+ *
+ * Auth goes through the same-origin Next BFF: `adminLogin` posts credentials to
+ * `/api/admin/login`, which stores the JWT in an httpOnly cookie server-side.
+ * Every subsequent request hits the same-origin `/api/admin/*` proxy, which
+ * attaches the token — so this client never sees or sends the JWT itself, and a
+ * browser never holds it where XSS could read it. A 401 is surfaced as a typed
+ * AdminApiError so the dashboard can prompt for a fresh sign-in.
  */
-import { API_BASE } from "./api";
 
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
@@ -83,23 +86,32 @@ export class AdminConfigError extends Error {
 
 /* ── Core fetch helper ─────────────────────────────────────────────────── */
 
-async function adminGet<T>(path: string, token: string): Promise<T> {
-  if (!API_BASE) throw new AdminConfigError();
+/** Maps a not-OK same-origin proxy response to a typed error. */
+async function failed(res: Response): Promise<never> {
+  if (res.status === 401) throw new AdminApiError("Your session has expired. Sign in again.", 401);
+  try {
+    const data = (await res.json()) as { notConfigured?: boolean };
+    if (data?.notConfigured) throw new AdminConfigError();
+  } catch (err) {
+    if (err instanceof AdminConfigError) throw err;
+    /* non-JSON body — fall through to a generic error */
+  }
+  throw new AdminApiError(`Request failed (${res.status})`, res.status);
+}
 
+async function adminGet<T>(path: string): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
-      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    res = await fetch(path, {
+      headers: { Accept: "application/json" },
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {
     throw new AdminApiError("Could not reach the admin API. Check your connection.", 0);
   }
 
-  if (!res.ok) {
-    if (res.status === 401) throw new AdminApiError("Your session has expired. Sign in again.", 401);
-    throw new AdminApiError(`Request failed (${res.status})`, res.status);
-  }
+  if (!res.ok) await failed(res);
 
   return (await res.json()) as T;
 }
@@ -107,41 +119,58 @@ async function adminGet<T>(path: string, token: string): Promise<T> {
 /* ── Authentication ────────────────────────────────────────────────────── */
 
 /**
- * Exchanges admin credentials for a JWT. Resolves with the bearer token on
- * success; throws AdminApiError(401) on invalid credentials and
- * AdminConfigError when the API base URL is not set.
+ * Signs in via the BFF: posts credentials to the same-origin `/api/admin/login`
+ * route, which stores the JWT in an httpOnly cookie server-side. Resolves on
+ * success (the token is never returned to the browser); throws AdminApiError(401)
+ * on invalid credentials and AdminConfigError when the API base URL is not set.
  */
-export async function adminLogin(username: string, password: string): Promise<string> {
-  if (!API_BASE) throw new AdminConfigError();
-
+export async function adminLogin(username: string, password: string): Promise<void> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}/api/admin/login`, {
+    res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ username, password }),
+      credentials: "same-origin",
       cache: "no-store",
     });
   } catch {
     throw new AdminApiError("Could not reach the admin API. Check your connection.", 0);
   }
 
-  if (!res.ok) {
-    if (res.status === 401) throw new AdminApiError("Invalid username or password", 401);
-    throw new AdminApiError(`Sign-in failed (${res.status})`, res.status);
-  }
+  if (res.ok) return;
 
-  const data = (await res.json()) as { token: string; expiresAt: string };
-  return data.token;
+  if (res.status === 401) throw new AdminApiError("Invalid username or password", 401);
+  let message = `Sign-in failed (${res.status})`;
+  try {
+    const data = (await res.json()) as { error?: string; notConfigured?: boolean };
+    if (data?.notConfigured) throw new AdminConfigError();
+    if (data?.error) message = data.error;
+  } catch (err) {
+    if (err instanceof AdminConfigError) throw err;
+    /* non-JSON body — keep the default message */
+  }
+  throw new AdminApiError(message, res.status);
+}
+
+/** Clears the admin session cookie via the BFF logout route. Never throws. */
+export async function adminLogout(): Promise<void> {
+  try {
+    await fetch("/api/admin/logout", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+  } catch {
+    /* best-effort — the client drops its session regardless */
+  }
 }
 
 /* ── Public surface ────────────────────────────────────────────────────── */
 
-export const getAdminBookings = (token: string) =>
-  adminGet<AdminBooking[]>("/api/admin/bookings", token);
+export const getAdminBookings = () => adminGet<AdminBooking[]>("/api/admin/bookings");
 
-export const getAdminFleet = (token: string) =>
-  adminGet<AdminFleet>("/api/admin/fleet", token);
+export const getAdminFleet = () => adminGet<AdminFleet>("/api/admin/fleet");
 
-export const getAdminMaintenance = (token: string) =>
-  adminGet<AdminMaintenanceTicket[]>("/api/admin/maintenance", token);
+export const getAdminMaintenance = () =>
+  adminGet<AdminMaintenanceTicket[]>("/api/admin/maintenance");

@@ -43,18 +43,18 @@ type LoadState =
   | { phase: "error"; message: string; config: boolean };
 
 export default function AdminDashboardPage() {
-  const { token, signOut } = useAdminAuth();
+  const { authenticated, signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
 
   const load = useCallback(async () => {
-    if (!token) return;
+    if (!authenticated) return;
     setState({ phase: "loading" });
     try {
       // Metrics and bookings are independent; a failure in metrics shouldn't
       // hide the recent-bookings list and vice versa.
       const [metricsRes, bookingsRes] = await Promise.allSettled([
         getMetrics(),
-        getAdminBookings(token),
+        getAdminBookings(),
       ]);
 
       // Surface a 401 from either call as a session drop.
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
         config: false,
       });
     }
-  }, [token, signOut]);
+  }, [authenticated, signOut]);
 
   useEffect(() => {
     void load();
