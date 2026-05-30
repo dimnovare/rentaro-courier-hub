@@ -5,7 +5,21 @@ import { withSentryConfig } from "@sentry/nextjs";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Static assets under /public/assets are content-stable (fingerprinted by the
+  // build/CDN or replaced wholesale), so serve them with a long immutable cache.
+  async headers() {
+    return [
+      {
+        source: "/assets/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 // Compose both plugins: next-intl wraps the base config first (so its i18n

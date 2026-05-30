@@ -17,7 +17,7 @@ export const bikeModels: BikeModel[] = [
     name: "rentaro Engine Pro 2.0",
     brand: "ENGWE",
     tagline: "The delivery workhorse",
-    img: "/assets/models/engine-pro.png",
+    img: "/assets/models/engine-pro.webp",
     gallery: [
       "/assets/gallery/engine-pro/Engine_Pro_2_front.webp",
       "/assets/gallery/engine-pro/Engine_Pro_2_side.webp",
@@ -79,7 +79,7 @@ export const bikeModels: BikeModel[] = [
     name: "ADO Air One Pro",
     brand: "ADO",
     tagline: "Family & cargo hauler",
-    img: "/assets/models/air-one-pro.png",
+    img: "/assets/models/air-one-pro.webp",
     gallery: [
       "/assets/gallery/air-one-pro/photo_01.webp",
       "/assets/gallery/air-one-pro/photo_02.webp",
@@ -149,7 +149,7 @@ export const bikeModels: BikeModel[] = [
     name: "ADO Air 28 Pro",
     brand: "ADO",
     tagline: "Long city distances",
-    img: "/assets/models/air-28pro.png",
+    img: "/assets/models/air-28pro.webp",
     gallery: [
       "/assets/gallery/air-28pro/photo_01.webp",
       "/assets/gallery/air-28pro/photo_02.webp",
@@ -213,7 +213,7 @@ export const bikeModels: BikeModel[] = [
     name: "ADO Air 20 Pro",
     brand: "ADO",
     tagline: "Smart auto-shift commuter",
-    img: "/assets/models/air-20pro.png",
+    img: "/assets/models/air-20pro.webp",
     gallery: [
       "/assets/gallery/air-20pro/photo_01.webp",
       "/assets/gallery/air-20pro/photo_02.webp",
@@ -277,7 +277,7 @@ export const bikeModels: BikeModel[] = [
     name: "ADO Air 20S",
     brand: "ADO",
     tagline: "Lightest & simplest",
-    img: "/assets/models/air-20s.png",
+    img: "/assets/models/air-20s.webp",
     gallery: [
       "/assets/gallery/air-20s/photo_01.webp",
       "/assets/gallery/air-20s/photo_02.webp",
@@ -340,7 +340,7 @@ export const bikeModels: BikeModel[] = [
     name: "ADO Air 30 Pro",
     brand: "ADO",
     tagline: "Urban, with turn signals",
-    img: "/assets/models/air-30pro.png",
+    img: "/assets/models/air-30pro.webp",
     gallery: [
       "/assets/gallery/air-30pro/photo_01.webp",
       "/assets/gallery/air-30pro/photo_02.webp",

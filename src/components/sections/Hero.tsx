@@ -91,7 +91,7 @@ export function Hero() {
           <div className="bike-shadow" />
           <img
             className="hero-bike"
-            src="/assets/hero-bike.png"
+            src="/assets/hero-bike.webp"
             alt={t("bikeAlt")}
           />
           <div className="spec-chip c1">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { LogoMark } from "@/components/ui/LogoMark";
@@ -18,6 +19,14 @@ export function Nav() {
     fn();
   };
 
+  // In-page scroll links carry a real `/#id` href (for a11y, SEO and
+  // open-in-new-tab), but on the landing page we intercept the click and
+  // smooth-scroll instead of doing a hard navigation.
+  const onNavClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    nav(id);
+  };
+
   return (
     <nav className="nav">
       <div className="nav-inner">
@@ -26,10 +35,10 @@ export function Nav() {
           <span className="word">rentaro</span>
         </a>
         <div className="nav-links">
-          <a onClick={() => nav("models")}>{t("models")}</a>
-          <a onClick={() => nav("pricing")}>{t("pricing")}</a>
-          <a onClick={() => nav("how")}>{t("howItWorks")}</a>
-          <a onClick={() => nav("cities")}>{t("cities")}</a>
+          <Link href="/#models" onClick={(e) => onNavClick(e, "models")}>{t("models")}</Link>
+          <Link href="/#pricing" onClick={(e) => onNavClick(e, "pricing")}>{t("pricing")}</Link>
+          <Link href="/#how" onClick={(e) => onNavClick(e, "how")}>{t("howItWorks")}</Link>
+          <Link href="/#cities" onClick={(e) => onNavClick(e, "cities")}>{t("cities")}</Link>
         </div>
         <div className="nav-cta">
           <LocaleSwitcher />
@@ -55,10 +64,10 @@ export function Nav() {
           top bar at small widths (the bar keeps only the brand + Reserve CTA). */}
       {open && (
         <div className="mobile-menu">
-          <a onClick={() => go(() => nav("models"))}>{t("models")}</a>
-          <a onClick={() => go(() => nav("pricing"))}>{t("pricing")}</a>
-          <a onClick={() => go(() => nav("how"))}>{t("howItWorks")}</a>
-          <a onClick={() => go(() => nav("cities"))}>{t("cities")}</a>
+          <Link href="/#models" onClick={(e) => { e.preventDefault(); go(() => nav("models")); }}>{t("models")}</Link>
+          <Link href="/#pricing" onClick={(e) => { e.preventDefault(); go(() => nav("pricing")); }}>{t("pricing")}</Link>
+          <Link href="/#how" onClick={(e) => { e.preventDefault(); go(() => nav("how")); }}>{t("howItWorks")}</Link>
+          <Link href="/#cities" onClick={(e) => { e.preventDefault(); go(() => nav("cities")); }}>{t("cities")}</Link>
           <a onClick={() => go(() => goModels())}>{t("viewFleet")}</a>
           <div className="mm-locale">
             <LocaleSwitcher />

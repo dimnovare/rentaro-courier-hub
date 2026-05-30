@@ -4,7 +4,7 @@ const base = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-couri
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/booking/"] }],
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/my-rental", "/booking/success"] }],
     sitemap: `${base}/sitemap.xml`,
   };
 }
