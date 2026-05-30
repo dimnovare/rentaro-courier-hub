@@ -46,17 +46,22 @@ export default function AdminRentalsPage() {
   // The rental whose "Manage" drawer is currently open (null = closed).
   const [manageId, setManageId] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // A "silent" refresh (after an action, or a background refresh) keeps the
+    // current rentals on screen instead of dropping to the full-page loading
+    // notice — which would unmount and visibly blink an open Manage drawer.
+    if (!opts?.silent) setState({ phase: "loading" });
     try {
       const rentals = await listRentals();
       setState({ phase: "ready", rentals });
     } catch (err) {
       if (err instanceof RentalAuthError || (err instanceof RentalApiError && err.unauthorized)) {
         signOut();
-      } else {
+      } else if (!opts?.silent) {
         setState(toErrorState(err, "Something went wrong loading rentals."));
       }
+      // Silent-refresh failures keep the existing data; the triggering action's
+      // own catch surfaces the error via the banner.
     }
   }, [signOut]);
 
@@ -64,7 +69,7 @@ export default function AdminRentalsPage() {
     if (token) void load();
   }, [token, load]);
 
-  useAdminRefresh(load);
+  useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 
   // Run a mutating action for a rental, then refresh the list. A returned
   // rental (when the endpoint echoes it) is patched in optimistically before
@@ -87,7 +92,7 @@ export default function AdminRentalsPage() {
           );
         }
         setBanner({ tone: "ok", text: okText });
-        await load();
+        await load({ silent: true });
       } catch (err) {
         if (
           err instanceof RentalAuthError ||

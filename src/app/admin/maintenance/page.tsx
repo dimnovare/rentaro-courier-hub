@@ -113,7 +113,8 @@ export default function AdminMaintenancePage() {
     }
   }
 
-  async function submitTicket(input: CreateTicketInput): Promise<boolean> {
+  // Returns null on success, or an error message for the drawer to show inline.
+  async function submitTicket(input: CreateTicketInput): Promise<string | null> {
     setActionError(null);
     try {
       const created = await createTicket(input);
@@ -121,10 +122,16 @@ export default function AdminMaintenancePage() {
         s.phase === "ready" ? { ...s, tickets: [created, ...s.tickets] } : s,
       );
       setDrawerOpen(false);
-      return true;
+      return null;
     } catch (err) {
-      handleActionError(err, "Could not create the ticket.");
-      return false;
+      if (
+        err instanceof MaintenanceAuthError ||
+        (err instanceof MaintenanceApiError && err.unauthorized)
+      ) {
+        signOut();
+        return null;
+      }
+      return err instanceof MaintenanceApiError ? err.message : "Could not create the ticket.";
     }
   }
 
@@ -194,13 +201,14 @@ function NewTicketDrawer({
 }: {
   open: boolean;
   onClose: () => void;
-  onSubmit: (input: CreateTicketInput) => Promise<boolean>;
+  onSubmit: (input: CreateTicketInput) => Promise<string | null>;
 }) {
   const [bikeUnitCode, setBikeUnitCode] = useState("");
   const [issueType, setIssueType] = useState<string>(ISSUE_TYPES[0].value);
   const [priority, setPriority] = useState<string>(PRIORITIES[1].value); // medium
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const codeOk = bikeUnitCode.trim().length > 0;
   const canSubmit = codeOk && !submitting;
@@ -208,31 +216,40 @@ function NewTicketDrawer({
   async function handleSubmit() {
     if (!canSubmit) return;
     setSubmitting(true);
-    const ok = await onSubmit({
+    setFormError(null);
+    const err = await onSubmit({
       bikeUnitCode: bikeUnitCode.trim(),
       issueType,
       priority,
       description: description.trim(),
     });
     setSubmitting(false);
-    if (ok) {
+    if (err) {
+      setFormError(err);
+    } else {
       // Reset the free-text fields; keep issue/priority selections for fast entry.
       setBikeUnitCode("");
       setDescription("");
     }
   }
 
+  // Closing clears any submit error so it never lingers on the next open.
+  function close() {
+    setFormError(null);
+    onClose();
+  }
+
   return (
     <Drawer
       open={open}
-      onClose={onClose}
+      onClose={close}
       title="New ticket"
       footer={
         <>
           <button
             type="button"
             className="btn btn-ghost"
-            onClick={onClose}
+            onClick={close}
             style={{ padding: "11px 20px", fontSize: 14 }}
           >
             Cancel
@@ -261,6 +278,24 @@ function NewTicketDrawer({
           void handleSubmit();
         }}
       >
+        {formError && (
+          <div
+            className="mono"
+            role="alert"
+            style={{
+              color: "var(--danger)",
+              fontSize: 12,
+              marginBottom: 16,
+              padding: "10px 13px",
+              borderRadius: "var(--r-sm)",
+              border: "1px solid rgba(255, 138, 120, 0.32)",
+              background: "rgba(255, 138, 120, 0.06)",
+            }}
+          >
+            {formError}
+          </div>
+        )}
+
         <div className="field">
           <label htmlFor="mt-bike-code">Bike unit code</label>
           <input
