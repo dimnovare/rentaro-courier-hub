@@ -646,9 +646,24 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .cmdk-foot kbd { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: 10px; line-height: 1; }
 @media (max-width: 600px) { .cmdk-overlay { padding: 9vh 14px 14px; } .cmdk { max-height: 72vh; } .cmdk-foot { display: none; } }
 
+/* Edit drawer — right-side slide-in panel for admin create/edit forms */
+.drawer-overlay { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: flex-end; background: rgba(6, 8, 12, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: admin-fade .14s var(--ease-out); }
+.drawer { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(20, 24, 33, 0.99), rgba(13, 16, 23, 0.99)); border-left: 1px solid var(--border-strong); box-shadow: -30px 0 80px -20px rgba(0, 0, 0, 0.7); animation: drawer-slide .22s var(--ease-spring); }
+@keyframes drawer-slide { from { transform: translateX(26px); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
+.drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid var(--border); }
+.drawer-title { font-size: 17px; letter-spacing: -0.02em; }
+.drawer-sub { margin-top: 4px; font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-muted); }
+.drawer-close { flex-shrink: 0; width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; font-size: 13px; transition: color .2s, border-color .2s; }
+.drawer-close:hover { color: var(--lime); border-color: var(--border-strong); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 22px; }
+.drawer-body .field:last-child { margin-bottom: 0; }
+.drawer-foot { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 22px; border-top: 1px solid var(--border); background: rgba(10, 12, 17, 0.6); }
+.drawer-foot .spacer { margin-right: auto; }
+@media (max-width: 640px) { .drawer { max-width: 100% !important; } }
+
 @media (prefers-reduced-motion: reduce) {
   .bg-grid, .bg-scan, .hero-bike, .bike-shadow, .spec-chip, .stage-ring, .stage-arc, .streak, .marquee-track, .hero-pill .live { animation: none !important; }
   .admin-boot-dot, .admin-live-dot { animation: none !important; }
   .admin-signin-card, .admin-content, .admin-nav-indicator, .admin-sidebar, .admin-topbar-refresh svg { animation: none !important; transition: none !important; }
-  .cmdk-overlay, .cmdk { animation: none !important; }
+  .cmdk-overlay, .cmdk, .drawer-overlay, .drawer { animation: none !important; }
 }

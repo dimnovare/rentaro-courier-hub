@@ -15,6 +15,7 @@ import { AdminTable, Th, Td, EmptyRow, fmtDate } from "@/components/admin/Table"
 import { StatusPill } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { Drawer } from "@/components/admin/Drawer";
 
 /**
  * Valid MaintenanceStatus values — wire values must match what the backend emits
@@ -63,6 +64,8 @@ export default function AdminMaintenancePage() {
   // Tracks which ticket ids currently have an in-flight status update.
   const [pending, setPending] = useState<Record<number, boolean>>({});
   const [actionError, setActionError] = useState<string | null>(null);
+  // Whether the "New ticket" drawer is open.
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
@@ -117,6 +120,7 @@ export default function AdminMaintenancePage() {
       setState((s) =>
         s.phase === "ready" ? { ...s, tickets: [created, ...s.tickets] } : s,
       );
+      setDrawerOpen(false);
       return true;
     } catch (err) {
       handleActionError(err, "Could not create the ticket.");
@@ -146,12 +150,34 @@ export default function AdminMaintenancePage() {
         <>
           {actionError && <InlineError message={actionError} />}
 
-          <NewTicketForm onSubmit={submitTicket} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              marginBottom: 24,
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setDrawerOpen(true)}
+              style={{ padding: "11px 20px", fontSize: 14 }}
+            >
+              + New ticket
+            </button>
+          </div>
 
           <TicketsTable
             tickets={state.tickets}
             pending={pending}
             onChangeStatus={changeStatus}
+          />
+
+          <NewTicketDrawer
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            onSubmit={submitTicket}
           />
         </>
       )}
@@ -159,11 +185,15 @@ export default function AdminMaintenancePage() {
   );
 }
 
-/* ── New ticket form ───────────────────────────────────────────────────── */
+/* ── New ticket drawer ─────────────────────────────────────────────────── */
 
-function NewTicketForm({
+function NewTicketDrawer({
+  open,
+  onClose,
   onSubmit,
 }: {
+  open: boolean;
+  onClose: () => void;
   onSubmit: (input: CreateTicketInput) => Promise<boolean>;
 }) {
   const [bikeUnitCode, setBikeUnitCode] = useState("");
@@ -173,10 +203,10 @@ function NewTicketForm({
   const [submitting, setSubmitting] = useState(false);
 
   const codeOk = bikeUnitCode.trim().length > 0;
+  const canSubmit = codeOk && !submitting;
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!codeOk || submitting) return;
+  async function handleSubmit() {
+    if (!canSubmit) return;
     setSubmitting(true);
     const ok = await onSubmit({
       bikeUnitCode: bikeUnitCode.trim(),
@@ -193,104 +223,92 @@ function NewTicketForm({
   }
 
   return (
-    <section style={{ marginBottom: 44 }}>
-      <SectionHead title="New ticket" />
-      <form onSubmit={handleSubmit} className="card" style={{ padding: 24 }}>
-        <div
-          style={{
-            display: "grid",
-            gap: 16,
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          }}
-        >
-          <Field label="Bike unit code">
-            <input
-              value={bikeUnitCode}
-              onChange={(e) => setBikeUnitCode(e.target.value)}
-              placeholder="e.g. TLN-EP-001"
-              aria-label="Bike unit code"
-              style={inputStyle}
-            />
-          </Field>
-
-          <Field label="Issue type">
-            <Select value={issueType} onChange={setIssueType} options={ISSUE_TYPES} ariaLabel="Issue type" />
-          </Field>
-
-          <Field label="Priority">
-            <Select value={priority} onChange={setPriority} options={PRIORITIES} ariaLabel="Priority" />
-          </Field>
-        </div>
-
-        <div style={{ marginTop: 16 }}>
-          <Field label="Description">
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What's wrong with the bike?"
-              aria-label="Description"
-              rows={3}
-              style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }}
-            />
-          </Field>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 18, flexWrap: "wrap" }}>
+    <Drawer
+      open={open}
+      onClose={onClose}
+      title="New ticket"
+      footer={
+        <>
           <button
-            type="submit"
+            type="button"
+            className="btn btn-ghost"
+            onClick={onClose}
+            style={{ padding: "11px 20px", fontSize: 14 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
             className="btn btn-primary"
-            disabled={!codeOk || submitting}
+            onClick={() => void handleSubmit()}
+            disabled={!canSubmit}
             style={{
-              padding: "12px 22px",
+              padding: "11px 20px",
               fontSize: 14,
-              opacity: !codeOk || submitting ? 0.55 : 1,
-              cursor: !codeOk || submitting ? "not-allowed" : "pointer",
+              opacity: canSubmit ? 1 : 0.55,
+              cursor: canSubmit ? "pointer" : "not-allowed",
             }}
           >
             {submitting ? "Creating…" : "Create ticket"}
           </button>
-          {!codeOk && (
-            <span className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)" }}>
-              A bike unit code is required.
-            </span>
-          )}
-        </div>
-      </form>
-    </section>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-      <span
-        className="mono"
-        style={{
-          fontSize: 10.5,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--text-dim)",
-          fontWeight: 500,
+        </>
+      }
+    >
+      {/* Submitting on Enter mirrors the footer's Create action. */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSubmit();
         }}
       >
-        {label}
-      </span>
-      {children}
-    </label>
+        <div className="field">
+          <label htmlFor="mt-bike-code">Bike unit code</label>
+          <input
+            id="mt-bike-code"
+            value={bikeUnitCode}
+            onChange={(e) => setBikeUnitCode(e.target.value)}
+            placeholder="e.g. TLN-EP-001"
+            aria-label="Bike unit code"
+          />
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label>Issue type</label>
+            <Select value={issueType} onChange={setIssueType} options={ISSUE_TYPES} ariaLabel="Issue type" />
+          </div>
+
+          <div className="field">
+            <label>Priority</label>
+            <Select value={priority} onChange={setPriority} options={PRIORITIES} ariaLabel="Priority" />
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="mt-description">Description</label>
+          <textarea
+            id="mt-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What's wrong with the bike?"
+            aria-label="Description"
+            rows={4}
+            style={{ resize: "vertical", lineHeight: 1.5 }}
+          />
+        </div>
+
+        {!codeOk && (
+          <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: 0 }}>
+            A bike unit code is required.
+          </p>
+        )}
+
+        {/* Hidden submit keeps Enter-to-create working without a visible button. */}
+        <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
+      </form>
+    </Drawer>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  borderRadius: "var(--r-sm)",
-  background: "var(--bg-2)",
-  border: "1px solid var(--border)",
-  color: "var(--text-2)",
-  fontFamily: "var(--font-mono)",
-  fontSize: 12.5,
-  letterSpacing: "0.02em",
-};
 
 function Select({
   value,

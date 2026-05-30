@@ -16,6 +16,7 @@ import {
 } from "@/services/adminModelService";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { Drawer } from "@/components/admin/Drawer";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -223,6 +224,15 @@ export default function AdminModelsPage() {
     [state],
   );
 
+  // The model currently open for editing (null in create mode or when closed).
+  const editingModel = useMemo(
+    () =>
+      state.phase === "ready" && editing && editing !== "__new__"
+        ? (state.models.find((m) => m.code === editing) ?? null)
+        : null,
+    [state, editing],
+  );
+
   return (
     <div>
       {state.phase === "loading" ? (
@@ -249,16 +259,6 @@ export default function AdminModelsPage() {
           </div>
 
           {actionError && <InlineError message={actionError} />}
-
-          {editing === "__new__" && (
-            <ModelEditor
-              key="__new__"
-              mode="create"
-              usedCodes={usedCodes}
-              onCancel={() => setEditing(null)}
-              onSave={(input) => saveModel(input, null)}
-            />
-          )}
 
           <section style={{ marginBottom: 24 }}>
             <SectionHead title="Models" count={state.models.length} />
@@ -288,20 +288,37 @@ export default function AdminModelsPage() {
                       busy={Boolean(pending[m.code])}
                       isEditing={editing === m.code}
                       imgVersion={imgVersion[m.code]}
-                      onEdit={() => setEditing(editing === m.code ? null : m.code)}
+                      onEdit={() => setEditing(m.code)}
                       onDelete={() => void removeModel(m.code)}
                       onTogglePopular={() => void togglePopular(m)}
                       onReorder={(dir) => void reorder(m.code, dir)}
-                      onUpload={(file) => void uploadImage(m.code, file)}
-                      onCancelEdit={() => setEditing(null)}
-                      onSave={(input) => saveModel(input, m.code)}
-                      usedCodes={usedCodes}
                     />
                   ))
                 )}
               </tbody>
             </AdminTable>
           </section>
+
+          {/* Single create/edit drawer, driven by `editing`. Keyed by the target
+              so the form re-initialises when switching between create and a
+              specific model (and between models). */}
+          <ModelEditor
+            key={editing ?? "closed"}
+            open={editing !== null}
+            mode={editing === "__new__" ? "create" : "edit"}
+            model={editingModel}
+            usedCodes={usedCodes}
+            imgVersion={editingModel ? imgVersion[editingModel.code] : undefined}
+            busy={editingModel ? Boolean(pending[editingModel.code]) : false}
+            onClose={() => setEditing(null)}
+            onSave={(input) =>
+              saveModel(input, editing === "__new__" ? null : (editing as string))
+            }
+            onDelete={editingModel ? () => void removeModel(editingModel.code) : undefined}
+            onUpload={
+              editingModel ? (file) => void uploadImage(editingModel.code, file) : undefined
+            }
+          />
         </>
       )}
     </div>
@@ -315,7 +332,7 @@ function sortModels(models: AdminModel[]): AdminModel[] {
   );
 }
 
-/* ── A single model row (+ its inline editor when expanded) ────────────── */
+/* ── A single model row (the editor now lives in a drawer) ─────────────── */
 
 function ModelRow({
   model,
@@ -328,10 +345,6 @@ function ModelRow({
   onDelete,
   onTogglePopular,
   onReorder,
-  onUpload,
-  onCancelEdit,
-  onSave,
-  usedCodes,
 }: {
   model: AdminModel;
   isFirst: boolean;
@@ -343,23 +356,9 @@ function ModelRow({
   onDelete: () => void;
   onTogglePopular: () => void;
   onReorder: (dir: "up" | "down") => void;
-  onUpload: (file: File) => void;
-  onCancelEdit: () => void;
-  onSave: (input: ModelInput) => Promise<boolean>;
-  usedCodes: string[];
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) onUpload(file);
-    // Reset so picking the same file again still fires onChange.
-    e.target.value = "";
-  }
-
   return (
-    <>
-      <tr>
+    <tr>
         <Td>
           <Thumbnail model={model} version={imgVersion} />
         </Td>
@@ -409,43 +408,15 @@ function ModelRow({
         </Td>
         <Td nowrap>
           <div style={{ display: "inline-flex", gap: 6, flexWrap: "wrap" }}>
-            <RowAction onClick={onEdit} active={isEditing}>
-              {isEditing ? "Close" : "Edit"}
-            </RowAction>
-            <RowAction onClick={() => fileRef.current?.click()} disabled={busy}>
-              {busy ? "…" : model.hasUploadedImage ? "Replace photo" : "Upload photo"}
+            <RowAction onClick={onEdit} active={isEditing} disabled={busy}>
+              Edit
             </RowAction>
             <RowAction onClick={onDelete} disabled={busy} danger>
               Delete
             </RowAction>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              onChange={pickFile}
-              style={{ display: "none" }}
-              aria-label={`Upload a photo for ${model.code}`}
-            />
           </div>
         </Td>
       </tr>
-
-      {isEditing && (
-        <tr>
-          <td colSpan={8} style={{ padding: 0, borderBottom: "1px solid var(--border)" }}>
-            <div style={{ padding: "18px 14px 24px", background: "rgba(255,255,255,0.015)" }}>
-              <ModelEditor
-                mode="edit"
-                model={model}
-                usedCodes={usedCodes}
-                onCancel={onCancelEdit}
-                onSave={onSave}
-              />
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
   );
 }
 
@@ -516,21 +487,39 @@ interface EditorFields {
 }
 
 function ModelEditor({
+  open,
   mode,
   model,
   usedCodes,
-  onCancel,
+  imgVersion,
+  busy,
+  onClose,
   onSave,
+  onDelete,
+  onUpload,
 }: {
+  open: boolean;
   mode: "create" | "edit";
-  model?: AdminModel;
+  model?: AdminModel | null;
   usedCodes: string[];
-  onCancel: () => void;
+  /** Cache-buster for the uploaded image preview (bumped after a replace). */
+  imgVersion?: number;
+  /** True while a row-level action (e.g. an image upload) is in flight. */
+  busy: boolean;
+  onClose: () => void;
   onSave: (input: ModelInput) => Promise<boolean>;
+  /** Edit mode only — delete this model (with its own confirm in the parent). */
+  onDelete?: () => void;
+  /** Edit mode only — upload/replace this model's photo. */
+  onUpload?: (file: File) => void;
 }) {
-  const [f, setF] = useState<EditorFields>(() => initialFields(model));
+  const [f, setF] = useState<EditorFields>(() => initialFields(model ?? undefined));
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  // The form lives in the drawer body; the Save button lives in the sticky
+  // footer (a sibling of the form in the DOM), so associate them by id.
+  const formId = "model-editor-form";
 
   const set = <K extends keyof EditorFields>(key: K, value: EditorFields[K]) =>
     setF((prev) => ({ ...prev, [key]: value }));
@@ -599,30 +588,77 @@ function ModelEditor({
     }
   }
 
-  const title = mode === "create" ? "New model" : `Edit ${model?.code ?? ""}`;
+  const saveDisabled = submitting || !codeOk || codeDuplicate;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="card"
-      style={{ padding: 22, marginBottom: mode === "create" ? 36 : 0 }}
+    <Drawer
+      open={open}
+      onClose={onClose}
+      title={mode === "create" ? "New model" : "Edit model"}
+      subtitle={mode === "edit" ? (model?.code ?? undefined) : undefined}
+      footer={
+        <>
+          {mode === "edit" && onDelete && (
+            <button
+              type="button"
+              className="btn btn-ghost spacer"
+              onClick={onDelete}
+              disabled={submitting || busy}
+              style={{
+                padding: "11px 20px",
+                fontSize: 14,
+                color: "var(--danger)",
+                borderColor: "rgba(255, 138, 120, 0.32)",
+              }}
+            >
+              Delete
+            </button>
+          )}
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={onClose}
+            disabled={submitting}
+            style={{ padding: "11px 20px", fontSize: 14 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form={formId}
+            className="btn btn-primary"
+            disabled={saveDisabled}
+            style={{
+              padding: "11px 22px",
+              fontSize: 14,
+              opacity: saveDisabled ? 0.55 : 1,
+              cursor: saveDisabled ? "not-allowed" : "pointer",
+            }}
+          >
+            {submitting
+              ? mode === "create"
+                ? "Creating…"
+                : "Saving…"
+              : mode === "create"
+                ? "Create model"
+                : "Save changes"}
+          </button>
+        </>
+      }
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          gap: 12,
-          marginBottom: 18,
-        }}
-      >
-        <h3 style={{ fontSize: 17, letterSpacing: "-0.01em" }}>{title}</h3>
-        <span className="mono" style={{ fontSize: 10.5, color: "var(--text-dim)" }}>
-          {mode === "create" ? "create" : "update"}
-        </span>
-      </div>
+      <form id={formId} onSubmit={handleSubmit}>
+        {/* Photo (edit only — upload needs a saved code). Preview + replace. */}
+        {mode === "edit" && model && onUpload && (
+          <ImageUploadField
+            model={model}
+            version={imgVersion}
+            busy={busy}
+            fileRef={fileRef}
+            onUpload={onUpload}
+          />
+        )}
 
-      {/* Identity + pricing row */}
+        {/* Identity + pricing row */}
       <div style={gridStyle}>
         <Field label="Code" hint={mode === "edit" ? "read-only" : "unique id"}>
           <input
@@ -806,51 +842,69 @@ function ModelEditor({
         </Field>
       </div>
 
-      {formError && (
-        <p
-          className="mono"
-          style={{ color: "var(--danger)", fontSize: 12, margin: "16px 0 0", lineHeight: 1.5 }}
-        >
-          {formError}
-        </p>
-      )}
-
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={submitting || !codeOk || codeDuplicate}
-          style={{
-            padding: "11px 22px",
-            fontSize: 14,
-            opacity: submitting || !codeOk || codeDuplicate ? 0.55 : 1,
-            cursor: submitting || !codeOk || codeDuplicate ? "not-allowed" : "pointer",
-          }}
-        >
-          {submitting
-            ? mode === "create"
-              ? "Creating…"
-              : "Saving…"
-            : mode === "create"
-              ? "Create model"
-              : "Save changes"}
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          onClick={onCancel}
-          disabled={submitting}
-          style={{ padding: "11px 20px", fontSize: 14 }}
-        >
-          Cancel
-        </button>
-        {codeDuplicate && (
-          <span className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)" }}>
-            That code is taken.
-          </span>
+        {/* Validation / submit error — surfaced inside the drawer, just above
+            the sticky footer, so the operator sees it without scrolling away. */}
+        {(formError || codeDuplicate) && (
+          <p
+            className="mono"
+            style={{
+              color: "var(--danger)",
+              fontSize: 12,
+              margin: "20px 0 0",
+              lineHeight: 1.5,
+            }}
+          >
+            {formError ?? `A model with code "${codeTrimmed}" already exists.`}
+          </p>
         )}
-      </div>
-    </form>
+      </form>
+    </Drawer>
+  );
+}
+
+/* ── In-drawer photo upload (edit mode) ────────────────────────────────── */
+
+function ImageUploadField({
+  model,
+  version,
+  busy,
+  fileRef,
+  onUpload,
+}: {
+  model: AdminModel;
+  version: number | undefined;
+  busy: boolean;
+  fileRef: React.RefObject<HTMLInputElement | null>;
+  onUpload: (file: File) => void;
+}) {
+  function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) onUpload(file);
+    // Reset so picking the same file again still fires onChange.
+    e.target.value = "";
+  }
+
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <Field label="Photo" hint={model.hasUploadedImage ? "uploaded" : "none yet"}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Thumbnail model={model} version={version} />
+          <div style={{ display: "inline-flex", gap: 8, flexWrap: "wrap" }}>
+            <RowAction onClick={() => fileRef.current?.click()} disabled={busy}>
+              {busy ? "Uploading…" : model.hasUploadedImage ? "Replace photo" : "Upload photo"}
+            </RowAction>
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={pickFile}
+            style={{ display: "none" }}
+            aria-label={`Upload a photo for ${model.code}`}
+          />
+        </div>
+      </Field>
+    </div>
   );
 }
 

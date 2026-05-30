@@ -31,6 +31,7 @@ import {
 } from "@/services/adminCatalogService";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { Drawer } from "@/components/admin/Drawer";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -84,14 +85,20 @@ export default function AdminContentPage() {
 
   useAdminRefresh(load);
 
-  /** Shared error handler for write actions: re-gates on auth, else sets banner. */
+  /**
+   * Shared error handler for write actions. Re-gates on auth (signs out), and
+   * otherwise returns a human message for the caller to surface — both in the
+   * page banner and inside the open drawer.
+   */
   const handleActionError = useCallback(
-    (err: unknown, fallback: string) => {
+    (err: unknown, fallback: string): string => {
       if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
         signOut();
-        return;
+        return fallback;
       }
-      setActionError(err instanceof CatalogApiError ? err.message : fallback);
+      const message = err instanceof CatalogApiError ? err.message : fallback;
+      setActionError(message);
+      return message;
     },
     [signOut],
   );
@@ -149,10 +156,18 @@ export default function AdminContentPage() {
 
 interface SectionProps<T> {
   rows: T[];
-  onError: (err: unknown, fallback: string) => void;
+  /** Surfaces the write error in the page banner and returns the message for in-drawer display. */
+  onError: (err: unknown, fallback: string) => string;
   clearError: () => void;
   patch: (fn: (d: ContentData) => ContentData) => void;
 }
+
+/**
+ * Per-section editor state. A discriminated union so the drawer knows whether
+ * it is creating (no record id yet) or editing an existing row. `Id` is the
+ * row-key type — string for accessories/cities/plans, number for FAQ.
+ */
+type Editor<Id> = { mode: "create" } | { mode: "edit"; id: Id };
 
 /* ════════════════════════════════════════════════════════════════════════
    Accessories — id, name, price, icon, sortOrder. Create + edit + delete.
@@ -161,65 +176,72 @@ interface SectionProps<T> {
 const EMPTY_ACCESSORY: AccessoryInput = { id: "", name: "", price: "", icon: "", sortOrder: 0 };
 
 function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<AdminAccessory>) {
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editor, setEditor] = useState<Editor<string> | null>(null);
   const [draft, setDraft] = useState<AccessoryInput>(EMPTY_ACCESSORY);
   const [busy, setBusy] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [newRow, setNewRow] = useState<AccessoryInput>(EMPTY_ACCESSORY);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  function startEdit(row: AdminAccessory) {
+  function openCreate() {
     clearError();
-    setCreating(false);
-    setEditingId(row.id);
+    setFormError(null);
+    setDraft(EMPTY_ACCESSORY);
+    setEditor({ mode: "create" });
+  }
+
+  function openEdit(row: AdminAccessory) {
+    clearError();
+    setFormError(null);
     setDraft({ ...row });
+    setEditor({ mode: "edit", id: row.id });
   }
 
-  async function save() {
-    if (busy) return;
+  function close() {
+    setEditor(null);
+    setFormError(null);
+  }
+
+  async function submit() {
+    if (busy || !editor) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
-      const saved = await updateAccessory(editingId!, draft);
-      patch((d) => ({ ...d, accessories: d.accessories.map((a) => (a.id === editingId ? saved : a)) }));
-      setEditingId(null);
+      if (editor.mode === "create") {
+        const saved = await createAccessory(draft);
+        patch((d) => ({ ...d, accessories: [...d.accessories, saved] }));
+      } else {
+        const saved = await updateAccessory(editor.id, draft);
+        patch((d) => ({ ...d, accessories: d.accessories.map((a) => (a.id === editor.id ? saved : a)) }));
+      }
+      close();
     } catch (err) {
-      onError(err, "Could not save the accessory.");
+      setFormError(
+        onError(err, editor.mode === "create" ? "Could not create the accessory." : "Could not save the accessory."),
+      );
     } finally {
       setBusy(false);
     }
   }
 
-  async function create() {
-    if (busy) return;
-    clearError();
-    setBusy(true);
-    try {
-      const saved = await createAccessory(newRow);
-      patch((d) => ({ ...d, accessories: [...d.accessories, saved] }));
-      setCreating(false);
-      setNewRow(EMPTY_ACCESSORY);
-    } catch (err) {
-      onError(err, "Could not create the accessory.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function remove(id: string) {
-    if (busy) return;
+  async function remove() {
+    if (busy || !editor || editor.mode !== "edit") return;
+    const id = editor.id;
     if (!window.confirm(`Delete accessory "${id}"? This cannot be undone.`)) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
       await deleteAccessory(id);
       patch((d) => ({ ...d, accessories: d.accessories.filter((a) => a.id !== id) }));
-      if (editingId === id) setEditingId(null);
+      close();
     } catch (err) {
-      onError(err, "Could not delete the accessory.");
+      setFormError(onError(err, "Could not delete the accessory."));
     } finally {
       setBusy(false);
     }
   }
+
+  const isEdit = editor?.mode === "edit";
 
   return (
     <Section title="Accessories" count={rows.length}>
@@ -235,54 +257,76 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && !creating && <EmptyRow colSpan={6} label="No accessories yet." />}
+          {rows.length === 0 && <EmptyRow colSpan={6} label="No accessories yet." />}
 
-          {rows.map((row) =>
-            editingId === row.id ? (
-              <tr key={row.id}>
-                <Td mono dim nowrap>{row.id}</Td>
-                <Td><TextInput value={draft.name} onChange={(v) => setDraft({ ...draft, name: v })} /></Td>
-                <Td><TextInput value={draft.price} onChange={(v) => setDraft({ ...draft, price: v })} mono /></Td>
-                <Td><TextInput value={draft.icon} onChange={(v) => setDraft({ ...draft, icon: v })} mono /></Td>
-                <Td><NumberInput value={draft.sortOrder} onChange={(v) => setDraft({ ...draft, sortOrder: v })} /></Td>
-                <Td nowrap><EditActions busy={busy} onSave={save} onCancel={() => setEditingId(null)} /></Td>
-              </tr>
-            ) : (
-              <tr key={row.id}>
-                <Td mono nowrap>{row.id}</Td>
-                <Td>{row.name}</Td>
-                <Td mono dim>{row.price}</Td>
-                <Td mono dim>{row.icon}</Td>
-                <Td mono dim>{row.sortOrder}</Td>
-                <Td nowrap><RowActions busy={busy} onEdit={() => startEdit(row)} onDelete={() => remove(row.id)} /></Td>
-              </tr>
-            ),
-          )}
-
-          {creating && (
-            <tr>
-              <Td><TextInput value={newRow.id} onChange={(v) => setNewRow({ ...newRow, id: v })} mono placeholder="battery" /></Td>
-              <Td><TextInput value={newRow.name} onChange={(v) => setNewRow({ ...newRow, name: v })} placeholder="Extra battery" /></Td>
-              <Td><TextInput value={newRow.price} onChange={(v) => setNewRow({ ...newRow, price: v })} mono placeholder="€29 / 30d" /></Td>
-              <Td><TextInput value={newRow.icon} onChange={(v) => setNewRow({ ...newRow, icon: v })} mono placeholder="battery" /></Td>
-              <Td><NumberInput value={newRow.sortOrder} onChange={(v) => setNewRow({ ...newRow, sortOrder: v })} /></Td>
-              <Td nowrap><EditActions busy={busy} saveLabel="Create" onSave={create} onCancel={() => setCreating(false)} /></Td>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <Td mono nowrap>{row.id}</Td>
+              <Td>{row.name}</Td>
+              <Td mono dim>{row.price}</Td>
+              <Td mono dim>{row.icon}</Td>
+              <Td mono dim>{row.sortOrder}</Td>
+              <Td nowrap><RowEdit busy={busy} onEdit={() => openEdit(row)} /></Td>
             </tr>
-          )}
+          ))}
         </tbody>
       </AdminTable>
 
-      {!creating && (
-        <AddButton
-          label="Add accessory"
-          onClick={() => {
-            clearError();
-            setEditingId(null);
-            setNewRow(EMPTY_ACCESSORY);
-            setCreating(true);
-          }}
+      <AddButton label="Add accessory" onClick={openCreate} />
+
+      <Drawer
+        open={editor !== null}
+        onClose={close}
+        title={isEdit ? "Edit accessory" : "New accessory"}
+        subtitle={isEdit && editor ? editor.id : undefined}
+        footer={
+          <DrawerFooter
+            busy={busy}
+            onSave={submit}
+            onCancel={close}
+            saveLabel={isEdit ? "Save" : "Create"}
+            onDelete={isEdit ? remove : undefined}
+          />
+        }
+      >
+        <FieldText
+          label="Id"
+          value={draft.id}
+          onChange={(v) => setDraft({ ...draft, id: v })}
+          mono
+          placeholder="battery"
+          readOnly={isEdit}
+          hint={isEdit ? "Id is fixed once created." : "Lowercase key, unique across accessories."}
         />
-      )}
+        <FieldText
+          label="Name"
+          value={draft.name}
+          onChange={(v) => setDraft({ ...draft, name: v })}
+          placeholder="Extra battery"
+        />
+        <div className="field-row">
+          <FieldText
+            label="Price"
+            value={draft.price}
+            onChange={(v) => setDraft({ ...draft, price: v })}
+            mono
+            placeholder="€29 / 30d"
+          />
+          <FieldText
+            label="Icon"
+            value={draft.icon}
+            onChange={(v) => setDraft({ ...draft, icon: v })}
+            mono
+            placeholder="battery"
+          />
+        </div>
+        <FieldNumber
+          label="Sort order"
+          value={draft.sortOrder}
+          onChange={(v) => setDraft({ ...draft, sortOrder: v })}
+        />
+        <FormError message={formError} />
+      </Drawer>
     </Section>
   );
 }
@@ -303,65 +347,72 @@ const EMPTY_CITY: CityInput = {
 };
 
 function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminCity>) {
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editor, setEditor] = useState<Editor<string> | null>(null);
   const [draft, setDraft] = useState<CityInput>(EMPTY_CITY);
   const [busy, setBusy] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [newRow, setNewRow] = useState<CityInput>(EMPTY_CITY);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  function startEdit(row: AdminCity) {
+  function openCreate() {
     clearError();
-    setCreating(false);
-    setEditingId(row.id);
+    setFormError(null);
+    setDraft(EMPTY_CITY);
+    setEditor({ mode: "create" });
+  }
+
+  function openEdit(row: AdminCity) {
+    clearError();
+    setFormError(null);
     setDraft({ ...row });
+    setEditor({ mode: "edit", id: row.id });
   }
 
-  async function save() {
-    if (busy) return;
+  function close() {
+    setEditor(null);
+    setFormError(null);
+  }
+
+  async function submit() {
+    if (busy || !editor) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
-      const saved = await updateCity(editingId!, draft);
-      patch((d) => ({ ...d, cities: d.cities.map((c) => (c.id === editingId ? saved : c)) }));
-      setEditingId(null);
+      if (editor.mode === "create") {
+        const saved = await createCity(draft);
+        patch((d) => ({ ...d, cities: [...d.cities, saved] }));
+      } else {
+        const saved = await updateCity(editor.id, draft);
+        patch((d) => ({ ...d, cities: d.cities.map((c) => (c.id === editor.id ? saved : c)) }));
+      }
+      close();
     } catch (err) {
-      onError(err, "Could not save the city.");
+      setFormError(
+        onError(err, editor.mode === "create" ? "Could not create the city." : "Could not save the city."),
+      );
     } finally {
       setBusy(false);
     }
   }
 
-  async function create() {
-    if (busy) return;
-    clearError();
-    setBusy(true);
-    try {
-      const saved = await createCity(newRow);
-      patch((d) => ({ ...d, cities: [...d.cities, saved] }));
-      setCreating(false);
-      setNewRow(EMPTY_CITY);
-    } catch (err) {
-      onError(err, "Could not create the city.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function remove(id: string) {
-    if (busy) return;
+  async function remove() {
+    if (busy || !editor || editor.mode !== "edit") return;
+    const id = editor.id;
     if (!window.confirm(`Delete city "${id}"? This cannot be undone.`)) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
       await deleteCity(id);
       patch((d) => ({ ...d, cities: d.cities.filter((c) => c.id !== id) }));
-      if (editingId === id) setEditingId(null);
+      close();
     } catch (err) {
-      onError(err, "Could not delete the city.");
+      setFormError(onError(err, "Could not delete the city."));
     } finally {
       setBusy(false);
     }
   }
+
+  const isEdit = editor?.mode === "edit";
 
   return (
     <Section title="Cities" count={rows.length}>
@@ -379,60 +430,89 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && !creating && <EmptyRow colSpan={8} label="No cities yet." />}
+          {rows.length === 0 && <EmptyRow colSpan={8} label="No cities yet." />}
 
-          {rows.map((row) =>
-            editingId === row.id ? (
-              <tr key={row.id}>
-                <Td mono dim nowrap>{row.id}</Td>
-                <Td><TextInput value={draft.name} onChange={(v) => setDraft({ ...draft, name: v })} /></Td>
-                <Td><TextInput value={draft.country} onChange={(v) => setDraft({ ...draft, country: v })} /></Td>
-                <Td><NumberInput value={draft.available} onChange={(v) => setDraft({ ...draft, available: v })} /></Td>
-                <Td><TextInput value={draft.pickup} onChange={(v) => setDraft({ ...draft, pickup: v })} /></Td>
-                <Td><CityStatusSelect value={draft.status} onChange={(v) => setDraft({ ...draft, status: v })} /></Td>
-                <Td><NumberInput value={draft.sortOrder} onChange={(v) => setDraft({ ...draft, sortOrder: v })} /></Td>
-                <Td nowrap><EditActions busy={busy} onSave={save} onCancel={() => setEditingId(null)} /></Td>
-              </tr>
-            ) : (
-              <tr key={row.id}>
-                <Td mono nowrap>{row.id}</Td>
-                <Td>{row.name}</Td>
-                <Td dim>{row.country}</Td>
-                <Td mono dim>{row.available}</Td>
-                <Td dim>{row.pickup}</Td>
-                <Td nowrap><StatusPill value={row.status} /></Td>
-                <Td mono dim>{row.sortOrder}</Td>
-                <Td nowrap><RowActions busy={busy} onEdit={() => startEdit(row)} onDelete={() => remove(row.id)} /></Td>
-              </tr>
-            ),
-          )}
-
-          {creating && (
-            <tr>
-              <Td><TextInput value={newRow.id} onChange={(v) => setNewRow({ ...newRow, id: v })} mono placeholder="tallinn" /></Td>
-              <Td><TextInput value={newRow.name} onChange={(v) => setNewRow({ ...newRow, name: v })} placeholder="Tallinn" /></Td>
-              <Td><TextInput value={newRow.country} onChange={(v) => setNewRow({ ...newRow, country: v })} placeholder="Estonia" /></Td>
-              <Td><NumberInput value={newRow.available} onChange={(v) => setNewRow({ ...newRow, available: v })} /></Td>
-              <Td><TextInput value={newRow.pickup} onChange={(v) => setNewRow({ ...newRow, pickup: v })} placeholder="Telliskivi · Kesklinn" /></Td>
-              <Td><CityStatusSelect value={newRow.status} onChange={(v) => setNewRow({ ...newRow, status: v })} /></Td>
-              <Td><NumberInput value={newRow.sortOrder} onChange={(v) => setNewRow({ ...newRow, sortOrder: v })} /></Td>
-              <Td nowrap><EditActions busy={busy} saveLabel="Create" onSave={create} onCancel={() => setCreating(false)} /></Td>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <Td mono nowrap>{row.id}</Td>
+              <Td>{row.name}</Td>
+              <Td dim>{row.country}</Td>
+              <Td mono dim>{row.available}</Td>
+              <Td dim>{row.pickup}</Td>
+              <Td nowrap><StatusPill value={row.status} /></Td>
+              <Td mono dim>{row.sortOrder}</Td>
+              <Td nowrap><RowEdit busy={busy} onEdit={() => openEdit(row)} /></Td>
             </tr>
-          )}
+          ))}
         </tbody>
       </AdminTable>
 
-      {!creating && (
-        <AddButton
-          label="Add city"
-          onClick={() => {
-            clearError();
-            setEditingId(null);
-            setNewRow(EMPTY_CITY);
-            setCreating(true);
-          }}
+      <AddButton label="Add city" onClick={openCreate} />
+
+      <Drawer
+        open={editor !== null}
+        onClose={close}
+        title={isEdit ? "Edit city" : "New city"}
+        subtitle={isEdit && editor ? editor.id : undefined}
+        footer={
+          <DrawerFooter
+            busy={busy}
+            onSave={submit}
+            onCancel={close}
+            saveLabel={isEdit ? "Save" : "Create"}
+            onDelete={isEdit ? remove : undefined}
+          />
+        }
+      >
+        <FieldText
+          label="Id"
+          value={draft.id}
+          onChange={(v) => setDraft({ ...draft, id: v })}
+          mono
+          placeholder="tallinn"
+          readOnly={isEdit}
+          hint={isEdit ? "Id is fixed once created." : "Lowercase key, unique across cities."}
         />
-      )}
+        <div className="field-row">
+          <FieldText
+            label="Name"
+            value={draft.name}
+            onChange={(v) => setDraft({ ...draft, name: v })}
+            placeholder="Tallinn"
+          />
+          <FieldText
+            label="Country"
+            value={draft.country}
+            onChange={(v) => setDraft({ ...draft, country: v })}
+            placeholder="Estonia"
+          />
+        </div>
+        <FieldText
+          label="Pickup"
+          value={draft.pickup}
+          onChange={(v) => setDraft({ ...draft, pickup: v })}
+          placeholder="Telliskivi · Kesklinn"
+        />
+        <div className="field-row">
+          <FieldSelect
+            label="Status"
+            value={draft.status}
+            onChange={(v) => setDraft({ ...draft, status: v as CityStatusValue })}
+            options={CITY_STATUSES.map((s) => ({ value: s, label: s }))}
+          />
+          <FieldNumber
+            label="Available"
+            value={draft.available}
+            onChange={(v) => setDraft({ ...draft, available: v })}
+          />
+        </div>
+        <FieldNumber
+          label="Sort order"
+          value={draft.sortOrder}
+          onChange={(v) => setDraft({ ...draft, sortOrder: v })}
+        />
+        <FormError message={formError} />
+      </Drawer>
     </Section>
   );
 }
@@ -443,14 +523,17 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
    ════════════════════════════════════════════════════════════════════════ */
 
 function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPlan>) {
+  // Edit only — no create branch, so the editor state is just the row id (or null).
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<PlanInput | null>(null);
   // perks edited as a single comma-separated string while editing.
   const [perksText, setPerksText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  function startEdit(row: AdminPlan) {
+  function openEdit(row: AdminPlan) {
     clearError();
+    setFormError(null);
     setEditingId(row.id);
     const { id: _id, ...rest } = row;
     void _id;
@@ -458,18 +541,24 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
     setPerksText(row.perks.join(", "));
   }
 
-  async function save() {
-    if (busy || !draft) return;
+  function close() {
+    setEditingId(null);
+    setDraft(null);
+    setFormError(null);
+  }
+
+  async function submit() {
+    if (busy || !draft || editingId === null) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
       const body: PlanInput = { ...draft, perks: parseList(perksText) };
-      const saved = await updatePlan(editingId!, body);
+      const saved = await updatePlan(editingId, body);
       patch((d) => ({ ...d, plans: d.plans.map((p) => (p.id === editingId ? saved : p)) }));
-      setEditingId(null);
-      setDraft(null);
+      close();
     } catch (err) {
-      onError(err, "Could not save the plan.");
+      setFormError(onError(err, "Could not save the plan."));
     } finally {
       setBusy(false);
     }
@@ -495,37 +584,76 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
         <tbody>
           {rows.length === 0 && <EmptyRow colSpan={10} label="No pricing plans." />}
 
-          {rows.map((row) =>
-            editingId === row.id && draft ? (
-              <tr key={row.id}>
-                <Td mono dim nowrap>{row.id}</Td>
-                <Td><TextInput value={draft.term} onChange={(v) => setDraft({ ...draft, term: v })} /></Td>
-                <Td><NumberInput value={draft.months} onChange={(v) => setDraft({ ...draft, months: v })} /></Td>
-                <Td><NumberInput value={draft.daily} step="0.01" onChange={(v) => setDraft({ ...draft, daily: v })} /></Td>
-                <Td><NumberInput value={draft.monthly} step="0.01" onChange={(v) => setDraft({ ...draft, monthly: v })} /></Td>
-                <Td><TextInput value={draft.tag} onChange={(v) => setDraft({ ...draft, tag: v })} /></Td>
-                <Td><BoolSelect value={draft.featured} onChange={(v) => setDraft({ ...draft, featured: v })} /></Td>
-                <Td><TextInput value={perksText} onChange={setPerksText} wide /></Td>
-                <Td><NumberInput value={draft.sortOrder} onChange={(v) => setDraft({ ...draft, sortOrder: v })} /></Td>
-                <Td nowrap><EditActions busy={busy} onSave={save} onCancel={() => { setEditingId(null); setDraft(null); }} /></Td>
-              </tr>
-            ) : (
-              <tr key={row.id}>
-                <Td mono nowrap>{row.id}</Td>
-                <Td>{row.term}</Td>
-                <Td mono dim>{row.months}</Td>
-                <Td mono dim>{row.daily}</Td>
-                <Td mono dim>{row.monthly}</Td>
-                <Td dim>{row.tag}</Td>
-                <Td nowrap><BoolPill value={row.featured} /></Td>
-                <Td dim>{row.perks.length ? row.perks.join(", ") : "—"}</Td>
-                <Td mono dim>{row.sortOrder}</Td>
-                <Td nowrap><RowActions busy={busy} onEdit={() => startEdit(row)} /></Td>
-              </tr>
-            ),
-          )}
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <Td mono nowrap>{row.id}</Td>
+              <Td>{row.term}</Td>
+              <Td mono dim>{row.months}</Td>
+              <Td mono dim>{row.daily}</Td>
+              <Td mono dim>{row.monthly}</Td>
+              <Td dim>{row.tag}</Td>
+              <Td nowrap><BoolPill value={row.featured} /></Td>
+              <Td dim>{row.perks.length ? row.perks.join(", ") : "—"}</Td>
+              <Td mono dim>{row.sortOrder}</Td>
+              <Td nowrap><RowEdit busy={busy} onEdit={() => openEdit(row)} /></Td>
+            </tr>
+          ))}
         </tbody>
       </AdminTable>
+
+      <Drawer
+        open={editingId !== null && draft !== null}
+        onClose={close}
+        title="Edit plan"
+        subtitle={editingId ?? undefined}
+        footer={<DrawerFooter busy={busy} onSave={submit} onCancel={close} saveLabel="Save" />}
+      >
+        {draft && (
+          <>
+            <FieldText label="Term" value={draft.term} onChange={(v) => setDraft({ ...draft, term: v })} />
+            <div className="field-row">
+              <FieldNumber
+                label="Months"
+                value={draft.months}
+                onChange={(v) => setDraft({ ...draft, months: v })}
+              />
+              <FieldText label="Tag" value={draft.tag} onChange={(v) => setDraft({ ...draft, tag: v })} />
+            </div>
+            <div className="field-row">
+              <FieldNumber
+                label="Daily €"
+                value={draft.daily}
+                step="0.01"
+                onChange={(v) => setDraft({ ...draft, daily: v })}
+              />
+              <FieldNumber
+                label="Monthly €"
+                value={draft.monthly}
+                step="0.01"
+                onChange={(v) => setDraft({ ...draft, monthly: v })}
+              />
+            </div>
+            <FieldSelect
+              label="Featured"
+              value={draft.featured ? "true" : "false"}
+              onChange={(v) => setDraft({ ...draft, featured: v === "true" })}
+              options={BOOL_OPTIONS}
+            />
+            <FieldText
+              label="Perks (comma-separated)"
+              value={perksText}
+              onChange={setPerksText}
+              placeholder="Free service · Priority support · Free helmet"
+            />
+            <FieldNumber
+              label="Sort order"
+              value={draft.sortOrder}
+              onChange={(v) => setDraft({ ...draft, sortOrder: v })}
+            />
+          </>
+        )}
+        <FormError message={formError} />
+      </Drawer>
     </Section>
   );
 }
@@ -538,67 +666,75 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
 const EMPTY_FAQ: FaqInput = { question: "", answer: "", openByDefault: false, sortOrder: 0 };
 
 function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>) {
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editor, setEditor] = useState<Editor<number> | null>(null);
   const [draft, setDraft] = useState<FaqInput>(EMPTY_FAQ);
   const [busy, setBusy] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [newRow, setNewRow] = useState<FaqInput>(EMPTY_FAQ);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  function startEdit(row: AdminFaq) {
+  function openCreate() {
     clearError();
-    setCreating(false);
-    setEditingId(row.id);
+    setFormError(null);
+    setDraft(EMPTY_FAQ);
+    setEditor({ mode: "create" });
+  }
+
+  function openEdit(row: AdminFaq) {
+    clearError();
+    setFormError(null);
     const { id: _id, ...rest } = row;
     void _id;
     setDraft({ ...rest });
+    setEditor({ mode: "edit", id: row.id });
   }
 
-  async function save() {
-    if (busy) return;
+  function close() {
+    setEditor(null);
+    setFormError(null);
+  }
+
+  async function submit() {
+    if (busy || !editor) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
-      const saved = await updateFaq(editingId!, draft);
-      patch((d) => ({ ...d, faqs: d.faqs.map((f) => (f.id === editingId ? saved : f)) }));
-      setEditingId(null);
+      if (editor.mode === "create") {
+        const saved = await createFaq(draft);
+        patch((d) => ({ ...d, faqs: [...d.faqs, saved] }));
+      } else {
+        const saved = await updateFaq(editor.id, draft);
+        patch((d) => ({ ...d, faqs: d.faqs.map((f) => (f.id === editor.id ? saved : f)) }));
+      }
+      close();
     } catch (err) {
-      onError(err, "Could not save the FAQ.");
+      setFormError(
+        onError(err, editor.mode === "create" ? "Could not create the FAQ." : "Could not save the FAQ."),
+      );
     } finally {
       setBusy(false);
     }
   }
 
-  async function create() {
-    if (busy) return;
+  async function remove() {
+    if (busy || !editor || editor.mode !== "edit") return;
+    const id = editor.id;
+    const question = draft.question;
+    if (!window.confirm(`Delete this FAQ entry? This cannot be undone.\n\n"${question}"`)) return;
     clearError();
+    setFormError(null);
     setBusy(true);
     try {
-      const saved = await createFaq(newRow);
-      patch((d) => ({ ...d, faqs: [...d.faqs, saved] }));
-      setCreating(false);
-      setNewRow(EMPTY_FAQ);
+      await deleteFaq(id);
+      patch((d) => ({ ...d, faqs: d.faqs.filter((f) => f.id !== id) }));
+      close();
     } catch (err) {
-      onError(err, "Could not create the FAQ.");
+      setFormError(onError(err, "Could not delete the FAQ."));
     } finally {
       setBusy(false);
     }
   }
 
-  async function remove(row: AdminFaq) {
-    if (busy) return;
-    if (!window.confirm(`Delete this FAQ entry? This cannot be undone.\n\n"${row.question}"`)) return;
-    clearError();
-    setBusy(true);
-    try {
-      await deleteFaq(row.id);
-      patch((d) => ({ ...d, faqs: d.faqs.filter((f) => f.id !== row.id) }));
-      if (editingId === row.id) setEditingId(null);
-    } catch (err) {
-      onError(err, "Could not delete the FAQ.");
-    } finally {
-      setBusy(false);
-    }
-  }
+  const isEdit = editor?.mode === "edit";
 
   return (
     <Section title="FAQ" count={rows.length}>
@@ -614,244 +750,304 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && !creating && <EmptyRow colSpan={6} label="No FAQ entries yet." />}
+          {rows.length === 0 && <EmptyRow colSpan={6} label="No FAQ entries yet." />}
 
-          {rows.map((row) =>
-            editingId === row.id ? (
-              <tr key={row.id}>
-                <Td mono dim nowrap>{row.id}</Td>
-                <Td><TextArea value={draft.question} onChange={(v) => setDraft({ ...draft, question: v })} rows={2} /></Td>
-                <Td><TextArea value={draft.answer} onChange={(v) => setDraft({ ...draft, answer: v })} rows={3} /></Td>
-                <Td><BoolSelect value={draft.openByDefault} onChange={(v) => setDraft({ ...draft, openByDefault: v })} /></Td>
-                <Td><NumberInput value={draft.sortOrder} onChange={(v) => setDraft({ ...draft, sortOrder: v })} /></Td>
-                <Td nowrap><EditActions busy={busy} onSave={save} onCancel={() => setEditingId(null)} /></Td>
-              </tr>
-            ) : (
-              <tr key={row.id}>
-                <Td mono nowrap>{row.id}</Td>
-                <Td>{row.question}</Td>
-                <Td dim>{row.answer}</Td>
-                <Td nowrap><BoolPill value={row.openByDefault} /></Td>
-                <Td mono dim>{row.sortOrder}</Td>
-                <Td nowrap><RowActions busy={busy} onEdit={() => startEdit(row)} onDelete={() => remove(row)} /></Td>
-              </tr>
-            ),
-          )}
-
-          {creating && (
-            <tr>
-              <Td mono dim nowrap>—</Td>
-              <Td><TextArea value={newRow.question} onChange={(v) => setNewRow({ ...newRow, question: v })} rows={2} placeholder="Can I use the bike for delivery work?" /></Td>
-              <Td><TextArea value={newRow.answer} onChange={(v) => setNewRow({ ...newRow, answer: v })} rows={3} placeholder="Yes. The fleet is built for city delivery shifts…" /></Td>
-              <Td><BoolSelect value={newRow.openByDefault} onChange={(v) => setNewRow({ ...newRow, openByDefault: v })} /></Td>
-              <Td><NumberInput value={newRow.sortOrder} onChange={(v) => setNewRow({ ...newRow, sortOrder: v })} /></Td>
-              <Td nowrap><EditActions busy={busy} saveLabel="Create" onSave={create} onCancel={() => setCreating(false)} /></Td>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <Td mono nowrap>{row.id}</Td>
+              <Td>{row.question}</Td>
+              <Td dim>{row.answer}</Td>
+              <Td nowrap><BoolPill value={row.openByDefault} /></Td>
+              <Td mono dim>{row.sortOrder}</Td>
+              <Td nowrap><RowEdit busy={busy} onEdit={() => openEdit(row)} /></Td>
             </tr>
-          )}
+          ))}
         </tbody>
       </AdminTable>
 
-      {!creating && (
-        <AddButton
-          label="Add FAQ"
-          onClick={() => {
-            clearError();
-            setEditingId(null);
-            setNewRow(EMPTY_FAQ);
-            setCreating(true);
-          }}
+      <AddButton label="Add FAQ" onClick={openCreate} />
+
+      <Drawer
+        open={editor !== null}
+        onClose={close}
+        title={isEdit ? "Edit FAQ" : "New FAQ"}
+        subtitle={isEdit && editor ? `#${editor.id}` : undefined}
+        footer={
+          <DrawerFooter
+            busy={busy}
+            onSave={submit}
+            onCancel={close}
+            saveLabel={isEdit ? "Save" : "Create"}
+            onDelete={isEdit ? remove : undefined}
+          />
+        }
+      >
+        <FieldTextArea
+          label="Question"
+          value={draft.question}
+          onChange={(v) => setDraft({ ...draft, question: v })}
+          rows={2}
+          placeholder="Can I use the bike for delivery work?"
         />
-      )}
+        <FieldTextArea
+          label="Answer"
+          value={draft.answer}
+          onChange={(v) => setDraft({ ...draft, answer: v })}
+          rows={4}
+          placeholder="Yes. The fleet is built for city delivery shifts…"
+        />
+        <div className="field-row">
+          <FieldSelect
+            label="Open by default"
+            value={draft.openByDefault ? "true" : "false"}
+            onChange={(v) => setDraft({ ...draft, openByDefault: v === "true" })}
+            options={BOOL_OPTIONS}
+          />
+          <FieldNumber
+            label="Sort order"
+            value={draft.sortOrder}
+            onChange={(v) => setDraft({ ...draft, sortOrder: v })}
+          />
+        </div>
+        <FormError message={formError} />
+      </Drawer>
     </Section>
   );
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Reusable field controls + row pieces (inline styles + brand CSS vars).
+   Drawer form fields — use the shared .field / .field-row markup so inputs
+   pick up the admin form styling. Selects keep an explicit style because the
+   global .field rule only targets input/textarea.
    ════════════════════════════════════════════════════════════════════════ */
 
-const CONTROL_BASE: React.CSSProperties = {
-  width: "100%",
-  boxSizing: "border-box",
-  padding: "8px 10px",
-  borderRadius: "var(--r-sm)",
-  background: "var(--bg-2)",
-  border: "1px solid var(--border)",
-  color: "var(--text)",
-  fontSize: 13,
-  lineHeight: 1.4,
-};
+const BOOL_OPTIONS = [
+  { value: "true", label: "yes" },
+  { value: "false", label: "no" },
+] as const;
 
-function TextInput({
+function FieldText({
+  label,
   value,
   onChange,
   mono = false,
-  wide = false,
   placeholder,
+  readOnly = false,
+  hint,
 }: {
+  label: string;
   value: string;
   onChange: (v: string) => void;
   mono?: boolean;
-  wide?: boolean;
   placeholder?: string;
+  readOnly?: boolean;
+  hint?: string;
 }) {
   return (
-    <input
-      type="text"
-      value={value}
-      placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value)}
-      className={mono ? "mono" : undefined}
-      style={{
-        ...CONTROL_BASE,
-        fontFamily: mono ? "var(--font-mono)" : "var(--font-body)",
-        minWidth: wide ? 240 : 100,
-      }}
-    />
+    <div className="field">
+      <label>
+        {label}
+        {hint && <FieldHint text={hint} />}
+      </label>
+      <input
+        type="text"
+        value={value}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        aria-label={label}
+        onChange={(e) => onChange(e.target.value)}
+        className={mono ? "mono" : undefined}
+        style={{
+          fontFamily: mono ? "var(--font-mono)" : "var(--font-body)",
+          ...(readOnly ? { opacity: 0.6, cursor: "not-allowed" } : null),
+        }}
+      />
+    </div>
   );
 }
 
-function TextArea({
+function FieldTextArea({
+  label,
   value,
   onChange,
-  rows = 2,
+  rows = 3,
   placeholder,
 }: {
+  label: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
   placeholder?: string;
 }) {
   return (
-    <textarea
-      value={value}
-      rows={rows}
-      placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ ...CONTROL_BASE, minWidth: 220, resize: "vertical", fontFamily: "var(--font-body)" }}
-    />
+    <div className="field">
+      <label>{label}</label>
+      <textarea
+        value={value}
+        rows={rows}
+        placeholder={placeholder}
+        aria-label={label}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ resize: "vertical", lineHeight: 1.5 }}
+      />
+    </div>
   );
 }
 
-function NumberInput({
+function FieldNumber({
+  label,
   value,
   onChange,
   step,
 }: {
+  label: string;
   value: number;
   onChange: (v: number) => void;
   step?: string;
 }) {
   return (
-    <input
-      type="number"
-      value={Number.isFinite(value) ? value : ""}
-      step={step ?? "1"}
-      onChange={(e) => {
-        const n = e.target.value === "" ? 0 : Number(e.target.value);
-        onChange(Number.isNaN(n) ? 0 : n);
-      }}
-      className="mono"
-      style={{ ...CONTROL_BASE, fontFamily: "var(--font-mono)", minWidth: 72, width: 84 }}
-    />
+    <div className="field">
+      <label>{label}</label>
+      <input
+        type="number"
+        value={Number.isFinite(value) ? value : ""}
+        step={step ?? "1"}
+        aria-label={label}
+        onChange={(e) => {
+          const n = e.target.value === "" ? 0 : Number(e.target.value);
+          onChange(Number.isNaN(n) ? 0 : n);
+        }}
+        className="mono"
+        style={{ fontFamily: "var(--font-mono)" }}
+      />
+    </div>
   );
 }
 
-const SELECT_BASE: React.CSSProperties = {
+const SELECT_STYLE: React.CSSProperties = {
   appearance: "none",
   WebkitAppearance: "none",
-  padding: "8px 12px",
+  width: "100%",
+  boxSizing: "border-box",
+  padding: "13px 15px",
   borderRadius: "var(--r-sm)",
   background: "var(--bg-2)",
   border: "1px solid var(--border)",
-  color: "var(--text-2)",
+  color: "var(--text)",
   fontFamily: "var(--font-mono)",
-  fontSize: 12,
+  fontSize: 13,
   letterSpacing: "0.04em",
   cursor: "pointer",
-  minWidth: 110,
 };
 
-function CityStatusSelect({
+function FieldSelect({
+  label,
   value,
   onChange,
+  options,
 }: {
-  value: CityStatusValue;
-  onChange: (v: CityStatusValue) => void;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: readonly { value: string; label: string }[];
 }) {
   return (
-    <select
-      value={value}
-      aria-label="City status"
-      onChange={(e) => onChange(e.target.value as CityStatusValue)}
-      style={SELECT_BASE}
-    >
-      {CITY_STATUSES.map((s) => (
-        <option key={s} value={s} style={{ background: "var(--panel)", color: "var(--text)" }}>
-          {s}
-        </option>
-      ))}
-    </select>
+    <div className="field">
+      <label>{label}</label>
+      <select
+        value={value}
+        aria-label={label}
+        onChange={(e) => onChange(e.target.value)}
+        style={SELECT_STYLE}
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value} style={{ background: "var(--panel)", color: "var(--text)" }}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
-function BoolSelect({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+function FieldHint({ text }: { text: string }) {
   return (
-    <select
-      value={value ? "true" : "false"}
-      aria-label="Yes or no"
-      onChange={(e) => onChange(e.target.value === "true")}
-      style={{ ...SELECT_BASE, minWidth: 84 }}
+    <span
+      className="mono"
+      style={{
+        marginLeft: 8,
+        fontSize: 10.5,
+        letterSpacing: "0.02em",
+        textTransform: "none",
+        color: "var(--text-dim)",
+      }}
     >
-      <option value="true" style={{ background: "var(--panel)", color: "var(--text)" }}>yes</option>
-      <option value="false" style={{ background: "var(--panel)", color: "var(--text)" }}>no</option>
-    </select>
+      {text}
+    </span>
   );
 }
+
+/** In-drawer submit / validation error line. */
+function FormError({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <p
+      className="mono"
+      style={{ color: "var(--danger)", fontSize: 12, margin: "16px 0 0", lineHeight: 1.5 }}
+      role="alert"
+    >
+      {message}
+    </p>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Row + footer button pieces (inline styles + brand CSS vars).
+   ════════════════════════════════════════════════════════════════════════ */
 
 function BoolPill({ value }: { value: boolean }) {
   return <StatusPill value={value ? "yes" : "no"} tone={value ? "good" : "neutral"} />;
 }
 
-/* ── Row action clusters ───────────────────────────────────────────────── */
-
-function RowActions({
-  busy,
-  onEdit,
-  onDelete,
-}: {
-  busy: boolean;
-  onEdit: () => void;
-  onDelete?: () => void;
-}) {
+/** Single Edit affordance on a read-only table row. */
+function RowEdit({ busy, onEdit }: { busy: boolean; onEdit: () => void }) {
   return (
     <div style={{ display: "flex", gap: 8 }}>
       <MiniButton onClick={onEdit} disabled={busy}>Edit</MiniButton>
-      {onDelete && (
-        <MiniButton onClick={onDelete} disabled={busy} danger>Delete</MiniButton>
-      )}
     </div>
   );
 }
 
-function EditActions({
+/**
+ * Sticky drawer footer: optional Delete pinned left (via the .spacer class the
+ * global .drawer-foot rule honours), then Cancel + Save on the right. Reuses the
+ * same MiniButton styling the page already uses for its actions.
+ */
+function DrawerFooter({
   busy,
   onSave,
   onCancel,
-  saveLabel = "Save",
+  saveLabel,
+  onDelete,
 }: {
   busy: boolean;
   onSave: () => void;
   onCancel: () => void;
-  saveLabel?: string;
+  saveLabel: string;
+  onDelete?: () => void;
 }) {
   return (
-    <div style={{ display: "flex", gap: 8 }}>
+    <>
+      {onDelete && (
+        <MiniButton onClick={onDelete} disabled={busy} danger className="spacer">
+          Delete
+        </MiniButton>
+      )}
+      <MiniButton onClick={onCancel} disabled={busy}>Cancel</MiniButton>
       <MiniButton onClick={onSave} disabled={busy} primary>
         {busy ? "…" : saveLabel}
       </MiniButton>
-      <MiniButton onClick={onCancel} disabled={busy}>Cancel</MiniButton>
-    </div>
+    </>
   );
 }
 
@@ -861,12 +1057,14 @@ function MiniButton({
   disabled,
   primary = false,
   danger = false,
+  className,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   primary?: boolean;
   danger?: boolean;
+  className?: string;
 }) {
   const palette = primary
     ? { fg: "var(--lime-ink)", bg: "var(--lime)", bd: "var(--lime)" }
@@ -879,7 +1077,7 @@ function MiniButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="mono"
+      className={className ? `mono ${className}` : "mono"}
       style={{
         padding: "7px 13px",
         borderRadius: "var(--r-full)",

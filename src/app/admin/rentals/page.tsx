@@ -16,6 +16,7 @@ import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDay } from "@/components
 import { StatusPill } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { Drawer } from "@/components/admin/Drawer";
 
 /** Today as YYYY-MM-DD (local), used to seed the date inputs. */
 function todayISO(): string {
@@ -42,6 +43,8 @@ export default function AdminRentalsPage() {
   const [banner, setBanner] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
   // Rental ids with an in-flight action.
   const [pending, setPending] = useState<Record<string, boolean>>({});
+  // The rental whose "Manage" drawer is currently open (null = closed).
+  const [manageId, setManageId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
@@ -109,6 +112,17 @@ export default function AdminRentalsPage() {
     [load, signOut],
   );
 
+  const managed =
+    state.phase === "ready" && manageId
+      ? state.rentals.find((r) => r.id === manageId) ?? null
+      : null;
+
+  // Opening a row's drawer clears any stale banner from a previous action.
+  function openManage(id: string) {
+    setBanner(null);
+    setManageId(id);
+  }
+
   return (
     <div>
       {state.phase === "loading" || state.phase === "idle" ? (
@@ -123,22 +137,30 @@ export default function AdminRentalsPage() {
             <RentalsTable
               rentals={state.rentals}
               pending={pending}
-              onScheduleReturn={(id, date) =>
-                runAction(id, () => scheduleReturn(id, date), "Return scheduled.")
-              }
-              onReturn={(id) => runAction(id, () => markReturned(id), "Marked returned.")}
-              onInspect={(id, passed, notes) =>
-                runAction(
-                  id,
-                  () => inspectRental(id, passed, notes),
-                  passed ? "Inspection passed." : "Inspection failed — logged.",
-                )
-              }
-              onExtend={(id, date) =>
-                runAction(id, () => extendRental(id, date), "Rental extended.")
-              }
+              onManage={openManage}
             />
           </AdminSection>
+
+          <ManageRentalDrawer
+            rental={managed}
+            banner={banner}
+            busy={managed ? Boolean(pending[managed.id]) : false}
+            onClose={() => setManageId(null)}
+            onScheduleReturn={(id, date) =>
+              runAction(id, () => scheduleReturn(id, date), "Return scheduled.")
+            }
+            onReturn={(id) => runAction(id, () => markReturned(id), "Marked returned.")}
+            onInspect={(id, passed, notes) =>
+              runAction(
+                id,
+                () => inspectRental(id, passed, notes),
+                passed ? "Inspection passed." : "Inspection failed — logged.",
+              )
+            }
+            onExtend={(id, date) =>
+              runAction(id, () => extendRental(id, date), "Rental extended.")
+            }
+          />
         </>
       )}
     </div>
@@ -162,17 +184,11 @@ function toErrorState(err: unknown, fallback: string): LoadState {
 function RentalsTable({
   rentals,
   pending,
-  onScheduleReturn,
-  onReturn,
-  onInspect,
-  onExtend,
+  onManage,
 }: {
   rentals: AdminRental[];
   pending: Record<string, boolean>;
-  onScheduleReturn: (id: string, date: string) => void;
-  onReturn: (id: string) => void;
-  onInspect: (id: string, passed: boolean, notes?: string) => void;
-  onExtend: (id: string, date: string) => void;
+  onManage: (id: string) => void;
 }) {
   return (
     <AdminTable>
@@ -240,14 +256,16 @@ function RentalsTable({
                     dep {fmtMoney(r.depositAmount)}
                   </div>
                 </Td>
-                <Td>
-                  <RowActions
-                    busy={Boolean(pending[r.id])}
-                    onScheduleReturn={(date) => onScheduleReturn(r.id, date)}
-                    onReturn={() => onReturn(r.id)}
-                    onInspect={(passed, notes) => onInspect(r.id, passed, notes)}
-                    onExtend={(date) => onExtend(r.id, date)}
-                  />
+                <Td nowrap>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    style={miniBtn}
+                    disabled={Boolean(pending[r.id])}
+                    onClick={() => onManage(r.id)}
+                  >
+                    Manage ▾
+                  </button>
                 </Td>
               </tr>
             );
@@ -259,116 +277,188 @@ function RentalsTable({
 }
 
 /**
- * Per-rental action cluster: schedule a return (date), mark returned, run the
- * inspection (pass/fail + optional notes), and extend (date). Date inputs seed
- * to today; the parent disables the whole cluster while an action is in flight.
+ * Per-rental "Manage" drawer. Groups the four lifecycle actions — schedule a
+ * return (date), mark returned, run the inspection (pass/fail + optional notes),
+ * and extend (date) — into numbered blocks, each with its own input(s) + button
+ * wired to the same services as before. The banner is echoed inside the drawer
+ * so action feedback is visible without losing the operator's place, and the
+ * whole drawer disables while an action for this rental is in flight.
  */
-function RowActions({
+function ManageRentalDrawer({
+  rental,
+  banner,
+  busy,
+  onClose,
+  onScheduleReturn,
+  onReturn,
+  onInspect,
+  onExtend,
+}: {
+  rental: AdminRental | null;
+  banner: { tone: "ok" | "bad"; text: string } | null;
+  busy: boolean;
+  onClose: () => void;
+  onScheduleReturn: (id: string, date: string) => void;
+  onReturn: (id: string) => void;
+  onInspect: (id: string, passed: boolean, notes?: string) => void;
+  onExtend: (id: string, date: string) => void;
+}) {
+  return (
+    <Drawer
+      open={rental !== null}
+      onClose={onClose}
+      title="Manage rental"
+      subtitle={rental ? `${rental.id} · ${rental.customerEmail}` : undefined}
+      footer={
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={onClose}
+          style={{ padding: "11px 20px", fontSize: 14 }}
+        >
+          Close
+        </button>
+      }
+    >
+      {rental && (
+        // Keyed by rental id so the per-action input state (dates, notes)
+        // re-seeds whenever a different rental's drawer is opened.
+        <ManageRentalBody
+          key={rental.id}
+          rental={rental}
+          banner={banner}
+          busy={busy}
+          onScheduleReturn={onScheduleReturn}
+          onReturn={onReturn}
+          onInspect={onInspect}
+          onExtend={onExtend}
+        />
+      )}
+    </Drawer>
+  );
+}
+
+function ManageRentalBody({
+  rental,
+  banner,
   busy,
   onScheduleReturn,
   onReturn,
   onInspect,
   onExtend,
 }: {
+  rental: AdminRental;
+  banner: { tone: "ok" | "bad"; text: string } | null;
   busy: boolean;
-  onScheduleReturn: (date: string) => void;
-  onReturn: () => void;
-  onInspect: (passed: boolean, notes?: string) => void;
-  onExtend: (date: string) => void;
+  onScheduleReturn: (id: string, date: string) => void;
+  onReturn: (id: string) => void;
+  onInspect: (id: string, passed: boolean, notes?: string) => void;
+  onExtend: (id: string, date: string) => void;
 }) {
+  const id = rental.id;
   const [returnDate, setReturnDate] = useState(todayISO());
   const [extendDate, setExtendDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 248 }}>
-      {/* Schedule return */}
-      <form
-        style={actionRow}
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (returnDate && !busy) onScheduleReturn(returnDate);
-        }}
-      >
-        <input
-          type="date"
-          value={returnDate}
-          onChange={(e) => setReturnDate(e.target.value)}
-          aria-label="Return date"
-          style={dateStyle}
-          disabled={busy}
-        />
-        <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !returnDate}>
-          Schedule return
-        </button>
-      </form>
+    <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+      {banner && <Banner tone={banner.tone} text={banner.text} />}
 
-      {/* Mark returned */}
-      <div style={actionRow}>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          style={miniBtn}
-          disabled={busy}
-          onClick={onReturn}
+      {/* 1 · Schedule return */}
+      <ActionBlock label="1 · Schedule return">
+        <form
+          style={actionRow}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (returnDate && !busy) onScheduleReturn(id, returnDate);
+          }}
         >
-          Mark returned
-        </button>
-      </div>
-
-      {/* Inspect: notes + pass/fail */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <input
-          type="text"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          aria-label="Inspection notes"
-          placeholder="Inspection notes (optional)"
-          style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
-          disabled={busy}
-        />
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            style={miniBtn}
+          <input
+            type="date"
+            value={returnDate}
+            onChange={(e) => setReturnDate(e.target.value)}
+            aria-label="Return date"
+            style={dateStyle}
             disabled={busy}
-            onClick={() => onInspect(true, notes)}
-          >
-            Inspect: pass
+          />
+          <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !returnDate}>
+            Schedule return
           </button>
+        </form>
+      </ActionBlock>
+
+      {/* 2 · Mark returned */}
+      <ActionBlock label="2 · Mark returned">
+        <div style={actionRow}>
           <button
             type="button"
             className="btn btn-ghost"
             style={miniBtn}
             disabled={busy}
-            onClick={() => onInspect(false, notes)}
+            onClick={() => onReturn(id)}
           >
-            Fail
+            Mark returned
           </button>
         </div>
-      </div>
+      </ActionBlock>
 
-      {/* Extend */}
-      <form
-        style={actionRow}
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (extendDate && !busy) onExtend(extendDate);
-        }}
-      >
-        <input
-          type="date"
-          value={extendDate}
-          onChange={(e) => setExtendDate(e.target.value)}
-          aria-label="New planned end date"
-          style={dateStyle}
-          disabled={busy}
-        />
-        <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !extendDate}>
-          Extend
-        </button>
-      </form>
+      {/* 3 · Inspect: notes + pass/fail */}
+      <ActionBlock label="3 · Inspect">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            aria-label="Inspection notes"
+            placeholder="Inspection notes (optional)"
+            style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
+            disabled={busy}
+          />
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={miniBtn}
+              disabled={busy}
+              onClick={() => onInspect(id, true, notes)}
+            >
+              Inspect: pass
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={miniBtn}
+              disabled={busy}
+              onClick={() => onInspect(id, false, notes)}
+            >
+              Fail
+            </button>
+          </div>
+        </div>
+      </ActionBlock>
+
+      {/* 4 · Extend */}
+      <ActionBlock label="4 · Extend">
+        <form
+          style={actionRow}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (extendDate && !busy) onExtend(id, extendDate);
+          }}
+        >
+          <input
+            type="date"
+            value={extendDate}
+            onChange={(e) => setExtendDate(e.target.value)}
+            aria-label="New planned end date"
+            style={dateStyle}
+            disabled={busy}
+          />
+          <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !extendDate}>
+            Extend
+          </button>
+        </form>
+      </ActionBlock>
 
       {busy && (
         <span className="mono" style={{ fontSize: 11, color: "var(--text-dim)" }}>
@@ -376,6 +466,28 @@ function RowActions({
         </span>
       )}
     </div>
+  );
+}
+
+/** A labelled group inside the Manage drawer. */
+function ActionBlock({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <h3
+        className="mono"
+        style={{
+          fontSize: 10.5,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: "var(--text-muted)",
+          margin: 0,
+          fontWeight: 500,
+        }}
+      >
+        {label}
+      </h3>
+      {children}
+    </section>
   );
 }
 
