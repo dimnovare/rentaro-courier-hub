@@ -544,22 +544,109 @@
   "cityContent": {
     "tallinn": {
       "headline": "Monthly e-bike rental in Tallinn.",
-      "intro": "Tallinn is where rentaro started. Whether you ride Kesklinn lunch rushes or longer runs out to Lasnamäe and Mustamäe, you get a delivery-built e-bike on a simple monthly plan — with the lock, charger and service support that keep you earning every shift.",
+      "intro": "Tallinn is where rentaro started, and it's still where most of our fleet lives. If you deliver for Bolt or Wolt around Kesklinn, weave through Telliskivi and Kalamaja, climb up into Põhja-Tallinn or run the long blocks out to Lasnamäe, you already know the city rewards a fast, dependable bike. We rent delivery-built e-bikes by the month — lock, charger and service support included — so you can pick one up this week and start earning without sinking a thousand euros into a bike of your own.",
       "whyHere": [
-        "Compact Old Town and Kesklinn streets reward a quick, agile e-bike between drops.",
-        "Cobbles, tram tracks and winter slush — our bikes are picked for real Tallinn conditions.",
-        "Same-week pickup in the centre, plus extra-battery options for back-to-back shifts.",
-        "Service support across the city, so a flat tyre never costs you a full day."
+        "Kesklinn lunch and dinner rushes pay best when you can cut between drops — an e-bike turns short, dense routes into back-to-back orders.",
+        "Telliskivi, Kalamaja and Põhja-Tallinn mix cobbles, tram tracks and quiet side streets; our bikes are picked to stay sure-footed on all of it.",
+        "Long runs out to Lasnamäe, Mustamäe and Kristiine stop being a problem when the motor does the climbing and an extra battery covers the distance.",
+        "Estonian winters are real — dark, wet and icy. Winter tyres and service support keep you on the road through the months that pay the most.",
+        "Same-week pickup in the centre means a newly-arrived courier can land in Tallinn and be delivering within days, not weeks.",
+        "One monthly price covers the bike, maintenance and a replacement when something breaks — far less risk than buying a used bike off the classifieds."
       ],
-      "pickupNote": "Collect your bike at our Telliskivi or Kesklinn pickup point, or ask about local handover. We walk you through the bike, the lock and charging before your first shift.",
+      "pickupNote": "Collect your bike at our Telliskivi or Kesklinn pickup point — both a short ride from the busiest delivery zones — or ask about local handover. We walk you through the bike, the lock, charging and winter setup before your first shift, so nothing slows down day one.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
         "Kalamaja",
+        "Põhja-Tallinn",
         "Lasnamäe",
         "Mustamäe",
         "Kristiine"
-      ]
+      ],
+      "extended": {
+        "rentVsBuy": {
+          "kicker": "Rent vs buy in Tallinn",
+          "heading": "Why couriers here rent instead of buying.",
+          "lead": "A lot of Tallinn couriers are new in town or riding for a season. Tying up cash in a used bike — and owning every repair — rarely makes sense when your bike is the thing that earns.",
+          "points": [
+            {
+              "title": "No big outlay to start",
+              "copy": "A delivery-capable e-bike costs well over a thousand euros to buy, plus a lock, charger and winter tyres. Renting is €177 for your first 30 days and you're on the road — cash stays in your pocket for rent and deposits."
+            },
+            {
+              "title": "Repairs aren't your problem",
+              "copy": "Brakes, punctures and worn parts are part of the plan. A used bike off the classifieds becomes your workshop bill the moment something fails mid-shift — ours doesn't."
+            },
+            {
+              "title": "No resale headache when you leave",
+              "copy": "Plenty of couriers ride Tallinn for a season. When you're done you hand the bike back — no listing it, no haggling, no selling at a loss in a soft second-hand market."
+            },
+            {
+              "title": "Breakdowns don't cost you a shift",
+              "copy": "If a bike needs a longer repair we swap it where stock allows, so a mechanical fault doesn't wipe out a day's orders. Owning one bike means owning its downtime too."
+            }
+          ]
+        },
+        "winter": {
+          "kicker": "Built for Estonian winter",
+          "heading": "The cold months are when it pays to be ready.",
+          "lead": "Tallinn winters are dark, wet and icy, and demand often climbs right when conditions get worst. The riders who keep earning are the ones whose bikes are set up for it.",
+          "points": [
+            {
+              "title": "Winter tyres on request",
+              "copy": "Grippier winter tyres are available as an add-on for slush, black ice and the long Estonian off-season — far steadier than summer rubber on a December morning."
+            },
+            {
+              "title": "Battery care for the cold",
+              "copy": "Cold weather is hard on every e-bike battery. We show you how to store and charge it warm, and an extra battery keeps a long, cold shift from ending early."
+            },
+            {
+              "title": "Service support through the season",
+              "copy": "Salt, grit and freeze-thaw wear bikes out faster. Maintenance is included year-round, so winter doesn't quietly turn into a string of repair bills."
+            }
+          ]
+        },
+        "pickup": {
+          "kicker": "Pickup in Tallinn",
+          "heading": "From reserved to riding in a few days.",
+          "steps": [
+            {
+              "title": "Reserve online",
+              "copy": "Pick your model and plan and send the request. No payment up front — we confirm a bike is ready for you in Tallinn and send your digital contract to sign on your phone."
+            },
+            {
+              "title": "Collect in Telliskivi or Kesklinn",
+              "copy": "Come to our central pickup point — minutes from the busiest delivery zones — or ask about local handover. We set up the bike, lock and charger with you."
+            },
+            {
+              "title": "Start your first shift",
+              "copy": "Leave kitted out for the city: charged, locked and winter-ready if you need it. Most couriers are taking their first Bolt or Wolt orders the same week."
+            }
+          ]
+        },
+        "faq": {
+          "kicker": "Tallinn — good to know",
+          "heading": "Common questions from Tallinn couriers.",
+          "items": [
+            {
+              "q": "Can I use the bike for Bolt or Wolt in Tallinn?",
+              "a": "Yes — the fleet is built for city delivery shifts and suits couriers on any major platform in Tallinn. We're an independent rental service and aren't officially affiliated with Bolt, Wolt or any delivery platform."
+            },
+            {
+              "q": "Where do I pick the bike up?",
+              "a": "From our Telliskivi or Kesklinn pickup point, both a short ride from the busiest delivery areas, or ask about local handover. We hand the bike over in person and set it up with you."
+            },
+            {
+              "q": "Is it ready for Tallinn winters?",
+              "a": "Yes. Winter tyres are available as an add-on and maintenance is included year-round. We'll also show you how to look after the battery in the cold so your range holds up."
+            },
+            {
+              "q": "I just moved to Tallinn — can I start quickly?",
+              "a": "That's exactly who monthly rental suits. Reserve online, sign on your phone and collect in the centre — most couriers are delivering within the same week, with no large purchase first."
+            }
+          ]
+        }
+      }
     },
     "riga": {
       "headline": "Monthly e-bike rental in Riga.",
@@ -596,7 +683,7 @@
         "Kamppi",
         "Töölö",
         "Sörnäinen",
-        "Kallio"
+        "Lauttasaari"
       ]
     }
   },
@@ -736,6 +823,85 @@
         "heading": "Start your monthly plan.",
         "lead": "Pick a bike, choose a 30-day, 6 or 12-month plan and reserve in a few steps — no payment now, service support from day one.",
         "button": "Reserve your e-bike"
+      },
+      "meta": {
+        "title": "Monthly e-bike rental — rentaro",
+        "description": "Rent a delivery-built e-bike by the month instead of buying one. €177 for your first 30 days covers the bike, service support, lock and charger — no €1,000+ up front, cancel after 30 days. Tallinn, Riga and Helsinki."
+      },
+      "compare": {
+        "kicker": "Rent vs buy",
+        "heading": "Keep your cash. Skip the workshop bills.",
+        "lead": "Buying a delivery-grade e-bike means a big payment up front and every repair on you. Renting by the month turns that into one predictable cost — and someone else owns the maintenance.",
+        "rent": {
+          "title": "Renting monthly",
+          "items": [
+            "€177 for your first 30 days — no €1,000+ purchase before you can earn.",
+            "Service, lock and charger included in the price.",
+            "Repairs handled for you; a replacement bike where stock allows.",
+            "Cancel after 30 days, or move to a longer plan for a lower daily rate.",
+            "Hand the bike back when you're done — no resale, no depreciation."
+          ]
+        },
+        "buy": {
+          "title": "Buying your own",
+          "items": [
+            "€1,000+ up front, plus a lock, charger and winter tyres on top.",
+            "Every puncture, brake and worn part is your bill and your downtime.",
+            "A breakdown mid-shift can cost you a full day of orders.",
+            "Value drops the day you ride it; you're tied to one bike.",
+            "When you stop or move on, you have to sell it yourself."
+          ]
+        }
+      },
+      "how": {
+        "kicker": "How it works",
+        "heading": "On a bike in three steps.",
+        "lead": "A monthly plan is built to be quick to start and easy to stop. Choose, sign and ride — most of it from your phone."
+      },
+      "included": {
+        "kicker": "In every plan",
+        "heading": "One price. Everything to ride.",
+        "lead": "Your monthly price isn't just the bike. It's the kit and the support that keep you earning, with no surprise extras.",
+        "items": {
+          "bike": {
+            "title": "A delivery-ready e-bike",
+            "copy": "A bike picked for city delivery work — strong motor, real payload and built to handle full days on the road."
+          },
+          "service": {
+            "title": "Service support",
+            "copy": "Brake adjustments, punctures and general maintenance are part of the plan. Off the road longer? We replace the bike where stock allows."
+          },
+          "lockCharger": {
+            "title": "Lock and charger",
+            "copy": "A proper lock and a charger come with every plan, so you can secure the bike between drops and top it up at home."
+          },
+          "swap": {
+            "title": "Flexibility to change",
+            "copy": "Extend month to month, switch to a longer plan for a lower daily rate, or add an extra battery and gear when your routine changes."
+          }
+        }
+      },
+      "faq": {
+        "kicker": "Monthly rental — good to know",
+        "heading": "Questions before you start.",
+        "items": {
+          "firstPayment": {
+            "q": "How much do I pay to start?",
+            "a": "Your first 30 days on the flexible plan are €177 (€5.90/day × 30), plus a refundable deposit. No payment is taken when you reserve — you pay only once your rental is approved and you collect the bike."
+          },
+          "cancel": {
+            "q": "Can I cancel after a month?",
+            "a": "Yes. The minimum is 30 days. After that you can stop and return the bike, continue month to month, or move to a 6 or 12-month plan for a lower daily rate."
+          },
+          "deposit": {
+            "q": "Is there a deposit?",
+            "a": "Yes — a refundable security deposit equal to your plan's 30-day price (€177 on 30 days, €147 on 6 months, €117 on 12 months), taken at pickup and returned at the end minus any damage beyond fair wear."
+          },
+          "extend": {
+            "q": "What if I want to keep the bike longer?",
+            "a": "Just extend. Stay flexible month to month, or switch to a 6 or 12-month plan and your daily rate drops to €4.90 or €3.90 — the longer the commitment, the less you pay per day."
+          }
+        }
       }
     },
     "delivery": {
@@ -773,6 +939,60 @@
         "heading": "Gear up for your next shift.",
         "lead": "Choose a delivery-ready e-bike and a plan, and reserve in a few steps — service support and extra-battery options included.",
         "button": "Reserve your e-bike"
+      },
+      "meta": {
+        "title": "Delivery e-bike rental — rentaro",
+        "description": "Delivery-built e-bikes you can rent by the month, with the motor, payload and service support to keep downtime low. Add an extra battery, delivery bag, phone holder and heavy lock — suitable for Bolt and Wolt-style work in Tallinn, Riga and Helsinki."
+      },
+      "gear": {
+        "kicker": "Gear that earns shifts",
+        "heading": "Kit the bike out for the work.",
+        "lead": "Delivery is won on the details. Add the accessories that turn a good bike into a proper delivery setup — each one available with your plan.",
+        "items": {
+          "battery": {
+            "title": "Extra battery",
+            "copy": "A spare pack for long or back-to-back shifts, so a low battery never ends your day early. Swap in seconds and keep taking orders."
+          },
+          "bag": {
+            "title": "Delivery bag",
+            "copy": "A sturdy, insulated bag sized for food and parcels — keeps orders secure and stable whether you ride for Bolt, Wolt or anyone else."
+          },
+          "phone": {
+            "title": "Phone holder",
+            "copy": "A firm handlebar mount so your map and order screen stay in view and in place over cobbles, kerbs and tram tracks."
+          },
+          "lock": {
+            "title": "Heavy-duty lock",
+            "copy": "A strong lock for the seconds your bike sits unattended at every drop. Park with confidence and get back to earning."
+          }
+        }
+      },
+      "how": {
+        "kicker": "How it works",
+        "heading": "From signup to first delivery.",
+        "lead": "Getting on a delivery bike is built to be fast. Choose your model and plan, sign on your phone and pick up — service support included from day one."
+      },
+      "faq": {
+        "kicker": "Delivery riding — good to know",
+        "heading": "What couriers ask first.",
+        "items": {
+          "uptime": {
+            "q": "What happens if my bike breaks down?",
+            "a": "Service support is part of every plan. Brakes, punctures and general maintenance are covered, and if a bike needs a longer repair we replace it where stock allows — your bike is your income tool, so we keep your shifts running."
+          },
+          "accessories": {
+            "q": "Can I add a battery and a delivery bag?",
+            "a": "Yes. An extra battery, delivery bag, phone holder and heavy-duty lock are all available as add-ons, and you can change them as your routine changes. The Engine Pro 2.0 carries an 832 Wh pack and the Air One Pro supports a dual-battery mode for demanding days."
+          },
+          "weather": {
+            "q": "Are the bikes ready for rain and winter?",
+            "a": "They're built for daily city use — hydraulic brakes, durable tyres and frames picked to handle rain, cobbles and winter slush. Winter tyres are available as an add-on for the coldest months."
+          },
+          "platforms": {
+            "q": "Can I use it for Bolt or Wolt?",
+            "a": "Yes — the fleet is set up for city delivery work and suits couriers on any major platform. We're an independent rental service and aren't officially affiliated with Bolt, Wolt or any delivery platform."
+          }
+        }
       }
     },
     "couriers": {

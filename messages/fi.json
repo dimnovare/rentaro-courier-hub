@@ -544,22 +544,109 @@
   "cityContent": {
     "tallinn": {
       "headline": "Sähköpyörän kuukausivuokraus Tallinnassa.",
-      "intro": "Tallinnasta rentaro sai alkunsa. Ajatpa sitten Kesklinnin lounasruuhkia tai pidempiä reittejä Lasnamäelle ja Mustamäelle, saat lähettityöhön rakennetun sähköpyörän yksinkertaisella kuukausisuunnitelmalla — lukon, laturin ja huoltotuen kera, jotka pitävät ansiosi juoksemassa joka vuorossa.",
+      "intro": "Tallinnasta rentaro sai alkunsa, ja siellä on yhä suurin osa kalustostamme. Jos toimitat Boltille tai Woltille Kesklinnin ympärillä, pujottelet Telliskivin ja Kalamajan läpi, kiipeät ylös Põhja-Tallinnaan tai ajat pitkiä korttelivälejä Lasnamäelle, tiedät jo, että kaupunki palkitsee nopean ja luotettavan pyörän. Vuokraamme lähetystyöhön rakennettuja sähköpyöriä kuukaudeksi — lukko, laturi ja huoltotuki mukana —, joten voit noutaa pyörän jo tällä viikolla ja alkaa ansaita ilman, että upotat tuhat euroa omaan pyörään.",
       "whyHere": [
-        "Tiivis vanhakaupunki ja Kesklinnin kadut palkitsevat nopean ja ketterän sähköpyörän toimitusten välillä.",
-        "Mukulakivet, raitiovaunukiskot ja talven loska — pyörämme on valittu Tallinnan todellisiin olosuhteisiin.",
-        "Nouto keskustasta jo saman viikon aikana, plus lisäakkuvaihtoehdot peräkkäisiin vuoroihin.",
-        "Huoltotuki ympäri kaupunkia, joten rengasrikko ei koskaan maksa sinulle kokonaista työpäivää."
+        "Kesklinnin lounas- ja illallisruuhkat tuottavat parhaiten, kun voit oikaista toimitusten välissä — sähköpyörä muuttaa lyhyet, tiheät reitit peräkkäisiksi tilauksiksi.",
+        "Telliskivi, Kalamaja ja Põhja-Tallinna sekoittavat mukulakiviä, raitiovaunukiskoja ja hiljaisia sivukatuja; pyörämme on valittu pysymään varmoina niillä kaikilla.",
+        "Pitkät ajot Lasnamäelle, Mustamäelle ja Kristiineen lakkaavat olemasta ongelma, kun moottori hoitaa nousut ja lisäakku kattaa matkan.",
+        "Viron talvet ovat todellisia — pimeitä, märkiä ja jäisiä. Talvirenkaat ja huoltotuki pitävät sinut tiellä kuukausina, jotka tuottavat eniten.",
+        "Nouto keskustasta saman viikon aikana tarkoittaa, että vasta saapunut lähetti voi laskeutua Tallinnaan ja toimittaa jo päivien, ei viikkojen kuluttua.",
+        "Yksi kuukausihinta kattaa pyörän, huollon ja vaihdon kun jokin hajoaa — paljon pienempi riski kuin käytetyn pyörän ostaminen ilmoituksista."
       ],
-      "pickupNote": "Nouda pyöräsi Telliskivin tai Kesklinnin noutopisteeltä, tai kysy paikallisesta luovutuksesta. Käymme kanssasi läpi pyörän, lukon ja lataamisen ennen ensimmäistä vuoroasi.",
+      "pickupNote": "Nouda pyöräsi Telliskivin tai Kesklinnin noutopisteeltä — molemmat lyhyen ajomatkan päässä vilkkaimmilta lähetysalueilta — tai kysy paikallisesta luovutuksesta. Käymme kanssasi läpi pyörän, lukon, lataamisen ja talvivarustuksen ennen ensimmäistä vuoroasi, jottei mikään hidasta ensimmäistä päivää.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
         "Kalamaja",
+        "Põhja-Tallinn",
         "Lasnamäe",
         "Mustamäe",
         "Kristiine"
-      ]
+      ],
+      "extended": {
+        "rentVsBuy": {
+          "kicker": "Vuokrata vai ostaa Tallinnassa",
+          "heading": "Miksi lähetit täällä vuokraavat ostamisen sijaan.",
+          "lead": "Monet Tallinnan lähetit ovat kaupungissa uusia tai ajavat yhden kauden. Rahan sitominen käytettyyn pyörään — ja jokaisen korjauksen omistaminen — on harvoin järkevää, kun pyörä on juuri se, joka ansaitsee.",
+          "points": [
+            {
+              "title": "Ei isoa menoa aloittaa",
+              "copy": "Lähetyskelpoinen sähköpyörä maksaa reilusti yli tuhat euroa ostaa, lisäksi lukko, laturi ja talvirenkaat. Vuokra on 177 € ensimmäisistä 30 päivästä, ja olet tiellä — raha jää taskuun vuokraan ja vakuuksiin."
+            },
+            {
+              "title": "Korjaukset eivät ole ongelmasi",
+              "copy": "Jarrut, rengasrikot ja kuluneet osat kuuluvat suunnitelmaan. Ilmoituksista ostettu käytetty pyörä muuttuu korjaamolaskuksesi sillä hetkellä, kun jokin pettää kesken vuoron — meidän ei."
+            },
+            {
+              "title": "Ei jälleenmyynnin päänvaivaa kun lähdet",
+              "copy": "Monet lähetit ajavat Tallinnaa yhden kauden. Kun olet valmis, palautat pyörän — ei ilmoituksen laittamista, ei tinkimistä, ei myyntiä tappiolla heikoilla käytettyjen markkinoilla."
+            },
+            {
+              "title": "Rikot eivät maksa sinulle vuoroa",
+              "copy": "Jos pyörä tarvitsee pidemmän korjauksen, vaihdamme sen varaston salliessa, jottei mekaaninen vika pyyhi pois päivän tilauksia. Yhden pyörän omistaminen tarkoittaa myös sen seisokin omistamista."
+            }
+          ]
+        },
+        "winter": {
+          "kicker": "Rakennettu Viron talveen",
+          "heading": "Kylmät kuukaudet ovat ne, jolloin kannattaa olla valmis.",
+          "lead": "Tallinnan talvet ovat pimeitä, märkiä ja jäisiä, ja kysyntä nousee usein juuri kun olosuhteet ovat pahimmillaan. Ansaitsemaan jäävät ne ajajat, joiden pyörät on siihen varustettu.",
+          "points": [
+            {
+              "title": "Talvirenkaat pyydettäessä",
+              "copy": "Pitävämmät talvirenkaat ovat saatavilla lisävarusteena loskaan, mustaan jäähän ja pitkään Viron kauden ulkopuoliseen aikaan — paljon vakaammat kuin kesärenkaat joulukuun aamuna."
+            },
+            {
+              "title": "Akun huolto kylmään",
+              "copy": "Kylmä on rankkaa jokaiselle sähköpyörän akulle. Näytämme, miten säilytät ja lataat sen lämpimänä, ja lisäakku estää pitkää, kylmää vuoroa päättymästä liian aikaisin."
+            },
+            {
+              "title": "Huoltotuki läpi kauden",
+              "copy": "Suola, sora ja jäätymis-sulamissykli kuluttavat pyöriä nopeammin. Huolto sisältyy ympäri vuoden, joten talvi ei hiljaa muutu korjauslaskujen sarjaksi."
+            }
+          ]
+        },
+        "pickup": {
+          "kicker": "Nouto Tallinnassa",
+          "heading": "Varatusta ajamiseen muutamassa päivässä.",
+          "steps": [
+            {
+              "title": "Varaa verkossa",
+              "copy": "Valitse malli ja suunnitelma ja lähetä pyyntö. Ei etumaksua — vahvistamme, että pyörä on Tallinnassa sinulle valmis, ja lähetämme digitaalisen sopimuksen allekirjoitettavaksi puhelimella."
+            },
+            {
+              "title": "Nouda Telliskivistä tai Kesklinnistä",
+              "copy": "Tule keskeiselle noutopisteellemme — minuuttien päässä vilkkaimmilta lähetysalueilta — tai kysy paikallisesta luovutuksesta. Asetamme pyörän, lukon ja laturin kanssasi."
+            },
+            {
+              "title": "Aloita ensimmäinen vuorosi",
+              "copy": "Lähde kaupunkiin varustettuna: ladattuna, lukittuna ja talvivalmiina tarvittaessa. Useimmat lähetit ottavat ensimmäiset Bolt- tai Wolt-tilauksensa jo samalla viikolla."
+            }
+          ]
+        },
+        "faq": {
+          "kicker": "Tallinna — hyvä tietää",
+          "heading": "Tallinnan lähettien yleisiä kysymyksiä.",
+          "items": [
+            {
+              "q": "Voinko käyttää pyörää Boltille tai Woltille Tallinnassa?",
+              "a": "Kyllä — kalusto on rakennettu kaupungin lähetysvuoroihin ja sopii kuljettajille millä tahansa suurella alustalla Tallinnassa. Olemme riippumaton vuokrauspalvelu emmekä ole virallisesti sidoksissa Boltiin, Woltiin tai mihinkään lähetysalustaan."
+            },
+            {
+              "q": "Mistä noudan pyörän?",
+              "a": "Telliskivin tai Kesklinnin noutopisteeltämme, molemmat lyhyen ajomatkan päässä vilkkaimmilta lähetysalueilta, tai kysy paikallisesta luovutuksesta. Luovutamme pyörän henkilökohtaisesti ja asetamme sen kanssasi."
+            },
+            {
+              "q": "Onko se valmis Tallinnan talviin?",
+              "a": "Kyllä. Talvirenkaat ovat saatavilla lisävarusteena ja huolto sisältyy ympäri vuoden. Näytämme myös, miten huolehdit akusta kylmässä, jotta kantamasi säilyy."
+            },
+            {
+              "q": "Muutin juuri Tallinnaan — voinko aloittaa nopeasti?",
+              "a": "Juuri heille kuukausivuokraus sopii. Varaa verkossa, allekirjoita puhelimella ja nouda keskustasta — useimmat lähetit toimittavat jo samalla viikolla, ilman isoa ostoa ensin."
+            }
+          ]
+        }
+      }
     },
     "riga": {
       "headline": "Sähköpyörän kuukausivuokraus Riiassa.",
@@ -596,7 +683,7 @@
         "Kamppi",
         "Töölö",
         "Sörnäinen",
-        "Kallio"
+        "Lauttasaari"
       ]
     }
   },
@@ -736,6 +823,85 @@
         "heading": "Aloita kuukausisuunnitelmasi.",
         "lead": "Valitse pyörä, valitse 30 päivän, 6 tai 12 kuukauden suunnitelma ja varaa muutamassa vaiheessa — ei maksua nyt, huoltotuki ensimmäisestä päivästä alkaen.",
         "button": "Varaa sähköpyöräsi"
+      },
+      "meta": {
+        "title": "Sähköpyörän kuukausivuokraus — rentaro",
+        "description": "Vuokraa lähetystyöhön rakennettu sähköpyörä kuukaudeksi sen ostamisen sijaan. 177 € ensimmäisistä 30 päivästä kattaa pyörän, huoltotuen, lukon ja laturin — ei yli 1000 € etumaksua, voit lopettaa 30 päivän jälkeen. Tallinna, Riika ja Helsinki."
+      },
+      "compare": {
+        "kicker": "Vuokrata vai ostaa",
+        "heading": "Pidä rahasi. Unohda korjaamolaskut.",
+        "lead": "Lähetystyöhön rakennetun sähköpyörän ostaminen tarkoittaa isoa etumaksua ja jokainen korjaus jää sinun maksettavaksesi. Kuukausivuokraus muuttaa sen yhdeksi ennakoitavaksi kustannukseksi — ja huolto on jonkun muun vastuulla.",
+        "rent": {
+          "title": "Kuukausivuokraus",
+          "items": [
+            "177 € ensimmäisistä 30 päivästä — ei yli 1000 € ostosta ennen kuin voit ansaita.",
+            "Huolto, lukko ja laturi sisältyvät hintaan.",
+            "Korjaukset hoidetaan puolestasi; vaihtopyörä varaston salliessa.",
+            "Lopeta 30 päivän jälkeen tai siirry pidempään suunnitelmaan alemmalla päivähinnalla.",
+            "Palauta pyörä kun olet valmis — ei jälleenmyyntiä, ei arvonalennusta."
+          ]
+        },
+        "buy": {
+          "title": "Oman ostaminen",
+          "items": [
+            "Yli 1000 € etukäteen, lisäksi lukko, laturi ja talvirenkaat päälle.",
+            "Jokainen rengasrikko, jarru ja kulunut osa on sinun laskusi ja seisokkisi.",
+            "Rikko kesken vuoron voi maksaa sinulle kokonaisen päivän tilaukset.",
+            "Arvo laskee heti kun ajat sillä; olet sidottu yhteen pyörään.",
+            "Kun lopetat tai muutat, joudut myymään sen itse."
+          ]
+        }
+      },
+      "how": {
+        "kicker": "Näin se toimii",
+        "heading": "Pyörän selässä kolmessa vaiheessa.",
+        "lead": "Kuukausisuunnitelma on tehty nopeaksi aloittaa ja helpoksi lopettaa. Valitse, allekirjoita ja aja — suurimman osan hoidat puhelimellasi."
+      },
+      "included": {
+        "kicker": "Jokaisessa suunnitelmassa",
+        "heading": "Yksi hinta. Kaikki ajamiseen.",
+        "lead": "Kuukausihintasi ei ole pelkkä pyörä. Se on varustus ja tuki, jotka pitävät ansiosi juoksemassa — ilman yllätyslisiä.",
+        "items": {
+          "bike": {
+            "title": "Lähetysvalmis sähköpyörä",
+            "copy": "Kaupungin lähetystyöhön valittu pyörä — vahva moottori, todellinen kantokyky ja rakennettu kestämään täydet päivät tiellä."
+          },
+          "service": {
+            "title": "Huoltotuki",
+            "copy": "Jarrujen säätö, rengasrikot ja yleishuolto kuuluvat suunnitelmaan. Pidempään pois tieltä? Vaihdamme pyörän varaston salliessa."
+          },
+          "lockCharger": {
+            "title": "Lukko ja laturi",
+            "copy": "Kunnon lukko ja laturi tulevat jokaisen suunnitelman mukana, joten voit lukita pyörän toimitusten välillä ja ladata sen kotona."
+          },
+          "swap": {
+            "title": "Joustavuus muuttaa",
+            "copy": "Jatka kuukaudesta toiseen, vaihda pidempään suunnitelmaan alemmalla päivähinnalla tai lisää lisäakku ja varusteet, kun rutiinisi muuttuu."
+          }
+        }
+      },
+      "faq": {
+        "kicker": "Kuukausivuokraus — hyvä tietää",
+        "heading": "Kysymyksiä ennen aloitusta.",
+        "items": {
+          "firstPayment": {
+            "q": "Paljonko maksan aloittaakseni?",
+            "a": "Ensimmäiset 30 päivää joustavalla suunnitelmalla ovat 177 € (5,90 €/päivä × 30), plus palautettava vakuusmaksu. Varatessasi maksua ei oteta — maksat vasta kun vuokrauksesi on hyväksytty ja noudat pyörän."
+          },
+          "cancel": {
+            "q": "Voinko lopettaa kuukauden jälkeen?",
+            "a": "Kyllä. Minimi on 30 päivää. Sen jälkeen voit lopettaa ja palauttaa pyörän, jatkaa kuukaudesta toiseen tai siirtyä 6 tai 12 kuukauden suunnitelmaan alemmalla päivähinnalla."
+          },
+          "deposit": {
+            "q": "Onko vakuusmaksua?",
+            "a": "Kyllä — palautettava vakuusmaksu, joka vastaa suunnitelmasi 30 päivän hintaa (177 € 30 päivän, 147 € 6 kuukauden, 117 € 12 kuukauden suunnitelmassa), otetaan noudettaessa ja palautetaan lopussa miinus normaalin kulumisen ylittävät vauriot."
+          },
+          "extend": {
+            "q": "Entä jos haluan pitää pyörän pidempään?",
+            "a": "Jatka vain. Pysy joustavana kuukaudesta toiseen tai vaihda 6 tai 12 kuukauden suunnitelmaan, jolloin päivähintasi laskee 4,90 €:oon tai 3,90 €:oon — mitä pidempi sitoumus, sitä vähemmän maksat päivältä."
+          }
+        }
       }
     },
     "delivery": {
@@ -773,6 +939,60 @@
         "heading": "Varustaudu seuraavaan vuoroosi.",
         "lead": "Valitse lähettivalmis sähköpyörä ja suunnitelma, ja varaa muutamassa vaiheessa — huoltotuki ja lisäakkuvaihtoehdot mukana.",
         "button": "Varaa sähköpyöräsi"
+      },
+      "meta": {
+        "title": "Lähetyssähköpyörän vuokraus — rentaro",
+        "description": "Lähetystyöhön rakennettuja sähköpyöriä, jotka voit vuokrata kuukaudeksi — moottori, kantokyky ja huoltotuki pitävät seisokin matalana. Lisää lisäakku, lähetyslaukku, puhelinteline ja vahva lukko — sopii Bolt- ja Wolt-tyyppiseen työhön Tallinnassa, Riiassa ja Helsingissä."
+      },
+      "gear": {
+        "kicker": "Varusteet, jotka ansaitsevat vuoroja",
+        "heading": "Varusta pyörä työhön.",
+        "lead": "Lähetystyö voitetaan yksityiskohdissa. Lisää tarvikkeet, jotka muuttavat hyvän pyörän kunnon lähetyskokoonpanoksi — jokainen niistä saatavilla suunnitelmasi kanssa.",
+        "items": {
+          "battery": {
+            "title": "Lisäakku",
+            "copy": "Vara-akku pitkiin tai peräkkäisiin vuoroihin, jottei tyhjenevä akku koskaan päätä päivääsi liian aikaisin. Vaihda sekunneissa ja jatka tilausten ottamista."
+          },
+          "bag": {
+            "title": "Lähetyslaukku",
+            "copy": "Tukeva, lämpöeristetty laukku ruoalle ja paketeille — pitää tilaukset turvassa ja vakaina, ajatpa Boltille, Woltille tai kenelle tahansa muulle."
+          },
+          "phone": {
+            "title": "Puhelinteline",
+            "copy": "Tukeva ohjaustankokiinnitys, jotta karttasi ja tilausnäyttösi pysyvät näkyvissä ja paikallaan mukulakivien, reunakivien ja raitiovaunukiskojen yli."
+          },
+          "lock": {
+            "title": "Järeä lukko",
+            "copy": "Vahva lukko niihin sekunteihin, jolloin pyöräsi seisoo vartioimatta jokaisella toimituksella. Pysäköi luottavaisin mielin ja palaa ansaitsemaan."
+          }
+        }
+      },
+      "how": {
+        "kicker": "Näin se toimii",
+        "heading": "Rekisteröitymisestä ensimmäiseen toimitukseen.",
+        "lead": "Lähetyspyörän selkään pääsy on tehty nopeaksi. Valitse malli ja suunnitelma, allekirjoita puhelimella ja nouda pyörä — huoltotuki mukana ensimmäisestä päivästä."
+      },
+      "faq": {
+        "kicker": "Lähetysajo — hyvä tietää",
+        "heading": "Mitä lähetit kysyvät ensin.",
+        "items": {
+          "uptime": {
+            "q": "Mitä tapahtuu, jos pyöräni hajoaa?",
+            "a": "Huoltotuki kuuluu jokaiseen suunnitelmaan. Jarrut, rengasrikot ja yleishuolto on katettu, ja jos pyörä tarvitsee pidemmän korjauksen, vaihdamme sen varaston salliessa — pyöräsi on ansaintavälineesi, joten pidämme vuorosi käynnissä."
+          },
+          "accessories": {
+            "q": "Voinko lisätä akun ja lähetyslaukun?",
+            "a": "Kyllä. Lisäakku, lähetyslaukku, puhelinteline ja järeä lukko ovat kaikki saatavilla lisävarusteina, ja voit muuttaa niitä rutiinisi muuttuessa. Engine Pro 2.0 kantaa 832 Wh:n akun ja Air One Pro tukee kaksoisakkutilaa vaativille päiville."
+          },
+          "weather": {
+            "q": "Ovatko pyörät valmiita sateeseen ja talveen?",
+            "a": "Ne on rakennettu päivittäiseen kaupunkikäyttöön — hydrauliset jarrut, kestävät renkaat ja rungot, jotka kestävät sadetta, mukulakiviä ja talven loskaa. Talvirenkaat ovat saatavilla lisävarusteena kylmimpiin kuukausiin."
+          },
+          "platforms": {
+            "q": "Voinko käyttää sitä Boltille tai Woltille?",
+            "a": "Kyllä — kalusto on tarkoitettu kaupungin lähetystyöhön ja sopii kuljettajille millä tahansa suurella alustalla. Olemme riippumaton vuokrauspalvelu emmekä ole virallisesti sidoksissa Boltiin, Woltiin tai mihinkään lähetysalustaan."
+          }
+        }
       }
     },
     "couriers": {

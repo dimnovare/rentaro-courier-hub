@@ -544,22 +544,109 @@
   "cityContent": {
     "tallinn": {
       "headline": "E-velosipēdu noma uz mēnesi Tallinā.",
-      "intro": "Tallina ir vieta, kur rentaro sākās. Vai tu brauc Kesklinn pusdienlaika skrējienos, vai garākos maršrutos uz Lasnamäe un Mustamäe — tu saņem piegādēm būvētu e-velosipēdu ar vienkāršu mēneša plānu, ar slēdzeni, lādētāju un servisa atbalstu, kas ļauj nopelnīt katrā maiņā.",
+      "intro": "Tallina ir vieta, kur rentaro sākās, un tur joprojām atrodas lielākā daļa mūsu parka. Ja tu piegādā Bolt vai Wolt ap Kesklinn, līkumo cauri Telliskivi un Kalamaja, kāp augšā Põhja-Tallinn vai brauc garos kvartālos uz Lasnamäe, tu jau zini, ka pilsēta atalgo ātru, uzticamu velosipēdu. Mēs nomājam piegādēm būvētus e-velosipēdus uz mēnesi — slēdzene, lādētājs un servisa atbalsts iekļauti —, lai tu varētu paņemt velosipēdu jau šonedēļ un sākt pelnīt, neieliekot tūkstoš eiro savā velosipēdā.",
       "whyHere": [
-        "Kompaktās Vecpilsētas un Kesklinn ielas atalgo ar ātru, veiklu e-velosipēdu starp piegādēm.",
-        "Bruģis, tramvaja sliedes un ziemas slapjdraņķis — mūsu velosipēdi ir izvēlēti reāliem Tallinas apstākļiem.",
-        "Saņemšana tās pašas nedēļas laikā centrā, plus papildu akumulatora iespējas maiņām pēc kārtas.",
-        "Servisa atbalsts visā pilsētā, lai pārdurta riepa nekad neizmaksā veselu dienu."
+        "Kesklinn pusdienu un vakara skrējieni atmaksājas vislabāk, kad vari izlauzties starp piegādēm — e-velosipēds pārvērš īsus, blīvus maršrutus secīgos pasūtījumos.",
+        "Telliskivi, Kalamaja un Põhja-Tallinn jauc bruģi, tramvaja sliedes un klusas sānielas; mūsu velosipēdi ir izvēlēti, lai paliktu droši uz visa tā.",
+        "Gari braucieni uz Lasnamäe, Mustamäe un Kristiine vairs nav problēma, kad motors veic kāpumus un papildu akumulators sedz attālumu.",
+        "Igaunijas ziemas ir reālas — tumšas, slapjas un slidenas. Ziemas riepas un servisa atbalsts notur tevi uz ceļa mēnešos, kas atmaksājas visvairāk.",
+        "Saņemšana tās pašas nedēļas laikā centrā nozīmē, ka tikko ieradies kurjers var nokļūt Tallinā un piegādāt jau dienu, nevis nedēļu laikā.",
+        "Viena mēneša cena sedz velosipēdu, apkopi un nomaiņu, kad kaut kas salūst — daudz mazāks risks nekā lietota velosipēda pirkšana no sludinājumiem."
       ],
-      "pickupNote": "Saņem savu velosipēdu mūsu Telliskivi vai Kesklinn saņemšanas punktā vai pajautā par nodošanu uz vietas. Pirms tavas pirmās maiņas izstāstīsim par velosipēdu, slēdzeni un uzlādi.",
+      "pickupNote": "Saņem savu velosipēdu mūsu Telliskivi vai Kesklinn saņemšanas punktā — abi īsa brauciena attālumā no visnoslogotākajām piegādes zonām — vai pajautā par nodošanu uz vietas. Pirms tavas pirmās maiņas izstāstīsim par velosipēdu, slēdzeni, uzlādi un ziemas iestatīšanu, lai pirmajā dienā nekas nekavē.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
         "Kalamaja",
+        "Põhja-Tallinn",
         "Lasnamäe",
         "Mustamäe",
         "Kristiine"
-      ]
+      ],
+      "extended": {
+        "rentVsBuy": {
+          "kicker": "Nomāt vai pirkt Tallinā",
+          "heading": "Kāpēc kurjeri šeit nomā, nevis pērk.",
+          "lead": "Daudzi Tallinas kurjeri ir pilsētā jauni vai brauc vienu sezonu. Naudas iesaldēšana lietotā velosipēdā — un katra remonta uzņemšanās — reti ir prātīga, kad velosipēds ir tieši tas, kas pelna.",
+          "points": [
+            {
+              "title": "Nav liela tēriņa, lai sāktu",
+              "copy": "Piegādēm spējīgs e-velosipēds maksā krietni vairāk par tūkstoš eiro, plus slēdzene, lādētājs un ziemas riepas. Noma ir 177 € par pirmajām 30 dienām, un tu esi uz ceļa — nauda paliek kabatā īrei un drošības naudām."
+            },
+            {
+              "title": "Remonts nav tava problēma",
+              "copy": "Bremzes, pārdurtas riepas un nodilušas detaļas ir daļa no plāna. Lietots velosipēds no sludinājumiem kļūst par tavu darbnīcas rēķinu brīdī, kad kaut kas atsakās maiņas vidū — mūsējais nē."
+            },
+            {
+              "title": "Nav tālākpārdošanas galvassāpju, kad aizej",
+              "copy": "Daudzi kurjeri brauc Tallinā vienu sezonu. Kad esi beidzis, tu atdod velosipēdu — bez sludinājuma ievietošanas, kaulēšanās vai pārdošanas ar zaudējumiem vājā lietoto tirgū."
+            },
+            {
+              "title": "Bojājumi neizmaksā tev maiņu",
+              "copy": "Ja velosipēdam nepieciešams ilgāks remonts, mēs to nomainām, ja krājumi to ļauj, lai mehānisks bojājums neizdzēš dienas pasūtījumus. Viena velosipēda īpašums nozīmē arī tā dīkstāves īpašumu."
+            }
+          ]
+        },
+        "winter": {
+          "kicker": "Būvēts Igaunijas ziemai",
+          "heading": "Aukstie mēneši ir tie, kad atmaksājas būt gatavam.",
+          "lead": "Tallinas ziemas ir tumšas, slapjas un slidenas, un pieprasījums bieži kāpj tieši tad, kad apstākļi kļūst vissliktākie. Pelnīt turpina tie braucēji, kuru velosipēdi tam ir sagatavoti.",
+          "points": [
+            {
+              "title": "Ziemas riepas pēc pieprasījuma",
+              "copy": "Labākas saķeres ziemas riepas ir pieejamas kā papildinājums slapjdraņķim, melnajam ledum un garajai Igaunijas starpsezonai — daudz stabilākas par vasaras riepām decembra rītā."
+            },
+            {
+              "title": "Akumulatora kopšana aukstumam",
+              "copy": "Aukstums ir grūts katram e-velosipēda akumulatoram. Mēs parādīsim, kā to glabāt un uzlādēt siltumā, un papildu akumulators neļauj garai, aukstai maiņai beigties pāragri."
+            },
+            {
+              "title": "Servisa atbalsts visu sezonu",
+              "copy": "Sāls, grants un sasalšanas-atkušanas cikls nodilina velosipēdus ātrāk. Apkope ir iekļauta visu gadu, tāpēc ziema klusi nepārvēršas remonta rēķinu virknē."
+            }
+          ]
+        },
+        "pickup": {
+          "kicker": "Saņemšana Tallinā",
+          "heading": "No rezervēta līdz braukšanai dažās dienās.",
+          "steps": [
+            {
+              "title": "Rezervē tiešsaistē",
+              "copy": "Izvēlies modeli un plānu un nosūti pieprasījumu. Bez avansa — mēs apstiprinām, ka velosipēds Tallinā tev ir gatavs, un nosūtām digitālo līgumu parakstīšanai telefonā."
+            },
+            {
+              "title": "Saņem Telliskivi vai Kesklinn",
+              "copy": "Atnāc uz mūsu centrālo saņemšanas punktu — dažu minūšu attālumā no visnoslogotākajām piegādes zonām — vai pajautā par nodošanu uz vietas. Mēs iestatām velosipēdu, slēdzeni un lādētāju kopā ar tevi."
+            },
+            {
+              "title": "Sāc savu pirmo maiņu",
+              "copy": "Aizej aprīkots pilsētai: uzlādēts, noslēgts un ziemai gatavs, ja nepieciešams. Lielākā daļa kurjeru pieņem savus pirmos Bolt vai Wolt pasūtījumus jau tajā pašā nedēļā."
+            }
+          ]
+        },
+        "faq": {
+          "kicker": "Tallina — noderīgi zināt",
+          "heading": "Biežākie Tallinas kurjeru jautājumi.",
+          "items": [
+            {
+              "q": "Vai varu izmantot velosipēdu Bolt vai Wolt Tallinā?",
+              "a": "Jā — parks ir būvēts pilsētas piegādes maiņām un piemērots kurjeriem jebkurā lielajā platformā Tallinā. Mēs esam neatkarīgs nomas pakalpojums un neesam oficiāli saistīti ar Bolt, Wolt vai jebkuru piegādes platformu."
+            },
+            {
+              "q": "Kur es saņemu velosipēdu?",
+              "a": "Mūsu Telliskivi vai Kesklinn saņemšanas punktā, abi īsa brauciena attālumā no visnoslogotākajām piegādes zonām, vai pajautā par nodošanu uz vietas. Mēs nododam velosipēdu personīgi un iestatām to kopā ar tevi."
+            },
+            {
+              "q": "Vai tas ir gatavs Tallinas ziemām?",
+              "a": "Jā. Ziemas riepas ir pieejamas kā papildinājums, un apkope ir iekļauta visu gadu. Mēs arī parādīsim, kā kopt akumulatoru aukstumā, lai tavs nobraukums saglabājas."
+            },
+            {
+              "q": "Tikko pārcēlos uz Tallinu — vai varu sākt ātri?",
+              "a": "Tieši tādiem mēneša noma der vislabāk. Rezervē tiešsaistē, paraksti telefonā un saņem centrā — lielākā daļa kurjeru piegādā jau tajā pašā nedēļā, bez liela pirkuma."
+            }
+          ]
+        }
+      }
     },
     "riga": {
       "headline": "E-velosipēdu noma uz mēnesi Rīgā.",
@@ -596,7 +683,7 @@
         "Kamppi",
         "Töölö",
         "Sörnäinen",
-        "Kallio"
+        "Lauttasaari"
       ]
     }
   },
@@ -736,6 +823,85 @@
         "heading": "Sāc savu mēneša plānu.",
         "lead": "Izvēlies velosipēdu, izvēlies 30 dienu, 6 vai 12 mēnešu plānu un rezervē dažos soļos — maksājums tagad nav vajadzīgs, servisa atbalsts no pirmās dienas.",
         "button": "Rezervē savu e-velosipēdu"
+      },
+      "meta": {
+        "title": "E-velosipēdu noma uz mēnesi — rentaro",
+        "description": "Nomā piegādēm būvētu e-velosipēdu uz mēnesi, nevis pērc to. 177 € par pirmajām 30 dienām sedz velosipēdu, servisa atbalstu, slēdzeni un lādētāju — bez 1000 €+ avansa, vari pārtraukt pēc 30 dienām. Tallina, Rīga un Helsinki."
+      },
+      "compare": {
+        "kicker": "Nomāt vai pirkt",
+        "heading": "Paturi naudu. Aizmirsti par darbnīcas rēķiniem.",
+        "lead": "Piegādēm būvēta e-velosipēda pirkšana nozīmē lielu avansu un katru remontu uz tava rēķina. Noma uz mēnesi to pārvērš vienā paredzamā izmaksā — un par apkopi atbild kāds cits.",
+        "rent": {
+          "title": "Noma uz mēnesi",
+          "items": [
+            "177 € par pirmajām 30 dienām — bez 1000 €+ pirkuma, pirms vari sākt pelnīt.",
+            "Serviss, slēdzene un lādētājs iekļauti cenā.",
+            "Par remontu parūpējamies mēs; rezerves velosipēds, ja krājumi to ļauj.",
+            "Pārtrauc pēc 30 dienām vai pārej uz garāku plānu ar zemāku dienas cenu.",
+            "Atdod velosipēdu, kad esi beidzis — bez tālākpārdošanas un vērtības krituma."
+          ]
+        },
+        "buy": {
+          "title": "Pirkt savu",
+          "items": [
+            "1000 €+ avansā, plus slēdzene, lādētājs un ziemas riepas papildus.",
+            "Katra pārdurta riepa, bremze un nodilusi detaļa ir tavs rēķins un tava dīkstāve.",
+            "Bojājums maiņas vidū var izmaksāt tev veselas dienas pasūtījumus.",
+            "Vērtība krīt jau pirmajā braucienā; tu esi piesaistīts vienam velosipēdam.",
+            "Kad pārtrauc vai aizej, tev tas jāpārdod pašam."
+          ]
+        }
+      },
+      "how": {
+        "kicker": "Kā tas darbojas",
+        "heading": "Uz velosipēda trīs soļos.",
+        "lead": "Mēneša plāns ir veidots, lai būtu ātri sākams un viegli pārtraucams. Izvēlies, paraksti un brauc — lielāko daļu vari paveikt telefonā."
+      },
+      "included": {
+        "kicker": "Katrā plānā",
+        "heading": "Viena cena. Viss braukšanai.",
+        "lead": "Tava mēneša cena nav tikai velosipēds. Tas ir aprīkojums un atbalsts, kas ļauj tev pelnīt — bez negaidītiem papildu maksājumiem.",
+        "items": {
+          "bike": {
+            "title": "Piegādēm gatavs e-velosipēds",
+            "copy": "Velosipēds, izvēlēts pilsētas piegādēm — jaudīgs motors, reāla kravnesība un būvēts pilnām dienām uz ceļa."
+          },
+          "service": {
+            "title": "Servisa atbalsts",
+            "copy": "Bremžu regulēšana, pārdurtas riepas un vispārējā apkope ir daļa no plāna. Ilgāk no ceļa? Mēs nomainām velosipēdu, ja krājumi to ļauj."
+          },
+          "lockCharger": {
+            "title": "Slēdzene un lādētājs",
+            "copy": "Kārtīga slēdzene un lādētājs nāk līdzi katram plānam, lai tu varētu nodrošināt velosipēdu starp piegādēm un uzlādēt mājās."
+          },
+          "swap": {
+            "title": "Elastība mainīt",
+            "copy": "Pagarini no mēneša uz mēnesi, pārej uz garāku plānu ar zemāku dienas cenu vai pievieno papildu akumulatoru un aprīkojumu, kad mainās tavs ritms."
+          }
+        }
+      },
+      "faq": {
+        "kicker": "Mēneša noma — noderīgi zināt",
+        "heading": "Jautājumi pirms sākšanas.",
+        "items": {
+          "firstPayment": {
+            "q": "Cik man jāmaksā, lai sāktu?",
+            "a": "Pirmās 30 dienas elastīgajā plānā ir 177 € (5,90 €/dienā × 30), plus atmaksājama drošības nauda. Rezervējot maksājums netiek ņemts — maksā tikai tad, kad noma ir apstiprināta un tu saņem velosipēdu."
+          },
+          "cancel": {
+            "q": "Vai varu pārtraukt pēc mēneša?",
+            "a": "Jā. Minimums ir 30 dienas. Pēc tam vari pārtraukt un atdot velosipēdu, turpināt no mēneša uz mēnesi vai pāriet uz 6 vai 12 mēnešu plānu ar zemāku dienas cenu."
+          },
+          "deposit": {
+            "q": "Vai ir drošības nauda?",
+            "a": "Jā — atmaksājama drošības nauda tava plāna 30 dienu cenas apmērā (177 € 30 dienām, 147 € 6 mēnešiem, 117 € 12 mēnešiem), tiek ņemta saņemšanas brīdī un atmaksāta beigās, atskaitot bojājumus, kas pārsniedz parastu nolietojumu."
+          },
+          "extend": {
+            "q": "Ko darīt, ja gribu paturēt velosipēdu ilgāk?",
+            "a": "Vienkārši pagarini. Paliec elastīgs no mēneša uz mēnesi vai pārej uz 6 vai 12 mēnešu plānu, un tava dienas cena nokrīt līdz 4,90 € vai 3,90 € — jo garāka saistība, jo mazāk maksā par dienu."
+          }
+        }
       }
     },
     "delivery": {
@@ -773,6 +939,60 @@
         "heading": "Sagatavojies savai nākamajai maiņai.",
         "lead": "Izvēlies piegādēm gatavu e-velosipēdu un plānu un rezervē dažos soļos — servisa atbalsts un papildu akumulatora iespējas iekļautas.",
         "button": "Rezervē savu e-velosipēdu"
+      },
+      "meta": {
+        "title": "Piegādes e-velosipēdu noma — rentaro",
+        "description": "Piegādēm būvēti e-velosipēdi, ko vari nomāt uz mēnesi — motors, kravnesība un servisa atbalsts, kas notur dīkstāvi zemu. Pievieno papildu akumulatoru, piegādes somu, telefona turētāju un izturīgu slēdzeni — piemērots Bolt un Wolt veida darbam Tallinā, Rīgā un Helsinkos."
+      },
+      "gear": {
+        "kicker": "Aprīkojums, kas nopelna maiņas",
+        "heading": "Aprīko velosipēdu darbam.",
+        "lead": "Piegāde tiek vinnēta detaļās. Pievieno piederumus, kas labu velosipēdu pārvērš īstā piegādes komplektā — katrs no tiem pieejams kopā ar tavu plānu.",
+        "items": {
+          "battery": {
+            "title": "Papildu akumulators",
+            "copy": "Rezerves akumulators garām vai secīgām maiņām, lai zems uzlādes līmenis nekad nebeidz tavu dienu pāragri. Nomaini dažās sekundēs un turpini pieņemt pasūtījumus."
+          },
+          "bag": {
+            "title": "Piegādes soma",
+            "copy": "Izturīga, siltumizolēta soma ēdienam un sūtījumiem — notur pasūtījumus droši un stabili, vienalga, vai brauc Bolt, Wolt vai jebkuram citam."
+          },
+          "phone": {
+            "title": "Telefona turētājs",
+            "copy": "Stingrs stūres stiprinājums, lai tava karte un pasūtījumu ekrāns paliek redzami un vietā pāri bruģim, apmalēm un tramvaja sliedēm."
+          },
+          "lock": {
+            "title": "Izturīga slēdzene",
+            "copy": "Spēcīga slēdzene tām sekundēm, kad velosipēds katrā piegādē stāv bez uzraudzības. Novieto droši un atgriezies pie pelnīšanas."
+          }
+        }
+      },
+      "how": {
+        "kicker": "Kā tas darbojas",
+        "heading": "No reģistrēšanās līdz pirmajai piegādei.",
+        "lead": "Nokļūšana uz piegādes velosipēda ir veidota ātra. Izvēlies modeli un plānu, paraksti telefonā un saņem velosipēdu — servisa atbalsts iekļauts no pirmās dienas."
+      },
+      "faq": {
+        "kicker": "Piegādes braukšana — noderīgi zināt",
+        "heading": "Ko kurjeri jautā vispirms.",
+        "items": {
+          "uptime": {
+            "q": "Kas notiek, ja mans velosipēds salūst?",
+            "a": "Servisa atbalsts ir daļa no katra plāna. Bremzes, pārdurtas riepas un vispārējā apkope ir segtas, un, ja velosipēdam nepieciešams ilgāks remonts, mēs to nomainām, ja krājumi to ļauj — tavs velosipēds ir tavs ienākumu rīks, tāpēc mēs noturam tavas maiņas kustībā."
+          },
+          "accessories": {
+            "q": "Vai varu pievienot akumulatoru un piegādes somu?",
+            "a": "Jā. Papildu akumulators, piegādes soma, telefona turētājs un izturīga slēdzene ir pieejami kā papildinājumi, un tu vari tos mainīt, kad mainās tavs ritms. Engine Pro 2.0 nes 832 Wh akumulatoru, un Air One Pro atbalsta divu akumulatoru režīmu prasīgām dienām."
+          },
+          "weather": {
+            "q": "Vai velosipēdi ir gatavi lietum un ziemai?",
+            "a": "Tie ir būvēti ikdienas pilsētas lietošanai — hidrauliskās bremzes, izturīgas riepas un rāmji, kas iztur lietu, bruģi un ziemas slapjdraņķi. Ziemas riepas ir pieejamas kā papildinājums aukstākajiem mēnešiem."
+          },
+          "platforms": {
+            "q": "Vai varu to izmantot Bolt vai Wolt?",
+            "a": "Jā — parks ir iekārtots pilsētas piegādes darbam un piemērots kurjeriem jebkurā lielajā platformā. Mēs esam neatkarīgs nomas pakalpojums un neesam oficiāli saistīti ar Bolt, Wolt vai jebkuru piegādes platformu."
+          }
+        }
       }
     },
     "couriers": {

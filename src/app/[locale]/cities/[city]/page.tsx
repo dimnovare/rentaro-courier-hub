@@ -7,7 +7,8 @@ import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
 import { ModelCard } from "@/components/models/ModelCard";
 import { cities, getCityById } from "@/data/cities";
-import { getCityContent } from "@/data/cityContent";
+import { getCityContent, hasExtendedContent } from "@/data/cityContent";
+import type { CityFaq, CityFeature } from "@/data/cityContent";
 import { modelService } from "@/services/modelService";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
@@ -74,6 +75,18 @@ export default async function CityPage({ params }: Params) {
   const country = tc(`countries.${countryKey(c.country)}`);
   const whyHere = tContent.raw(`${c.id}.whyHere`) as string[];
   const neighbourhoods = tContent.raw(`${c.id}.neighbourhoods`) as string[];
+
+  // Rich, hand-written local sections — Tallinn only for now. Other cities keep
+  // the lean layout and never read these (possibly missing) keys.
+  const extended = hasExtendedContent(c.id);
+  const ext = extended
+    ? (tContent.raw(`${c.id}.extended`) as {
+        rentVsBuy: { kicker: string; heading: string; lead: string; points: CityFeature[] };
+        winter: { kicker: string; heading: string; lead: string; points: CityFeature[] };
+        pickup: { kicker: string; heading: string; steps: CityFeature[] };
+        faq: { kicker: string; heading: string; items: CityFaq[] };
+      })
+    : null;
 
   return (
     <main>
@@ -194,6 +207,140 @@ export default async function CityPage({ params }: Params) {
         </div>
       </section>
 
+      {/* Rich local sections — Tallinn only */}
+      {ext && (
+        <>
+          {/* Rent vs buy, framed for this city */}
+          <section className="section-pad">
+            <div className="wrap">
+              <Reveal className="section-head">
+                <Kicker>{ext.rentVsBuy.kicker}</Kicker>
+                <h2 className="h-section">{ext.rentVsBuy.heading}</h2>
+                <p className="lead">{ext.rentVsBuy.lead}</p>
+              </Reveal>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gap: 16,
+                }}
+              >
+                {ext.rentVsBuy.points.map((p, i) => (
+                  <Reveal key={p.title} delay={(i % 2) * 80}>
+                    <article className="card" style={{ padding: 24, height: "100%" }}>
+                      <span
+                        style={{
+                          display: "inline-grid",
+                          placeItems: "center",
+                          width: 34,
+                          height: 34,
+                          borderRadius: 11,
+                          background: "var(--lime)",
+                          color: "var(--lime-ink)",
+                          boxShadow: "0 0 24px -8px var(--lime-glow)",
+                          marginBottom: 16,
+                        }}
+                      >
+                        <Ic.bolt s={15} />
+                      </span>
+                      <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 8 }}>{p.title}</h3>
+                      <p style={{ color: "var(--text-muted)", fontSize: 14.5, lineHeight: 1.6 }}>{p.copy}</p>
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Winter readiness */}
+          <section className="section-pad">
+            <div className="wrap">
+              <Reveal className="section-head">
+                <Kicker>{ext.winter.kicker}</Kicker>
+                <h2 className="h-section">{ext.winter.heading}</h2>
+                <p className="lead">{ext.winter.lead}</p>
+              </Reveal>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gap: 16,
+                }}
+              >
+                {ext.winter.points.map((p, i) => (
+                  <Reveal key={p.title} delay={(i % 3) * 80}>
+                    <article className="card" style={{ padding: 22, display: "flex", gap: 14, height: "100%" }}>
+                      <span
+                        style={{
+                          flex: "none",
+                          width: 30,
+                          height: 30,
+                          borderRadius: 10,
+                          background: "var(--lime)",
+                          color: "var(--lime-ink)",
+                          display: "grid",
+                          placeItems: "center",
+                          boxShadow: "0 0 24px -8px var(--lime-glow)",
+                        }}
+                      >
+                        <Ic.check s={13} />
+                      </span>
+                      <div>
+                        <h3 style={{ fontSize: 16.5, letterSpacing: "-0.01em", marginBottom: 5 }}>{p.title}</h3>
+                        <p style={{ color: "var(--text-muted)", fontSize: 14.5, lineHeight: 1.55 }}>{p.copy}</p>
+                      </div>
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Pickup steps */}
+          <section className="section-pad">
+            <div className="wrap">
+              <Reveal className="section-head">
+                <Kicker>{ext.pickup.kicker}</Kicker>
+                <h2 className="h-section">{ext.pickup.heading}</h2>
+              </Reveal>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                  gap: 16,
+                }}
+              >
+                {ext.pickup.steps.map((s, i) => (
+                  <Reveal key={s.title} delay={(i % 3) * 80}>
+                    <article className="card" style={{ padding: 24, height: "100%" }}>
+                      <div
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 13,
+                          color: "var(--lime-ink)",
+                          width: 44,
+                          height: 44,
+                          borderRadius: 13,
+                          background: "var(--lime)",
+                          display: "grid",
+                          placeItems: "center",
+                          marginBottom: 22,
+                          boxShadow: "0 0 30px -6px var(--lime-glow)",
+                        }}
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </div>
+                      <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 8 }}>{s.title}</h3>
+                      <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.6 }}>{s.copy}</p>
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
       {/* Popular models for this city */}
       <section className="section-pad">
         <div className="wrap">
@@ -213,6 +360,34 @@ export default async function CityPage({ params }: Params) {
           </div>
         </div>
       </section>
+
+      {/* City-specific FAQ — Tallinn only */}
+      {ext && (
+        <section className="section-pad">
+          <div className="wrap">
+            <Reveal className="section-head">
+              <Kicker>{ext.faq.kicker}</Kicker>
+              <h2 className="h-section">{ext.faq.heading}</h2>
+            </Reveal>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: 16,
+              }}
+            >
+              {ext.faq.items.map((item, i) => (
+                <Reveal key={item.q} delay={(i % 2) * 80}>
+                  <article className="card" style={{ padding: 24, height: "100%" }}>
+                    <h3 style={{ fontSize: 17, letterSpacing: "-0.01em", marginBottom: 9 }}>{item.q}</h3>
+                    <p style={{ color: "var(--text-muted)", fontSize: 15, lineHeight: 1.62 }}>{item.a}</p>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Final CTA */}
       <section className="section-pad" style={{ paddingBottom: 96 }}>
