@@ -10,7 +10,7 @@
  * shell provides all of the chrome, and pages read the token from useAdminAuth.
  */
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useAdminAuth } from "./AdminAuth";
 import { AdminSignIn } from "./AdminSignIn";
 import { AdminSidebar } from "./AdminSidebar";

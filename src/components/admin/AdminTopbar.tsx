@@ -5,7 +5,7 @@
  * title (derived from the route), a subtle "live" status chip, and a Refresh
  * affordance that reloads whichever section is mounted (via the refresh bus).
  */
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { titleForPath } from "./AdminSidebar";
 import { triggerAdminRefresh } from "./useAdminRefresh";
