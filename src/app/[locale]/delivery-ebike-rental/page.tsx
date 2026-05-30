@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/ui/Reveal";
@@ -9,11 +11,20 @@ import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
 import { modelService } from "@/services/modelService";
 
-export const metadata: Metadata = {
-  title: "Delivery e-bike rental — rentaro",
-  description:
-    "Delivery-built e-bikes you can rent by the month. Strong motors, real payload and service support to keep your downtime low — suitable for city delivery work in Tallinn, Riga and Helsinki.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  return {
+    title: "Delivery e-bike rental — rentaro",
+    description:
+      "Delivery-built e-bikes you can rent by the month. Strong motors, real payload and service support to keep your downtime low — suitable for city delivery work in Tallinn, Riga and Helsinki.",
+    alternates: buildAlternates(loc, "/delivery-ebike-rental"),
+  };
+}
 
 const pointKeys = [
   "builtToCarry",

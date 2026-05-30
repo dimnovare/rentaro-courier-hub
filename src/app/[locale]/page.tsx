@@ -1,3 +1,6 @@
+import type { Metadata } from "next";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { Hero } from "@/components/sections/Hero";
 import { PopularModels } from "@/components/sections/PopularModels";
 import { Showcase } from "@/components/sections/Showcase";
@@ -9,6 +12,19 @@ import { Accessories } from "@/components/sections/Accessories";
 import { Service } from "@/components/sections/Service";
 import { Faq } from "@/components/sections/Faq";
 import { FinalCta } from "@/components/sections/FinalCta";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  return {
+    alternates: buildAlternates(loc, "/"),
+    openGraph: { locale: loc },
+  };
+}
 
 export default function Home() {
   return (

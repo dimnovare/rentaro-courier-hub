@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/ui/Reveal";
@@ -9,11 +11,20 @@ import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
 import { modelService } from "@/services/modelService";
 
-export const metadata: Metadata = {
-  title: "Monthly e-bike rental — rentaro",
-  description:
-    "Rent an e-bike by the month instead of buying. One predictable monthly price covers the bike, service support, lock and charger — with no large upfront cost. Tallinn, Riga and Helsinki.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  return {
+    title: "Monthly e-bike rental — rentaro",
+    description:
+      "Rent an e-bike by the month instead of buying. One predictable monthly price covers the bike, service support, lock and charger — with no large upfront cost. Tallinn, Riga and Helsinki.",
+    alternates: buildAlternates(loc, "/monthly-ebike-rental"),
+  };
+}
 
 const pointKeys = [
   "predictablePrice",

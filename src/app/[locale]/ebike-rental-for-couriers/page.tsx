@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/ui/Reveal";
@@ -10,11 +12,20 @@ import { Faq } from "@/components/sections/Faq";
 import { modelService } from "@/services/modelService";
 import { steps } from "@/data/content";
 
-export const metadata: Metadata = {
-  title: "E-bike rental for couriers — rentaro",
-  description:
-    "rentaro is e-bike rental built for delivery couriers. Start quickly on a monthly plan, ride with service support and keep your bike — your income tool — moving. Tallinn, Riga and Helsinki.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  return {
+    title: "E-bike rental for couriers — rentaro",
+    description:
+      "rentaro is e-bike rental built for delivery couriers. Start quickly on a monthly plan, ride with service support and keep your bike — your income tool — moving. Tallinn, Riga and Helsinki.",
+    alternates: buildAlternates(loc, "/ebike-rental-for-couriers"),
+  };
+}
 
 const pointKeys = [
   "startThisWeek",
