@@ -1,30 +1,21 @@
 "use client";
 
-import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import {
-  locales,
-  localeNames,
-  LOCALE_COOKIE,
-  type Locale,
-} from "@/i18n/config";
+import { useLocale } from "next-intl";
+import { useRouter, usePathname } from "@/i18n/navigation";
+import { locales, localeNames, type Locale } from "@/i18n/config";
 
-/**
- * Cookie-based locale switcher (no i18n routing). Writes the NEXT_LOCALE
- * cookie and refreshes the route so the server re-renders with the new
- * catalog. Styled to sit quietly in the nav (mono, subtle).
- */
 export function LocaleSwitcher() {
   const activeLocale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
   function onChange(next: Locale) {
     if (next === activeLocale) return;
-    // 1 year, site-wide. lax is fine — no cross-site needs.
-    document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
-    startTransition(() => router.refresh());
+    startTransition(() => {
+      router.replace(pathname, { locale: next });
+    });
   }
 
   return (
