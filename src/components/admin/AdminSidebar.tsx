@@ -10,8 +10,7 @@
  * topbar; `open` / `onClose` drive that. A backdrop (rendered by the shell)
  * closes it on outside click.
  */
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import type { ReactElement } from "react";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { useAdminAuth } from "./AdminAuth";
