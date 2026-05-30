@@ -1,3 +1,4 @@
+import { resolveImg } from "@/services/modelService";
 import type { BikeModel } from "@/types";
 
 /**
@@ -77,11 +78,14 @@ function availabilityFor(status: BikeModel["status"]): string {
  * Product schema for a single bike model.
  *
  * Describes the bike and its lowest daily rental price as an Offer. No range /
- * km claims are emitted — only the spec-agnostic marketing fields. Image is
- * absolutised against the site URL so crawlers resolve it.
+ * km claims are emitted — only the spec-agnostic marketing fields. The image is
+ * absolutised so crawlers resolve it: admin-uploaded photos (`/api/...`) resolve
+ * to the API host via resolveImg, while bundled `/assets/...` shots are
+ * absolutised against the site URL.
  */
 export function buildProductSchema(m: BikeModel): Record<string, unknown> {
-  const image = m.img.startsWith("http") ? m.img : `${SITE_URL}${m.img}`;
+  const resolved = resolveImg(m.img);
+  const image = resolved.startsWith("http") ? resolved : `${SITE_URL}${resolved}`;
   return {
     "@context": "https://schema.org",
     "@type": "Product",

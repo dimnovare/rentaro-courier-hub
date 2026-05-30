@@ -8,7 +8,7 @@ import { Ic } from "@/components/ui/Icon";
 import { ModelCard } from "@/components/models/ModelCard";
 import { cities, getCityById } from "@/data/cities";
 import { getCityContent } from "@/data/cityContent";
-import { popularModels } from "@/data/bikeModels";
+import { modelService } from "@/services/modelService";
 
 type Params = { params: Promise<{ city: string }> };
 
@@ -60,6 +60,7 @@ export default async function CityPage({ params }: Params) {
   const content = getCityContent(city);
   if (!c || !content) notFound();
 
+  const popularModels = await modelService.getPopular();
   const t = await getTranslations("cityPage");
   const tc = await getTranslations("cities");
   const tContent = await getTranslations("cityContent");

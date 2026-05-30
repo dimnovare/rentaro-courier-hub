@@ -2,10 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { ModelCard } from "@/components/models/ModelCard";
-import { bikeModels } from "@/data/bikeModels";
+import { modelService } from "@/services/modelService";
 
 export async function Fleet() {
   const t = await getTranslations("fleet");
+  const bikeModels = await modelService.getModels();
   return (
     <section className="section-pad" id="fleet">
       <div className="wrap">

@@ -9,7 +9,7 @@ import { Gallery } from "@/components/models/Gallery";
 import { SpecTable } from "@/components/models/SpecTable";
 import { ReserveButton } from "@/components/models/ReserveButton";
 import { bikeModels, getModelBySlug } from "@/data/bikeModels";
-import { modelService } from "@/services/modelService";
+import { modelService, resolveImg } from "@/services/modelService";
 import { JsonLd, buildProductSchema } from "@/components/seo/JsonLd";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description =
     m.blurb ?? `${m.name} — available on 30-day, 6 or 12-month rentaro plans.`;
   const path = `/models/${m.slug}`;
+  const ogImage = resolveImg(m.img);
   return {
     title,
     description,
@@ -37,13 +38,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description,
       url: path,
       locale: "en",
-      images: [{ url: m.img, alt: m.name }],
+      images: [{ url: ogImage, alt: m.name }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [m.img],
+      images: [ogImage],
     },
   };
 }
@@ -63,7 +64,7 @@ export default async function ModelDetail({ params }: Params) {
         ? { label: t("avail.left", { count: m.availability }), color: "var(--warn)" }
         : { label: t("avail.waitlist"), color: "var(--danger)" };
   const isWait = m.status === "wait";
-  const images = [m.img, ...(m.gallery ?? [])];
+  const images = [m.img, ...(m.gallery ?? [])].map(resolveImg);
 
   return (
     <main>

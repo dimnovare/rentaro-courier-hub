@@ -96,6 +96,8 @@ export default function AdminContractsPage() {
             onAuthError={signOut}
           />
 
+          <PlaceholderReference />
+
           <AdminSection title="Templates" count={state.templates.length}>
             <TemplatesTable
               templates={state.templates}
@@ -213,6 +215,134 @@ function UploadCard({
             {busy ? "Uploading…" : "Upload template"}
           </button>
         </form>
+      </article>
+    </section>
+  );
+}
+
+/* ── Supported placeholders reference ──────────────────────────────────── */
+
+/**
+ * The exact tokens the backend fills on generation (see
+ * AdminContractEndpoints.BuildPlaceholderValuesAsync). Put any of these in the
+ * Word template as `{{token}}` and they are replaced when a contract is
+ * generated for a booking. Tokens whose data is not yet known (e.g. bike fields
+ * before a unit is assigned) resolve to an empty string.
+ */
+const PLACEHOLDER_TOKENS: { token: string; desc: string }[] = [
+  { token: "customerName", desc: "Customer full name" },
+  { token: "customerFirstName", desc: "First name" },
+  { token: "customerLastName", desc: "Last name" },
+  { token: "customerEmail", desc: "Email address" },
+  { token: "customerPhone", desc: "Phone number" },
+  { token: "city", desc: "City name" },
+  { token: "model", desc: "Bike model name" },
+  { token: "plan", desc: "Plan term (e.g. 30 days)" },
+  { token: "monthlyPrice", desc: "Monthly price" },
+  { token: "dailyPrice", desc: "Daily price" },
+  { token: "deposit", desc: "Deposit amount" },
+  { token: "startDate", desc: "Rental start date" },
+  { token: "plannedEndDate", desc: "Planned end date" },
+  { token: "bikeSerial", desc: "Assigned bike serial number" },
+  { token: "bikeInternalCode", desc: "Assigned bike internal code" },
+  { token: "lockId", desc: "Lock ID" },
+  { token: "batteryId", desc: "Battery ID" },
+  { token: "contractDate", desc: "Date the contract was generated" },
+  { token: "contractRef", desc: "Booking reference (id)" },
+  { token: "accessories", desc: "Selected accessories, comma-separated" },
+];
+
+/**
+ * Explains how customer/rental details get into a contract: you put `{{token}}`
+ * tokens in the Word template and they are auto-filled on generation. Lists
+ * every supported token as a copyable chip (click copies `{{token}}`).
+ */
+function PlaceholderReference() {
+  const [copied, setCopied] = useState<string | null>(null);
+
+  async function copy(token: string) {
+    const text = `{{${token}}}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(token);
+      window.setTimeout(() => setCopied((c) => (c === token ? null : c)), 1200);
+    } catch {
+      /* clipboard blocked (e.g. insecure context) — the token text is still visible to copy by hand. */
+    }
+  }
+
+  return (
+    <section style={{ marginBottom: 40 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
+        <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>Supported placeholders</h2>
+        <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
+          {PLACEHOLDER_TOKENS.length} tokens
+        </span>
+      </div>
+
+      <article className="card" style={{ padding: "22px 22px 8px" }}>
+        <p style={{ color: "var(--text-2)", fontSize: 13.5, margin: "0 0 6px", lineHeight: 1.6 }}>
+          Write any of these tokens in your Word template as{" "}
+          <span className="mono" style={{ color: "var(--lime)" }}>
+            {"{{token}}"}
+          </span>{" "}
+          and they are filled in automatically when a contract is generated for a booking.
+        </p>
+
+        <ol
+          style={{
+            color: "var(--text-muted)",
+            fontSize: 12.5,
+            lineHeight: 1.7,
+            margin: "0 0 18px",
+            paddingLeft: 18,
+          }}
+        >
+          <li>
+            Add tokens like{" "}
+            <span className="mono" style={{ color: "var(--text-2)" }}>
+              {"{{customerName}}"}
+            </span>{" "}
+            to your <span className="mono">.docx</span> template, then upload it above.
+          </li>
+          <li>Activate the template you want used for new contracts.</li>
+          <li>
+            On a booking (Bookings page → <b>Manage</b>) click <b>Generate contract</b> — the tokens are
+            filled and the customer is emailed to sign.
+          </li>
+        </ol>
+
+        <p style={{ color: "var(--text-dim)", fontSize: 11.5, margin: "0 0 10px" }}>
+          Click a token to copy it as <span className="mono">{"{{token}}"}</span>. Tokens with no data yet
+          (e.g. bike fields before a unit is assigned) are left blank.
+        </p>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {PLACEHOLDER_TOKENS.map((p) => (
+            <button
+              key={p.token}
+              type="button"
+              title={`${p.desc} — click to copy {{${p.token}}}`}
+              onClick={() => void copy(p.token)}
+              className="mono"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.03em",
+                padding: "5px 10px",
+                marginBottom: 8,
+                borderRadius: "var(--r-sm)",
+                background: copied === p.token ? "rgba(216,255,54,0.12)" : "var(--surface)",
+                border: `1px solid ${copied === p.token ? "rgba(216,255,54,0.4)" : "var(--border)"}`,
+                color: copied === p.token ? "var(--lime)" : "var(--text-2)",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "background 120ms, border-color 120ms, color 120ms",
+              }}
+            >
+              {copied === p.token ? "copied ✓" : `{{${p.token}}}`}
+            </button>
+          ))}
+        </div>
       </article>
     </section>
   );

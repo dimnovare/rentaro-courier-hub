@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
@@ -50,6 +50,7 @@ export function BookingWizard() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [startDate, setStartDate] = useState("");
+  const startRef = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -282,7 +283,36 @@ export function BookingWizard() {
             </div>
             <div className="field">
               <label htmlFor="start">{t("details.startDate")}</label>
-              <input id="start" type="date" min={today} value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <button
+                type="button"
+                className="date-field"
+                data-empty={startDate ? undefined : ""}
+                onClick={() => {
+                  const el = startRef.current;
+                  if (!el) return;
+                  // Open the native calendar on a tap anywhere in the field.
+                  // showPicker() is the modern path; focus()+click() is the fallback.
+                  if (typeof el.showPicker === "function") el.showPicker();
+                  else el.focus();
+                }}
+              >
+                <span className="date-field-ico" aria-hidden>
+                  <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3.5" y="5" width="17" height="16" rx="2" /><path d="M3.5 9.5 H20.5" /><path d="M8 3 V6" /><path d="M16 3 V6" /><path d="M7.5 13 H9" /><path d="M11.5 13 H13" /><path d="M15.5 13 H17" />
+                  </svg>
+                </span>
+                <input
+                  ref={startRef}
+                  id="start"
+                  type="date"
+                  min={today}
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <span className="date-field-caret" aria-hidden>
+                  <Ic.arrow />
+                </span>
+              </button>
             </div>
             <div className="field">
               <label htmlFor="notes">{t("details.notes")}</label>

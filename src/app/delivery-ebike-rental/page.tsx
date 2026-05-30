@@ -7,7 +7,7 @@ import { Ic } from "@/components/ui/Icon";
 import { ModelCard } from "@/components/models/ModelCard";
 import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
-import { popularModels } from "@/data/bikeModels";
+import { modelService } from "@/services/modelService";
 
 export const metadata: Metadata = {
   title: "Delivery e-bike rental — rentaro",
@@ -24,6 +24,7 @@ const pointKeys = [
 
 export default async function DeliveryEbikeRentalPage() {
   const t = await getTranslations("seo.delivery");
+  const popularModels = await modelService.getPopular();
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 56 }}>

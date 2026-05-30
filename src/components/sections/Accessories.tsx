@@ -2,10 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { getIcon } from "@/components/ui/Icon";
-import { accessories } from "@/data/accessories";
+import { accessoryService } from "@/services/accessoryService";
 
 export async function Accessories() {
   const t = await getTranslations("accessories");
+  const accessories = await accessoryService.getAccessories();
   return (
     <section className="section-pad">
       <div className="wrap">

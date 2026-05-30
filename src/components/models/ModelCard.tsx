@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Ic } from "@/components/ui/Icon";
+import { resolveImg } from "@/services/modelService";
 import type { BikeModel } from "@/types";
 
 export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: boolean }) {
@@ -27,7 +28,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           <span className="dot" />
           {avail.label}
         </span>
-        <img src={m.img} alt={m.name} loading="lazy" />
+        <img src={resolveImg(m.img)} alt={m.name} loading="lazy" />
       </Link>
       <div className="model-body">
         <h3>

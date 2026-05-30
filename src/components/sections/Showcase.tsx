@@ -1,63 +1,15 @@
-"use client";
+import { ShowcaseView } from "./ShowcaseView";
+import { modelService } from "@/services/modelService";
 
-import { useTranslations } from "next-intl";
-import { useInteractions } from "@/components/providers/Interactions";
-import { Reveal } from "@/components/ui/Reveal";
-import { Kicker } from "@/components/ui/Kicker";
-import { Ic } from "@/components/ui/Icon";
-import { enginePro } from "@/data/bikeModels";
-
-export function Showcase() {
-  const { reserve } = useInteractions();
-  const t = useTranslations("showcase");
-  const m = enginePro;
-  const hasRange = m.specs.some((s) => s.k === "Range");
-  return (
-    <section className="section-pad">
-      <div className="wrap">
-        <Reveal>
-          <div className="showcase">
-            <div className="showcase-grid">
-              <div className="showcase-media">
-                <img src="/assets/lifestyle-rider.webp" alt={t("mediaAlt")} />
-                <span className="tag">
-                  <Ic.spark s={13} />
-                  {t("tag")}
-                </span>
-              </div>
-              <div className="showcase-body">
-                <Kicker>{t("kicker")}</Kicker>
-                <h2>{t("heading")}</h2>
-                <p className="lead">{m.blurb}</p>
-                <div className="spec-table">
-                  {m.specs.map((s) => (
-                    <div className="spec-cell" key={s.k}>
-                      <div className="v">
-                        {s.v}
-                        {s.u && <span className="u">{s.u}</span>}
-                      </div>
-                      <div className="k">{s.k}</div>
-                    </div>
-                  ))}
-                </div>
-                {hasRange && (
-                  <div className="spec-note">
-                    {t("rangeNote")}
-                  </div>
-                )}
-                <div style={{ display: "flex", gap: 12, marginTop: 26, flexWrap: "wrap" }}>
-                  <button className="btn btn-primary" onClick={() => reserve("engine-pro")}>
-                    {t("cta")}
-                    <span className="arrow">
-                      <Ic.arrow />
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
+export async function Showcase() {
+  const models = await modelService.getModels();
+  // Prefer the explicitly-flagged showcase bike, then a popular one, then the
+  // first available model. With the API down this resolves to the same static
+  // pick (the Engine Pro).
+  const m =
+    models.find((x) => x.showcase) ??
+    models.find((x) => x.popular) ??
+    models[0];
+  if (!m) return null;
+  return <ShowcaseView m={m} />;
 }

@@ -7,7 +7,7 @@ import { Ic } from "@/components/ui/Icon";
 import { ModelCard } from "@/components/models/ModelCard";
 import { Pricing } from "@/components/sections/Pricing";
 import { Faq } from "@/components/sections/Faq";
-import { popularModels } from "@/data/bikeModels";
+import { modelService } from "@/services/modelService";
 import { steps } from "@/data/content";
 
 export const metadata: Metadata = {
@@ -26,6 +26,7 @@ const pointKeys = [
 export default async function EbikeRentalForCouriersPage() {
   const t = await getTranslations("seo.couriers");
   const th = await getTranslations("howItWorks");
+  const popularModels = await modelService.getPopular();
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 56 }}>

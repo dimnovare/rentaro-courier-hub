@@ -452,6 +452,26 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .field label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
 .field input, .field textarea { width: 100%; box-sizing: border-box; padding: 13px 15px; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 15px; }
 .field input:focus, .field textarea:focus { outline: none; border-color: var(--lime); }
+
+/* Friendly calendar date field — a tappable box wrapping a native date input.
+   Tapping anywhere opens the picker (via showPicker()); the leading calendar
+   icon makes it read clearly as a date, and the trailing chevron hints "opens".
+   Large 52px target works well on mobile and matches the dark + lime theme. */
+.date-field { all: unset; box-sizing: border-box; position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 14px; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); cursor: pointer; transition: border-color .2s, background .2s; }
+.date-field:hover { border-color: var(--border-strong); }
+.date-field:focus-within { border-color: var(--lime); }
+.date-field-ico { display: inline-grid; place-items: center; color: var(--lime); flex-shrink: 0; }
+.date-field-caret { display: inline-grid; place-items: center; color: var(--text-dim); flex-shrink: 0; margin-left: auto; transition: color .2s, transform .2s var(--ease-out); }
+.date-field:hover .date-field-caret { color: var(--text-muted); }
+.date-field input[type="date"] { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; padding: 14px 0; color: var(--text); font-family: var(--font-body); font-size: 15px; cursor: pointer; color-scheme: dark; }
+/* Dim the value text until a date is chosen, so the field reads like a prompt. */
+.date-field[data-empty] input[type="date"] { color: var(--text-dim); }
+/* Make the WebKit calendar indicator fill the field as a transparent click
+   target (fallback for cases where the wrapper click doesn't reach showPicker);
+   our own lime icon/chevron remain the visible affordances. */
+.date-field input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
+.date-field input[type="date"]::-webkit-datetime-edit { padding: 0; }
+
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
 .wizard-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 28px; }
@@ -604,8 +624,31 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-recent-row .when { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
 .admin-empty { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--text-dim); padding: 20px 2px; }
 
+/* ── Command palette (⌘K) ────────────────────────────────── */
+.cmdk-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 14vh 20px 20px; background: rgba(6, 8, 12, 0.66); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: admin-fade .14s var(--ease-out); }
+.cmdk { width: 100%; max-width: 560px; display: flex; flex-direction: column; max-height: 64vh; border-color: var(--border-strong); background: linear-gradient(180deg, rgba(20, 24, 33, 0.98), rgba(14, 17, 24, 0.98)); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03); animation: cmdk-pop .16s var(--ease-spring); }
+@keyframes cmdk-pop { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.cmdk-input-row { display: flex; align-items: center; gap: 11px; padding: 15px 16px; border-bottom: 1px solid var(--border); }
+.cmdk-search-ico { display: inline-grid; place-items: center; color: var(--text-dim); flex-shrink: 0; }
+.cmdk-input { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: var(--text); font-size: 15px; letter-spacing: -0.01em; padding: 2px 0; }
+.cmdk-input::placeholder { color: var(--text-dim); }
+.cmdk-esc { flex-shrink: 0; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); padding: 4px 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); }
+.cmdk-list { list-style: none; margin: 0; padding: 8px; overflow-y: auto; flex: 1; }
+.cmdk-opt { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 12px; border-radius: var(--r-sm); cursor: pointer; color: var(--text-muted); border: 1px solid transparent; }
+.cmdk-opt.is-active { background: rgba(216, 255, 54, 0.08); border-color: rgba(216, 255, 54, 0.22); color: var(--lime); }
+.cmdk-opt-label { font-size: 13.5px; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmdk-opt-group { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); flex-shrink: 0; }
+.cmdk-opt.is-active .cmdk-opt-group { color: var(--lime-2); opacity: 0.8; }
+.cmdk-empty { padding: 22px 12px; font-size: 12.5px; letter-spacing: 0.04em; color: var(--text-dim); text-align: center; }
+.cmdk-foot { display: flex; gap: 18px; padding: 10px 16px; border-top: 1px solid var(--border); font-size: 10.5px; letter-spacing: 0.05em; color: var(--text-dim); flex-wrap: wrap; }
+.cmdk-foot span { display: inline-flex; align-items: center; gap: 6px; }
+.cmdk-foot kbd, .cmdk-esc { font-family: var(--font-mono); }
+.cmdk-foot kbd { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: 10px; line-height: 1; }
+@media (max-width: 600px) { .cmdk-overlay { padding: 9vh 14px 14px; } .cmdk { max-height: 72vh; } .cmdk-foot { display: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   .bg-grid, .bg-scan, .hero-bike, .bike-shadow, .spec-chip, .stage-ring, .stage-arc, .streak, .marquee-track, .hero-pill .live { animation: none !important; }
   .admin-boot-dot, .admin-live-dot { animation: none !important; }
   .admin-signin-card, .admin-content, .admin-nav-indicator, .admin-sidebar, .admin-topbar-refresh svg { animation: none !important; transition: none !important; }
+  .cmdk-overlay, .cmdk { animation: none !important; }
 }
