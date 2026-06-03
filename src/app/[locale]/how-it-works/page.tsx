@@ -6,7 +6,7 @@ import { HowItWorks } from "@/components/sections/HowItWorks";
 
 const title = "How it works — start delivering on a rentaro e-bike | rentaro";
 const description =
-  "Choose your model and plan, sign the contract online and pay your deposit, then pick up or get local delivery. Start your first courier shift the same week.";
+  "Reserve free, get approved, then verify your identity, accept your contract and pay your first 30 days plus deposit in your portal — before we assign your bike and you pick up. Start your first courier shift the same week.";
 
 export const metadata: Metadata = {
   title,

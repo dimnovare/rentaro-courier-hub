@@ -36,6 +36,7 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallina · Rīga · Helsinki",
+    "citySoonSuffix": "{city} drīzumā",
     "independent": "Neatkarīgs nomas serviss",
     "legal": {
       "regCode": "Reģ. Nr.",
@@ -101,7 +102,7 @@
     "perDay": "/ dienā",
     "per30Suffix": "par 30 dienām · dienā × 30",
     "depositLine": "+€{amount} atmaksājams depozīts",
-    "dueAtPickup": "€{amount} jāmaksā saņemot",
+    "dueAtPickup": "€{amount} samaksā portālā — pēc apstiprināšanas un līguma pieņemšanas",
     "choose": "Izvēlēties {term}",
     "terms": {
       "p30": "30 dienas",
@@ -133,17 +134,33 @@
   },
   "howItWorks": {
     "kicker": "Kā tas notiek",
-    "heading": "No reģistrācijas līdz piegādei trīs soļos.",
+    "heading": "No rezervācijas līdz pirmajai maiņai septiņos soļos.",
     "steps": {
       "01": {
-        "title": "Izvēlies modeli un plānu",
-        "copy": "Izvēlies velosipēdu, kas piemērots tavām maiņām, un 30 dienu, 6 vai 12 mēnešu plānu. Jo garāks termiņš, jo zemāka dienas cena."
+        "title": "Rezervē velosipēdu",
+        "copy": "Izvēlies pilsētu, modeli un plānu un nosūti pieteikumu. Tagad nav ne maksājuma, ne parakstīšanas — rezervēšana ir bez maksas."
       },
       "02": {
-        "title": "Paraksti tiešsaistē un samaksā depozītu",
-        "copy": "Izej identitātes pārbaudi, paraksti digitālo līgumu un samaksā atmaksājamo depozītu — viss no telefona."
+        "title": "Mēs apstiprinām tavu rezervāciju",
+        "copy": "Pārbaudām pieejamību un apstiprinām rezervāciju e-pastā, parasti 24 stundu laikā."
       },
       "03": {
+        "title": "Apstiprini savu identitāti",
+        "copy": "Atver savu drošo nomas portālu no e-pasta saites un izej ātru identitātes pārbaudi — viss no telefona."
+      },
+      "04": {
+        "title": "Pārskati un pieņem līgumu",
+        "copy": "Izlasi precīzo piedāvājumu un paraksti digitālo nomas līgumu tiešsaistē. Tas aizņem minūti."
+      },
+      "05": {
+        "title": "Samaksā pirmās 30 dienas un depozītu",
+        "copy": "Portālā samaksā pirmo 30 dienu periodu un atmaksājamo depozītu — vienīgais maksājuma brīdis, pēc apstiprināšanas un līguma pieņemšanas."
+      },
+      "06": {
+        "title": "Mēs piešķiram tavu velosipēdu",
+        "copy": "Kad maksājums ir saņemts, piešķiram tavu fizisko velosipēdu ar slēdzeni, lādētāju un akumulatoru."
+      },
+      "07": {
         "title": "Saņem un sāc piegādāt",
         "copy": "Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi un sāc pirmo maiņu jau tajā pašā nedēļā."
       }
@@ -151,7 +168,8 @@
   },
   "cities": {
     "kicker": "Pieejamība pilsētās",
-    "heading": "Darbojamies trīs pilsētās.",
+    "heading": "Darbojamies {live}.",
+    "headingWithSoon": "Darbojamies {live} — {soon} drīzumā.",
     "lead": "Pieejamība reālajā laikā mūsu sākuma tirgos. Rezervē dažās sekundēs, saņem tajā pašā nedēļā.",
     "status": {
       "available": "Pieejams",
@@ -247,7 +265,7 @@
   },
   "booking": {
     "title": "Rezervē savu e-velosipēdu",
-    "intro": "{n} ātri soļi līdz tavam piegādes velosipēdam. Maksājums tagad nav vajadzīgs — pirms saņemšanas apstiprināsim pieejamību un nosūtīsim digitālo līgumu.",
+    "intro": "{n} ātri soļi, lai rezervētu savu piegādes velosipēdu. Tagad nav ne maksājuma, ne parakstīšanas — kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti, pieņemsi līgumu un samaksāsi pirms saņemšanas.",
     "steps": {
       "city": "Pilsēta",
       "model": "Modelis",
@@ -276,7 +294,7 @@
       "sub": "Jo ilgāks termiņš, jo zemāka dienas cena. Minimālais termiņš 30 dienas.",
       "perDay": "€{price}/dienā",
       "per30": "€{price} par 30 dienām",
-      "depositLine": "+€{deposit} atmaksājama drošības nauda · €{total} jāmaksā saņemot"
+      "depositLine": "+€{deposit} atmaksājama drošības nauda · €{total} samaksā portālā pēc apstiprināšanas"
     },
     "addons": {
       "heading": "Papildaprīkojums",
@@ -310,7 +328,7 @@
       "deposit": "Atmaksājams depozīts",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
-      "paymentNote": "Tagad maksājums netiek iekasēts — apstiprināsim pieejamību un nosūtīsim digitālo līgumu e-pastā. Pirmo 30 dienu periodu apmaksā tikai pēc nomas apstiprināšanas."
+      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti un pieņemsi līgumu, un tur samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas."
     },
     "buttons": {
       "cancel": "Atcelt",
@@ -335,18 +353,18 @@
   "success": {
     "heading": "Pieprasījums saņemts.",
     "headingNamed": "Pieprasījums saņemts, {name}.",
-    "body": "Drīzumā e-pastā apstiprināsim pieejamību un nosūtīsim tavu digitālo līgumu — maksājums nav ieturēts.",
+    "body": "Drīzumā apstiprināsim pieejamību un nosūtīsim tavu drošā portāla saiti — tagad nav ne maksājuma, ne parakstīšanas.",
     "reference": "Atsauces numurs",
     "model": "Modelis",
     "plan": "Plāns",
     "city": "Pilsēta",
     "startDate": "Sākuma datums",
-    "trackAndSign": "Seko rezervācijai un paraksti līgumu",
+    "trackAndSign": "Atver portālu, lai apstiprinātu identitāti, pieņemtu un samaksātu",
     "trackOnly": "Seko rezervācijai",
-    "cost": "Atmaksājama drošības nauda €{deposit} · €{total} jāmaksā saņemšanas brīdī",
+    "cost": "Atmaksājama drošības nauda €{deposit} · €{total} samaksā portālā pēc apstiprināšanas",
     "browseFleet": "Apskatīt parku",
     "backHome": "Atpakaļ uz sākumu",
-    "nextSteps": "Tālāk: pārbaudīsim pieejamību, piešķirsim velosipēdu un e-pastā nosūtīsim digitālo līgumu parakstīšanai — atbildēsim 24 stundu laikā.",
+    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, pēc tam portālā apstiprināsi identitāti, pieņemsi līgumu un samaksāsi pirmās 30 dienas + depozītu — pirms piešķiram velosipēdu un tu to saņem. Atbildēsim 24 stundu laikā.",
     "supportPrefix": "Jautājumi? Raksti mums uz"
   },
   "waitlist": {
@@ -471,6 +489,19 @@
       "Expired": "Beidzies derīgums",
       "Failed": "Neizdevās"
     }
+  },
+  "pay": {
+    "heading": "Samaksā un apstiprini savu nomu",
+    "statusPaid": "Apmaksāts",
+    "statusDue": "Jāveic maksājums",
+    "dueLead": "Esi apstiprināts un līgums pieņemts — pēdējais solis ir maksājums. Samaksā pirmo 30 dienu periodu un atmaksājamo depozītu, lai apstiprinātu savu nomu.",
+    "paidLead": "Tavs pirmais 30 dienu periods un atmaksājamais depozīts ir samaksāts. Tālāk piešķirsim velosipēdu un saskaņosim saņemšanu.",
+    "manualLead": "Esi apstiprināts un līgums pieņemts — maksājumu saskaņosim ar tevi tieši.",
+    "pay": "Samaksāt un apstiprināt",
+    "opening": "Atver…",
+    "paidConfirm": "Maksājums saņemts — tava noma ir apstiprināta.",
+    "manualNote": "Maksājumu saskaņosim saņemšanas brīdī — sazināsimies ar tevi.",
+    "failed": "Šobrīd neizdevās sākt maksājumu. Lūdzu, mēģini vēlreiz."
   },
   "enums": {
     "bookingStatus": {
@@ -695,8 +726,8 @@
     },
     "howItWorks": {
       "kicker": "Kā sākt",
-      "heading": "Izvēlies, paraksti, brauc.",
-      "lead": "Nokļūt uz rentaro e-velosipēda ir veidots tā, lai būtu ātri. Izvēlies modeli un plānu, nokārto dokumentus digitāli no sava tālruņa un saņem savu velosipēdu — ar servisa atbalstu, kas iekļauts no pirmās dienas, lai tavas maiņas turpinātos."
+      "heading": "Rezervē, apstiprini, pieņem, samaksā, brauc.",
+      "lead": "Nokļūt uz rentaro e-velosipēda ir veidots tā, lai būtu ātri. Rezervē bez maksas, un, tiklīdz apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti, pieņemsi līgumu un samaksāsi pirmās 30 dienas un depozītu — pēc tam saņem savu velosipēdu ar servisa atbalstu jau no pirmās dienas."
     },
     "faq": {
       "kicker": "BUJ",

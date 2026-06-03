@@ -7,6 +7,8 @@ import {
   updateModel,
   deleteModel,
   uploadModelImage,
+  uploadModelGalleryImage,
+  deleteModelGalleryImage,
   modelImageUrl,
   ModelApiError,
   ModelConfigError,
@@ -219,6 +221,34 @@ export default function AdminModelsPage() {
     }
   }
 
+  /** Append one image to a model's gallery (R2-hosted). */
+  async function uploadGalleryImage(code: string, file: File) {
+    setActionError(null);
+    setBusy(code, true);
+    try {
+      const updated = await uploadModelGalleryImage(code, file);
+      replaceModel(updated);
+    } catch (err) {
+      handleActionError(err, `Could not add a gallery image for ${code}.`);
+    } finally {
+      setBusy(code, false);
+    }
+  }
+
+  /** Remove one gallery image (by its url) from a model. */
+  async function removeGalleryImage(code: string, url: string) {
+    setActionError(null);
+    setBusy(code, true);
+    try {
+      const updated = await deleteModelGalleryImage(code, url);
+      replaceModel(updated);
+    } catch (err) {
+      handleActionError(err, `Could not remove the gallery image for ${code}.`);
+    } finally {
+      setBusy(code, false);
+    }
+  }
+
   const usedCodes = useMemo(
     () => (state.phase === "ready" ? state.models.map((m) => m.code) : []),
     [state],
@@ -317,6 +347,16 @@ export default function AdminModelsPage() {
             onDelete={editingModel ? () => void removeModel(editingModel.code) : undefined}
             onUpload={
               editingModel ? (file) => void uploadImage(editingModel.code, file) : undefined
+            }
+            onGalleryUpload={
+              editingModel
+                ? (file) => void uploadGalleryImage(editingModel.code, file)
+                : undefined
+            }
+            onGalleryRemove={
+              editingModel
+                ? (url) => void removeGalleryImage(editingModel.code, url)
+                : undefined
             }
           />
         </>
@@ -474,7 +514,6 @@ interface EditorFields {
   name: string;
   tagline: string;
   blurb: string;
-  img: string;
   fromDay: string;
   status: string;
   availability: string;
@@ -497,6 +536,8 @@ function ModelEditor({
   onSave,
   onDelete,
   onUpload,
+  onGalleryUpload,
+  onGalleryRemove,
 }: {
   open: boolean;
   mode: "create" | "edit";
@@ -512,6 +553,10 @@ function ModelEditor({
   onDelete?: () => void;
   /** Edit mode only — upload/replace this model's photo. */
   onUpload?: (file: File) => void;
+  /** Edit mode only — append an image to this model's gallery. */
+  onGalleryUpload?: (file: File) => void;
+  /** Edit mode only — remove one gallery image by its url. */
+  onGalleryRemove?: (url: string) => void;
 }) {
   const [f, setF] = useState<EditorFields>(() => initialFields(model ?? undefined));
   const [submitting, setSubmitting] = useState(false);
@@ -567,7 +612,6 @@ function ModelEditor({
       name: f.name.trim(),
       tagline: f.tagline.trim(),
       blurb: f.blurb.trim(),
-      img: f.img.trim(),
       fromDay: parseNum(f.fromDay),
       status: f.status,
       availability: parseIntOr0(f.availability),
@@ -656,6 +700,32 @@ function ModelEditor({
             fileRef={fileRef}
             onUpload={onUpload}
           />
+        )}
+
+        {/* Gallery (edit only — same constraint as the main photo). */}
+        {mode === "edit" && model && onGalleryUpload && onGalleryRemove && (
+          <GalleryUploadField
+            model={model}
+            busy={busy}
+            onGalleryUpload={onGalleryUpload}
+            onGalleryRemove={onGalleryRemove}
+          />
+        )}
+
+        {/* Create mode: photo + gallery uploads unlock once the model is saved
+            (they need a code). Mirror the long-standing behaviour with a hint. */}
+        {mode === "create" && (
+          <p
+            className="mono"
+            style={{
+              fontSize: 11,
+              color: "var(--text-dim)",
+              margin: "0 0 18px",
+              lineHeight: 1.5,
+            }}
+          >
+            Save the model first, then upload its photo and gallery images.
+          </p>
         )}
 
         {/* Identity + pricing row */}
@@ -781,15 +851,6 @@ function ModelEditor({
             </span>
           </label>
         </Field>
-        <Field label="Image path / URL" hint="used if no photo uploaded">
-          <input
-            value={f.img}
-            onChange={(e) => set("img", e.target.value)}
-            placeholder="/assets/models/…webp or https://…"
-            aria-label="Image path or URL"
-            style={inputStyle}
-          />
-        </Field>
       </div>
 
       {/* Pills (comma-separated) */}
@@ -908,6 +969,118 @@ function ImageUploadField({
   );
 }
 
+/* ── In-drawer gallery uploader (edit mode) ────────────────────────────── */
+
+function GalleryUploadField({
+  model,
+  busy,
+  onGalleryUpload,
+  onGalleryRemove,
+}: {
+  model: AdminModel;
+  busy: boolean;
+  onGalleryUpload: (file: File) => void;
+  onGalleryRemove: (url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const gallery = model.gallery ?? [];
+
+  function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) onGalleryUpload(file);
+    // Reset so picking the same file again still fires onChange.
+    e.target.value = "";
+  }
+
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <Field label="Gallery" hint={gallery.length ? `${gallery.length} image${gallery.length === 1 ? "" : "s"}` : "none yet"}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          {gallery.map((url) => (
+            <GalleryThumb
+              key={url}
+              url={url}
+              busy={busy}
+              onRemove={() => onGalleryRemove(url)}
+            />
+          ))}
+          <RowAction onClick={() => fileRef.current?.click()} disabled={busy}>
+            {busy ? "Working…" : "+ Add image"}
+          </RowAction>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={pickFile}
+            style={{ display: "none" }}
+            aria-label={`Add a gallery image for ${model.code}`}
+          />
+        </div>
+      </Field>
+    </div>
+  );
+}
+
+/** One gallery thumbnail with a remove (×) overlay button. */
+function GalleryThumb({
+  url,
+  busy,
+  onRemove,
+}: {
+  url: string;
+  busy: boolean;
+  onRemove: () => void;
+}) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: 56,
+        height: 42,
+        borderRadius: "var(--r-sm)",
+        border: "1px solid var(--border)",
+        background: "var(--surface)",
+        overflow: "hidden",
+        flexShrink: 0,
+      }}
+    >
+      <img
+        src={url}
+        alt="Gallery image"
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+      />
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={busy}
+        aria-label="Remove gallery image"
+        title="Remove gallery image"
+        className="mono"
+        style={{
+          position: "absolute",
+          top: 2,
+          right: 2,
+          width: 18,
+          height: 18,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "var(--r-full)",
+          background: "rgba(10, 10, 12, 0.78)",
+          border: "1px solid var(--border-strong)",
+          color: "var(--text)",
+          fontSize: 11,
+          lineHeight: 1,
+          cursor: busy ? "not-allowed" : "pointer",
+          opacity: busy ? 0.5 : 1,
+        }}
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
 function initialFields(model?: AdminModel): EditorFields {
   return {
     code: model?.code ?? "",
@@ -915,7 +1088,6 @@ function initialFields(model?: AdminModel): EditorFields {
     name: model?.name ?? "",
     tagline: model?.tagline ?? "",
     blurb: model?.blurb ?? "",
-    img: model?.img ?? "",
     fromDay: model?.fromDay != null ? String(model.fromDay) : "5.90",
     status: model?.status ?? MODEL_STATUSES[0].value,
     availability: model?.availability != null ? String(model.availability) : "0",

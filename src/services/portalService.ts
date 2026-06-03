@@ -19,6 +19,15 @@ export interface PortalRental {
   plannedEndDate?: string | null;
   unitCode?: string | null;
   pickup?: string | null;
+  /**
+   * Where this booking sits in the (post-approval) payment flow:
+   * - `paid` — the first 30-day period + deposit are settled
+   * - `pending` / `pending_manual` — payment is due (online or arranged at pickup)
+   * - `null` — not payable yet (e.g. not approved / no contract accepted)
+   */
+  paymentStatus?: "paid" | "pending" | "pending_manual" | null;
+  /** The booking id, used to start a payment via `POST /api/payments/booking/{id}`. */
+  bookingId?: string | null;
 }
 
 /** Acknowledgement returned by the portal write endpoints. */

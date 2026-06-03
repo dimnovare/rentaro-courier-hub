@@ -10,7 +10,6 @@ import { bikeModels } from "@/data/bikeModels";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
-import { createBookingPayment } from "@/services/paymentService";
 import { track } from "@/services/analytics";
 import type { PlanId } from "@/types";
 
@@ -163,17 +162,10 @@ export function BookingWizard() {
       };
       sessionStorage.setItem("rentaro_booking", JSON.stringify(summary));
 
-      // Start payment for the first 30-day period. When Montonio is configured the
-      // backend returns a hosted checkout URL to redirect to; otherwise it skips
-      // payment (no keys) and we continue straight to the success page.
-      const payment = await createBookingPayment(result.id);
-      if (payment.checkoutUrl) {
-        // Montonio is configured → off to hosted checkout.
-        track("payment_redirect", { plan: planId });
-        window.location.href = payment.checkoutUrl;
-        return;
-      }
-      // No payment provider keys → skip straight to the success page.
+      // No payment here — reserving is free. The customer pays the first 30-day
+      // period + deposit later, in the rental portal, only after rentaro approves
+      // the booking and they've accepted the contract (see ManageRental's Pay
+      // step). Go straight to the success page.
       track("booking_success", { plan: planId });
       router.push("/booking/success");
     } catch {

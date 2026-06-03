@@ -36,6 +36,7 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riga · Helsinki",
+    "citySoonSuffix": "{city} soon",
     "independent": "Independent rental service",
     "legal": {
       "regCode": "Reg. code",
@@ -101,7 +102,7 @@
     "perDay": "/ day",
     "per30Suffix": "per 30 days · daily × 30",
     "depositLine": "+€{amount} refundable deposit",
-    "dueAtPickup": "€{amount} due at pickup",
+    "dueAtPickup": "€{amount} paid in your portal — after you're approved & have accepted the contract",
     "choose": "Choose {term}",
     "terms": {
       "p30": "30 days",
@@ -133,17 +134,33 @@
   },
   "howItWorks": {
     "kicker": "How it works",
-    "heading": "From signup to delivery in three steps.",
+    "heading": "From reserve to first shift in seven steps.",
     "steps": {
       "01": {
-        "title": "Choose your model and plan",
-        "copy": "Pick the bike that fits your shifts and a 30-day, 6 or 12-month plan. The longer the term, the lower the daily price."
+        "title": "Reserve your bike",
+        "copy": "Pick your city, model and plan and send your request. No payment and no signing now — reserving is free."
       },
       "02": {
-        "title": "Sign online & pay deposit",
-        "copy": "Complete identity check, sign the digital contract and pay the refundable deposit — all from your phone."
+        "title": "We approve your booking",
+        "copy": "We check availability and confirm your booking by email, usually within 24 hours."
       },
       "03": {
+        "title": "Verify your identity",
+        "copy": "Open your secure rental portal from the email link and complete a quick identity check — all from your phone."
+      },
+      "04": {
+        "title": "Review & accept your contract",
+        "copy": "Read the exact offer and sign your digital rental agreement online. It takes a minute."
+      },
+      "05": {
+        "title": "Pay your first 30 days + deposit",
+        "copy": "Pay the first 30-day period and the refundable deposit in the portal — the only payment moment, after you're approved and have accepted the contract."
+      },
+      "06": {
+        "title": "We assign your bike",
+        "copy": "Once payment clears we assign your physical bike with its lock, charger and battery."
+      },
+      "07": {
         "title": "Pick up and start delivering",
         "copy": "Collect at a city pickup point or request local delivery, then start your first shift the same week."
       }
@@ -151,7 +168,8 @@
   },
   "cities": {
     "kicker": "City availability",
-    "heading": "Live in three cities.",
+    "heading": "Live in {live}.",
+    "headingWithSoon": "Live in {live} — {soon} soon.",
     "lead": "Real-time availability across our launch markets. Reserve in seconds, pick up the same week.",
     "status": {
       "available": "Available",
@@ -247,7 +265,7 @@
   },
   "booking": {
     "title": "Reserve your e-bike",
-    "intro": "{n} quick steps to your delivery bike. No payment now — we confirm availability and send your digital contract before pickup.",
+    "intro": "{n} quick steps to reserve your delivery bike. No payment and no signing now — once we approve your booking, you'll verify your identity, accept your contract and pay in your portal, before pickup.",
     "steps": {
       "city": "City",
       "model": "Model",
@@ -276,7 +294,7 @@
       "sub": "The longer the term, the lower the daily price. Minimum 30 days.",
       "perDay": "€{price}/day",
       "per30": "€{price} per 30 days",
-      "depositLine": "+€{deposit} refundable deposit · €{total} due at pickup"
+      "depositLine": "+€{deposit} refundable deposit · €{total} paid in your portal after approval"
     },
     "addons": {
       "heading": "Add-ons",
@@ -306,7 +324,7 @@
       "deposit": "Refundable deposit",
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
-      "paymentNote": "No payment is taken now — we'll confirm availability and email your digital contract. You pay the first 30-day period only after your rental is approved."
+      "paymentNote": "No payment and no signing now. After we approve your booking, you'll verify your identity and accept your contract in your portal, then pay the first 30-day period and refundable deposit there — all before pickup."
     },
     "buttons": {
       "cancel": "Cancel",
@@ -335,18 +353,18 @@
   "success": {
     "heading": "Request received.",
     "headingNamed": "Request received, {name}.",
-    "body": "We'll confirm availability and send your digital contract by email shortly — no payment has been taken.",
+    "body": "We'll confirm availability shortly and email your secure portal link — no payment and no signing yet.",
     "reference": "Reference",
     "model": "Model",
     "plan": "Plan",
     "city": "City",
     "startDate": "Start date",
-    "trackAndSign": "Track your booking & sign your contract",
+    "trackAndSign": "Open your portal to verify, accept & pay",
     "trackOnly": "Track your booking",
-    "cost": "Refundable deposit €{deposit} · €{total} due at pickup",
+    "cost": "Refundable deposit €{deposit} · €{total} paid in your portal after approval",
     "browseFleet": "Browse the fleet",
     "backHome": "Back home",
-    "nextSteps": "Next: we check availability, assign your bike and email your digital contract to sign — we reply within 24h.",
+    "nextSteps": "Next: we approve your booking, then in your portal you verify your identity, accept your contract and pay your first 30 days + deposit — before we assign your bike and you pick it up. We reply within 24h.",
     "supportPrefix": "Questions? Email us at"
   },
   "waitlist": {
@@ -471,6 +489,19 @@
       "Expired": "Expired",
       "Failed": "Failed"
     }
+  },
+  "pay": {
+    "heading": "Pay & confirm your rental",
+    "statusPaid": "Paid",
+    "statusDue": "Payment due",
+    "dueLead": "You're approved and your contract is accepted — the last step is payment. Pay your first 30-day period and refundable deposit to confirm your rental.",
+    "paidLead": "Your first 30-day period and refundable deposit are settled. We'll assign your bike and arrange pickup next.",
+    "manualLead": "You're approved and your contract is accepted — we'll arrange payment with you directly.",
+    "pay": "Pay & confirm",
+    "opening": "Opening…",
+    "paidConfirm": "Payment received — your rental is confirmed.",
+    "manualNote": "Payment will be arranged at pickup — we'll be in touch.",
+    "failed": "Couldn't start payment just now. Please try again."
   },
   "enums": {
     "bookingStatus": {
@@ -695,8 +726,8 @@
     },
     "howItWorks": {
       "kicker": "Getting started",
-      "heading": "Choose, sign, ride.",
-      "lead": "Getting on a rentaro e-bike is built to be fast. Pick a model and plan, handle the paperwork digitally from your phone and collect your bike — with service support included from day one so your shifts keep running."
+      "heading": "Reserve, verify, accept, pay, ride.",
+      "lead": "Getting on a rentaro e-bike is built to be fast. Reserve free, and once we approve your booking you verify your identity, accept your contract and pay your first 30 days plus deposit in your portal — then pick up your bike, with service support included from day one."
     },
     "faq": {
       "kicker": "FAQ",

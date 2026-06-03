@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { company } from "@/data/company";
+import { cities } from "@/data/cities";
 
 /** Footer link tree. Hrefs are stable; labels are resolved from the
  *  `footer.links` namespace so copy lives in the catalog. */
@@ -47,6 +48,15 @@ const columns: {
 
 export async function Footer() {
   const t = await getTranslations("footer");
+
+  // Derive the meta city line from data so it never implies a "soon" market is
+  // already live. Live cities first, then each "soon" city tagged as such.
+  const live = cities.filter((c) => c.status !== "soon").map((c) => c.name);
+  const soon = cities.filter((c) => c.status === "soon").map((c) => c.name);
+  const cityLine = [
+    ...live,
+    ...soon.map((name) => t("citySoonSuffix", { city: name })),
+  ].join(" · ");
   return (
     <div className="wrap">
       <footer className="foot">
@@ -94,7 +104,7 @@ export async function Footer() {
           </Link>
           <div className="foot-meta">
             <span>{t("copyright")}</span>
-            <span>{t("cityLine")}</span>
+            <span>{cityLine}</span>
             <span>{t("independent")}</span>
           </div>
         </div>

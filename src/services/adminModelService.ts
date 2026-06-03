@@ -14,10 +14,15 @@
  *   PUT    /api/admin/models/{code}           (update)
  *   DELETE /api/admin/models/{code}           (delete)
  *   POST   /api/admin/models/{code}/image     (multipart upload, field `file`)
+ *   POST   /api/admin/models/{code}/gallery   (multipart upload, field `file` — appends)
+ *   DELETE /api/admin/models/{code}/gallery   (remove one gallery image by its url)
  *
  * The uploaded image is served publicly (no auth) and is referenced directly on
  * the backend origin via {@link modelImageUrl}:
  *   GET    /api/public/models/{code}/image
+ *
+ * Gallery images are stored on R2 and returned as absolute urls in
+ * {@link AdminModel.gallery}; they are used directly as <img src>.
  */
 import { API_BASE } from "@/services/api";
 
@@ -56,6 +61,11 @@ export interface AdminModel {
   pills: string[];
   spec: AdminModelSpec | null;
   hasUploadedImage: boolean;
+  /**
+   * Absolute urls of the model's gallery images (R2-hosted). Safe to use
+   * directly as <img src>. Empty when the model has no gallery images yet.
+   */
+  gallery: string[];
 }
 
 /**
@@ -210,6 +220,32 @@ export function uploadModelImage(code: string, file: File): Promise<AdminModel> 
   return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}/image`, {
     method: "POST",
     body: form,
+  });
+}
+
+/**
+ * Append an image to a model's gallery. Sent as multipart/form-data with the
+ * file under the field name `file`. Returns the updated model (with the new
+ * image appended to `gallery`), so the page can refresh its thumbnails.
+ */
+export function uploadModelGalleryImage(code: string, file: File): Promise<AdminModel> {
+  const form = new FormData();
+  form.append("file", file);
+  return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}/gallery`, {
+    method: "POST",
+    body: form,
+  });
+}
+
+/**
+ * Remove a single gallery image (identified by its url) from a model. Returns
+ * the updated model so the page can refresh its thumbnails. The url is sent in
+ * the JSON body so it round-trips unambiguously regardless of its contents.
+ */
+export function deleteModelGalleryImage(code: string, url: string): Promise<AdminModel> {
+  return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}/gallery`, {
+    method: "DELETE",
+    body: JSON.stringify({ url }),
   });
 }
 

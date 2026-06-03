@@ -108,7 +108,8 @@ export default function BookingSuccessPage() {
                 )}
 
                 {/* Restated cost: refundable deposit (= one 30-day period) plus the
-                    total due at pickup (two periods). Only shown once we have the price. */}
+                    total paid later in the portal — after approval and contract
+                    acceptance (two periods). Only shown once we have the price. */}
                 {s && s.monthly > 0 && (
                   <p
                     className="mono"

@@ -23,6 +23,7 @@ import {
   type PortalContract,
   type ContractResult,
 } from "@/services/contractService";
+import { createBookingPayment } from "@/services/paymentService";
 
 /**
  * Map the API status (lowercased enum name) to its badge tone. Friendly labels
@@ -236,6 +237,11 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
       </Reveal>
 
       <ContractCard token={token} />
+
+      <PayCard
+        bookingId={rental.bookingId ?? rental.reference}
+        paymentStatus={rental.paymentStatus ?? null}
+      />
 
       <RewardsCard token={token} />
 
@@ -551,6 +557,144 @@ function ContractCard({ token }: { token: string }) {
             >
               {t("notAvailableNote")}
             </p>
+          )}
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
+/* ── Pay & confirm card ───────────────────────────────────────────────────── */
+
+/**
+ * "Pay & confirm your rental" card. This is the single payment moment in the
+ * whole flow: it appears only after the booking is approved and the contract is
+ * accepted/signed, and charges the first 30-day period + the refundable deposit.
+ *
+ * Behaviour by `paymentStatus`:
+ * - `paid` → show a "Paid ✓" confirmation, no action.
+ * - `pending` / `pending_manual` / `null` → show the Pay action. Clicking calls
+ *   `POST /api/payments/booking/{bookingId}`: a `checkoutUrl` (Montonio) is
+ *   redirected to; otherwise (manual / PendingManual, e.g. Montonio not yet
+ *   live) we tell the rider payment is arranged at pickup.
+ *
+ * The card hides itself when there's nothing payable to show (no booking id, or
+ * status null with no manual fallback surfaced yet) so it never appears before
+ * the rider has been approved and accepted their contract.
+ */
+function PayCard({
+  bookingId,
+  paymentStatus,
+}: {
+  bookingId: string;
+  paymentStatus: "paid" | "pending" | "pending_manual" | null;
+}) {
+  const t = useTranslations("pay");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Once a manual/PendingManual response comes back, surface the "arranged at
+  // pickup" note even if the server's stored status was still generic.
+  const [manual, setManual] = useState(paymentStatus === "pending_manual");
+
+  const isPaid = paymentStatus === "paid";
+  const showManual = manual || paymentStatus === "pending_manual";
+  const canPay = !isPaid && !!bookingId.trim();
+
+  async function onPay() {
+    if (busy || !canPay) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await createBookingPayment(bookingId);
+      if (res.checkoutUrl) {
+        // Montonio configured → hand off to hosted checkout.
+        window.location.href = res.checkoutUrl;
+        return;
+      }
+      // No online checkout (Montonio not live) → arrange at pickup.
+      setManual(true);
+    } catch {
+      setError(t("failed"));
+    }
+    setBusy(false);
+  }
+
+  // Nothing to show until the rider is in the payment stage.
+  if (!isPaid && !canPay && !showManual) return null;
+
+  const variant = isPaid ? "popular" : "cargo";
+
+  return (
+    <Reveal delay={62}>
+      <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+        <div style={{ padding: "24px 24px 22px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 14,
+            }}
+          >
+            <h3 style={{ fontSize: 18, letterSpacing: "-0.02em" }}>{t("heading")}</h3>
+            <span className={`model-badge ${variant}`} style={{ position: "static" }}>
+              {isPaid ? t("statusPaid") : t("statusDue")}
+            </span>
+          </div>
+
+          <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
+            {isPaid ? t("paidLead") : showManual ? t("manualLead") : t("dueLead")}
+          </p>
+
+          {isPaid ? (
+            <p
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 14,
+                color: "var(--lime)",
+                margin: 0,
+              }}
+            >
+              <Ic.check s={14} />
+              {t("paidConfirm")}
+            </p>
+          ) : showManual ? (
+            <p
+              className="mono"
+              style={{
+                fontSize: 12,
+                color: "var(--text-dim)",
+                letterSpacing: "0.02em",
+                margin: 0,
+              }}
+            >
+              {t("manualNote")}
+            </p>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="btn btn-primary btn-block"
+                disabled={busy}
+                onClick={onPay}
+                style={busy ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+              >
+                {busy ? t("opening") : t("pay")}
+                {!busy && (
+                  <span className="arrow">
+                    <Ic.arrow />
+                  </span>
+                )}
+              </button>
+              {error && (
+                <p className="wizard-err" role="status">
+                  {error}
+                </p>
+              )}
+            </>
           )}
         </div>
       </article>

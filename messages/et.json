@@ -36,6 +36,7 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riia · Helsingi",
+    "citySoonSuffix": "{city} peagi",
     "independent": "Sõltumatu renditeenus",
     "legal": {
       "regCode": "Reg. kood",
@@ -101,7 +102,7 @@
     "perDay": "/ päev",
     "per30Suffix": "30 päeva kohta · päevatasu × 30",
     "depositLine": "+€{amount} tagastatav tagatisraha",
-    "dueAtPickup": "€{amount} tasuda kättesaamisel",
+    "dueAtPickup": "€{amount} makstud portaalis — pärast kinnitamist ja lepingu vastuvõtmist",
     "choose": "Vali {term}",
     "terms": {
       "p30": "30 päeva",
@@ -133,17 +134,33 @@
   },
   "howItWorks": {
     "kicker": "Kuidas see töötab",
-    "heading": "Registreerumisest tarneteni kolme sammuga.",
+    "heading": "Broneeringust esimese vahetuseni seitsme sammuga.",
     "steps": {
       "01": {
-        "title": "Vali mudel ja pakett",
-        "copy": "Vali ratas, mis sobib su vahetustega, ning 30 päeva, 6 või 12 kuu pakett. Mida pikem periood, seda madalam päevatasu."
+        "title": "Broneeri ratas",
+        "copy": "Vali linn, mudel ja pakett ning saada taotlus. Praegu ei maksa ega allkirjasta midagi — broneerimine on tasuta."
       },
       "02": {
-        "title": "Allkirjasta veebis ja maksa tagatisraha",
-        "copy": "Läbi isikutuvastus, allkirjasta digileping ja maksa tagastatav tagatisraha — kõik telefonist."
+        "title": "Kinnitame su broneeringu",
+        "copy": "Kontrollime saadavust ja kinnitame broneeringu e-postiga, tavaliselt 24 tunni jooksul."
       },
       "03": {
+        "title": "Tuvasta oma isik",
+        "copy": "Ava e-kirja lingilt oma turvaline rendiportaal ja läbi kiire isikutuvastus — kõik telefonist."
+      },
+      "04": {
+        "title": "Vaata üle ja kinnita leping",
+        "copy": "Loe täpne pakkumine läbi ja allkirjasta digitaalne rendileping veebis. See võtab minuti."
+      },
+      "05": {
+        "title": "Maksa esimesed 30 päeva ja tagatisraha",
+        "copy": "Maksa portaalis esimese 30-päevase perioodi ja tagastatava tagatisraha eest — ainus maksehetk, pärast kinnitamist ja lepingu vastuvõtmist."
+      },
+      "06": {
+        "title": "Määrame su ratta",
+        "copy": "Kui makse on laekunud, määrame su füüsilise ratta koos luku, laadija ja akuga."
+      },
+      "07": {
         "title": "Tule järele ja alusta tarnimist",
         "copy": "Tule rattale järele linna järeletulekupunkti või telli kohale toomine ning alusta esimest vahetust juba samal nädalal."
       }
@@ -151,7 +168,8 @@
   },
   "cities": {
     "kicker": "Saadavus linnades",
-    "heading": "Töös kolmes linnas.",
+    "heading": "Töös linnades {live}.",
+    "headingWithSoon": "Töös linnades {live} — {soon} peagi.",
     "lead": "Reaalajas saadavus meie esimestel turgudel. Broneeri sekunditega, tule järele juba samal nädalal.",
     "status": {
       "available": "Saadaval",
@@ -247,7 +265,7 @@
   },
   "booking": {
     "title": "Broneeri oma e-jalgratas",
-    "intro": "{n} kiiret sammu sinu tarnerööri juurde. Praegu ei maksa midagi — kinnitame saadavuse ja saadame digilepingu enne kättesaamist.",
+    "intro": "{n} kiiret sammu, et broneerida oma tarneratas. Praegu ei maksa ega allkirjasta midagi — kui kinnitame su broneeringu, tuvastad portaalis isiku, võtad lepingu vastu ja maksad enne kättesaamist.",
     "steps": {
       "city": "Linn",
       "model": "Mudel",
@@ -276,7 +294,7 @@
       "sub": "Mida pikem periood, seda madalam päevahind. Vähemalt 30 päeva.",
       "perDay": "€{price}/päev",
       "per30": "€{price} 30 päeva eest",
-      "depositLine": "+€{deposit} tagastatav tagatisraha · €{total} tasuda kättesaamisel"
+      "depositLine": "+€{deposit} tagastatav tagatisraha · €{total} makstud portaalis pärast kinnitamist"
     },
     "addons": {
       "heading": "Lisad",
@@ -306,7 +324,7 @@
       "deposit": "Tagastatav tagatisraha",
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
-      "paymentNote": "Praegu makset ei võeta — kinnitame saadavuse ja saadame digilepingu e-postiga. Esimese 30-päevase perioodi eest tasud alles pärast rendi kinnitamist."
+      "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, tuvastad portaalis isiku ja võtad lepingu vastu ning maksad seal esimese 30-päevase perioodi ja tagastatava tagatisraha — kõik enne kättesaamist."
     },
     "buttons": {
       "cancel": "Tühista",
@@ -335,18 +353,18 @@
   "success": {
     "heading": "Taotlus vastu võetud.",
     "headingNamed": "Taotlus vastu võetud, {name}.",
-    "body": "Kinnitame peagi saadavuse ja saadame digilepingu e-postiga — makset ei ole võetud.",
+    "body": "Kinnitame peagi saadavuse ja saadame su turvalise portaali lingi — praegu ei maksa ega allkirjasta midagi.",
     "reference": "Viitenumber",
     "model": "Mudel",
     "plan": "Pakett",
     "city": "Linn",
     "startDate": "Alguskuupäev",
-    "trackAndSign": "Jälgi broneeringut ja allkirjasta leping",
+    "trackAndSign": "Ava portaal, et tuvastada isik, võtta vastu ja maksta",
     "trackOnly": "Jälgi broneeringut",
-    "cost": "Tagastatav tagatis €{deposit} · €{total} tasuda kättesaamisel",
+    "cost": "Tagastatav tagatis €{deposit} · €{total} makstud portaalis pärast kinnitamist",
     "browseFleet": "Sirvi pargi",
     "backHome": "Tagasi avalehele",
-    "nextSteps": "Järgmisena: kontrollime saadavust, määrame ratta ja saadame e-postiga digilepingu allkirjastamiseks — vastame 24 tunni jooksul.",
+    "nextSteps": "Järgmisena: kinnitame su broneeringu, seejärel portaalis tuvastad isiku, võtad lepingu vastu ja maksad esimesed 30 päeva + tagatisraha — enne kui määrame ratta ja tuled järele. Vastame 24 tunni jooksul.",
     "supportPrefix": "Küsimused? Kirjuta meile aadressil"
   },
   "waitlist": {
@@ -471,6 +489,19 @@
       "Expired": "Aegunud",
       "Failed": "Ebaõnnestus"
     }
+  },
+  "pay": {
+    "heading": "Maksa ja kinnita oma rent",
+    "statusPaid": "Makstud",
+    "statusDue": "Makse ootel",
+    "dueLead": "Oled kinnitatud ja leping vastu võetud — viimane samm on makse. Maksa esimese 30-päevase perioodi ja tagastatava tagatisraha eest, et rent kinnitada.",
+    "paidLead": "Esimene 30-päevane periood ja tagastatav tagatisraha on tasutud. Järgmisena määrame ratta ja lepime kättesaamise kokku.",
+    "manualLead": "Oled kinnitatud ja leping vastu võetud — lepime makse sinuga otse kokku.",
+    "pay": "Maksa ja kinnita",
+    "opening": "Avan…",
+    "paidConfirm": "Makse laekus — sinu rent on kinnitatud.",
+    "manualNote": "Makse lepitakse kokku kättesaamisel — võtame ühendust.",
+    "failed": "Praegu ei õnnestunud makset alustada. Palun proovi uuesti."
   },
   "enums": {
     "bookingStatus": {
@@ -695,8 +726,8 @@
     },
     "howItWorks": {
       "kicker": "Alustamine",
-      "heading": "Vali, allkirjasta, sõida.",
-      "lead": "Rentaro e-jalgratta peale saamine on ehitatud kiireks. Vali mudel ja pakett, aja paberimajandus digitaalselt telefonist korda ja saa oma ratas kätte — teenindustugi kohe esimesest päevast, et sinu vahetused kestaksid."
+      "heading": "Broneeri, tuvasta, võta vastu, maksa, sõida.",
+      "lead": "Rentaro e-jalgratta peale saamine on ehitatud kiireks. Broneeri tasuta ja kui kinnitame su broneeringu, tuvastad isiku, võtad lepingu vastu ja maksad portaalis esimesed 30 päeva ja tagatisraha — seejärel tule rattale järele, teenindustugi kaasas esimesest päevast."
     },
     "faq": {
       "kicker": "KKK",

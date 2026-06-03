@@ -36,6 +36,7 @@
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinna · Riika · Helsinki",
+    "citySoonSuffix": "{city} pian",
     "independent": "Riippumaton vuokrauspalvelu",
     "legal": {
       "regCode": "Y-tunnus",
@@ -101,7 +102,7 @@
     "perDay": "/ pv",
     "per30Suffix": "per 30 päivää · päivähinta × 30",
     "depositLine": "+€{amount} palautettava vakuus",
-    "dueAtPickup": "€{amount} maksetaan noudettaessa",
+    "dueAtPickup": "€{amount} maksetaan portaalissa — kun olet hyväksytty ja olet hyväksynyt sopimuksen",
     "choose": "Valitse {term}",
     "terms": {
       "p30": "30 päivää",
@@ -133,17 +134,33 @@
   },
   "howItWorks": {
     "kicker": "Näin se toimii",
-    "heading": "Rekisteröitymisestä lähetille kolmessa vaiheessa.",
+    "heading": "Varauksesta ensimmäiseen vuoroon seitsemässä vaiheessa.",
     "steps": {
       "01": {
-        "title": "Valitse malli ja suunnitelma",
-        "copy": "Valitse vuoroihisi sopiva pyörä ja 30 päivän, 6 tai 12 kuukauden suunnitelma. Mitä pidempi aika, sitä edullisempi päivähinta."
+        "title": "Varaa pyöräsi",
+        "copy": "Valitse kaupunki, malli ja suunnitelma ja lähetä pyyntö. Ei maksua eikä allekirjoitusta nyt — varaaminen on maksutonta."
       },
       "02": {
-        "title": "Allekirjoita verkossa ja maksa vakuus",
-        "copy": "Suorita henkilöllisyyden tarkistus, allekirjoita digitaalinen sopimus ja maksa palautettava vakuus — kaikki puhelimellasi."
+        "title": "Hyväksymme varauksesi",
+        "copy": "Tarkistamme saatavuuden ja vahvistamme varauksen sähköpostitse, yleensä 24 tunnin kuluessa."
       },
       "03": {
+        "title": "Vahvista henkilöllisyytesi",
+        "copy": "Avaa turvallinen vuokrausportaalisi sähköpostin linkistä ja suorita nopea henkilöllisyyden tarkistus — kaikki puhelimellasi."
+      },
+      "04": {
+        "title": "Tarkista ja hyväksy sopimus",
+        "copy": "Lue tarkka tarjous ja allekirjoita digitaalinen vuokrasopimus verkossa. Se vie minuutin."
+      },
+      "05": {
+        "title": "Maksa ensimmäiset 30 päivää + vakuus",
+        "copy": "Maksa portaalissa ensimmäinen 30 päivän jakso ja palautettava vakuus — ainoa maksuhetki, hyväksynnän ja sopimuksen hyväksymisen jälkeen."
+      },
+      "06": {
+        "title": "Varaamme pyöräsi",
+        "copy": "Kun maksu on suoritettu, varaamme fyysisen pyöräsi lukon, laturin ja akun kanssa."
+      },
+      "07": {
         "title": "Nouda ja aloita lähetit",
         "copy": "Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta, ja aloita ensimmäinen vuorosi jo saman viikon aikana."
       }
@@ -151,7 +168,8 @@
   },
   "cities": {
     "kicker": "Saatavuus kaupungeittain",
-    "heading": "Käytössä kolmessa kaupungissa.",
+    "heading": "Käytössä: {live}.",
+    "headingWithSoon": "Käytössä: {live} — {soon} pian.",
     "lead": "Reaaliaikainen saatavuus lanseerausmarkkinoillamme. Varaa sekunneissa, nouda jo saman viikon aikana.",
     "status": {
       "available": "Saatavilla",
@@ -247,7 +265,7 @@
   },
   "booking": {
     "title": "Varaa sähköpyöräsi",
-    "intro": "{n} nopeaa vaihetta lähetyspyörääsi. Ei maksua nyt — vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen ennen noutoa.",
+    "intro": "{n} nopeaa vaihetta lähetyspyöräsi varaamiseen. Ei maksua eikä allekirjoitusta nyt — kun hyväksymme varauksesi, vahvistat henkilöllisyytesi, hyväksyt sopimuksesi ja maksat portaalissa ennen noutoa.",
     "steps": {
       "city": "Kaupunki",
       "model": "Malli",
@@ -276,7 +294,7 @@
       "sub": "Mitä pidempi aika, sitä edullisempi päivähinta. Vähintään 30 päivää.",
       "perDay": "€{price}/pv",
       "per30": "€{price} per 30 päivää",
-      "depositLine": "+€{deposit} palautettava vakuus · €{total} maksetaan noudettaessa"
+      "depositLine": "+€{deposit} palautettava vakuus · €{total} maksetaan portaalissa hyväksynnän jälkeen"
     },
     "addons": {
       "heading": "Lisävarusteet",
@@ -310,7 +328,7 @@
       "deposit": "Palautettava vakuus",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
-      "paymentNote": "Maksua ei veloiteta nyt — vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen sähköpostitse. Maksat ensimmäisen 30 päivän jakson vasta, kun vuokrauksesi on hyväksytty."
+      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, vahvistat henkilöllisyytesi ja hyväksyt sopimuksesi portaalissa, ja maksat siellä ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa."
     },
     "buttons": {
       "cancel": "Peruuta",
@@ -335,18 +353,18 @@
   "success": {
     "heading": "Pyyntö vastaanotettu.",
     "headingNamed": "Pyyntö vastaanotettu, {name}.",
-    "body": "Vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen sähköpostitse pian — maksua ei ole peritty.",
+    "body": "Vahvistamme saatavuuden pian ja lähetämme turvallisen portaalilinkkisi — ei maksua eikä allekirjoitusta vielä.",
     "reference": "Viite",
     "model": "Malli",
     "plan": "Suunnitelma",
     "city": "Kaupunki",
     "startDate": "Aloituspäivä",
-    "trackAndSign": "Seuraa varausta ja allekirjoita sopimus",
+    "trackAndSign": "Avaa portaali vahvistaaksesi, hyväksyäksesi ja maksaaksesi",
     "trackOnly": "Seuraa varausta",
-    "cost": "Palautettava vakuus €{deposit} · €{total} maksetaan noudettaessa",
+    "cost": "Palautettava vakuus €{deposit} · €{total} maksetaan portaalissa hyväksynnän jälkeen",
     "browseFleet": "Selaa kalustoa",
     "backHome": "Takaisin etusivulle",
-    "nextSteps": "Seuraavaksi: tarkistamme saatavuuden, varaamme pyörän ja lähetämme digitaalisen sopimuksen sähköpostitse allekirjoitettavaksi — vastaamme 24 tunnin kuluessa.",
+    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, minkä jälkeen vahvistat henkilöllisyytesi, hyväksyt sopimuksesi ja maksat ensimmäiset 30 päivää + vakuuden portaalissa — ennen kuin varaamme pyöräsi ja noudat sen. Vastaamme 24 tunnin kuluessa.",
     "supportPrefix": "Kysyttävää? Lähetä meille sähköpostia osoitteeseen"
   },
   "waitlist": {
@@ -471,6 +489,19 @@
       "Expired": "Vanhentunut",
       "Failed": "Epäonnistui"
     }
+  },
+  "pay": {
+    "heading": "Maksa ja vahvista vuokrauksesi",
+    "statusPaid": "Maksettu",
+    "statusDue": "Maksu erääntyy",
+    "dueLead": "Olet hyväksytty ja sopimuksesi on hyväksytty — viimeinen vaihe on maksu. Maksa ensimmäinen 30 päivän jakso ja palautettava vakuus vahvistaaksesi vuokrauksesi.",
+    "paidLead": "Ensimmäinen 30 päivän jaksosi ja palautettava vakuus on maksettu. Seuraavaksi varaamme pyöräsi ja sovimme noudon.",
+    "manualLead": "Olet hyväksytty ja sopimuksesi on hyväksytty — sovimme maksun kanssasi suoraan.",
+    "pay": "Maksa ja vahvista",
+    "opening": "Avataan…",
+    "paidConfirm": "Maksu vastaanotettu — vuokrauksesi on vahvistettu.",
+    "manualNote": "Maksu sovitaan noudon yhteydessä — olemme yhteydessä.",
+    "failed": "Maksun aloittaminen ei onnistunut juuri nyt. Yritä uudelleen."
   },
   "enums": {
     "bookingStatus": {
@@ -695,8 +726,8 @@
     },
     "howItWorks": {
       "kicker": "Aloittaminen",
-      "heading": "Valitse, allekirjoita, aja.",
-      "lead": "rentaro-sähköpyörälle pääseminen on tehty nopeaksi. Valitse malli ja suunnitelma, hoida paperityöt digitaalisesti puhelimellasi ja nouda pyöräsi — huoltotuki mukana ensimmäisestä päivästä alkaen, jotta vuorosi jatkuvat keskeytyksettä."
+      "heading": "Varaa, vahvista, hyväksy, maksa, aja.",
+      "lead": "rentaro-sähköpyörälle pääseminen on tehty nopeaksi. Varaa maksutta, ja kun hyväksymme varauksesi, vahvistat henkilöllisyytesi, hyväksyt sopimuksesi ja maksat ensimmäiset 30 päivää ja vakuuden portaalissa — sen jälkeen nouda pyöräsi, huoltotuki mukana ensimmäisestä päivästä alkaen."
     },
     "faq": {
       "kicker": "UKK",

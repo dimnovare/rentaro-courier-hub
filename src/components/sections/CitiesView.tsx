@@ -17,12 +17,23 @@ const countryKey: Record<string, string> = {
 export function CitiesView({ cities }: { cities: City[] }) {
   const { reserve, openWaitlist } = useInteractions();
   const t = useTranslations("cities");
+
+  // Derive the live/soon split from data (same rule as the hero pill: a city is
+  // "live" once it's no longer "soon") so the heading can never claim more
+  // markets than are actually open.
+  const liveNames = cities.filter((c) => c.status !== "soon").map((c) => t(`names.${c.id}`));
+  const soonNames = cities.filter((c) => c.status === "soon").map((c) => t(`names.${c.id}`));
+  const heading =
+    soonNames.length > 0
+      ? t("headingWithSoon", { live: liveNames.join(" + "), soon: soonNames.join(", ") })
+      : t("heading", { live: liveNames.join(" + ") });
+
   return (
     <section className="section-pad" id="cities">
       <div className="wrap">
         <Reveal className="section-head">
           <Kicker>{t("kicker")}</Kicker>
-          <h2 className="h-section">{t("heading")}</h2>
+          <h2 className="h-section">{heading}</h2>
           <p className="lead">
             {t("lead")}
           </p>

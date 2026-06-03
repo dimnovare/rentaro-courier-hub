@@ -11,21 +11,18 @@ export const trust: string[] = [
   "Pickup or local delivery",
 ];
 
-/** How it works — 3 steps. */
+/**
+ * How it works — the canonical 7-step rental flow. Reserving is free; the only
+ * payment moment is step 05, in the rental portal, after approval and after the
+ * contract is accepted. Copy lives in the `howItWorks.steps` catalog namespace,
+ * keyed by `n`; only `n` is load-bearing here.
+ */
 export const steps: Step[] = [
-  {
-    n: "01",
-    title: "Choose your model and plan",
-    copy: "Pick the bike that fits your shifts and a 30-day, 6 or 12-month plan. The longer the term, the lower the daily price.",
-  },
-  {
-    n: "02",
-    title: "Sign online & pay deposit",
-    copy: "Complete identity check, sign the digital contract and pay the refundable deposit — all from your phone.",
-  },
-  {
-    n: "03",
-    title: "Pick up and start delivering",
-    copy: "Collect at a city pickup point or request local delivery, then start your first shift the same week.",
-  },
+  { n: "01", title: "Reserve your bike", copy: "" },
+  { n: "02", title: "We approve your booking", copy: "" },
+  { n: "03", title: "Verify your identity", copy: "" },
+  { n: "04", title: "Review & accept your contract", copy: "" },
+  { n: "05", title: "Pay your first 30 days + deposit", copy: "" },
+  { n: "06", title: "We assign your bike", copy: "" },
+  { n: "07", title: "Pick up and start delivering", copy: "" },
 ];
