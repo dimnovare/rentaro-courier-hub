@@ -467,7 +467,30 @@
     },
     "errorHelpPrefix": "Pārbaudi saiti savā apstiprinājuma e-pastā vai",
     "errorHelpLink": "seko savai rezervācijai",
-    "errorHelpSuffix": "tā vietā."
+    "errorHelpSuffix": "tā vietā.",
+    "identity": {
+      "title": "Apstipriniet savu identitāti",
+      "subtitle": "Mēs pārbaudām jūsu identitāti pirms nomas sākuma — tas aizņem aptuveni 30 sekundes ar Smart-ID vai Mobile-ID.",
+      "methodSmart": "Izmantot Smart-ID",
+      "methodMobile": "Izmantot Mobile-ID",
+      "personalCodeLabel": "Personas kods",
+      "countryLabel": "Valsts",
+      "phoneLabel": "Tālruņa numurs",
+      "countries": {
+        "ee": "Igaunija",
+        "lv": "Latvija",
+        "lt": "Lietuva"
+      },
+      "verifyBtn": "Turpināt",
+      "waitingTitle": "Apstipriniet savā lietotnē",
+      "waitingSubtitle": "Atveriet lietotni un apstipriniet šo kodu pirms PIN ievadīšanas.",
+      "codeLabel": "Verifikācijas kods",
+      "verifiedTitle": "Identitāte apstiprināta — {name}",
+      "failedTitle": "Verifikācija neizdevās",
+      "failedSubtitle": "Lūdzu, mēģiniet vēlreiz",
+      "retryBtn": "Mēģināt vēlreiz",
+      "doneChip": "Identitāte apstiprināta"
+    }
   },
   "contract": {
     "heading": "Nomas līgums",

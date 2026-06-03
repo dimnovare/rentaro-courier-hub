@@ -467,7 +467,30 @@
     },
     "errorHelpPrefix": "Tarkista vahvistussähköpostisi linkki, tai",
     "errorHelpLink": "seuraa varaustasi",
-    "errorHelpSuffix": "sen sijaan."
+    "errorHelpSuffix": "sen sijaan.",
+    "identity": {
+      "title": "Vahvista henkilöllisyytesi",
+      "subtitle": "Vahvistamme henkilöllisyytesi ennen vuokrauksen alkua — se vie noin 30 sekuntia Smart-ID:llä tai Mobile-ID:llä.",
+      "methodSmart": "Käytä Smart-ID:tä",
+      "methodMobile": "Käytä Mobile-ID:tä",
+      "personalCodeLabel": "Henkilötunnus",
+      "countryLabel": "Maa",
+      "phoneLabel": "Puhelinnumero",
+      "countries": {
+        "ee": "Viro",
+        "lv": "Latvia",
+        "lt": "Liettua"
+      },
+      "verifyBtn": "Jatka",
+      "waitingTitle": "Vahvista sovelluksessasi",
+      "waitingSubtitle": "Avaa sovelluksesi ja vahvista tämä koodi ennen PIN-koodin syöttämistä.",
+      "codeLabel": "Vahvistuskoodi",
+      "verifiedTitle": "Henkilöllisyys vahvistettu — {name}",
+      "failedTitle": "Vahvistus epäonnistui",
+      "failedSubtitle": "Yritä uudelleen",
+      "retryBtn": "Yritä uudelleen",
+      "doneChip": "Henkilöllisyys vahvistettu"
+    }
   },
   "contract": {
     "heading": "Vuokrasopimus",

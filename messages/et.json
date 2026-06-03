@@ -467,7 +467,30 @@
     },
     "errorHelpPrefix": "Kontrolli oma kinnituse e-kirjas olevat linki või",
     "errorHelpLink": "jälgi oma broneeringut",
-    "errorHelpSuffix": "selle asemel."
+    "errorHelpSuffix": "selle asemel.",
+    "identity": {
+      "title": "Kinnita oma isikut",
+      "subtitle": "Kinnitame sinu isiku enne rendi algust — see võtab Smart-ID või Mobiil-ID-ga umbes 30 sekundit.",
+      "methodSmart": "Kasuta Smart-ID-d",
+      "methodMobile": "Kasuta Mobiil-ID-d",
+      "personalCodeLabel": "Isikukood",
+      "countryLabel": "Riik",
+      "phoneLabel": "Telefoninumber",
+      "countries": {
+        "ee": "Eesti",
+        "lv": "Läti",
+        "lt": "Leedu"
+      },
+      "verifyBtn": "Jätka",
+      "waitingTitle": "Kinnita oma rakenduses",
+      "waitingSubtitle": "Ava oma rakendus ja kinnita see kood enne PIN-koodi sisestamist.",
+      "codeLabel": "Kinnituskood",
+      "verifiedTitle": "Isik kinnitatud — {name}",
+      "failedTitle": "Kinnitamine ebaõnnestus",
+      "failedSubtitle": "Palun proovi uuesti",
+      "retryBtn": "Proovi uuesti",
+      "doneChip": "Isik kinnitatud"
+    }
   },
   "contract": {
     "heading": "Rendileping",

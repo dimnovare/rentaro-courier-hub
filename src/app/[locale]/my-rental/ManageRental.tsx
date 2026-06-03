@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -24,6 +24,13 @@ import {
   type ContractResult,
 } from "@/services/contractService";
 import { createBookingPayment } from "@/services/paymentService";
+import {
+  startIdentityVerification,
+  pollIdentitySession,
+  type IdentityMethod,
+  type IdentityCountry,
+  type StartIdentityPayload,
+} from "@/services/identityService";
 
 /**
  * Map the API status (lowercased enum name) to its badge tone. Friendly labels
@@ -236,6 +243,12 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         </article>
       </Reveal>
 
+      <IdentityCard
+        token={token}
+        initialStatus={rental.identityStatus ?? "none"}
+        initialVerifiedName={rental.identityVerifiedName ?? null}
+      />
+
       <ContractCard token={token} />
 
       <PayCard
@@ -412,6 +425,388 @@ function ReferralCard({ code }: { code: string }) {
               )}
             </button>
           </div>
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
+/* ── Identity verification card ──────────────────────────────────────────── */
+
+/**
+ * Card sequenced before the contract card. Drives a Smart-ID / Mobile-ID
+ * identity verification session directly from the portal token.
+ *
+ * States
+ * ------
+ * `choose`   – method selection (Smart-ID / Mobile-ID) — shown when no record
+ * `form`     – input form (personal code + country [+ phone for Mobile-ID])
+ * `waiting`  – 4-digit verification code displayed; polling every 2 s
+ * `verified` – success; collapses to a small chip
+ * `failed`   – failure; shows reason + retry button
+ */
+
+type IdentityCardState =
+  | { phase: "choose" }
+  | { phase: "form"; method: IdentityMethod }
+  | { phase: "waiting"; method: IdentityMethod; verificationCode: string; sessionId: string }
+  | { phase: "verified"; verifiedName: string }
+  | { phase: "failed"; reason: string };
+
+function IdentityCard({
+  token,
+  initialStatus,
+  initialVerifiedName,
+}: {
+  token: string;
+  initialStatus: "none" | "pending" | "verified" | "failed";
+  initialVerifiedName: string | null;
+}) {
+  const t = useTranslations("portal");
+
+  const [state, setState] = useState<IdentityCardState>(() => {
+    if (initialStatus === "verified" && initialVerifiedName) {
+      return { phase: "verified", verifiedName: initialVerifiedName };
+    }
+    if (initialStatus === "verified") {
+      return { phase: "verified", verifiedName: "" };
+    }
+    if (initialStatus === "failed") {
+      return { phase: "failed", reason: "" };
+    }
+    // "pending" or "none" → start fresh (pending session from previous page load expired)
+    return { phase: "choose" };
+  });
+
+  // ── form state ──────────────────────────────────────────────────────────
+  const [personalCode, setPersonalCode] = useState("");
+  const [country, setCountry] = useState<IdentityCountry>("EE");
+  const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // ── polling ─────────────────────────────────────────────────────────────
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function stopPolling() {
+    if (pollRef.current !== null) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    // Clean up on unmount.
+    return () => stopPolling();
+  }, []);
+
+  function startPolling(sessionId: string) {
+    stopPolling();
+    pollRef.current = setInterval(async () => {
+      const res = await pollIdentitySession(token, sessionId);
+      if (res.kind !== "ok") return; // transient network error — keep polling
+      const { status, verifiedName, reason } = res.data;
+      if (status === "pending") return; // still waiting
+
+      stopPolling();
+      if (status === "verified") {
+        setState({ phase: "verified", verifiedName: verifiedName ?? "" });
+      } else {
+        // "failed" | "expired"
+        setState({ phase: "failed", reason: reason ?? "" });
+      }
+    }, 2000);
+  }
+
+  // ── handlers ─────────────────────────────────────────────────────────────
+
+  function onSelectMethod(method: IdentityMethod) {
+    setFormError(null);
+    setPersonalCode("");
+    setPhone("");
+    setState({ phase: "form", method });
+  }
+
+  async function onSubmitForm(method: IdentityMethod) {
+    if (submitting) return;
+    if (!personalCode.trim()) {
+      setFormError(t("identity.personalCodeLabel"));
+      return;
+    }
+    setFormError(null);
+    setSubmitting(true);
+
+    const payload: StartIdentityPayload = {
+      method,
+      personalCode: personalCode.trim(),
+      country,
+      ...(method === "mobile-id" ? { phoneNumber: phone.trim() } : {}),
+    };
+
+    const res = await startIdentityVerification(token, payload);
+    setSubmitting(false);
+
+    if (res.kind === "ok") {
+      const { verificationCode, sessionId } = res.data;
+      setState({ phase: "waiting", method, verificationCode, sessionId });
+      startPolling(sessionId);
+    } else if (res.kind === "error") {
+      setFormError(res.reason ?? t("identity.failedTitle"));
+    } else {
+      setFormError(t("identity.failedTitle"));
+    }
+  }
+
+  function onRetry() {
+    stopPolling();
+    setFormError(null);
+    setState({ phase: "choose" });
+  }
+
+  // ── collapsed "done" chip ────────────────────────────────────────────────
+  if (state.phase === "verified") {
+    const name = state.verifiedName;
+    return (
+      <Reveal delay={55}>
+        <div
+          style={{
+            maxWidth: 560,
+            margin: "18px auto 0",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 16px",
+            borderRadius: "var(--r-sm)",
+            background: "rgba(163,230,53,0.08)",
+            border: "1px solid rgba(163,230,53,0.25)",
+          }}
+        >
+          <span style={{ color: "var(--lime)", display: "flex", alignItems: "center" }}>
+            <Ic.check s={14} />
+          </span>
+          <span style={{ fontSize: 13.5, color: "var(--lime)", fontWeight: 600 }}>
+            {name
+              ? t("identity.doneChip") + " — " + name
+              : t("identity.doneChip")}
+          </span>
+        </div>
+      </Reveal>
+    );
+  }
+
+  // ── method selection ─────────────────────────────────────────────────────
+  if (state.phase === "choose") {
+    return (
+      <Reveal delay={55}>
+        <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+          <div style={{ padding: "24px 24px 22px" }}>
+            <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 6 }}>
+              {t("identity.title")}
+            </h3>
+            <p className="lead" style={{ fontSize: 13.5, marginBottom: 20 }}>
+              {t("identity.subtitle")}
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-block"
+                onClick={() => onSelectMethod("smart-id")}
+              >
+                {t("identity.methodSmart")}
+                <span className="arrow"><Ic.arrow /></span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost btn-block"
+                onClick={() => onSelectMethod("mobile-id")}
+              >
+                {t("identity.methodMobile")}
+                <span className="arrow"><Ic.arrow /></span>
+              </button>
+            </div>
+          </div>
+        </article>
+      </Reveal>
+    );
+  }
+
+  // ── input form ───────────────────────────────────────────────────────────
+  if (state.phase === "form") {
+    const { method } = state;
+    return (
+      <Reveal delay={55}>
+        <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+          <div style={{ padding: "24px 24px 22px" }}>
+            <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 6 }}>
+              {method === "smart-id" ? t("identity.methodSmart") : t("identity.methodMobile")}
+            </h3>
+
+            <div className="field" style={{ marginBottom: 14 }}>
+              <label htmlFor="idPersonalCode">{t("identity.personalCodeLabel")}</label>
+              <input
+                id="idPersonalCode"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                value={personalCode}
+                onChange={(e) => setPersonalCode(e.target.value)}
+                placeholder="38010085718"
+              />
+            </div>
+
+            <div className="field" style={{ marginBottom: 14 }}>
+              <label htmlFor="idCountry">{t("identity.countryLabel")}</label>
+              <select
+                id="idCountry"
+                value={country}
+                onChange={(e) => setCountry(e.target.value as IdentityCountry)}
+                style={selectStyle}
+              >
+                <option value="EE">{t("identity.countries.ee")}</option>
+                <option value="LV">{t("identity.countries.lv")}</option>
+                <option value="LT">{t("identity.countries.lt")}</option>
+              </select>
+            </div>
+
+            {method === "mobile-id" && (
+              <div className="field" style={{ marginBottom: 14 }}>
+                <label htmlFor="idPhone">{t("identity.phoneLabel")}</label>
+                <input
+                  id="idPhone"
+                  type="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+372 XXXX XXXX"
+                />
+              </div>
+            )}
+
+            {formError && (
+              <p className="wizard-err" role="status" style={{ marginBottom: 12 }}>
+                {formError}
+              </p>
+            )}
+
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ flex: "0 0 auto" }}
+                onClick={onRetry}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ flex: 1, opacity: submitting ? 0.5 : 1, cursor: submitting ? "not-allowed" : undefined }}
+                disabled={submitting}
+                onClick={() => void onSubmitForm(method)}
+              >
+                {submitting ? "…" : t("identity.verifyBtn")}
+                {!submitting && <span className="arrow"><Ic.arrow /></span>}
+              </button>
+            </div>
+          </div>
+        </article>
+      </Reveal>
+    );
+  }
+
+  // ── waiting for app approval ─────────────────────────────────────────────
+  if (state.phase === "waiting") {
+    const { verificationCode } = state;
+    return (
+      <Reveal delay={55}>
+        <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+          <div style={{ padding: "28px 24px 26px", textAlign: "center" }}>
+            <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 6 }}>
+              {t("identity.waitingTitle")}
+            </h3>
+            <p className="lead" style={{ fontSize: 13.5, marginBottom: 22 }}>
+              {t("identity.waitingSubtitle")}
+            </p>
+
+            {/* Verification code — large, monospace, lime, inside a bordered box */}
+            <div
+              style={{
+                display: "inline-block",
+                padding: "18px 32px",
+                borderRadius: "var(--r-sm)",
+                border: "2px solid var(--lime)",
+                background: "rgba(163,230,53,0.06)",
+                marginBottom: 22,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 32,
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  color: "var(--lime)",
+                }}
+              >
+                {verificationCode}
+              </span>
+            </div>
+
+            {/* Spinner */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                color: "var(--text-dim)",
+                fontSize: 13.5,
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 16,
+                  height: 16,
+                  border: "2px solid var(--border)",
+                  borderTopColor: "var(--lime)",
+                  borderRadius: "50%",
+                  animation: "spin 0.9s linear infinite",
+                }}
+              />
+              {t("identity.waitingSubtitle")}
+            </div>
+
+            {/* Inline keyframe style — safe in client component */}
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        </article>
+      </Reveal>
+    );
+  }
+
+  // ── failed ────────────────────────────────────────────────────────────────
+  // state.phase === "failed"
+  return (
+    <Reveal delay={55}>
+      <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+        <div style={{ padding: "24px 24px 22px" }}>
+          <h3 style={{ fontSize: 18, letterSpacing: "-0.02em", marginBottom: 6, color: "var(--text)" }}>
+            {t("identity.failedTitle")}
+          </h3>
+          <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
+            {state.reason
+              ? t("identity.failedSubtitle") + " — " + state.reason + "."
+              : t("identity.failedSubtitle") + "."}
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={onRetry}
+          >
+            {t("identity.retryBtn")}
+            <span className="arrow"><Ic.arrow /></span>
+          </button>
         </div>
       </article>
     </Reveal>

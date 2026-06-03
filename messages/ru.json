@@ -467,7 +467,30 @@
     },
     "errorHelpPrefix": "Проверьте ссылку в письме с подтверждением или",
     "errorHelpLink": "отследите свою заявку",
-    "errorHelpSuffix": "вместо этого."
+    "errorHelpSuffix": "вместо этого.",
+    "identity": {
+      "title": "Подтвердите личность",
+      "subtitle": "Мы проверяем вашу личность перед началом аренды — это займёт около 30 секунд с помощью Smart-ID или Mobile-ID.",
+      "methodSmart": "Использовать Smart-ID",
+      "methodMobile": "Использовать Mobile-ID",
+      "personalCodeLabel": "Личный код",
+      "countryLabel": "Страна",
+      "phoneLabel": "Номер телефона",
+      "countries": {
+        "ee": "Эстония",
+        "lv": "Латвия",
+        "lt": "Литва"
+      },
+      "verifyBtn": "Продолжить",
+      "waitingTitle": "Подтвердите в приложении",
+      "waitingSubtitle": "Откройте приложение и подтвердите этот код перед вводом PIN.",
+      "codeLabel": "Код подтверждения",
+      "verifiedTitle": "Личность подтверждена — {name}",
+      "failedTitle": "Не удалось подтвердить личность",
+      "failedSubtitle": "Пожалуйста, попробуйте снова",
+      "retryBtn": "Попробовать снова",
+      "doneChip": "Личность подтверждена"
+    }
   },
   "contract": {
     "heading": "Договор аренды",

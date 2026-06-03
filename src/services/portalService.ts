@@ -1,4 +1,5 @@
 import { API_BASE } from "./api";
+import type { IdentityStatus } from "./identityService";
 
 /**
  * Customer self-service portal ("Manage your rental"). Access is via a signed
@@ -28,6 +29,17 @@ export interface PortalRental {
   paymentStatus?: "paid" | "pending" | "pending_manual" | null;
   /** The booking id, used to start a payment via `POST /api/payments/booking/{id}`. */
   bookingId?: string | null;
+  /**
+   * Identity verification status included by the backend in the portal rental
+   * response. Used to determine the initial state of the IdentityCard.
+   * - `none` — no attempt yet
+   * - `pending` — a session was started but not yet resolved
+   * - `verified` — identity confirmed
+   * - `failed` — last attempt failed; customer should retry
+   */
+  identityStatus?: IdentityStatus | null;
+  /** Full name as returned by the identity provider (present when identityStatus === "verified"). */
+  identityVerifiedName?: string | null;
 }
 
 /** Acknowledgement returned by the portal write endpoints. */

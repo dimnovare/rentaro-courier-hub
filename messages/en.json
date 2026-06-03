@@ -467,7 +467,30 @@
     },
     "errorHelpPrefix": "Check the link in your confirmation email, or",
     "errorHelpLink": "track your booking",
-    "errorHelpSuffix": "instead."
+    "errorHelpSuffix": "instead.",
+    "identity": {
+      "title": "Verify your identity",
+      "subtitle": "We verify your identity before your rental starts — it takes about 30 seconds with Smart-ID or Mobile-ID.",
+      "methodSmart": "Use Smart-ID",
+      "methodMobile": "Use Mobile-ID",
+      "personalCodeLabel": "Personal code",
+      "countryLabel": "Country",
+      "phoneLabel": "Phone number",
+      "countries": {
+        "ee": "Estonia",
+        "lv": "Latvia",
+        "lt": "Lithuania"
+      },
+      "verifyBtn": "Continue",
+      "waitingTitle": "Confirm in your app",
+      "waitingSubtitle": "Check your app and confirm this code before entering your PIN.",
+      "codeLabel": "Verification code",
+      "verifiedTitle": "Identity verified — {name}",
+      "failedTitle": "Verification failed",
+      "failedSubtitle": "Please try again",
+      "retryBtn": "Try again",
+      "doneChip": "Identity verified"
+    }
   },
   "contract": {
     "heading": "Rental contract",
