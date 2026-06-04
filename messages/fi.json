@@ -492,6 +492,7 @@
     "errorHelpPrefix": "Tarkista vahvistussähköpostisi linkki, tai",
     "errorHelpLink": "seuraa varaustasi",
     "errorHelpSuffix": "sen sijaan.",
+    "signNote": "Allekirjoita alla vuokrasopimuksesi Smart-ID:llä tai Mobile-ID:llä — tämä vahvistaa henkilöllisyytesi ja tekee sopimuksesta oikeudellisesti sitovan. Maksu tulee allekirjoituksen jälkeen.",
     "identity": {
       "title": "Vahvista henkilöllisyytesi",
       "subtitle": "Vahvistamme henkilöllisyytesi ennen vuokrauksen alkua — se vie noin 30 sekuntia Smart-ID:llä tai Mobile-ID:llä.",

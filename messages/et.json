@@ -492,6 +492,7 @@
     "errorHelpPrefix": "Kontrolli oma kinnituse e-kirjas olevat linki või",
     "errorHelpLink": "jälgi oma broneeringut",
     "errorHelpSuffix": "selle asemel.",
+    "signNote": "Allkirjasta allpool oma üürileping Smart-ID või Mobiil-ID-ga — see kinnitab su isiku ja muudab lepingu juriidiliselt siduvaks. Makse järgneb pärast allkirjastamist.",
     "identity": {
       "title": "Kinnita oma isikut",
       "subtitle": "Kinnitame sinu isiku enne rendi algust — see võtab Smart-ID või Mobiil-ID-ga umbes 30 sekundit.",

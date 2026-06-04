@@ -141,40 +141,28 @@
   },
   "howItWorks": {
     "kicker": "How it works",
-    "heading": "From reserve to first shift in seven steps.",
+    "heading": "From reserve to first shift in four steps.",
     "steps": {
       "01": {
-        "title": "Reserve your bike",
-        "copy": "Pick your city, model and plan and send your request. No payment and no signing now — reserving is free."
+        "title": "Reserve your bike — free",
+        "copy": "Pick your city, model and plan. Check live availability, read the rental rules and see your exact price and deposit. Send your request — no payment, no signing."
       },
       "02": {
-        "title": "We approve your booking",
-        "copy": "We check availability and confirm your booking by email, usually within 24 hours."
+        "title": "We hold a bike for you",
+        "copy": "We confirm you are a real courier and reserve a specific bike for you, usually within 24 hours. You receive a secure portal link by email."
       },
       "03": {
-        "title": "Verify your identity",
-        "copy": "Open your secure rental portal from the email link and complete a quick identity check — all from your phone."
+        "title": "Sign & pay from your phone",
+        "copy": "Sign the rental agreement with Smart-ID or Mobile-ID — this proves it is really you and makes the agreement legally binding. Then pay your first 30 days and the refundable deposit. One secure session."
       },
       "04": {
-        "title": "Review & accept your contract",
-        "copy": "Read the exact offer and sign your digital rental agreement online. It takes a minute."
-      },
-      "05": {
-        "title": "Pay your first 30 days + deposit",
-        "copy": "Pay the first 30-day period and the refundable deposit in the portal — the only payment moment, after you're approved and have accepted the contract."
-      },
-      "06": {
-        "title": "We assign your bike",
-        "copy": "Once payment clears we assign your physical bike with its lock, charger and battery."
-      },
-      "07": {
         "title": "Pick up and start delivering",
-        "copy": "Collect at a city pickup point or request local delivery, then start your first shift the same week."
+        "copy": "Collect your bike at a city pickup point or request local delivery. Service support is included throughout your rental."
       }
     },
     "trust": {
-      "kicker": "Qualified eID",
-      "copy": "Sign your rental contract legally with Smart-ID or Mobile-ID."
+      "kicker": "e-Signed",
+      "copy": "Your identity is verified and your agreement signed digitally with Smart-ID or Mobile-ID — legally binding, no paperwork."
     }
   },
   "cities": {
@@ -348,7 +336,8 @@
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
       "paymentNote": "No payment and no signing now. After we approve your booking, you'll verify your identity and accept your contract in your portal, then pay the first 30-day period and refundable deposit there — all before pickup.",
-      "consent": "I agree to the <rules>Rental rules</rules> and <privacy>Privacy policy</privacy>."
+      "consent": "I have read and agree to the <rules>rental rules</rules> and <privacy>privacy policy</privacy>, and understand I will sign the formal rental agreement with my identity document before pickup.",
+      "readRulesLink": "Read the full rental rules before confirming →"
     },
     "buttons": {
       "cancel": "Cancel",
@@ -492,6 +481,7 @@
     "errorHelpPrefix": "Check the link in your confirmation email, or",
     "errorHelpLink": "track your booking",
     "errorHelpSuffix": "instead.",
+    "signNote": "Sign your rental agreement below with Smart-ID or Mobile-ID — this confirms your identity and makes the agreement legally binding. Payment follows after signing.",
     "identity": {
       "title": "Verify your identity",
       "subtitle": "We verify your identity before your rental starts — it takes about 30 seconds with Smart-ID or Mobile-ID.",

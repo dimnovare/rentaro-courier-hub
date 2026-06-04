@@ -243,11 +243,14 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         </article>
       </Reveal>
 
-      <IdentityCard
-        token={token}
-        initialStatus={rental.identityStatus ?? "none"}
-        initialVerifiedName={rental.identityVerifiedName ?? null}
-      />
+      <Reveal delay={54}>
+        <p
+          className="lead"
+          style={{ maxWidth: 560, margin: "18px auto 0", fontSize: 14, color: "var(--text-muted)" }}
+        >
+          {t("signNote")}
+        </p>
+      </Reveal>
 
       <ContractCard token={token} />
 
