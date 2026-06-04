@@ -164,6 +164,10 @@
         "title": "Tule järele ja alusta tarnimist",
         "copy": "Tule rattale järele linna järeletulekupunkti või telli kohale toomine ning alusta esimest vahetust juba samal nädalal."
       }
+    },
+    "trust": {
+      "kicker": "Kvalifitseeritud eID",
+      "copy": "Allkirjasta rendileping juriidiliselt Smart-ID või Mobile-ID abil."
     }
   },
   "cities": {
@@ -298,7 +302,8 @@
     },
     "addons": {
       "heading": "Lisad",
-      "sub": "Valikuline. Lisa varustust, mis toob vahetusi sisse — saad seda hiljem muuta."
+      "sub": "Valikuline. Lisa varustust, mis toob vahetusi sisse — saad seda hiljem muuta.",
+      "toggle": "Lisa varustust (valikuline)"
     },
     "details": {
       "heading": "Sinu andmed",
@@ -309,7 +314,16 @@
       "phone": "Telefon",
       "startDate": "Soovitud alguskuupäev",
       "notes": "Märkused (valikuline)",
-      "notesPlaceholder": "Tarneplatvorm, kättesaamise eelistus, kõik mida peaksime teadma…"
+      "notesPlaceholder": "Tarneplatvorm, kättesaamise eelistus, kõik mida peaksime teadma…",
+      "completeHint": "Täida nõutud väljad, et jätkata",
+      "errors": {
+        "firstName": "Sisesta oma eesnimi.",
+        "lastName": "Sisesta oma perekonnanimi.",
+        "email": "Sisesta oma e-posti aadress.",
+        "emailInvalid": "Sisesta korrektne e-posti aadress.",
+        "phone": "Sisesta oma telefoninumber.",
+        "startDate": "Vali soovitud alguskuupäev."
+      }
     },
     "review": {
       "heading": "Vaata üle ja kinnita",
@@ -324,7 +338,8 @@
       "deposit": "Tagastatav tagatisraha",
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
-      "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, tuvastad portaalis isiku ja võtad lepingu vastu ning maksad seal esimese 30-päevase perioodi ja tagastatava tagatisraha — kõik enne kättesaamist."
+      "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, tuvastad portaalis isiku ja võtad lepingu vastu ning maksad seal esimese 30-päevase perioodi ja tagastatava tagatisraha — kõik enne kättesaamist.",
+      "consent": "Nõustun <rules>rendireeglitega</rules> ja <privacy>privaatsuspoliitikaga</privacy>."
     },
     "buttons": {
       "cancel": "Tühista",

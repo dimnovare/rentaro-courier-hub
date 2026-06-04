@@ -22,6 +22,6 @@ export const company: Company = {
   regCode: "", // TODO: founder to fill (Estonian registry code)
   vat: "", // TODO: VAT number
   address: "", // TODO: registered address
-  supportEmail: "", // TODO: support email
+  supportEmail: "info@rentaro.ee", // real + verified ops inbox
   supportPhone: "", // TODO: support phone
 };

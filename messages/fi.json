@@ -164,6 +164,10 @@
         "title": "Nouda ja aloita lähetit",
         "copy": "Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta, ja aloita ensimmäinen vuorosi jo saman viikon aikana."
       }
+    },
+    "trust": {
+      "kicker": "Vahva sähköinen tunnistautuminen",
+      "copy": "Allekirjoita vuokrasopimuksesi laillisesti Smart-ID:llä tai Mobile-ID:llä."
     }
   },
   "cities": {
@@ -298,7 +302,8 @@
     },
     "addons": {
       "heading": "Lisävarusteet",
-      "sub": "Valinnaisia. Lisää varusteita, jotka tuovat vuoroja — voit muuttaa tätä myöhemmin."
+      "sub": "Valinnaisia. Lisää varusteita, jotka tuovat vuoroja — voit muuttaa tätä myöhemmin.",
+      "toggle": "Lisää varusteita (valinnainen)"
     },
     "referral": {
       "label": "Onko sinulla suosittelukoodi?",
@@ -313,7 +318,16 @@
       "phone": "Puhelin",
       "startDate": "Toivottu aloituspäivä",
       "notes": "Lisätiedot (valinnainen)",
-      "notesPlaceholder": "Lähettialusta, noutotoive, mitä tahansa meidän tulisi tietää…"
+      "notesPlaceholder": "Lähettialusta, noutotoive, mitä tahansa meidän tulisi tietää…",
+      "completeHint": "Täytä pakolliset kentät jatkaaksesi",
+      "errors": {
+        "firstName": "Anna etunimesi.",
+        "lastName": "Anna sukunimesi.",
+        "email": "Anna sähköpostiosoitteesi.",
+        "emailInvalid": "Anna kelvollinen sähköpostiosoite.",
+        "phone": "Anna puhelinnumerosi.",
+        "startDate": "Valitse toivottu aloituspäivä."
+      }
     },
     "review": {
       "heading": "Tarkista ja vahvista",
@@ -328,7 +342,8 @@
       "deposit": "Palautettava vakuus",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
-      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, vahvistat henkilöllisyytesi ja hyväksyt sopimuksesi portaalissa, ja maksat siellä ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa."
+      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, vahvistat henkilöllisyytesi ja hyväksyt sopimuksesi portaalissa, ja maksat siellä ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",
+      "consent": "Hyväksyn <rules>vuokrausehdot</rules> ja <privacy>tietosuojakäytännön</privacy>."
     },
     "buttons": {
       "cancel": "Peruuta",

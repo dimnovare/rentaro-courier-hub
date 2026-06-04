@@ -164,6 +164,10 @@
         "title": "Saņem un sāc piegādāt",
         "copy": "Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi un sāc pirmo maiņu jau tajā pašā nedēļā."
       }
+    },
+    "trust": {
+      "kicker": "Kvalificēts eID",
+      "copy": "Paraksti nomas līgumu juridiski saistoši ar Smart-ID vai Mobile-ID."
     }
   },
   "cities": {
@@ -298,7 +302,8 @@
     },
     "addons": {
       "heading": "Papildaprīkojums",
-      "sub": "Pēc izvēles. Pievieno aprīkojumu, kas palīdz nopelnīt — to vari mainīt arī vēlāk."
+      "sub": "Pēc izvēles. Pievieno aprīkojumu, kas palīdz nopelnīt — to vari mainīt arī vēlāk.",
+      "toggle": "Pievienot aprīkojumu (pēc izvēles)"
     },
     "referral": {
       "label": "Vai tev ir ieteikuma kods?",
@@ -313,7 +318,16 @@
       "phone": "Tālrunis",
       "startDate": "Vēlamais sākuma datums",
       "notes": "Piezīmes (pēc izvēles)",
-      "notesPlaceholder": "Piegādes platforma, vēlamā saņemšanas vieta, jebkas, kas mums būtu jāzina…"
+      "notesPlaceholder": "Piegādes platforma, vēlamā saņemšanas vieta, jebkas, kas mums būtu jāzina…",
+      "completeHint": "Aizpildi obligātos laukus, lai turpinātu",
+      "errors": {
+        "firstName": "Ievadi savu vārdu.",
+        "lastName": "Ievadi savu uzvārdu.",
+        "email": "Ievadi savu e-pastu.",
+        "emailInvalid": "Ievadi derīgu e-pasta adresi.",
+        "phone": "Ievadi savu tālruņa numuru.",
+        "startDate": "Izvēlies vēlamo sākuma datumu."
+      }
     },
     "review": {
       "heading": "Pārskati un apstiprini",
@@ -328,7 +342,8 @@
       "deposit": "Atmaksājams depozīts",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
-      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti un pieņemsi līgumu, un tur samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas."
+      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti un pieņemsi līgumu, un tur samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",
+      "consent": "Piekrītu <rules>Nomas noteikumiem</rules> un <privacy>Privātuma politikai</privacy>."
     },
     "buttons": {
       "cancel": "Atcelt",

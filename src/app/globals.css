@@ -384,6 +384,10 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .step .num { font-family: var(--font-mono); font-size: 13px; color: var(--lime-ink); width: 44px; height: 44px; border-radius: 13px; background: var(--lime); display: grid; place-items: center; margin-bottom: 22px; box-shadow: 0 0 30px -6px var(--lime-glow); }
 .step h4 { font-size: 19px; letter-spacing: -0.02em; margin-bottom: 8px; }
 .step p { font-size: 14px; color: var(--text-muted); margin: 0; line-height: 1.6; }
+.eid-trust { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 26px; padding: 11px 18px; border-radius: var(--r-full); background: rgba(216, 255, 54, 0.05); border: 1px solid rgba(216, 255, 54, 0.22); }
+.eid-trust-ico { display: inline-grid; place-items: center; color: var(--lime); flex-shrink: 0; }
+.eid-trust-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lime); }
+.eid-trust-copy { font-size: 13.5px; color: var(--text-muted); }
 
 /* ─── Cities ─────────────────────────────────────────────── */
 .cities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -541,6 +545,28 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .wizard-err { color: var(--danger); font-family: var(--font-mono); font-size: 12px; margin-top: 14px; }
 .wizard-addons { margin-top: 26px; padding-top: 24px; border-top: 1px dashed var(--border); }
 .wizard-subhead { font-size: 16px; letter-spacing: -0.01em; margin-bottom: 6px; color: var(--text); }
+/* Inline validation helper under an invalid required field. */
+.field-err { color: var(--danger); font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; margin: 7px 0 0; }
+.field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-color: rgba(255, 138, 120, 0.55); }
+.date-field:has(input[aria-invalid="true"]) { border-color: rgba(255, 138, 120, 0.55); }
+/* Collapsible add-ons toggle. */
+.addons-toggle { all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; width: 100%; cursor: pointer; padding: 14px 16px; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); transition: border-color .2s, background .2s; }
+.addons-toggle:hover { border-color: var(--border-strong); }
+.addons-toggle-label { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+.addons-count { display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; border-radius: var(--r-full); background: var(--lime); color: var(--lime-ink); font-size: 11px; }
+.addons-chevron { display: inline-grid; place-items: center; color: var(--text-dim); transform: rotate(90deg); transition: transform .25s var(--ease-out), color .2s; }
+.addons-toggle:hover .addons-chevron { color: var(--text-muted); }
+.addons-chevron.open { transform: rotate(-90deg); }
+.addons-body { margin-top: 16px; }
+/* Required terms/privacy consent on the Review step. */
+.consent-row { display: flex; align-items: flex-start; gap: 11px; margin-top: 20px; cursor: pointer; }
+.consent-box { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; accent-color: var(--lime); cursor: pointer; }
+.consent-text { font-size: 13.5px; color: var(--text-muted); line-height: 1.55; }
+.consent-text a { color: var(--lime); text-decoration: underline; text-underline-offset: 2px; }
+/* Disabled-Continue hint on the Details step. */
+.wizard-foot-action { display: flex; align-items: center; gap: 14px; }
+.wizard-foot-hint { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; color: var(--text-dim); text-align: right; max-width: 180px; line-height: 1.4; }
+@media (max-width: 520px) { .wizard-foot-hint { display: none; } }
 .wizard-pick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .wizard-pick .chip { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-full); padding: 6px 12px; }
 .wizard-pick .chip.accent { color: var(--lime); border-color: rgba(216, 255, 54, 0.3); }

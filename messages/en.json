@@ -164,6 +164,10 @@
         "title": "Pick up and start delivering",
         "copy": "Collect at a city pickup point or request local delivery, then start your first shift the same week."
       }
+    },
+    "trust": {
+      "kicker": "Qualified eID",
+      "copy": "Sign your rental contract legally with Smart-ID or Mobile-ID."
     }
   },
   "cities": {
@@ -298,7 +302,8 @@
     },
     "addons": {
       "heading": "Add-ons",
-      "sub": "Optional. Add gear that earns shifts — you can change this later."
+      "sub": "Optional. Add gear that earns shifts — you can change this later.",
+      "toggle": "Add gear (optional)"
     },
     "details": {
       "heading": "Your details",
@@ -309,7 +314,16 @@
       "phone": "Phone",
       "startDate": "Preferred start date",
       "notes": "Notes (optional)",
-      "notesPlaceholder": "Delivery platform, pickup preference, anything we should know…"
+      "notesPlaceholder": "Delivery platform, pickup preference, anything we should know…",
+      "completeHint": "Complete the required fields to continue",
+      "errors": {
+        "firstName": "Enter your first name.",
+        "lastName": "Enter your last name.",
+        "email": "Enter your email.",
+        "emailInvalid": "Enter a valid email address.",
+        "phone": "Enter your phone number.",
+        "startDate": "Choose a preferred start date."
+      }
     },
     "review": {
       "heading": "Review & confirm",
@@ -324,7 +338,8 @@
       "deposit": "Refundable deposit",
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
-      "paymentNote": "No payment and no signing now. After we approve your booking, you'll verify your identity and accept your contract in your portal, then pay the first 30-day period and refundable deposit there — all before pickup."
+      "paymentNote": "No payment and no signing now. After we approve your booking, you'll verify your identity and accept your contract in your portal, then pay the first 30-day period and refundable deposit there — all before pickup.",
+      "consent": "I agree to the <rules>Rental rules</rules> and <privacy>Privacy policy</privacy>."
     },
     "buttons": {
       "cancel": "Cancel",

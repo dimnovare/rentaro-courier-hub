@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
@@ -60,6 +60,25 @@ export function BookingWizard() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Inline validation: track which required fields the visitor has blurred so
+  // errors only appear after interaction (never on a pristine field).
+  type DetailField = "first" | "last" | "email" | "phone" | "start";
+  const [touched, setTouched] = useState<Record<DetailField, boolean>>({
+    first: false,
+    last: false,
+    email: false,
+    phone: false,
+    start: false,
+  });
+  const markTouched = (f: DetailField) =>
+    setTouched((s) => (s[f] ? s : { ...s, [f]: true }));
+
+  // Add-ons are collapsed by default to keep the Details step short.
+  const [addonsOpen, setAddonsOpen] = useState(false);
+
+  // Required-fields consent gate on the Review step.
+  const [consent, setConsent] = useState(false);
+
   // Steps actually shown: skip any single-select already provided by a deep link.
   // Add-ons are folded into the Details screen, so there is no separate step.
   const steps = (
@@ -96,6 +115,21 @@ export function BookingWizard() {
   const detailsValid =
     !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && !!startDate;
 
+  // Per-field error messages — only surfaced once a field has been touched.
+  // `email` distinguishes "required" from "invalid format" for clearer guidance.
+  const fieldErrors: Record<DetailField, string> = {
+    first: !first.trim() ? t("details.errors.firstName") : "",
+    last: !last.trim() ? t("details.errors.lastName") : "",
+    email: !email.trim()
+      ? t("details.errors.email")
+      : !emailOk
+        ? t("details.errors.emailInvalid")
+        : "",
+    phone: !phone.trim() ? t("details.errors.phone") : "",
+    start: !startDate ? t("details.errors.startDate") : "",
+  };
+  const errFor = (f: DetailField) => (touched[f] ? fieldErrors[f] : "");
+
   const stepValid =
     key === "city"
       ? !!cityId
@@ -126,7 +160,7 @@ export function BookingWizard() {
   };
 
   const submit = async () => {
-    if (!cityId || !modelId || !planId) return;
+    if (!cityId || !modelId || !planId || !consent) return;
     setSubmitting(true);
     setError("");
     // PII-free: ids only, never the customer's name/email/phone.
@@ -297,21 +331,25 @@ export function BookingWizard() {
             <div className="field-row">
               <div className="field">
                 <label htmlFor="first">{t("details.firstName")}</label>
-                <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} autoComplete="given-name" enterKeyHint="next" />
+                <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} onBlur={() => markTouched("first")} aria-invalid={!!errFor("first")} autoComplete="given-name" enterKeyHint="next" />
+                {errFor("first") && <p className="field-err">{errFor("first")}</p>}
               </div>
               <div className="field">
                 <label htmlFor="last">{t("details.lastName")}</label>
-                <input id="last" value={last} onChange={(e) => setLast(e.target.value)} autoComplete="family-name" enterKeyHint="next" />
+                <input id="last" value={last} onChange={(e) => setLast(e.target.value)} onBlur={() => markTouched("last")} aria-invalid={!!errFor("last")} autoComplete="family-name" enterKeyHint="next" />
+                {errFor("last") && <p className="field-err">{errFor("last")}</p>}
               </div>
             </div>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="email">{t("details.email")}</label>
-                <input id="email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" enterKeyHint="next" />
+                <input id="email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => markTouched("email")} aria-invalid={!!errFor("email")} autoComplete="email" enterKeyHint="next" />
+                {errFor("email") && <p className="field-err">{errFor("email")}</p>}
               </div>
               <div className="field">
                 <label htmlFor="phone">{t("details.phone")}</label>
-                <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" enterKeyHint="next" />
+                <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => markTouched("phone")} aria-invalid={!!errFor("phone")} autoComplete="tel" enterKeyHint="next" />
+                {errFor("phone") && <p className="field-err">{errFor("phone")}</p>}
               </div>
             </div>
             <div className="field">
@@ -341,11 +379,14 @@ export function BookingWizard() {
                   min={today}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
+                  onBlur={() => markTouched("start")}
+                  aria-invalid={!!errFor("start")}
                 />
                 <span className="date-field-caret" aria-hidden>
                   <Ic.arrow />
                 </span>
               </button>
+              {errFor("start") && <p className="field-err">{errFor("start")}</p>}
             </div>
             <div className="field">
               <label htmlFor="notes">{t("details.notes")}</label>
@@ -364,31 +405,52 @@ export function BookingWizard() {
               />
             </div>
 
-            {/* Add-ons folded in here (optional) so they're never a separate step. */}
+            {/* Add-ons folded in here (optional), collapsed by default so the
+                Details step stays short above the validation gate. */}
             <div className="wizard-addons">
-              <h4 className="wizard-subhead">{t("addons.heading")}</h4>
-              <p className="sub">{t("addons.sub")}</p>
-              <div className="opt-grid">
-                {accessories.map((a) => {
-                  const on = accessoryIds.includes(a.id);
-                  return (
-                    <button
-                      key={a.id}
-                      type="button"
-                      className={`opt row ${on ? "selected" : ""}`}
-                      onClick={() => toggleAcc(a.id)}
-                    >
-                      <span>
-                        <span className="opt-t" style={{ display: "block" }}>
-                          {ta(`names.${a.id}`)}
-                        </span>
-                        <span className="opt-p">{a.price}</span>
-                      </span>
-                      <span className="opt-check">{on && <Ic.check s={12} />}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <button
+                type="button"
+                className="addons-toggle"
+                aria-expanded={addonsOpen}
+                aria-controls="addons-grid"
+                onClick={() => setAddonsOpen((o) => !o)}
+              >
+                <span className="addons-toggle-label">
+                  {t("addons.toggle")}
+                  {accessoryIds.length > 0 && (
+                    <span className="addons-count">{accessoryIds.length}</span>
+                  )}
+                </span>
+                <span className={`addons-chevron ${addonsOpen ? "open" : ""}`} aria-hidden>
+                  <Ic.arrow />
+                </span>
+              </button>
+              {addonsOpen && (
+                <div id="addons-grid" className="addons-body">
+                  <p className="sub">{t("addons.sub")}</p>
+                  <div className="opt-grid">
+                    {accessories.map((a) => {
+                      const on = accessoryIds.includes(a.id);
+                      return (
+                        <button
+                          key={a.id}
+                          type="button"
+                          className={`opt row ${on ? "selected" : ""}`}
+                          onClick={() => toggleAcc(a.id)}
+                        >
+                          <span>
+                            <span className="opt-t" style={{ display: "block" }}>
+                              {ta(`names.${a.id}`)}
+                            </span>
+                            <span className="opt-p">{a.price}</span>
+                          </span>
+                          <span className="opt-check">{on && <Ic.check s={12} />}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -447,6 +509,20 @@ export function BookingWizard() {
             <p className="sub" style={{ marginTop: 16 }}>
               {t("review.paymentNote")}
             </p>
+            <label className="consent-row">
+              <input
+                type="checkbox"
+                className="consent-box"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+              />
+              <span className="consent-text">
+                {t.rich("review.consent", {
+                  rules: (chunks) => <Link href="/rules">{chunks}</Link>,
+                  privacy: (chunks) => <Link href="/privacy">{chunks}</Link>,
+                })}
+              </span>
+            </label>
             {error && <div className="wizard-err">{error}</div>}
           </>
         )}
@@ -456,19 +532,29 @@ export function BookingWizard() {
             {step === 0 ? t("buttons.cancel") : t("buttons.back")}
           </button>
           {!isLast ? (
+            <div className="wizard-foot-action">
+              {key === "details" && !stepValid && (
+                <span className="wizard-foot-hint">{t("details.completeHint")}</span>
+              )}
+              <button
+                className="btn btn-primary"
+                onClick={next}
+                disabled={!stepValid}
+                style={!stepValid ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+              >
+                {t("buttons.continue")}
+                <span className="arrow">
+                  <Ic.arrow />
+                </span>
+              </button>
+            </div>
+          ) : (
             <button
               className="btn btn-primary"
-              onClick={next}
-              disabled={!stepValid}
-              style={!stepValid ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+              onClick={submit}
+              disabled={submitting || !consent}
+              style={!consent && !submitting ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
             >
-              {t("buttons.continue")}
-              <span className="arrow">
-                <Ic.arrow />
-              </span>
-            </button>
-          ) : (
-            <button className="btn btn-primary" onClick={submit} disabled={submitting}>
               {submitting ? t("buttons.submitting") : t("buttons.submit")}
               {!submitting && (
                 <span className="arrow">
