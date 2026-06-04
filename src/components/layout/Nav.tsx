@@ -58,24 +58,23 @@ export function Nav() {
           <button className="btn btn-primary" onClick={() => reserve(undefined, "nav")}>
             {t("reserve")}<span className="arrow"><Ic.arrow /></span>
           </button>
-          <div
+          <button
+            type="button"
             className="nav-menu"
             onClick={() => setOpen((o) => !o)}
-            role="button"
-            tabIndex={0}
             aria-label={t("menu")}
             aria-expanded={open}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((o) => !o)}
+            aria-controls="mobile-menu"
           >
             <Ic.menu />
-          </div>
+          </button>
         </div>
       </div>
 
       {/* Mobile menu: reveals the links + language picker that are hidden in the
           top bar at small widths (the bar keeps only the brand + Reserve CTA). */}
       {open && (
-        <div className="mobile-menu">
+        <div className="mobile-menu" id="mobile-menu">
           <Link href="/#models" onClick={(e) => { e.preventDefault(); go(() => nav("models")); }}>{t("models")}</Link>
           <Link href="/#pricing" onClick={(e) => { e.preventDefault(); go(() => nav("pricing")); }}>{t("pricing")}</Link>
           <Link href="/#how" onClick={(e) => { e.preventDefault(); go(() => nav("how")); }}>{t("howItWorks")}</Link>

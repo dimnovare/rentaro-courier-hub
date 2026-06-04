@@ -744,6 +744,12 @@ function ContractControl({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <StatusPill value={contractStatusLabel(contract.status)} tone={contractStatusTone(contract.status)} />
+      {contract.signedByName && (
+        <p style={signerStyle}>
+          Signed by: {contract.signedByName}
+          {contract.signedByCountry ? ` (${contract.signedByCountry})` : ""}
+        </p>
+      )}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {contract.hasGeneratedPdf && (
           <button
@@ -911,6 +917,16 @@ const hintStyle: React.CSSProperties = {
   lineHeight: 1.5,
   color: "var(--text-muted)",
   margin: 0,
+};
+
+// Verified e-signature identity — lime accent so an admin can spot-check that
+// the signer matches the renter at a glance.
+const signerStyle: React.CSSProperties = {
+  fontSize: 11.5,
+  lineHeight: 1.5,
+  color: "var(--lime)",
+  margin: 0,
+  fontFamily: "var(--font-mono)",
 };
 
 const selectStyle: React.CSSProperties = {

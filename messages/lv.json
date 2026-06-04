@@ -8,6 +8,11 @@
     "reserve": "Rezervēt",
     "menu": "Izvēlne"
   },
+  "trustStrip": {
+    "freeToReserve": "Rezervēšana bez maksas",
+    "payLater": "Maksā vēlāk savā portālā",
+    "refundableDeposit": "Atmaksājama drošības nauda"
+  },
   "localeSwitcher": {
     "label": "Valoda"
   },

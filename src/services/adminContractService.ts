@@ -56,6 +56,11 @@ export interface Contract {
   hasSignedPdf: boolean;
   createdAt: string;
   signedAt: string | null;
+  /** Cryptographically verified signer from the qualified e-signature. Present
+   *  once the contract is signed; lets an admin confirm the signer matches the
+   *  renter. Distinct from signerName, which is the intended/booked signer. */
+  signedByName: string | null;
+  signedByCountry: string | null;
 }
 
 /** Which rendition of the contract PDF to fetch. */

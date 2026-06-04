@@ -195,6 +195,12 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .hero h1 { margin-bottom: 24px; }
 .hero .lead { margin-bottom: 34px; }
 .cta-row { display: flex; gap: 13px; flex-wrap: wrap; margin-bottom: 40px; }
+.trust-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--text-muted); }
+.trust-strip .ts-item { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.trust-strip .ts-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 8px var(--lime-glow); flex-shrink: 0; }
+.trust-strip .ts-sep { color: var(--lime); opacity: 0.5; }
+.cta-row + .trust-strip { margin-top: -24px; margin-bottom: 38px; }
+.trust-strip-review { margin: 14px 0 18px; }
 .hero-stats { display: flex; gap: 34px; flex-wrap: wrap; }
 .hero-stat .n { font-family: var(--font-display); font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.03em; color: var(--text); }
 .hero-stat .n .u { font-size: 15px; color: var(--lime); font-weight: 500; margin-left: 2px; }
@@ -751,7 +757,12 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 @media (max-width: 640px) { .drawer { max-width: 100% !important; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .bg-grid, .bg-scan, .hero-bike, .bike-shadow, .spec-chip, .stage-ring, .stage-arc, .streak, .marquee-track, .hero-pill .live { animation: none !important; }
+  /* Freeze the heavy hero motion to a still version for desktop users who
+     opt out of animation (mobile already disables these via the block above). */
+  .bg-grid, .bg-grid.fine, .bg-scan, .hero-bike, .bike-shadow, .spec-chip, .stage-ring, .stage-arc, .streak, .marquee-track, .hero-pill .live { animation: none !important; }
+  /* Drop the resting transforms so nothing is frozen mid-drift/float. */
+  .hero-bike, .bike-shadow, .spec-chip, .stage-ring, .stage-arc, .streak { transform: none !important; }
+  .bg-scan, .streak { display: none; }
   .admin-boot-dot, .admin-live-dot { animation: none !important; }
   .admin-signin-card, .admin-content, .admin-nav-indicator, .admin-sidebar, .admin-topbar-refresh svg { animation: none !important; transition: none !important; }
   .cmdk-overlay, .cmdk, .drawer-overlay, .drawer { animation: none !important; }

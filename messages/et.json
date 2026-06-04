@@ -8,6 +8,11 @@
     "reserve": "Broneeri",
     "menu": "Menüü"
   },
+  "trustStrip": {
+    "freeToReserve": "Broneerimine on tasuta",
+    "payLater": "Maksa hiljem portaalis",
+    "refundableDeposit": "Tagastatav tagatisraha"
+  },
   "localeSwitcher": {
     "label": "Keel"
   },

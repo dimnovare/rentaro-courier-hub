@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
+import { TrustStrip } from "@/components/ui/TrustStrip";
 import { Ic } from "@/components/ui/Icon";
 import { cities } from "@/data/cities";
 
@@ -68,6 +69,9 @@ export function Hero() {
                 {t("ctaExplore")}
               </button>
             </div>
+          </Reveal>
+          <Reveal delay={210}>
+            <TrustStrip />
           </Reveal>
           <Reveal delay={240}>
             <div className="hero-stats">

@@ -5,6 +5,7 @@ import { useRouter, Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
+import { TrustStrip } from "@/components/ui/TrustStrip";
 import { cities } from "@/data/cities";
 import { bikeModels } from "@/data/bikeModels";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
@@ -509,6 +510,7 @@ export function BookingWizard() {
             <p className="sub" style={{ marginTop: 16 }}>
               {t("review.paymentNote")}
             </p>
+            <TrustStrip className="trust-strip-review" />
             <label className="consent-row">
               <input
                 type="checkbox"

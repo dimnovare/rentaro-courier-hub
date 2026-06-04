@@ -8,6 +8,11 @@
     "reserve": "Varaa",
     "menu": "Valikko"
   },
+  "trustStrip": {
+    "freeToReserve": "Varaus maksutta",
+    "payLater": "Maksa myöhemmin portaalissa",
+    "refundableDeposit": "Palautettava vakuus"
+  },
   "localeSwitcher": {
     "label": "Kieli"
   },

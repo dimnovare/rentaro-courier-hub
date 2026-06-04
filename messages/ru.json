@@ -8,6 +8,11 @@
     "reserve": "Забронировать",
     "menu": "Меню"
   },
+  "trustStrip": {
+    "freeToReserve": "Бронь бесплатно",
+    "payLater": "Оплата позже в кабинете",
+    "refundableDeposit": "Возвратный депозит"
+  },
   "localeSwitcher": {
     "label": "Язык"
   },

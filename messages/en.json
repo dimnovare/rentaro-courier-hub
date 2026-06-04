@@ -8,6 +8,11 @@
     "reserve": "Reserve",
     "menu": "Menu"
   },
+  "trustStrip": {
+    "freeToReserve": "Free to reserve",
+    "payLater": "Pay later in your portal",
+    "refundableDeposit": "Refundable deposit"
+  },
   "localeSwitcher": {
     "label": "Language"
   },
