@@ -65,7 +65,9 @@
       "termUnit": "dienas",
       "termLabel": "Minimālais termiņš",
       "citiesUnit": "pilsētas",
-      "citiesLabel": "Darbojas tagad · {soon} drīz"
+      "citiesLabel": "Darbojas tagad · {soon} drīz",
+      "availableUnit": "velosipēdi",
+      "availableLabel": "Pieejami tagad"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 piegādes e-velosipēds",
     "specChips": {

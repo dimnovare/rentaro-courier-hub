@@ -17,9 +17,6 @@ const liveCityCount = liveCities.length;
 const liveCityNames = liveCities.map((c) => c.name).join(" + ");
 const soonCityNames = soonCities.map((c) => c.name).join(", ");
 
-// TODO(phase-b): Hero is "use client" — live city totals from /api/public/availability
-// cannot be fetched server-side here. Pass liveTotal as a prop from a server wrapper
-// (e.g. the homepage server component) if a live total count is needed in the hero stats.
 
 /** Marquee item keys, in display order — copy lives in the `marquee` namespace. */
 const marqueeKeys = [
@@ -32,10 +29,11 @@ const marqueeKeys = [
   "pickupDelivery",
 ] as const;
 
-export function Hero() {
+export function Hero({ liveAvailable }: { liveAvailable?: number } = {}) {
   const { reserve, goModels } = useInteractions();
   const t = useTranslations("hero");
   const tm = useTranslations("marquee");
+  const showBikes = typeof liveAvailable === "number" && liveAvailable > 0;
   return (
     <section className="hero" id="top">
       <div className="wrap hero-grid">
@@ -93,9 +91,14 @@ export function Hero() {
               </div>
               <div className="hero-stat">
                 <div className="n">
-                  {liveCityCount}<span className="u">{t("stats.citiesUnit")}</span>
+                  {showBikes ? liveAvailable : liveCityCount}
+                  <span className="u">
+                    {showBikes ? t("stats.availableUnit") : t("stats.citiesUnit")}
+                  </span>
                 </div>
-                <div className="l">{t("stats.citiesLabel", { soon: soonCityNames })}</div>
+                <div className="l">
+                  {showBikes ? t("stats.availableLabel") : t("stats.citiesLabel", { soon: soonCityNames })}
+                </div>
               </div>
             </div>
           </Reveal>

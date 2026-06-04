@@ -577,6 +577,15 @@ function ManagePanel({
             Reject
           </button>
         </div>
+        {b.heldBikeUnitCode && (
+          <p style={{ ...hintStyle, marginTop: 8 }}>
+            Held:{" "}
+            <span className="mono" style={{ color: "var(--lime)" }}>{b.heldBikeUnitCode}</span>
+            {b.holdExpiresAt && (
+              <> · expires {fmtDay(b.holdExpiresAt)}</>
+            )}
+          </p>
+        )}
       </PanelGroup>
 
       <PanelGroup title="2 · Contract">

@@ -65,7 +65,9 @@
       "termUnit": "days",
       "termLabel": "Minimum term",
       "citiesUnit": "cities",
-      "citiesLabel": "Live now · {soon} soon"
+      "citiesLabel": "Live now · {soon} soon",
+      "availableUnit": "bikes",
+      "availableLabel": "Available now"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 delivery e-bike",
     "specChips": {

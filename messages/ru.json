@@ -65,7 +65,9 @@
       "termUnit": "дней",
       "termLabel": "Минимальный срок",
       "citiesUnit": "города",
-      "citiesLabel": "Уже работаем · {soon} скоро"
+      "citiesLabel": "Уже работаем · {soon} скоро",
+      "availableUnit": "велосипедов",
+      "availableLabel": "Доступно сейчас"
     },
     "bikeAlt": "Электробайк для доставки rentaro Engine Pro 2.0",
     "specChips": {

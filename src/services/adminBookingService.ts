@@ -28,6 +28,8 @@ export interface AdminBooking {
   customerEmail: string;
   customerPhone: string;
   notes: string | null;
+  heldBikeUnitCode: string | null;
+  holdExpiresAt: string | null;
 }
 
 export interface AdminFleetUnit {

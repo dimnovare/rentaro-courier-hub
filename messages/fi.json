@@ -65,7 +65,9 @@
       "termUnit": "päivää",
       "termLabel": "Vähimmäisaika",
       "citiesUnit": "kaupunkia",
-      "citiesLabel": "Käytössä nyt · {soon} pian"
+      "citiesLabel": "Käytössä nyt · {soon} pian",
+      "availableUnit": "pyörää",
+      "availableLabel": "Saatavilla nyt"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 -lähettisähköpyörä",
     "specChips": {

@@ -65,7 +65,9 @@
       "termUnit": "päeva",
       "termLabel": "Minimaalne periood",
       "citiesUnit": "linna",
-      "citiesLabel": "Juba töös · {soon} varsti"
+      "citiesLabel": "Juba töös · {soon} varsti",
+      "availableUnit": "jalgrattad",
+      "availableLabel": "Saadaval praegu"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 tarne-e-ratas",
     "specChips": {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { defaultOgImages } from "@/lib/og";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
-import { Hero } from "@/components/sections/Hero";
+import { HeroServer } from "@/components/sections/HeroServer";
 import { PopularModels } from "@/components/sections/PopularModels";
 import { Showcase } from "@/components/sections/Showcase";
 import { Pricing } from "@/components/sections/Pricing";
@@ -30,7 +30,7 @@ export async function generateMetadata({
 export default function Home() {
   return (
     <main>
-      <Hero />
+      <HeroServer />
       <PopularModels />
       <Showcase />
       <Pricing />
