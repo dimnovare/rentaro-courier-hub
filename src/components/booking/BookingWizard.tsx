@@ -549,6 +549,15 @@ export function BookingWizard() {
             <p className="sub" style={{ marginTop: 16 }}>
               {t("review.paymentNote")}
             </p>
+            <a
+              href="/rules"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost btn-block"
+              style={{ textDecoration: "none", marginTop: 4, marginBottom: 4, fontSize: 14 }}
+            >
+              {t("review.readRulesLink")}
+            </a>
             <TrustStrip className="trust-strip-review" />
             <label className="consent-row">
               <input
