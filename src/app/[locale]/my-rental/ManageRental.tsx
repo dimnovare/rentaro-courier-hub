@@ -942,6 +942,18 @@ function ContractCard({ token }: { token: string }) {
                   {signError}
                 </p>
               )}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
+                  marginTop: 14,
+                  flexWrap: "wrap",
+                }}
+              >
+                <img src="/payment/smart-id.svg" alt="Smart-ID" height={26} style={{ width: "auto", borderRadius: 4 }} />
+                <img src="/payment/mobile-id.svg" alt="Mobile-ID" height={26} style={{ width: "auto", borderRadius: 4 }} />
+              </div>
             </>
           ) : (
             <p
@@ -1092,6 +1104,19 @@ function PayCard({
                   {error}
                 </p>
               )}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
+                  marginTop: 14,
+                  flexWrap: "wrap",
+                }}
+              >
+                <img src="/payment/montonio.svg" alt="Montonio" height={26} style={{ width: "auto", borderRadius: 4 }} />
+                <img src="/payment/visa.svg" alt="Visa" height={26} style={{ width: "auto", borderRadius: 4 }} />
+                <img src="/payment/mastercard.svg" alt="Mastercard" height={26} style={{ width: "auto", borderRadius: 4 }} />
+              </div>
             </>
           )}
         </div>
