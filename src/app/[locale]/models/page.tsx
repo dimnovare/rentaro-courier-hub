@@ -4,6 +4,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { ModelCard } from "@/components/models/ModelCard";
 import { modelService } from "@/services/modelService";
+import { getLiveModelTotals, modelStatus } from "@/services/availabilityService";
 
 export const metadata: Metadata = {
   title: "All e-bike models — rentaro",
@@ -12,7 +13,15 @@ export const metadata: Metadata = {
 };
 
 export default async function ModelsPage() {
-  const models = await modelService.getModels();
+  const [models, liveTotals] = await Promise.all([
+    modelService.getModels(),
+    getLiveModelTotals(),
+  ]);
+  const patched = models.map((m) => {
+    const avail = liveTotals.get(m.id);
+    if (avail === undefined) return m;
+    return { ...m, availability: avail, status: modelStatus(avail) };
+  });
   const t = await getTranslations("modelsPage");
   return (
     <main>
@@ -26,7 +35,7 @@ export default async function ModelsPage() {
             </p>
           </Reveal>
           <div className="models-grid">
-            {models.map((m, i) => (
+            {patched.map((m, i) => (
               <Reveal key={m.id} delay={(i % 3) * 80}>
                 <ModelCard m={m} />
               </Reveal>

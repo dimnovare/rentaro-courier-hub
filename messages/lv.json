@@ -140,41 +140,29 @@
     "lead": "No izturīgā Engine Pro līdz viegliem salokāmiem ikdienas velosipēdiem — katrs modelis tiek nomāts ar tiem pašiem 30 dienu, 6 vai 12 mēnešu nosacījumiem."
   },
   "howItWorks": {
-    "kicker": "Kā tas notiek",
-    "heading": "No rezervācijas līdz pirmajai maiņai septiņos soļos.",
+    "kicker": "Kā tas darbojas",
+    "heading": "No rezervēšanas līdz pirmajai maiņai četros soļos.",
     "steps": {
       "01": {
-        "title": "Rezervē velosipēdu",
-        "copy": "Izvēlies pilsētu, modeli un plānu un nosūti pieteikumu. Tagad nav ne maksājuma, ne parakstīšanas — rezervēšana ir bez maksas."
+        "title": "Rezervē velosipēdu — bez maksas",
+        "copy": "Izvēlies pilsētu, modeli un plānu. Pārbaudi tiešraides pieejamību, izlasi nomas noteikumus un redzēt savu cenu un depozītu. Nosūti pieprasījumu — nav maksājuma, nav paraksta."
       },
       "02": {
-        "title": "Mēs apstiprinām tavu rezervāciju",
-        "copy": "Pārbaudām pieejamību un apstiprinām rezervāciju e-pastā, parasti 24 stundu laikā."
+        "title": "Mēs rezervējam tev velosipēdu",
+        "copy": "Mēs apstiprinām, ka esi īsts kurjers, un rezervējam tev konkrētu velosipēdu, parasti 24 stundu laikā. Uz e-pastu saņemsi drošu portāla saiti."
       },
       "03": {
-        "title": "Apstiprini savu identitāti",
-        "copy": "Atver savu drošo nomas portālu no e-pasta saites un izej ātru identitātes pārbaudi — viss no telefona."
+        "title": "Paraksti un maksā ar tālruni",
+        "copy": "Paraksti nomas līgumu ar Smart-ID vai Mobile-ID — tas pierāda, ka esi tu, un padara līgumu juridiski saistošu. Tad samaksā par pirmajām 30 dienām un atmaksājamo depozītu. Viena drošā sesija."
       },
       "04": {
-        "title": "Pārskati un pieņem līgumu",
-        "copy": "Izlasi precīzo piedāvājumu un paraksti digitālo nomas līgumu tiešsaistē. Tas aizņem minūti."
-      },
-      "05": {
-        "title": "Samaksā pirmās 30 dienas un depozītu",
-        "copy": "Portālā samaksā pirmo 30 dienu periodu un atmaksājamo depozītu — vienīgais maksājuma brīdis, pēc apstiprināšanas un līguma pieņemšanas."
-      },
-      "06": {
-        "title": "Mēs piešķiram tavu velosipēdu",
-        "copy": "Kad maksājums ir saņemts, piešķiram tavu fizisko velosipēdu ar slēdzeni, lādētāju un akumulatoru."
-      },
-      "07": {
-        "title": "Saņem un sāc piegādāt",
-        "copy": "Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi un sāc pirmo maiņu jau tajā pašā nedēļā."
+        "title": "Saņem velosipēdu un sāc piegādes",
+        "copy": "Saņem velosipēdu pilsētas izsniegšanas punktā vai piesakies uz piegādi. Servisa atbalsts ir iekļauts visā nomas periodā."
       }
     },
     "trust": {
-      "kicker": "Kvalificēts eID",
-      "copy": "Paraksti nomas līgumu juridiski saistoši ar Smart-ID vai Mobile-ID."
+      "kicker": "e-Parakstīts",
+      "copy": "Tava identitāte tiek verificēta un līgums parakstīts digitāli ar Smart-ID vai Mobile-ID — juridiski saistošs, bez papīra."
     }
   },
   "cities": {
@@ -352,7 +340,8 @@
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
       "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti un pieņemsi līgumu, un tur samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",
-      "consent": "Piekrītu <rules>Nomas noteikumiem</rules> un <privacy>Privātuma politikai</privacy>."
+      "consent": "Esmu izlasījis un piekrītu <rules>nomas noteikumiem</rules> un <privacy>privātuma politikai</privacy>, un saprotu, ka parakstīšu formālo nomas līgumu ar savu personu apliecinošu dokumentu pirms nodošanas.",
+      "readRulesLink": "Pirms apstiprināšanas izlasi pilnos nomas noteikumus →"
     },
     "buttons": {
       "cancel": "Atcelt",
@@ -492,6 +481,7 @@
     "errorHelpPrefix": "Pārbaudi saiti savā apstiprinājuma e-pastā vai",
     "errorHelpLink": "seko savai rezervācijai",
     "errorHelpSuffix": "tā vietā.",
+    "signNote": "Zemāk paraksti savu nomas līgumu ar Smart-ID vai Mobile-ID — tas apstiprina tavu identitāti un padara līgumu juridiski saistošu. Maksājums seko pēc parakstīšanas.",
     "identity": {
       "title": "Apstipriniet savu identitāti",
       "subtitle": "Mēs pārbaudām jūsu identitāti pirms nomas sākuma — tas aizņem aptuveni 30 sekundes ar Smart-ID vai Mobile-ID.",

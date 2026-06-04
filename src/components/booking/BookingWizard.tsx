@@ -12,6 +12,7 @@ import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
+import { API_BASE } from "@/services/api";
 import type { PlanId } from "@/types";
 
 /** The single-select steps that a deep link can pre-satisfy and thus skip. */
@@ -61,6 +62,29 @@ export function BookingWizard() {
   const [referralCode, setReferralCode] = useState(initialReferral);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Live availability: keyed as "city:<id>" and "model:<id>" → available count.
+  // Falls back silently to static data when the API is unavailable.
+  const [availMap, setAvailMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const url = API_BASE
+      ? `${API_BASE}/api/public/availability`
+      : "/api/public/availability";
+    fetch(url, { headers: { Accept: "application/json" } })
+      .then((r) => r.json())
+      .then((entries: Array<{ modelId: string; cityId: string; available: number }>) => {
+        const m: Record<string, number> = {};
+        for (const e of entries) {
+          const cityKey = `city:${e.cityId}`;
+          m[cityKey] = (m[cityKey] ?? 0) + e.available;
+          const modelKey = `model:${e.modelId}`;
+          m[modelKey] = (m[modelKey] ?? 0) + e.available;
+        }
+        setAvailMap(m);
+      })
+      .catch(() => {}); // silent fallback to static
+  }, []);
 
   // Inline validation: track which required fields the visitor has blurred so
   // errors only appear after interaction (never on a pristine field).
@@ -262,9 +286,13 @@ export function BookingWizard() {
                     <span className="opt-p">
                       {soon
                         ? t("city.soon")
-                        : c.status === "limited"
-                          ? t("city.limited")
-                          : t("city.available", { count: c.available })}
+                        : (() => {
+                            const liveCount = availMap[`city:${c.id}`];
+                            const count = liveCount ?? c.available;
+                            if (count === 0) return t("city.waitlist");
+                            if (count <= 3) return t("city.limited");
+                            return t("city.available", { count });
+                          })()}
                     </span>
                   </button>
                 );
@@ -290,7 +318,11 @@ export function BookingWizard() {
                   </span>
                   <span className="opt-p">
                     {t("model.fromDay", { price: m.fromDay.toFixed(2) })}
-                    {m.status === "wait" ? t("model.waitlistSuffix") : ""}
+                    {(() => {
+                      const liveCount = availMap[`model:${m.id}`];
+                      const isWait = liveCount !== undefined ? liveCount === 0 : m.status === "wait";
+                      return isWait ? t("model.waitlistSuffix") : "";
+                    })()}
                   </span>
                 </button>
               ))}
@@ -517,6 +549,15 @@ export function BookingWizard() {
             <p className="sub" style={{ marginTop: 16 }}>
               {t("review.paymentNote")}
             </p>
+            <a
+              href="/rules"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost btn-block"
+              style={{ textDecoration: "none", marginTop: 4, marginBottom: 4, fontSize: 14 }}
+            >
+              {t("review.readRulesLink")}
+            </a>
             <TrustStrip className="trust-strip-review" />
             <label className="consent-row">
               <input

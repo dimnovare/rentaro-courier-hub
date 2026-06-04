@@ -141,40 +141,28 @@
   },
   "howItWorks": {
     "kicker": "Näin se toimii",
-    "heading": "Varauksesta ensimmäiseen vuoroon seitsemässä vaiheessa.",
+    "heading": "Varauksesta ensimmäiseen vuoroon neljässä vaiheessa.",
     "steps": {
       "01": {
-        "title": "Varaa pyöräsi",
-        "copy": "Valitse kaupunki, malli ja suunnitelma ja lähetä pyyntö. Ei maksua eikä allekirjoitusta nyt — varaaminen on maksutonta."
+        "title": "Varaa pyörä — ilmaiseksi",
+        "copy": "Valitse kaupunki, malli ja suunnitelma. Tarkista reaaliaikainen saatavuus, lue vuokraehdot ja katso tarkka hintasi ja talletuksesi. Lähetä pyyntö — ei maksua, ei allekirjoitusta."
       },
       "02": {
-        "title": "Hyväksymme varauksesi",
-        "copy": "Tarkistamme saatavuuden ja vahvistamme varauksen sähköpostitse, yleensä 24 tunnin kuluessa."
+        "title": "Me pidätämme pyörän sinulle",
+        "copy": "Varmistamme, että olet oikea kuriiri, ja varaamme sinulle tietyn pyörän, yleensä 24 tunnin kuluessa. Saat sähköpostitse turvallisen portaalilinkin."
       },
       "03": {
-        "title": "Vahvista henkilöllisyytesi",
-        "copy": "Avaa turvallinen vuokrausportaalisi sähköpostin linkistä ja suorita nopea henkilöllisyyden tarkistus — kaikki puhelimellasi."
+        "title": "Allekirjoita ja maksa puhelimella",
+        "copy": "Allekirjoita vuokrasopimus Smart-ID:llä tai Mobile-ID:llä — tämä todistaa, että olet sinä, ja tekee sopimuksesta oikeudellisesti sitovan. Maksa sitten ensimmäiset 30 päivää ja palautettava talletus. Yksi turvallinen istunto."
       },
       "04": {
-        "title": "Tarkista ja hyväksy sopimus",
-        "copy": "Lue tarkka tarjous ja allekirjoita digitaalinen vuokrasopimus verkossa. Se vie minuutin."
-      },
-      "05": {
-        "title": "Maksa ensimmäiset 30 päivää + vakuus",
-        "copy": "Maksa portaalissa ensimmäinen 30 päivän jakso ja palautettava vakuus — ainoa maksuhetki, hyväksynnän ja sopimuksen hyväksymisen jälkeen."
-      },
-      "06": {
-        "title": "Varaamme pyöräsi",
-        "copy": "Kun maksu on suoritettu, varaamme fyysisen pyöräsi lukon, laturin ja akun kanssa."
-      },
-      "07": {
-        "title": "Nouda ja aloita lähetit",
-        "copy": "Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta, ja aloita ensimmäinen vuorosi jo saman viikon aikana."
+        "title": "Nouda pyörä ja aloita toimittaminen",
+        "copy": "Nouda pyörä kaupungin noutopisteestä tai pyydä paikallista toimitusta. Huoltopalvelu sisältyy koko vuokra-ajalle."
       }
     },
     "trust": {
-      "kicker": "Vahva sähköinen tunnistautuminen",
-      "copy": "Allekirjoita vuokrasopimuksesi laillisesti Smart-ID:llä tai Mobile-ID:llä."
+      "kicker": "e-Allekirjoitettu",
+      "copy": "Henkilöllisyytesi varmistetaan ja sopimus allekirjoitetaan digitaalisesti Smart-ID:llä tai Mobile-ID:llä — oikeudellisesti sitova, paperiton."
     }
   },
   "cities": {
@@ -352,7 +340,8 @@
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
       "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, vahvistat henkilöllisyytesi ja hyväksyt sopimuksesi portaalissa, ja maksat siellä ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",
-      "consent": "Hyväksyn <rules>vuokrausehdot</rules> ja <privacy>tietosuojakäytännön</privacy>."
+      "consent": "Olen lukenut ja hyväksyn <rules>vuokraehdot</rules> ja <privacy>tietosuojakäytännön</privacy>, ja ymmärrän allekirjoittavani virallisen vuokrasopimuksen henkilöllisyystodistuksellani ennen noutoa.",
+      "readRulesLink": "Lue vuokraehdot ennen vahvistamista →"
     },
     "buttons": {
       "cancel": "Peruuta",
@@ -492,6 +481,7 @@
     "errorHelpPrefix": "Tarkista vahvistussähköpostisi linkki, tai",
     "errorHelpLink": "seuraa varaustasi",
     "errorHelpSuffix": "sen sijaan.",
+    "signNote": "Allekirjoita alla vuokrasopimuksesi Smart-ID:llä tai Mobile-ID:llä — tämä vahvistaa henkilöllisyytesi ja tekee sopimuksesta oikeudellisesti sitovan. Maksu tulee allekirjoituksen jälkeen.",
     "identity": {
       "title": "Vahvista henkilöllisyytesi",
       "subtitle": "Vahvistamme henkilöllisyytesi ennen vuokrauksen alkua — se vie noin 30 sekuntia Smart-ID:llä tai Mobile-ID:llä.",
