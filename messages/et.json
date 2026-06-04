@@ -305,7 +305,6 @@
       "sub": "Mida pikem periood, seda madalam päevahind. Vähemalt 30 päeva.",
       "perDay": "€{price}/päev",
       "per30": "€{price} 30 päeva eest",
-      "depositLine": "+€{deposit} tagastatav tagatisraha · €{total} makstud portaalis pärast kinnitamist",
       "depositBadge": "Tagastatav tagatisraha €{deposit} — saad selle tagasi",
       "dueLine": "€{total} makstud portaalis pärast kinnitamist"
     },

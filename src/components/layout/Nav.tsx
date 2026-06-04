@@ -79,7 +79,7 @@ export function Nav() {
           <Link href="/#pricing" onClick={(e) => { e.preventDefault(); go(() => nav("pricing")); }}>{t("pricing")}</Link>
           <Link href="/#how" onClick={(e) => { e.preventDefault(); go(() => nav("how")); }}>{t("howItWorks")}</Link>
           <Link href="/#cities" onClick={(e) => { e.preventDefault(); go(() => nav("cities")); }}>{t("cities")}</Link>
-          <a onClick={() => go(() => goModels("nav-mobile"))}>{t("viewFleet")}</a>
+          <button type="button" className="btn btn-ghost" onClick={() => go(() => goModels("nav-mobile"))}>{t("viewFleet")}</button>
           <div className="mm-locale">
             <LocaleSwitcher />
           </div>

@@ -6,7 +6,16 @@ import { useTranslations } from "next-intl";
 import { Toast } from "@/components/ui/Toast";
 import { WaitlistModal } from "@/components/ui/WaitlistModal";
 import { bikeModels } from "@/data/bikeModels";
+import { pricingPlans } from "@/data/pricingPlans";
 import { track } from "@/services/analytics";
+
+/** Respect prefers-reduced-motion for programmatic scrolls. */
+function scrollBehavior(): ScrollBehavior {
+  const reduce =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return reduce ? "auto" : "smooth";
+}
 
 type Interactions = {
   /** Start a reservation. `what` may be undefined, a model id, a plan id
@@ -57,13 +66,13 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
     (id: string) => {
       if (typeof window === "undefined") return;
       if (id === "top") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: scrollBehavior() });
         return;
       }
       const el = document.getElementById(id);
       if (el) {
         const y = el.getBoundingClientRect().top + window.scrollY - 70;
-        window.scrollTo({ top: y, behavior: "smooth" });
+        window.scrollTo({ top: y, behavior: scrollBehavior() });
       } else {
         router.push(`/#${id}`);
       }
@@ -99,7 +108,7 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
         router.push(`/book?city=${city}`);
         return;
       }
-      if (what.startsWith("p")) {
+      if (pricingPlans.some((p) => p.id === what)) {
         track("cta_reserve", { source: source ?? "pricing", plan: what });
         router.push(`/book?plan=${what}`);
         return;

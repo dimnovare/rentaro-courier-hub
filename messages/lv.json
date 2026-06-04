@@ -305,7 +305,6 @@
       "sub": "Jo ilgāks termiņš, jo zemāka dienas cena. Minimālais termiņš 30 dienas.",
       "perDay": "€{price}/dienā",
       "per30": "€{price} par 30 dienām",
-      "depositLine": "+€{deposit} atmaksājama drošības nauda · €{total} samaksā portālā pēc apstiprināšanas",
       "depositBadge": "Atmaksājama drošības nauda €{deposit} — to saņemsi atpakaļ",
       "dueLine": "€{total} samaksā portālā pēc apstiprināšanas"
     },

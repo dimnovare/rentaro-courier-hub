@@ -305,7 +305,6 @@
       "sub": "Mitä pidempi aika, sitä edullisempi päivähinta. Vähintään 30 päivää.",
       "perDay": "€{price}/pv",
       "per30": "€{price} per 30 päivää",
-      "depositLine": "+€{deposit} palautettava vakuus · €{total} maksetaan portaalissa hyväksynnän jälkeen",
       "depositBadge": "Palautettava vakuus €{deposit} — saat sen takaisin",
       "dueLine": "€{total} maksetaan portaalissasi hyväksynnän jälkeen"
     },

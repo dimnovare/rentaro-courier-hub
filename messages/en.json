@@ -305,7 +305,6 @@
       "sub": "The longer the term, the lower the daily price. Minimum 30 days.",
       "perDay": "€{price}/day",
       "per30": "€{price} per 30 days",
-      "depositLine": "+€{deposit} refundable deposit · €{total} paid in your portal after approval",
       "depositBadge": "Refundable deposit €{deposit} — you get it back",
       "dueLine": "€{total} paid in your portal after approval"
     },

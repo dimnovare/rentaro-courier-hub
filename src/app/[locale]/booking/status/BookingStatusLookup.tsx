@@ -126,7 +126,7 @@ function StatusResult({ result }: { result: LookupResult }) {
 
   if (result.kind === "not_found") {
     return (
-      <p className="wizard-err" role="status">
+      <p className="wizard-err" role="alert">
         {t("notFound")}
       </p>
     );

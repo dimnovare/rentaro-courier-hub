@@ -251,7 +251,7 @@ export function WaitlistModal({
               )}
             </button>
             {status === "error" && (
-              <p className="wizard-err" role="status">
+              <p className="wizard-err" role="alert">
                 {t("error")}
               </p>
             )}

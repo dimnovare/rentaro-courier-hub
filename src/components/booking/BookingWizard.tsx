@@ -31,6 +31,7 @@ export function BookingWizard() {
   const tc = useTranslations("cities");
   const tp = useTranslations("pricing");
   const ta = useTranslations("accessories");
+  const tm = useTranslations("modelItems");
 
   // Pre-fill from deep-link query params (e.g. "Reserve this bike" → ?model=…,
   // "Reserve in Tallinn" → ?city=…, "Choose 6 months" → ?plan=…). A pre-filled
@@ -285,7 +286,7 @@ export function BookingWizard() {
                 >
                   <span className="opt-t">{m.name}</span>
                   <span className="opt-m">
-                    {m.brand} · {m.tagline}
+                    {m.brand} · {tm(`${m.id}.tagline`)}
                   </span>
                   <span className="opt-p">
                     {t("model.fromDay", { price: m.fromDay.toFixed(2) })}
