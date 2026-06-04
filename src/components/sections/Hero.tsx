@@ -17,6 +17,10 @@ const liveCityCount = liveCities.length;
 const liveCityNames = liveCities.map((c) => c.name).join(" + ");
 const soonCityNames = soonCities.map((c) => c.name).join(", ");
 
+// TODO(phase-b): Hero is "use client" — live city totals from /api/public/availability
+// cannot be fetched server-side here. Pass liveTotal as a prop from a server wrapper
+// (e.g. the homepage server component) if a live total count is needed in the hero stats.
+
 /** Marquee item keys, in display order — copy lives in the `marquee` namespace. */
 const marqueeKeys = [
   "minDays",

@@ -280,7 +280,8 @@
       "sub": "Choose your city. We operate in Tallinn and Riga today.",
       "soon": "Coming soon",
       "limited": "Limited stock",
-      "available": "{count} available"
+      "available": "{count} available",
+      "waitlist": "Join waitlist"
     },
     "model": {
       "heading": "Pick your bike",
