@@ -49,9 +49,13 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
                     <strong>€{plan.monthly}</strong> {t("per30Suffix")}
                   </div>
                   <div className="deposit-line">
-                    <span style={{ display: "block" }}>
-                      {t("depositLine", { amount: plan.monthly })}
+                    <span className="deposit-badge">
+                      <span className="deposit-badge-label">{t("depositLabel")}</span>
+                      <span className="deposit-badge-amount">
+                        €{plan.monthly}
+                      </span>
                     </span>
+                    <span className="deposit-note">{t("depositReassure")}</span>
                     <span style={{ display: "block" }}>
                       {t("dueAtPickup", { amount: plan.monthly * 2 })}
                     </span>

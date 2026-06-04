@@ -107,6 +107,8 @@
     "perDay": "/ day",
     "per30Suffix": "per 30 days · daily × 30",
     "depositLine": "+€{amount} refundable deposit",
+    "depositLabel": "Refundable deposit",
+    "depositReassure": "Fully returned at the end, minus any damage.",
     "dueAtPickup": "€{amount} paid in your portal — after you're approved & have accepted the contract",
     "choose": "Choose {term}",
     "terms": {
@@ -303,7 +305,9 @@
       "sub": "The longer the term, the lower the daily price. Minimum 30 days.",
       "perDay": "€{price}/day",
       "per30": "€{price} per 30 days",
-      "depositLine": "+€{deposit} refundable deposit · €{total} paid in your portal after approval"
+      "depositLine": "+€{deposit} refundable deposit · €{total} paid in your portal after approval",
+      "depositBadge": "Refundable deposit €{deposit} — you get it back",
+      "dueLine": "€{total} paid in your portal after approval"
     },
     "addons": {
       "heading": "Add-ons",
@@ -341,6 +345,7 @@
       "startDate": "Start date",
       "contact": "Contact",
       "deposit": "Refundable deposit",
+      "depositNote": "Returned at the end, minus any damage",
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
       "paymentNote": "No payment and no signing now. After we approve your booking, you'll verify your identity and accept your contract in your portal, then pay the first 30-day period and refundable deposit there — all before pickup.",

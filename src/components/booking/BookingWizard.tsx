@@ -316,8 +316,11 @@ export function BookingWizard() {
                     {t("plan.perDay", { price: p.daily.toFixed(2) })}
                   </span>
                   <span className="opt-m">{t("plan.per30", { price: p.monthly })} · {tp(`tags.${p.id}`)}</span>
+                  <span className="opt-deposit">
+                    {t("plan.depositBadge", { deposit: p.monthly })}
+                  </span>
                   <span className="opt-m">
-                    {t("plan.depositLine", { deposit: p.monthly, total: p.monthly * 2 })}
+                    {t("plan.dueLine", { total: p.monthly * 2 })}
                   </span>
                 </button>
               ))}
@@ -497,7 +500,10 @@ export function BookingWizard() {
               </div>
               <div className="summary-row">
                 <span className="l">{t("review.deposit")}</span>
-                <span className="v">€{plan?.monthly}</span>
+                <span className="v">
+                  €{plan?.monthly}
+                  <span className="summary-sub">{t("review.depositNote")}</span>
+                </span>
               </div>
               <div className="summary-total">
                 <span className="l">{t("review.from")}</span>

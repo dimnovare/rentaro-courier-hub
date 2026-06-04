@@ -107,6 +107,8 @@
     "perDay": "/ dienā",
     "per30Suffix": "par 30 dienām · dienā × 30",
     "depositLine": "+€{amount} atmaksājams depozīts",
+    "depositLabel": "Atmaksājama drošības nauda",
+    "depositReassure": "Termiņa beigās tiek pilnībā atmaksāta, atskaitot bojājumus.",
     "dueAtPickup": "€{amount} samaksā portālā — pēc apstiprināšanas un līguma pieņemšanas",
     "choose": "Izvēlēties {term}",
     "terms": {
@@ -303,7 +305,9 @@
       "sub": "Jo ilgāks termiņš, jo zemāka dienas cena. Minimālais termiņš 30 dienas.",
       "perDay": "€{price}/dienā",
       "per30": "€{price} par 30 dienām",
-      "depositLine": "+€{deposit} atmaksājama drošības nauda · €{total} samaksā portālā pēc apstiprināšanas"
+      "depositLine": "+€{deposit} atmaksājama drošības nauda · €{total} samaksā portālā pēc apstiprināšanas",
+      "depositBadge": "Atmaksājama drošības nauda €{deposit} — to saņemsi atpakaļ",
+      "dueLine": "€{total} samaksā portālā pēc apstiprināšanas"
     },
     "addons": {
       "heading": "Papildaprīkojums",
@@ -345,6 +349,7 @@
       "startDate": "Sākuma datums",
       "contact": "Kontaktinformācija",
       "deposit": "Atmaksājams depozīts",
+      "depositNote": "Termiņa beigās tiek atmaksāta, atskaitot bojājumus",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
       "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti un pieņemsi līgumu, un tur samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",

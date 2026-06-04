@@ -377,6 +377,10 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .price-card .per30 { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted); margin: 14px 0 8px; }
 .price-card .per30 strong { color: var(--text); }
 .price-card .deposit-line { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-dim); margin: 0 0 22px; padding-bottom: 22px; border-bottom: 1px dashed var(--border); }
+.price-card .deposit-badge { display: inline-flex; align-items: baseline; gap: 7px; margin-bottom: 5px; }
+.price-card .deposit-badge-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--lime); }
+.price-card .deposit-badge-amount { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+.price-card .deposit-note { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 .price-card ul { list-style: none; padding: 0; margin: 0 0 26px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
 .price-card li { display: flex; align-items: center; gap: 11px; font-size: 14px; color: var(--text-2); }
 .price-card li .ck { width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--lime); }
@@ -518,6 +522,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .opt .opt-t { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 .opt .opt-m { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
 .opt .opt-p { font-family: var(--font-mono); font-size: 12px; color: var(--lime); }
+.opt .opt-deposit { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--text-2); }
 .opt.row { flex-direction: row; align-items: center; justify-content: space-between; }
 .opt .opt-check { width: 20px; height: 20px; border-radius: 6px; border: 1px solid var(--border-strong); display: grid; place-items: center; color: var(--lime-ink); flex-shrink: 0; }
 .opt.selected .opt-check { background: var(--lime); border-color: var(--lime); }
@@ -579,6 +584,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .summary-row { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px dashed var(--border); }
 .summary-row .l { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
 .summary-row .v { font-size: 15px; font-weight: 600; text-align: right; }
+.summary-row .v .summary-sub { display: block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 400; letter-spacing: 0.03em; color: var(--text-muted); margin-top: 3px; }
 .summary-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 20px; }
 .summary-total .big { font-family: var(--font-display); font-size: 32px; letter-spacing: -0.02em; }
 .summary-total .big .per { font-size: 14px; color: var(--text-muted); }

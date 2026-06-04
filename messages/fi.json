@@ -107,6 +107,8 @@
     "perDay": "/ pv",
     "per30Suffix": "per 30 päivää · päivähinta × 30",
     "depositLine": "+€{amount} palautettava vakuus",
+    "depositLabel": "Palautettava vakuus",
+    "depositReassure": "Palautetaan kokonaan lopussa, mahdolliset vahingot vähennettynä.",
     "dueAtPickup": "€{amount} maksetaan portaalissa — kun olet hyväksytty ja olet hyväksynyt sopimuksen",
     "choose": "Valitse {term}",
     "terms": {
@@ -303,7 +305,9 @@
       "sub": "Mitä pidempi aika, sitä edullisempi päivähinta. Vähintään 30 päivää.",
       "perDay": "€{price}/pv",
       "per30": "€{price} per 30 päivää",
-      "depositLine": "+€{deposit} palautettava vakuus · €{total} maksetaan portaalissa hyväksynnän jälkeen"
+      "depositLine": "+€{deposit} palautettava vakuus · €{total} maksetaan portaalissa hyväksynnän jälkeen",
+      "depositBadge": "Palautettava vakuus €{deposit} — saat sen takaisin",
+      "dueLine": "€{total} maksetaan portaalissasi hyväksynnän jälkeen"
     },
     "addons": {
       "heading": "Lisävarusteet",
@@ -345,6 +349,7 @@
       "startDate": "Aloituspäivä",
       "contact": "Yhteystiedot",
       "deposit": "Palautettava vakuus",
+      "depositNote": "Palautetaan lopussa, mahdolliset vahingot vähennettynä",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
       "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, vahvistat henkilöllisyytesi ja hyväksyt sopimuksesi portaalissa, ja maksat siellä ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",

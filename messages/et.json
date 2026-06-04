@@ -107,6 +107,8 @@
     "perDay": "/ päev",
     "per30Suffix": "30 päeva kohta · päevatasu × 30",
     "depositLine": "+€{amount} tagastatav tagatisraha",
+    "depositLabel": "Tagastatav tagatisraha",
+    "depositReassure": "Lõpus täielikult tagastatav, miinus võimalikud kahjustused.",
     "dueAtPickup": "€{amount} makstud portaalis — pärast kinnitamist ja lepingu vastuvõtmist",
     "choose": "Vali {term}",
     "terms": {
@@ -303,7 +305,9 @@
       "sub": "Mida pikem periood, seda madalam päevahind. Vähemalt 30 päeva.",
       "perDay": "€{price}/päev",
       "per30": "€{price} 30 päeva eest",
-      "depositLine": "+€{deposit} tagastatav tagatisraha · €{total} makstud portaalis pärast kinnitamist"
+      "depositLine": "+€{deposit} tagastatav tagatisraha · €{total} makstud portaalis pärast kinnitamist",
+      "depositBadge": "Tagastatav tagatisraha €{deposit} — saad selle tagasi",
+      "dueLine": "€{total} makstud portaalis pärast kinnitamist"
     },
     "addons": {
       "heading": "Lisad",
@@ -341,6 +345,7 @@
       "startDate": "Alguskuupäev",
       "contact": "Kontakt",
       "deposit": "Tagastatav tagatisraha",
+      "depositNote": "Lõpus tagastatav, miinus võimalikud kahjustused",
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
       "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, tuvastad portaalis isiku ja võtad lepingu vastu ning maksad seal esimese 30-päevase perioodi ja tagastatava tagatisraha — kõik enne kättesaamist.",
