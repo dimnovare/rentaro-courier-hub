@@ -141,40 +141,28 @@
   },
   "howItWorks": {
     "kicker": "Kuidas see töötab",
-    "heading": "Broneeringust esimese vahetuseni seitsme sammuga.",
+    "heading": "Broneeri kuni esimese vahetuseni neljast sammust.",
     "steps": {
       "01": {
-        "title": "Broneeri ratas",
-        "copy": "Vali linn, mudel ja pakett ning saada taotlus. Praegu ei maksa ega allkirjasta midagi — broneerimine on tasuta."
+        "title": "Broneeri jalgrattas — tasuta",
+        "copy": "Vali linn, mudel ja plaan. Kontrolli elavat saadavust, loe üürireegleid ja vaata täpset hinda ja deposiiti. Saada päring — pole makset ega allkirja."
       },
       "02": {
-        "title": "Kinnitame su broneeringu",
-        "copy": "Kontrollime saadavust ja kinnitame broneeringu e-postiga, tavaliselt 24 tunni jooksul."
+        "title": "Me reserveerime sulle jalgratta",
+        "copy": "Kinnitame, et oled päris kullerid, ja reserveerime sulle konkreetse jalgratta, tavaliselt 24 tunni jooksul. Saad e-postile turvalise portaalilingi."
       },
       "03": {
-        "title": "Tuvasta oma isik",
-        "copy": "Ava e-kirja lingilt oma turvaline rendiportaal ja läbi kiire isikutuvastus — kõik telefonist."
+        "title": "Allkirjasta ja maksa telefoniga",
+        "copy": "Allkirjasta üürileping Smart-ID või Mobiil-ID-ga — see tõendab, et oled ise, ja muudab lepingu juriidiliselt siduvaks. Seejärel maksa esimesed 30 päeva ja tagastatav deposiit. Üks turvaline seanss."
       },
       "04": {
-        "title": "Vaata üle ja kinnita leping",
-        "copy": "Loe täpne pakkumine läbi ja allkirjasta digitaalne rendileping veebis. See võtab minuti."
-      },
-      "05": {
-        "title": "Maksa esimesed 30 päeva ja tagatisraha",
-        "copy": "Maksa portaalis esimese 30-päevase perioodi ja tagastatava tagatisraha eest — ainus maksehetk, pärast kinnitamist ja lepingu vastuvõtmist."
-      },
-      "06": {
-        "title": "Määrame su ratta",
-        "copy": "Kui makse on laekunud, määrame su füüsilise ratta koos luku, laadija ja akuga."
-      },
-      "07": {
-        "title": "Tule järele ja alusta tarnimist",
-        "copy": "Tule rattale järele linna järeletulekupunkti või telli kohale toomine ning alusta esimest vahetust juba samal nädalal."
+        "title": "Võta jalgratas ja alusta tarne",
+        "copy": "Tule järele linna väljastuspunkti või telli kohaletarne. Teenindustugi on kogu üüriperioodi jooksul kaasas."
       }
     },
     "trust": {
-      "kicker": "Kvalifitseeritud eID",
-      "copy": "Allkirjasta rendileping juriidiliselt Smart-ID või Mobile-ID abil."
+      "kicker": "e-Allkirjastatud",
+      "copy": "Sinu isik on tuvastatud ja leping allkirjastatud digitaalselt Smart-ID või Mobiil-ID-ga — juriidiliselt siduv, paberivaba."
     }
   },
   "cities": {
@@ -348,7 +336,8 @@
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
       "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, tuvastad portaalis isiku ja võtad lepingu vastu ning maksad seal esimese 30-päevase perioodi ja tagastatava tagatisraha — kõik enne kättesaamist.",
-      "consent": "Nõustun <rules>rendireeglitega</rules> ja <privacy>privaatsuspoliitikaga</privacy>."
+      "consent": "Olen tutvunud <rules>üürireeglitega</rules> ja <privacy>privaatsuspoliitikaga</privacy> ning mõistan, et allkirjastan ametliku üürilepingu oma isikutunnistusega enne jalgratta kättesaamist.",
+      "readRulesLink": "Loe enne kinnitamist üürireeglid läbi →"
     },
     "buttons": {
       "cancel": "Tühista",
