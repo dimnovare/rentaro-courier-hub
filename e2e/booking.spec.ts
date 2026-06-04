@@ -50,10 +50,10 @@ test.describe("booking wizard", () => {
     await page.goto("/book?city=tallinn&model=engine-pro&plan=p365");
 
     // Sanity: the running-selection chips reflect the deep-linked choices.
-    await expect(page.getByText("Tallinn", { exact: true })).toBeVisible();
-    await expect(page.getByText("rentaro Engine Pro 2.0")).toBeVisible();
+    await expect(page.getByText("Tallinn").first()).toBeVisible();
+    await expect(page.getByText("rentaro Engine Pro 2.0").first()).toBeVisible();
     // Plan chip combines term + price, e.g. "12 months · €117 per 30 days".
-    await expect(page.getByText(/12 months/i)).toBeVisible();
+    await expect(page.getByText(/12 months/i).first()).toBeVisible();
 
     await fillDetails(page);
 
@@ -68,8 +68,8 @@ test.describe("booking wizard", () => {
     ).toBeVisible();
 
     // The summary echoes the selection.
-    await expect(page.getByText("rentaro Engine Pro 2.0")).toBeVisible();
-    await expect(page.getByText(/12 months/i)).toBeVisible();
+    await expect(page.getByText("rentaro Engine Pro 2.0").first()).toBeVisible();
+    await expect(page.getByText(/12 months/i).first()).toBeVisible();
     await expect(page.getByText("Test Courier")).toBeVisible();
     await expect(page.getByText("test.courier@example.com")).toBeVisible();
 
@@ -120,7 +120,7 @@ test.describe("booking wizard", () => {
     await expect(
       page.getByRole("heading", { name: /review & confirm/i }),
     ).toBeVisible();
-    await expect(page.getByText("rentaro Engine Pro 2.0")).toBeVisible();
+    await expect(page.getByText("rentaro Engine Pro 2.0").first()).toBeVisible();
     await expect(page.getByText(/€117/).first()).toBeVisible();
   });
 });
