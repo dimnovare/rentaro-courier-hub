@@ -264,7 +264,7 @@
   },
   "booking": {
     "title": "Rezervē savu e-velosipēdu",
-    "intro": "{n} ātri soļi, lai rezervētu savu piegādes velosipēdu. Tagad nav ne maksājuma, ne parakstīšanas — kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti, pieņemsi līgumu un samaksāsi pirms saņemšanas.",
+    "intro": "{n} ātri soļi, lai rezervētu savu piegādes velosipēdu. Tagad nav ne maksājuma, ne parakstīšanas — kad apstiprināsim tavu rezervāciju, portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID un samaksāsi pirms saņemšanas.",
     "steps": {
       "city": "Pilsēta",
       "model": "Modelis",
@@ -339,7 +339,7 @@
       "depositNote": "Termiņa beigās tiek atmaksāta, atskaitot bojājumus",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
-      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā apstiprināsi identitāti un pieņemsi līgumu, un tur samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",
+      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID — tas apstiprina tavu identitāti — un samaksāsi pirmo 30 dienu periodu un depozītu. Viss pirms saņemšanas.",
       "consent": "Esmu izlasījis un piekrītu <rules>nomas noteikumiem</rules> un <privacy>privātuma politikai</privacy>, un saprotu, ka parakstīšu formālo nomas līgumu ar savu personu apliecinošu dokumentu pirms nodošanas.",
       "readRulesLink": "Pirms apstiprināšanas izlasi pilnos nomas noteikumus →"
     },
@@ -372,12 +372,12 @@
     "plan": "Plāns",
     "city": "Pilsēta",
     "startDate": "Sākuma datums",
-    "trackAndSign": "Atver portālu, lai apstiprinātu identitāti, pieņemtu un samaksātu",
+    "trackAndSign": "Atver portālu, lai parakstītu un samaksātu",
     "trackOnly": "Seko rezervācijai",
     "cost": "Atmaksājama drošības nauda €{deposit} · €{total} samaksā portālā pēc apstiprināšanas",
     "browseFleet": "Apskatīt parku",
     "backHome": "Atpakaļ uz sākumu",
-    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, pēc tam portālā apstiprināsi identitāti, pieņemsi līgumu un samaksāsi pirmās 30 dienas + depozītu — pirms piešķiram velosipēdu un tu to saņem. Atbildēsim 24 stundu laikā.",
+    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, pēc tam portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID un samaksāsi pirmās 30 dienas + depozītu — pirms piešķiram velosipēdu un tu to saņem. Atbildēsim 24 stundu laikā.",
     "supportPrefix": "Jautājumi? Raksti mums uz"
   },
   "waitlist": {
@@ -547,8 +547,10 @@
       "approved": "Apstiprināts",
       "rejected": "Nav apstiprināts",
       "cancelled": "Atcelts",
+      "signaturepending": "Gaida parakstu",
       "paymentpending": "Gaida apmaksu",
       "bikeassigned": "Velosipēds piešķirts",
+      "active": "Aktīvs",
       "completed": "Pabeigts"
     },
     "rentalStatus": {

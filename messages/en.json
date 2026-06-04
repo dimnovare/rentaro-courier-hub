@@ -264,7 +264,7 @@
   },
   "booking": {
     "title": "Reserve your e-bike",
-    "intro": "{n} quick steps to reserve your delivery bike. No payment and no signing now — once we approve your booking, you'll verify your identity, accept your contract and pay in your portal, before pickup.",
+    "intro": "{n} quick steps to reserve your delivery bike. No payment and no signing now — once we approve your booking, you sign the rental agreement with Smart-ID or Mobile-ID and pay in your portal, before pickup.",
     "steps": {
       "city": "City",
       "model": "Model",
@@ -336,7 +336,7 @@
       "depositNote": "Returned at the end, minus any damage",
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
-      "paymentNote": "No payment and no signing now. After we approve your booking, you'll verify your identity and accept your contract in your portal, then pay the first 30-day period and refundable deposit there — all before pickup.",
+      "paymentNote": "No payment and no signing now. After we approve your booking, you sign the rental agreement with Smart-ID or Mobile-ID in your portal — this confirms your identity — then pay the first 30-day period and refundable deposit. All before pickup.",
       "consent": "I have read and agree to the <rules>rental rules</rules> and <privacy>privacy policy</privacy>, and understand I will sign the formal rental agreement with my identity document before pickup.",
       "readRulesLink": "Read the full rental rules before confirming →"
     },
@@ -373,12 +373,12 @@
     "plan": "Plan",
     "city": "City",
     "startDate": "Start date",
-    "trackAndSign": "Open your portal to verify, accept & pay",
+    "trackAndSign": "Open your portal to sign & pay",
     "trackOnly": "Track your booking",
     "cost": "Refundable deposit €{deposit} · €{total} paid in your portal after approval",
     "browseFleet": "Browse the fleet",
     "backHome": "Back home",
-    "nextSteps": "Next: we approve your booking, then in your portal you verify your identity, accept your contract and pay your first 30 days + deposit — before we assign your bike and you pick it up. We reply within 24h.",
+    "nextSteps": "Next: we approve your booking, then in your portal you sign the rental agreement with Smart-ID or Mobile-ID and pay your first 30 days + deposit — before we assign your bike and you pick it up. We reply within 24h.",
     "supportPrefix": "Questions? Email us at"
   },
   "waitlist": {
@@ -548,8 +548,10 @@
       "approved": "Approved",
       "rejected": "Not approved",
       "cancelled": "Cancelled",
+      "signaturepending": "Signature pending",
       "paymentpending": "Payment pending",
       "bikeassigned": "Bike assigned",
+      "active": "Active",
       "completed": "Completed"
     },
     "rentalStatus": {

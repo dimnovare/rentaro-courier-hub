@@ -264,7 +264,7 @@
   },
   "booking": {
     "title": "Varaa sähköpyöräsi",
-    "intro": "{n} nopeaa vaihetta lähetyspyöräsi varaamiseen. Ei maksua eikä allekirjoitusta nyt — kun hyväksymme varauksesi, vahvistat henkilöllisyytesi, hyväksyt sopimuksesi ja maksat portaalissa ennen noutoa.",
+    "intro": "{n} nopeaa vaihetta lähetyspyöräsi varaamiseen. Ei maksua eikä allekirjoitusta nyt — kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa ja maksat ennen noutoa.",
     "steps": {
       "city": "Kaupunki",
       "model": "Malli",
@@ -339,7 +339,7 @@
       "depositNote": "Palautetaan lopussa, mahdolliset vahingot vähennettynä",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
-      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, vahvistat henkilöllisyytesi ja hyväksyt sopimuksesi portaalissa, ja maksat siellä ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",
+      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa — tämä vahvistaa henkilöllisyytesi — ja maksat ensimmäisen 30 päivän jakson ja vakuuden. Kaikki ennen noutoa.",
       "consent": "Olen lukenut ja hyväksyn <rules>vuokraehdot</rules> ja <privacy>tietosuojakäytännön</privacy>, ja ymmärrän allekirjoittavani virallisen vuokrasopimuksen henkilöllisyystodistuksellani ennen noutoa.",
       "readRulesLink": "Lue vuokraehdot ennen vahvistamista →"
     },
@@ -372,12 +372,12 @@
     "plan": "Suunnitelma",
     "city": "Kaupunki",
     "startDate": "Aloituspäivä",
-    "trackAndSign": "Avaa portaali vahvistaaksesi, hyväksyäksesi ja maksaaksesi",
+    "trackAndSign": "Avaa portaali allekirjoittaaksesi ja maksaaksesi",
     "trackOnly": "Seuraa varausta",
     "cost": "Palautettava vakuus €{deposit} · €{total} maksetaan portaalissa hyväksynnän jälkeen",
     "browseFleet": "Selaa kalustoa",
     "backHome": "Takaisin etusivulle",
-    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, minkä jälkeen vahvistat henkilöllisyytesi, hyväksyt sopimuksesi ja maksat ensimmäiset 30 päivää + vakuuden portaalissa — ennen kuin varaamme pyöräsi ja noudat sen. Vastaamme 24 tunnin kuluessa.",
+    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, minkä jälkeen allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa ja maksat ensimmäiset 30 päivää + vakuuden — ennen kuin varaamme pyöräsi ja noudat sen. Vastaamme 24 tunnin kuluessa.",
     "supportPrefix": "Kysyttävää? Lähetä meille sähköpostia osoitteeseen"
   },
   "waitlist": {
@@ -547,8 +547,10 @@
       "approved": "Hyväksytty",
       "rejected": "Ei hyväksytty",
       "cancelled": "Peruutettu",
+      "signaturepending": "Odottaa allekirjoitusta",
       "paymentpending": "Maksu kesken",
       "bikeassigned": "Pyörä osoitettu",
+      "active": "Aktiivinen",
       "completed": "Valmis"
     },
     "rentalStatus": {

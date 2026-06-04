@@ -55,6 +55,22 @@ export type ContractDocumentKind = "generated" | "signed";
 
 const JSON_HEADERS = { "Content-Type": "application/json", Accept: "application/json" };
 
+/** Normalise a contract status from the lowercase API serialisation to the PascalCase
+ *  values the TypeScript type and i18n keys expect (e.g. "generated" → "Generated"). */
+const STATUS_MAP: Record<string, ContractStatus> = {
+  notstarted: "NotStarted",
+  generated: "Generated",
+  sentforsignature: "SentForSignature",
+  viewed: "Viewed",
+  signed: "Signed",
+  declined: "Declined",
+  expired: "Expired",
+  failed: "Failed",
+};
+function normalizeStatus(raw: string): ContractStatus {
+  return STATUS_MAP[raw?.toLowerCase()] ?? (raw as ContractStatus);
+}
+
 /** Fetch the contract tied to a magic-link token. 404 → { kind: "none" }. */
 export async function getContract(token: string): Promise<ContractResult<PortalContract>> {
   if (!API_BASE) return { kind: "no_api" };
@@ -68,7 +84,8 @@ export async function getContract(token: string): Promise<ContractResult<PortalC
     if (res.status === 401) return { kind: "invalid" };
     if (res.status === 404) return { kind: "none" };
     if (!res.ok) throw new Error(`portal contract → ${res.status}`);
-    return { kind: "ok", data: (await res.json()) as PortalContract };
+    const raw = await res.json();
+    return { kind: "ok", data: { ...raw, status: normalizeStatus(raw.status) } as PortalContract };
   } catch (err) {
     console.error("[rentaro] portal getContract failed.", err);
     return { kind: "error" };
@@ -93,7 +110,8 @@ export async function startSigning(token: string): Promise<ContractResult<SignSt
     if (res.status === 404) return { kind: "none" };
     if (res.status === 503) return { kind: "not_configured" };
     if (!res.ok) throw new Error(`portal contract sign → ${res.status}`);
-    return { kind: "ok", data: (await res.json()) as SignStart };
+    const raw = await res.json();
+    return { kind: "ok", data: { ...raw, status: normalizeStatus(raw.status) } as SignStart };
   } catch (err) {
     console.error("[rentaro] portal startSigning failed.", err);
     return { kind: "error" };

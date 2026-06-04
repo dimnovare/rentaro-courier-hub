@@ -867,9 +867,9 @@ function ContractCard({ token }: { token: string }) {
     setSignError(null);
     const res = await startSigning(token);
     if (res.kind === "ok" && res.data.signingUrl) {
-      window.open(res.data.signingUrl, "_blank", "noopener,noreferrer");
-      // Refresh status (it likely moved to SentForSignature).
-      await load();
+      // Same-tab navigation: async window.open is blocked by popup blockers;
+      // Dokobit redirects the user back after signing so same-tab is correct.
+      window.location.href = res.data.signingUrl;
     } else if (res.kind === "not_configured") {
       // Provider went away between load and click — reflect it inline.
       setState({ kind: "ok", data: { ...contract, providerConfigured: false } });
