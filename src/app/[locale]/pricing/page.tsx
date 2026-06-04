@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
     url: "/pricing",
     title,
     description,
+    images: defaultOgImages,
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: defaultTwitterImages,
   },
 };
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -50,11 +51,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       locale: loc,
       title,
       description,
+      images: defaultOgImages,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: defaultTwitterImages,
     },
   };
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { Suspense } from "react";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 
@@ -16,11 +17,13 @@ export const metadata: Metadata = {
     url: "/book",
     title,
     description,
+    images: defaultOgImages,
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: defaultTwitterImages,
   },
 };
 

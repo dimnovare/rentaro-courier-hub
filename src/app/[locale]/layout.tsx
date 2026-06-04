@@ -1,5 +1,6 @@
 // src/app/[locale]/layout.tsx
 import type { Metadata } from "next";
+import { defaultOgImages } from "@/lib/og";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const loc = isLocale(locale) ? (locale as Locale) : "en";
   return {
     alternates: buildAlternates(loc, "/"),
-    openGraph: { locale: loc },
+    openGraph: { locale: loc, images: defaultOgImages },
   };
 }
 

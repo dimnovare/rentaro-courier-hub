@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { defaultOgImages } from "@/lib/og";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
 import { Hero } from "@/components/sections/Hero";
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const loc: Locale = isLocale(locale) ? locale : "en";
   return {
     alternates: buildAlternates(loc, "/"),
-    openGraph: { locale: loc },
+    openGraph: { locale: loc, images: defaultOgImages },
   };
 }
 

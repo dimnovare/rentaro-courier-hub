@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
+import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
@@ -48,11 +49,13 @@ export const metadata: Metadata = {
     title,
     description,
     url: "/",
+    images: defaultOgImages,
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: defaultTwitterImages,
   },
 };
 
