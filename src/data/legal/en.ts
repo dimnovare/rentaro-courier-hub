@@ -132,7 +132,7 @@ export const termsOfService: LegalDoc = {
       heading: "Who we are and how to reach us",
       body: [
         "The rentaro service is operated by Rentaro OÜ, a private limited company registered in Estonia (registration code [registration code — to be provided], registered address [registered address — to be provided], VAT number [VAT number — to be provided, if registered]). In these terms \"rentaro\", \"we\", \"us\" and \"our\" mean Rentaro OÜ, and \"you\" means the customer.",
-        "You can contact us by email at [support email — to be provided] or by phone at [support phone — to be provided]. These terms are written in English; the rental agreement and any required statutory information are provided to you before you commit.",
+        "You can contact us by email at info@rentaro.ee or by phone at [support phone — to be provided]. These terms are written in English; the rental agreement and any required statutory information are provided to you before you commit.",
       ],
     },
     {

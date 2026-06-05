@@ -132,7 +132,7 @@ export const termsOfService: LegalDoc = {
       heading: "Kes me oleme ja kuidas meiega ühendust võtta",
       body: [
         "rentaro teenust haldab Rentaro OÜ, Eestis registreeritud osaühing (registrikood [registration code — to be provided], registreeritud aadress [registered address — to be provided], käibemaksukohustuslase number [VAT number — to be provided, if registered]). Nendes tingimustes tähendavad \"rentaro\", \"me\", \"meie\" ja \"meid\" Rentaro OÜ-d ning \"sina\" tähendab klienti.",
-        "Meiega saad ühendust e-posti teel aadressil [support email — to be provided] või telefoni teel numbril [support phone — to be provided]. Need tingimused on koostatud eesti keeles; rendileping ja mis tahes nõutav seadusjärgne teave esitatakse sulle enne kohustuse võtmist.",
+        "Meiega saad ühendust e-posti teel aadressil info@rentaro.ee või telefoni teel numbril [support phone — to be provided]. Need tingimused on koostatud eesti keeles; rendileping ja mis tahes nõutav seadusjärgne teave esitatakse sulle enne kohustuse võtmist.",
       ],
     },
     {

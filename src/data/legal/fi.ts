@@ -132,7 +132,7 @@ export const termsOfService: LegalDoc = {
       heading: "Keitä olemme ja miten meihin saa yhteyden",
       body: [
         "rentaro-palvelua operoi Rentaro OÜ, Virossa rekisteröity osakeyhtiö (rekisterinumero [registration code — to be provided], rekisteröity osoite [registered address — to be provided], ALV-numero [VAT number — to be provided, if registered]). Näissä ehdoissa \"rentaro\", \"me\" ja \"meidän\" tarkoittavat Rentaro OÜ:tä, ja \"sinä\" tarkoittaa asiakasta.",
-        "Voit ottaa meihin yhteyttä sähköpostitse osoitteessa [support email — to be provided] tai puhelimitse numerossa [support phone — to be provided]. Nämä ehdot on laadittu englanniksi; vuokrasopimus ja kaikki vaaditut lakisääteiset tiedot toimitetaan sinulle ennen sitoutumistasi.",
+        "Voit ottaa meihin yhteyttä sähköpostitse osoitteessa info@rentaro.ee tai puhelimitse numerossa [support phone — to be provided]. Nämä ehdot on laadittu englanniksi; vuokrasopimus ja kaikki vaaditut lakisääteiset tiedot toimitetaan sinulle ennen sitoutumistasi.",
       ],
     },
     {

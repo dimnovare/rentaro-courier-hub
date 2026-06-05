@@ -133,7 +133,7 @@ export const termsOfService: LegalDoc = {
       heading: "Kas mēs esam un kā ar mums sazināties",
       body: [
         "rentaro pakalpojumu sniedz Rentaro OÜ, privāta sabiedrība ar ierobežotu atbildību, kas reģistrēta Igaunijā (reģistrācijas kods [registration code — to be provided], reģistrētā adrese [registered address — to be provided], PVN numurs [VAT number — to be provided, if registered]). Šajos noteikumos \"rentaro\", \"mēs\", \"mūs\" un \"mūsu\" nozīmē Rentaro OÜ, un \"jūs\" nozīmē klientu.",
-        "Ar mums varat sazināties pa e-pastu [support email — to be provided] vai pa tālruni [support phone — to be provided]. Šie noteikumi ir rakstīti angļu valodā; īres līgums un jebkura nepieciešamā likumā noteiktā informācija jums tiek sniegta pirms saistību uzņemšanās.",
+        "Ar mums varat sazināties pa e-pastu info@rentaro.ee vai pa tālruni [support phone — to be provided]. Šie noteikumi ir rakstīti angļu valodā; īres līgums un jebkura nepieciešamā likumā noteiktā informācija jums tiek sniegta pirms saistību uzņemšanās.",
       ],
     },
     {
