@@ -179,27 +179,44 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+/* ── Identifier normalisation ──────────────────────────────────────────────
+ * The backend serialises a model's business key as `id` (and `slug`), but this
+ * client and the /admin/models page address models by `code`. Worse, the
+ * create/update endpoints REQUIRE that key in the request body under `id`. So we
+ * normalise both directions here: map `id` → `code` on the way in, and send
+ * `id` (+ `slug`) on the way out. Without this, `model.code` is empty and every
+ * edit/create/image-upload silently targets `/api/admin/models/` (no code) → 404.
+ */
+type RawModel = AdminModel & { id?: string; slug?: string };
+
+/** Ensure `code` is populated from the backend's `id` when the field is absent. */
+function withCode(m: RawModel): AdminModel {
+  return { ...m, code: m.code || m.id || "" };
+}
+
 /* ── Public surface ────────────────────────────────────────────────────── */
 
 /** List all bike models with every editable field. */
 export function listModels(): Promise<AdminModel[]> {
-  return request<AdminModel[]>("/api/admin/models");
+  return request<RawModel[]>("/api/admin/models").then((list) => list.map(withCode));
 }
 
 /** Create a new bike model; returns the created model. */
 export function createModel(input: ModelInput): Promise<AdminModel> {
-  return request<AdminModel>("/api/admin/models", {
+  // Backend identity lives under `id`/`slug`; the page supplies it as `code`.
+  return request<RawModel>("/api/admin/models", {
     method: "POST",
-    body: JSON.stringify(input),
-  });
+    body: JSON.stringify({ ...input, id: input.code, slug: input.code }),
+  }).then(withCode);
 }
 
 /** Update an existing model by code; returns the updated model. */
 export function updateModel(code: string, patch: ModelInput): Promise<AdminModel> {
-  return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}`, {
+  // The route carries the code, but the backend also validates `id` in the body.
+  return request<RawModel>(`/api/admin/models/${encodeURIComponent(code)}`, {
     method: "PUT",
-    body: JSON.stringify(patch),
-  });
+    body: JSON.stringify({ ...patch, id: code, slug: code }),
+  }).then(withCode);
 }
 
 /** Delete a model by code. */
@@ -217,10 +234,10 @@ export function deleteModel(code: string): Promise<void> {
 export function uploadModelImage(code: string, file: File): Promise<AdminModel> {
   const form = new FormData();
   form.append("file", file);
-  return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}/image`, {
+  return request<RawModel>(`/api/admin/models/${encodeURIComponent(code)}/image`, {
     method: "POST",
     body: form,
-  });
+  }).then(withCode);
 }
 
 /**
@@ -231,10 +248,10 @@ export function uploadModelImage(code: string, file: File): Promise<AdminModel> 
 export function uploadModelGalleryImage(code: string, file: File): Promise<AdminModel> {
   const form = new FormData();
   form.append("file", file);
-  return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}/gallery`, {
+  return request<RawModel>(`/api/admin/models/${encodeURIComponent(code)}/gallery`, {
     method: "POST",
     body: form,
-  });
+  }).then(withCode);
 }
 
 /**
@@ -243,10 +260,10 @@ export function uploadModelGalleryImage(code: string, file: File): Promise<Admin
  * the JSON body so it round-trips unambiguously regardless of its contents.
  */
 export function deleteModelGalleryImage(code: string, url: string): Promise<AdminModel> {
-  return request<AdminModel>(`/api/admin/models/${encodeURIComponent(code)}/gallery`, {
+  return request<RawModel>(`/api/admin/models/${encodeURIComponent(code)}/gallery`, {
     method: "DELETE",
     body: JSON.stringify({ url }),
-  });
+  }).then(withCode);
 }
 
 /**
