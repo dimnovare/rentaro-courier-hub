@@ -241,6 +241,17 @@ export function uploadModelImage(code: string, file: File): Promise<AdminModel> 
 }
 
 /**
+ * Remove a model's uploaded photo and reset it to the static default asset
+ * (`/assets/models/{code}.png`). Returns the updated model (with
+ * `hasUploadedImage` now false), so the page can refresh its thumbnail.
+ */
+export function deleteModelImage(code: string): Promise<AdminModel> {
+  return request<RawModel>(`/api/admin/models/${encodeURIComponent(code)}/image`, {
+    method: "DELETE",
+  }).then(withCode);
+}
+
+/**
  * Append an image to a model's gallery. Sent as multipart/form-data with the
  * file under the field name `file`. Returns the updated model (with the new
  * image appended to `gallery`), so the page can refresh its thumbnails.

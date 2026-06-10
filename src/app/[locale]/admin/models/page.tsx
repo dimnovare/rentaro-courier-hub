@@ -7,6 +7,7 @@ import {
   updateModel,
   deleteModel,
   uploadModelImage,
+  deleteModelImage,
   uploadModelGalleryImage,
   deleteModelGalleryImage,
   modelImageUrl,
@@ -221,6 +222,22 @@ export default function AdminModelsPage() {
     }
   }
 
+  /** Remove a model's uploaded photo and reset it to the static default. */
+  async function removeImage(code: string) {
+    setActionError(null);
+    setBusy(code, true);
+    try {
+      const updated = await deleteModelImage(code);
+      replaceModel(updated);
+      // Force the thumbnail to re-fetch (it now falls back to the static asset).
+      setImgVersion((v) => ({ ...v, [code]: (v[code] ?? 0) + 1 }));
+    } catch (err) {
+      handleActionError(err, `Could not remove the photo for ${code}.`);
+    } finally {
+      setBusy(code, false);
+    }
+  }
+
   /** Append one image to a model's gallery (R2-hosted). */
   async function uploadGalleryImage(code: string, file: File) {
     setActionError(null);
@@ -347,6 +364,9 @@ export default function AdminModelsPage() {
             onDelete={editingModel ? () => void removeModel(editingModel.code) : undefined}
             onUpload={
               editingModel ? (file) => void uploadImage(editingModel.code, file) : undefined
+            }
+            onRemoveImage={
+              editingModel ? () => void removeImage(editingModel.code) : undefined
             }
             onGalleryUpload={
               editingModel
@@ -536,6 +556,7 @@ function ModelEditor({
   onSave,
   onDelete,
   onUpload,
+  onRemoveImage,
   onGalleryUpload,
   onGalleryRemove,
 }: {
@@ -553,6 +574,8 @@ function ModelEditor({
   onDelete?: () => void;
   /** Edit mode only — upload/replace this model's photo. */
   onUpload?: (file: File) => void;
+  /** Edit mode only — remove the uploaded photo and reset to the default. */
+  onRemoveImage?: () => void;
   /** Edit mode only — append an image to this model's gallery. */
   onGalleryUpload?: (file: File) => void;
   /** Edit mode only — remove one gallery image by its url. */
@@ -699,6 +722,7 @@ function ModelEditor({
             busy={busy}
             fileRef={fileRef}
             onUpload={onUpload}
+            onRemoveImage={onRemoveImage}
           />
         )}
 
@@ -931,12 +955,14 @@ function ImageUploadField({
   busy,
   fileRef,
   onUpload,
+  onRemoveImage,
 }: {
   model: AdminModel;
   version: number | undefined;
   busy: boolean;
   fileRef: React.RefObject<HTMLInputElement | null>;
   onUpload: (file: File) => void;
+  onRemoveImage?: () => void;
 }) {
   function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -954,6 +980,11 @@ function ImageUploadField({
             <RowAction onClick={() => fileRef.current?.click()} disabled={busy}>
               {busy ? "Uploading…" : model.hasUploadedImage ? "Replace photo" : "Upload photo"}
             </RowAction>
+            {model.hasUploadedImage && onRemoveImage && (
+              <RowAction onClick={onRemoveImage} disabled={busy} danger>
+                Reset to default
+              </RowAction>
+            )}
           </div>
           <input
             ref={fileRef}
