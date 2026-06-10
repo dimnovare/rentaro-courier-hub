@@ -303,6 +303,21 @@
       "sub": "Valikuline. Lisa varustust, mis toob vahetusi sisse — saad seda hiljem muuta.",
       "toggle": "Lisa varustust (valikuline)"
     },
+    "bike": {
+      "viewDetails": "Vaata üksikasju",
+      "close": "Sulge"
+    },
+    "contact": {
+      "title": "Kuidas sinuga ühendust võtta?",
+      "email": "E-post",
+      "phone": "Telefon"
+    },
+    "payment": {
+      "title": "Kuidas soovid maksta?",
+      "cash": "Sularahas kättesaamisel",
+      "transfer": "Pangaülekanne",
+      "transferNote": "Saadame oma pangaandmed pärast broneeringu kinnitamist."
+    },
     "details": {
       "heading": "Sinu andmed",
       "sub": "Et saaksime saadavuse kinnitada ja lepingu saata.",
@@ -335,6 +350,9 @@
       "contact": "Kontakt",
       "deposit": "Tagastatav tagatisraha",
       "depositNote": "Lõpus tagastatav, miinus võimalikud kahjustused",
+      "endDate": "Lõppkuupäev",
+      "billedMonthly": "Arve kord kuus · €{monthly}/kuus",
+      "endNote": "Sinu {months}-kuine pakett lõpeb {date}.",
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
       "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, allkirjastad portaalis rendilepingu Smart-ID või Mobile-ID-ga — see kinnitab su isiku — ja maksad seejärel esimese 30 päeva ja tagatisraha. Kõik enne kättesaamist.",
@@ -506,6 +524,13 @@
       "failedSubtitle": "Palun proovi uuesti",
       "retryBtn": "Proovi uuesti",
       "doneChip": "Isik kinnitatud"
+    },
+    "signing": {
+      "manualTitle": "Allkirjastamine kättesaamisel",
+      "manualAgree": "Nõustun allkirjastama rendilepingu kohapeal ratta kättesaamisel."
+    },
+    "contract": {
+      "readInAdvance": "Loe oma rendileping ette läbi"
     }
   },
   "contract": {
@@ -1108,6 +1133,25 @@
         "lead": "Vali oma rentaro e-jalgratas, vali pakett ja broneeri mõne sammuga — teenindustugi kohe esimesest päevast.",
         "button": "Alusta broneerimist"
       }
+    }
+  },
+  "admin": {
+    "settings": {
+      "title": "Saidi seaded",
+      "sections": "Funktsioonide nähtavus",
+      "showAccessories": "Näita avalehel lisavarustuse sektsiooni",
+      "showReferralCode": "Näita broneeringus soovituskoodi välja",
+      "showAddGear": "Näita broneeringus varustuse lisamise sammu",
+      "showReferAcourier": "Näita portaalis kaarti „soovita kullerit“",
+      "showPayConfirm": "Näita portaalis kaarti „maksa ja kinnita rent“",
+      "showOnlineSigning": "Näita veebis Smart-ID / Mobiil-ID allkirjastamist",
+      "bankHeading": "Pangaandmed",
+      "bankIban": "IBAN",
+      "bankAccountName": "Konto omanik",
+      "bankName": "Panga nimi",
+      "bankReference": "Makse viide",
+      "save": "Salvesta seaded",
+      "saved": "Seaded salvestatud"
     }
   },
   "consent": {

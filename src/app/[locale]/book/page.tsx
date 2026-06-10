@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { Suspense } from "react";
 import { BookingWizard } from "@/components/booking/BookingWizard";
+import { getSettings } from "@/services/settingsService";
 
 const title = "Reserve your e-bike — rentaro";
 const description =
@@ -27,13 +28,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BookPage() {
+export default async function BookPage() {
+  const settings = await getSettings();
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 48 }}>
         <div className="wrap">
           <Suspense fallback={null}>
-            <BookingWizard />
+            <BookingWizard settings={settings} />
           </Suspense>
         </div>
       </section>

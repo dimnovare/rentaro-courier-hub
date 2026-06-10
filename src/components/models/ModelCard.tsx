@@ -59,7 +59,6 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
         </div>
         <div className="model-foot">
           <div className="from">
-            {t("from")}
             <strong>
               €{m.fromDay.toFixed(2)}
               <span className="per"> {t("perDay")}</span>

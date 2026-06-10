@@ -70,6 +70,17 @@ const I = {
       <path d="M7 3 H14 L19 8 V21 H7 Z" /><path d="M14 3 V8 H19" /><path d="M10 13 H16" /><path d="M10 17 H14" />
     </svg>
   ),
+  settings: ({ s = 17 }: IcoProps): ReactElement => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2.5 v2.2 M12 19.3 v2.2 M21.5 12 h-2.2 M4.7 12 H2.5 M18.7 5.3 l-1.6 1.6 M6.9 17.1 l-1.6 1.6 M18.7 18.7 l-1.6-1.6 M6.9 6.9 L5.3 5.3" />
+    </svg>
+  ),
+  pricelist: ({ s = 17 }: IcoProps): ReactElement => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 5 h9 l7 7 -8 8 -7-7 Z" /><circle cx="9" cy="10" r="1.4" /><path d="M11 13 h5" /><path d="M10 16 h4" />
+    </svg>
+  ),
   signout: ({ s = 16 }: IcoProps): ReactElement => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 8 V6 a2 2 0 0 0-2-2 H6 a2 2 0 0 0-2 2 v12 a2 2 0 0 0 2 2 h6 a2 2 0 0 0 2-2 v-2" />
@@ -86,6 +97,8 @@ interface NavItem {
   icon: IconName;
   /** When true, only an exact pathname match is "active" (used for Dashboard). */
   exact?: boolean;
+  /** When true, render a muted "soon" badge — the page is a placeholder scaffold. */
+  comingSoon?: boolean;
 }
 
 interface NavGroup {
@@ -123,6 +136,13 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Contracts",
     items: [{ label: "Contracts", href: "/admin/contracts", icon: "contracts" }],
+  },
+  {
+    label: "System",
+    items: [
+      { label: "Settings", href: "/admin/settings", icon: "settings" },
+      { label: "Pricelist", href: "/admin/pricelist", icon: "pricelist", comingSoon: true },
+    ],
   },
 ];
 
@@ -167,6 +187,25 @@ export function AdminSidebar({ open, onNavigate }: { open: boolean; onNavigate: 
                     <Icon />
                   </span>
                   <span className="admin-nav-label">{item.label}</span>
+                  {item.comingSoon && (
+                    <span
+                      className="mono"
+                      aria-label="coming soon"
+                      style={{
+                        marginLeft: "auto",
+                        fontSize: 9,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: "var(--text-dim)",
+                        padding: "2px 7px",
+                        borderRadius: "var(--r-full)",
+                        border: "1px solid var(--border-strong)",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      soon
+                    </span>
+                  )}
                 </Link>
               );
             })}

@@ -11,7 +11,9 @@ import {
   updateCity,
   deleteCity,
   getPlans,
+  createPlan,
   updatePlan,
+  deletePlan,
   getFaqs,
   createFaq,
   updateFaq,
@@ -518,54 +520,101 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Pricing plans — EDIT ONLY. id, term, months, daily, monthly, tag,
-   featured, perks[] (comma-separated), sortOrder. No create / delete.
+   Pricing plans — id (code), term, months, daily, monthly, tag, featured,
+   perks[] (comma-separated), sortOrder. Create + edit + delete. Pricing is
+   GLOBAL per plan (the same tier applies to every model).
    ════════════════════════════════════════════════════════════════════════ */
 
+const EMPTY_PLAN: AdminPlan = {
+  id: "",
+  term: "",
+  months: 1,
+  daily: 0,
+  monthly: 0,
+  tag: "",
+  featured: false,
+  perks: [],
+  sortOrder: 0,
+};
+
 function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPlan>) {
-  // Edit only — no create branch, so the editor state is just the row id (or null).
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<PlanInput | null>(null);
-  // perks edited as a single comma-separated string while editing.
+  const [editor, setEditor] = useState<Editor<string> | null>(null);
+  const [draft, setDraft] = useState<AdminPlan>(EMPTY_PLAN);
+  // perks edited as a single comma-separated string while the drawer is open.
   const [perksText, setPerksText] = useState("");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  function openCreate() {
+    clearError();
+    setFormError(null);
+    setDraft(EMPTY_PLAN);
+    setPerksText("");
+    setEditor({ mode: "create" });
+  }
+
   function openEdit(row: AdminPlan) {
     clearError();
     setFormError(null);
-    setEditingId(row.id);
-    const { id: _id, ...rest } = row;
-    void _id;
-    setDraft({ ...rest });
+    setDraft({ ...row });
     setPerksText(row.perks.join(", "));
+    setEditor({ mode: "edit", id: row.id });
   }
 
   function close() {
-    setEditingId(null);
-    setDraft(null);
+    setEditor(null);
     setFormError(null);
   }
 
   async function submit() {
-    if (busy || !draft || editingId === null) return;
+    if (busy || !editor) return;
     clearError();
     setFormError(null);
     setBusy(true);
     try {
-      const body: PlanInput = { ...draft, perks: parseList(perksText) };
-      const saved = await updatePlan(editingId, body);
-      patch((d) => ({ ...d, plans: d.plans.map((p) => (p.id === editingId ? saved : p)) }));
+      const perks = parseList(perksText);
+      if (editor.mode === "create") {
+        const saved = await createPlan({ ...draft, perks });
+        patch((d) => ({ ...d, plans: [...d.plans, saved] }));
+      } else {
+        const { id: _id, ...rest } = draft;
+        void _id;
+        const body: PlanInput = { ...rest, perks };
+        const saved = await updatePlan(editor.id, body);
+        patch((d) => ({ ...d, plans: d.plans.map((p) => (p.id === editor.id ? saved : p)) }));
+      }
       close();
     } catch (err) {
-      setFormError(onError(err, "Could not save the plan."));
+      setFormError(
+        onError(err, editor.mode === "create" ? "Could not create the plan." : "Could not save the plan."),
+      );
     } finally {
       setBusy(false);
     }
   }
 
+  async function remove() {
+    if (busy || !editor || editor.mode !== "edit") return;
+    const id = editor.id;
+    if (!window.confirm(`Delete pricing plan "${id}"? This cannot be undone.`)) return;
+    clearError();
+    setFormError(null);
+    setBusy(true);
+    try {
+      await deletePlan(id);
+      patch((d) => ({ ...d, plans: d.plans.filter((p) => p.id !== id) }));
+      close();
+    } catch (err) {
+      setFormError(onError(err, "Could not delete the plan."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const isEdit = editor?.mode === "edit";
+
   return (
-    <Section title="Pricing plans" count={rows.length} note="Edit only — plans cannot be created or deleted.">
+    <Section title="Pricing plans" count={rows.length}>
       <AdminTable>
         <thead>
           <tr>
@@ -601,57 +650,72 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
         </tbody>
       </AdminTable>
 
+      <AddButton label="New plan" onClick={openCreate} />
+
       <Drawer
-        open={editingId !== null && draft !== null}
+        open={editor !== null}
         onClose={close}
-        title="Edit plan"
-        subtitle={editingId ?? undefined}
-        footer={<DrawerFooter busy={busy} onSave={submit} onCancel={close} saveLabel="Save" />}
+        title={isEdit ? "Edit plan" : "New plan"}
+        subtitle={isEdit && editor ? editor.id : undefined}
+        footer={
+          <DrawerFooter
+            busy={busy}
+            onSave={submit}
+            onCancel={close}
+            saveLabel={isEdit ? "Save" : "Create"}
+            onDelete={isEdit ? remove : undefined}
+          />
+        }
       >
-        {draft && (
-          <>
-            <FieldText label="Term" value={draft.term} onChange={(v) => setDraft({ ...draft, term: v })} />
-            <div className="field-row">
-              <FieldNumber
-                label="Months"
-                value={draft.months}
-                onChange={(v) => setDraft({ ...draft, months: v })}
-              />
-              <FieldText label="Tag" value={draft.tag} onChange={(v) => setDraft({ ...draft, tag: v })} />
-            </div>
-            <div className="field-row">
-              <FieldNumber
-                label="Daily €"
-                value={draft.daily}
-                step="0.01"
-                onChange={(v) => setDraft({ ...draft, daily: v })}
-              />
-              <FieldNumber
-                label="Monthly €"
-                value={draft.monthly}
-                step="0.01"
-                onChange={(v) => setDraft({ ...draft, monthly: v })}
-              />
-            </div>
-            <FieldSelect
-              label="Featured"
-              value={draft.featured ? "true" : "false"}
-              onChange={(v) => setDraft({ ...draft, featured: v === "true" })}
-              options={BOOL_OPTIONS}
-            />
-            <FieldText
-              label="Perks (comma-separated)"
-              value={perksText}
-              onChange={setPerksText}
-              placeholder="Free service · Priority support · Free helmet"
-            />
-            <FieldNumber
-              label="Sort order"
-              value={draft.sortOrder}
-              onChange={(v) => setDraft({ ...draft, sortOrder: v })}
-            />
-          </>
-        )}
+        <FieldText
+          label="Id"
+          value={draft.id}
+          onChange={(v) => setDraft({ ...draft, id: v })}
+          mono
+          placeholder="p39"
+          readOnly={isEdit}
+          hint={isEdit ? "Id is fixed once created." : "Lowercase code, unique across plans (max 64 chars)."}
+        />
+        <FieldText label="Term" value={draft.term} onChange={(v) => setDraft({ ...draft, term: v })} placeholder="12 months" />
+        <div className="field-row">
+          <FieldNumber
+            label="Months"
+            value={draft.months}
+            onChange={(v) => setDraft({ ...draft, months: v })}
+          />
+          <FieldText label="Tag" value={draft.tag} onChange={(v) => setDraft({ ...draft, tag: v })} placeholder="Best price" />
+        </div>
+        <div className="field-row">
+          <FieldNumber
+            label="Daily €"
+            value={draft.daily}
+            step="0.01"
+            onChange={(v) => setDraft({ ...draft, daily: v })}
+          />
+          <FieldNumber
+            label="Monthly €"
+            value={draft.monthly}
+            step="0.01"
+            onChange={(v) => setDraft({ ...draft, monthly: v })}
+          />
+        </div>
+        <FieldSelect
+          label="Featured"
+          value={draft.featured ? "true" : "false"}
+          onChange={(v) => setDraft({ ...draft, featured: v === "true" })}
+          options={BOOL_OPTIONS}
+        />
+        <FieldText
+          label="Perks (comma-separated)"
+          value={perksText}
+          onChange={setPerksText}
+          placeholder="Free service · Priority support · Free helmet"
+        />
+        <FieldNumber
+          label="Sort order"
+          value={draft.sortOrder}
+          onChange={(v) => setDraft({ ...draft, sortOrder: v })}
+        />
         <FormError message={formError} />
       </Drawer>
     </Section>

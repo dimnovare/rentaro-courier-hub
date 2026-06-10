@@ -3,10 +3,18 @@ import { API_BASE } from "./api";
 
 /**
  * Booking submission payload. Extends the shared {@link BookingRequest} with an
- * optional referral code captured from `?ref=` / the details step. Kept local so
- * the shared type stays untouched; the backend accepts `referralCode?`.
+ * optional referral code captured from `?ref=` / the details step, plus the
+ * contact + payment preferences captured on the review step. Kept local so the
+ * shared type stays untouched; the backend accepts these as optional fields.
+ *
+ * - `contactMethod`: how rentaro should reach the customer ("email" | "phone").
+ * - `paymentMethod`: preferred payment route ("cash" | "transfer"); optional.
  */
-export type SubmitBookingInput = BookingRequest & { referralCode?: string };
+export type SubmitBookingInput = BookingRequest & {
+  referralCode?: string;
+  contactMethod?: "email" | "phone";
+  paymentMethod?: "cash" | "transfer";
+};
 
 /**
  * Booking submission result. Extends the shared {@link BookingResult} with the

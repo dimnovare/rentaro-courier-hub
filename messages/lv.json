@@ -303,6 +303,21 @@
       "sub": "Pēc izvēles. Pievieno aprīkojumu, kas palīdz nopelnīt — to vari mainīt arī vēlāk.",
       "toggle": "Pievienot aprīkojumu (pēc izvēles)"
     },
+    "bike": {
+      "viewDetails": "Skatīt informāciju",
+      "close": "Aizvērt"
+    },
+    "contact": {
+      "title": "Kā ar tevi sazināties?",
+      "email": "E-pasts",
+      "phone": "Tālrunis"
+    },
+    "payment": {
+      "title": "Kā vēlies maksāt?",
+      "cash": "Skaidrā naudā saņemšanas brīdī",
+      "transfer": "Bankas pārskaitījums",
+      "transferNote": "Mēs nosūtīsim mūsu bankas rekvizītus pēc tavas rezervācijas apstiprināšanas."
+    },
     "referral": {
       "label": "Vai tev ir ieteikuma kods?",
       "placeholder": "Ieteikuma kods (pēc izvēles)"
@@ -339,6 +354,9 @@
       "contact": "Kontaktinformācija",
       "deposit": "Atmaksājams depozīts",
       "depositNote": "Termiņa beigās tiek atmaksāta, atskaitot bojājumus",
+      "endDate": "Beigu datums",
+      "billedMonthly": "Rēķins reizi mēnesī · €{monthly}/mēn.",
+      "endNote": "Tavs {months} mēnešu plāns beidzas {date}.",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
       "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID — tas apstiprina tavu identitāti — un samaksāsi pirmo 30 dienu periodu un depozītu. Viss pirms saņemšanas.",
@@ -506,6 +524,13 @@
       "failedSubtitle": "Lūdzu, mēģiniet vēlreiz",
       "retryBtn": "Mēģināt vēlreiz",
       "doneChip": "Identitāte apstiprināta"
+    },
+    "signing": {
+      "manualTitle": "Parakstīšana saņemšanas brīdī",
+      "manualAgree": "Piekrītu parakstīt nomas līgumu klātienē, kad saņemšu velosipēdu."
+    },
+    "contract": {
+      "readInAdvance": "Izlasi savu nomas līgumu jau iepriekš"
     }
   },
   "contract": {
@@ -1108,6 +1133,25 @@
         "lead": "Izvēlies savu rentaro e-velosipēdu, izvēlies plānu un rezervē dažos soļos — servisa atbalsts iekļauts no pirmās dienas.",
         "button": "Sākt rezervēšanu"
       }
+    }
+  },
+  "admin": {
+    "settings": {
+      "title": "Vietnes iestatījumi",
+      "sections": "Funkciju redzamība",
+      "showAccessories": "Rādīt piederumu sadaļu sākumlapā",
+      "showReferralCode": "Rādīt ieteikuma koda lauku rezervācijā",
+      "showAddGear": "Rādīt aprīkojuma pievienošanas soli rezervācijā",
+      "showReferAcourier": "Rādīt portālā kartīti “iesaki kurjeru”",
+      "showPayConfirm": "Rādīt portālā kartīti “samaksā un apstiprini nomu”",
+      "showOnlineSigning": "Rādīt tiešsaistes Smart-ID / Mobile-ID parakstīšanu",
+      "bankHeading": "Bankas rekvizīti",
+      "bankIban": "IBAN",
+      "bankAccountName": "Konta turētājs",
+      "bankName": "Bankas nosaukums",
+      "bankReference": "Maksājuma atsauce",
+      "save": "Saglabāt iestatījumus",
+      "saved": "Iestatījumi saglabāti"
     }
   },
   "consent": {

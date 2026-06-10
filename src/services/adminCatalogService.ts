@@ -16,7 +16,7 @@
  * Backend (JWT Bearer):
  *   Accessories  GET/POST/PUT/DELETE /api/admin/accessories[/{code}]
  *   Cities       GET/POST/PUT/DELETE /api/admin/cities[/{code}]
- *   Pricing      GET /api/admin/pricing, PUT /api/admin/pricing/{code}  (edit only)
+ *   Pricing      GET/POST/PUT/DELETE /api/admin/pricing[/{code}]
  *   FAQ          GET/POST/PUT/DELETE /api/admin/faq[/{id}]
  */
 /* ── Contract types (match the live API exactly) ───────────────────────── */
@@ -47,7 +47,7 @@ export interface AdminCity {
 }
 
 export interface AdminPlan {
-  /** Stable business key; this value fills the {code} route segment. Edit only. */
+  /** Stable business key; this value fills the {code} route segment. Set on create, fixed after. */
   id: string;
   term: string;
   months: number;
@@ -76,7 +76,8 @@ export interface AdminFaq {
 export type AccessoryInput = AdminAccessory;
 /** Body for creating/updating a city. */
 export type CityInput = AdminCity;
-/** Body for editing a pricing plan (term, months, daily, monthly, tag, featured, perks, sortOrder). */
+/** Body for editing a pricing plan (term, months, daily, monthly, tag, featured, perks, sortOrder).
+ *  Creating a plan uses the full AdminPlan (it must also carry the `id`/code). */
 export type PlanInput = Omit<AdminPlan, "id">;
 /** Body for creating/updating a FAQ entry (id is server-assigned / in the path). */
 export type FaqInput = Omit<AdminFaq, "id">;
@@ -201,15 +202,25 @@ export const updateCity = (code: string, body: CityInput) =>
 export const deleteCity = (code: string) =>
   request<void>(`/api/admin/cities/${encodeURIComponent(code)}`, { method: "DELETE" });
 
-/* ── Pricing plans (edit only) ─────────────────────────────────────────── */
+/* ── Pricing plans (create + edit + delete; pricing stays GLOBAL per plan) ─ */
 
 export const getPlans = () => request<AdminPlan[]>("/api/admin/pricing");
+
+/** Create a new pricing tier. Body carries the chosen `id`/code (unique, ≤64 chars). */
+export const createPlan = (body: AdminPlan) =>
+  request<AdminPlan>("/api/admin/pricing", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 
 export const updatePlan = (code: string, body: PlanInput) =>
   request<AdminPlan>(`/api/admin/pricing/${encodeURIComponent(code)}`, {
     method: "PUT",
     body: JSON.stringify(body),
   });
+
+export const deletePlan = (code: string) =>
+  request<void>(`/api/admin/pricing/${encodeURIComponent(code)}`, { method: "DELETE" });
 
 /* ── FAQ ───────────────────────────────────────────────────────────────── */
 

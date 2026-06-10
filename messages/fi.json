@@ -303,6 +303,21 @@
       "sub": "Valinnaisia. Lisää varusteita, jotka tuovat vuoroja — voit muuttaa tätä myöhemmin.",
       "toggle": "Lisää varusteita (valinnainen)"
     },
+    "bike": {
+      "viewDetails": "Näytä tiedot",
+      "close": "Sulje"
+    },
+    "contact": {
+      "title": "Miten tavoitamme sinut?",
+      "email": "Sähköposti",
+      "phone": "Puhelin"
+    },
+    "payment": {
+      "title": "Miten haluat maksaa?",
+      "cash": "Käteisellä noudettaessa",
+      "transfer": "Tilisiirto",
+      "transferNote": "Lähetämme pankkitietomme, kun olemme hyväksyneet varauksesi."
+    },
     "referral": {
       "label": "Onko sinulla suosittelukoodi?",
       "placeholder": "Suosittelukoodi (valinnainen)"
@@ -339,6 +354,9 @@
       "contact": "Yhteystiedot",
       "deposit": "Palautettava vakuus",
       "depositNote": "Palautetaan lopussa, mahdolliset vahingot vähennettynä",
+      "endDate": "Päättymispäivä",
+      "billedMonthly": "Laskutus kuukausittain · €{monthly}/kk",
+      "endNote": "{months} kuukauden suunnitelmasi päättyy {date}.",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
       "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa — tämä vahvistaa henkilöllisyytesi — ja maksat ensimmäisen 30 päivän jakson ja vakuuden. Kaikki ennen noutoa.",
@@ -506,6 +524,13 @@
       "failedSubtitle": "Yritä uudelleen",
       "retryBtn": "Yritä uudelleen",
       "doneChip": "Henkilöllisyys vahvistettu"
+    },
+    "signing": {
+      "manualTitle": "Allekirjoitus noudettaessa",
+      "manualAgree": "Sitoudun allekirjoittamaan vuokrasopimuksen henkilökohtaisesti pyörää noutaessani."
+    },
+    "contract": {
+      "readInAdvance": "Lue vuokrasopimuksesi etukäteen"
     }
   },
   "contract": {
@@ -1108,6 +1133,25 @@
         "lead": "Valitse rentaro-sähköpyöräsi, valitse suunnitelma ja varaa muutamassa vaiheessa — huoltotuki mukana ensimmäisestä päivästä alkaen.",
         "button": "Aloita varaus"
       }
+    }
+  },
+  "admin": {
+    "settings": {
+      "title": "Sivuston asetukset",
+      "sections": "Ominaisuuksien näkyvyys",
+      "showAccessories": "Näytä lisävarusteosio etusivulla",
+      "showReferralCode": "Näytä suosittelukoodikenttä varauksessa",
+      "showAddGear": "Näytä varusteiden lisäysvaihe varauksessa",
+      "showReferAcourier": "Näytä portaalissa kortti ”suosittele kuriiria”",
+      "showPayConfirm": "Näytä portaalissa kortti ”maksa ja vahvista vuokrauksesi”",
+      "showOnlineSigning": "Näytä verkossa Smart-ID / Mobile-ID -allekirjoitus",
+      "bankHeading": "Pankkitiedot",
+      "bankIban": "IBAN",
+      "bankAccountName": "Tilin nimi",
+      "bankName": "Pankin nimi",
+      "bankReference": "Maksun viite",
+      "save": "Tallenna asetukset",
+      "saved": "Asetukset tallennettu"
     }
   },
   "consent": {

@@ -304,6 +304,21 @@
       "sub": "Optional. Add gear that earns shifts — you can change this later.",
       "toggle": "Add gear (optional)"
     },
+    "bike": {
+      "viewDetails": "View details",
+      "close": "Close"
+    },
+    "contact": {
+      "title": "How should we reach you?",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "payment": {
+      "title": "How would you like to pay?",
+      "cash": "Cash at pickup",
+      "transfer": "Bank transfer",
+      "transferNote": "We'll send our bank details after we approve your booking."
+    },
     "details": {
       "heading": "Your details",
       "sub": "So we can confirm availability and send your contract.",
@@ -336,6 +351,9 @@
       "contact": "Contact",
       "deposit": "Refundable deposit",
       "depositNote": "Returned at the end, minus any damage",
+      "endDate": "End date",
+      "billedMonthly": "Billed monthly · €{monthly}/mo",
+      "endNote": "Your {months}-month plan ends {date}.",
       "from": "From",
       "per30Addons": "/ 30 days + add-ons",
       "paymentNote": "No payment and no signing now. After we approve your booking, you sign the rental agreement with Smart-ID or Mobile-ID in your portal — this confirms your identity — then pay the first 30-day period and refundable deposit. All before pickup.",
@@ -507,6 +525,13 @@
       "failedSubtitle": "Please try again",
       "retryBtn": "Try again",
       "doneChip": "Identity verified"
+    },
+    "signing": {
+      "manualTitle": "Signing on handover",
+      "manualAgree": "I agree to sign the rental agreement in person when I collect the bike."
+    },
+    "contract": {
+      "readInAdvance": "Read your rental agreement in advance"
     }
   },
   "contract": {
@@ -1109,6 +1134,25 @@
         "lead": "Choose your rentaro e-bike, pick a plan and reserve in a few steps — service support included from day one.",
         "button": "Start booking"
       }
+    }
+  },
+  "admin": {
+    "settings": {
+      "title": "Site settings",
+      "sections": "Feature visibility",
+      "showAccessories": "Show accessories section on the homepage",
+      "showReferralCode": "Show referral-code input in booking",
+      "showAddGear": "Show add-gear step in booking",
+      "showReferAcourier": "Show 'refer a courier' card in the portal",
+      "showPayConfirm": "Show 'pay & confirm your rental' card in the portal",
+      "showOnlineSigning": "Show online Smart-ID / Mobile-ID signing",
+      "bankHeading": "Bank requisites",
+      "bankIban": "IBAN",
+      "bankAccountName": "Account name",
+      "bankName": "Bank name",
+      "bankReference": "Payment reference",
+      "save": "Save settings",
+      "saved": "Settings saved"
     }
   },
   "consent": {

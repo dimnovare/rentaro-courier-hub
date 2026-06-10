@@ -31,6 +31,7 @@ import {
   type IdentityCountry,
   type StartIdentityPayload,
 } from "@/services/identityService";
+import type { SiteSettings } from "@/services/settingsService";
 
 /**
  * Map the API status (lowercased enum name) to its badge tone. Friendly labels
@@ -110,7 +111,7 @@ const selectStyle: React.CSSProperties = {
   appearance: "none",
 };
 
-export function ManageRental() {
+export function ManageRental({ settings }: { settings: SiteSettings }) {
   const t = useTranslations("portal");
   const params = useSearchParams();
   const token = params.get("token") ?? "";
@@ -150,12 +151,20 @@ export function ManageRental() {
     );
   }
 
-  return <PortalView rental={state.data} token={token} />;
+  return <PortalView rental={state.data} token={token} settings={settings} />;
 }
 
 /* ── The signed-in view: details card + two action forms ─────────────────── */
 
-function PortalView({ rental, token }: { rental: PortalRental; token: string }) {
+function PortalView({
+  rental,
+  token,
+  settings,
+}: {
+  rental: PortalRental;
+  token: string;
+  settings: SiteSettings;
+}) {
   const t = useTranslations("portal");
   const statusLabel = useStatusLabel();
   const variant = statusVariant(rental.status);
@@ -243,25 +252,29 @@ function PortalView({ rental, token }: { rental: PortalRental; token: string }) 
         </article>
       </Reveal>
 
-      <Reveal delay={54}>
-        <p
-          className="lead"
-          style={{ maxWidth: 560, margin: "18px auto 0", fontSize: 14, color: "var(--text-muted)" }}
-        >
-          {t("signNote")}
-        </p>
-      </Reveal>
+      {settings.showOnlineSigning && (
+        <Reveal delay={54}>
+          <p
+            className="lead"
+            style={{ maxWidth: 560, margin: "18px auto 0", fontSize: 14, color: "var(--text-muted)" }}
+          >
+            {t("signNote")}
+          </p>
+        </Reveal>
+      )}
 
-      <ContractCard token={token} />
+      <ContractCard token={token} showOnlineSigning={settings.showOnlineSigning} />
 
-      <PayCard
-        bookingId={rental.bookingId ?? rental.reference}
-        paymentStatus={rental.paymentStatus ?? null}
-      />
+      {settings.showPayConfirm && (
+        <PayCard
+          bookingId={rental.bookingId ?? rental.reference}
+          paymentStatus={rental.paymentStatus ?? null}
+        />
+      )}
 
       <RewardsCard token={token} />
 
-      <ReferralCard code={rental.reference} />
+      {settings.showReferAcourier && <ReferralCard code={rental.reference} />}
 
       <Reveal delay={80}>
         <div
@@ -838,11 +851,20 @@ function contractStatusVariant(status: string): "popular" | "cargo" | "light" {
  * When unsigned and a signing provider is configured, offers a sign button that
  * starts signing then opens the provider URL; when signed, offers a download.
  */
-function ContractCard({ token }: { token: string }) {
+function ContractCard({
+  token,
+  showOnlineSigning,
+}: {
+  token: string;
+  showOnlineSigning: boolean;
+}) {
   const t = useTranslations("contract");
+  const tPortal = useTranslations("portal");
   const [state, setState] = useState<ContractResult<PortalContract> | null>(null);
   const [signing, setSigning] = useState(false);
   const [signError, setSignError] = useState<string | null>(null);
+  // Manual (on-paper) signing acknowledgement — only used when online signing is off.
+  const [manualAgreed, setManualAgreed] = useState(false);
 
   const load = useCallback(async () => {
     setState(await getContract(token));
@@ -901,9 +923,11 @@ function ContractCard({ token }: { token: string }) {
           <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
             {isSigned
               ? t("signedLead")
-              : contract.providerConfigured
-                ? t("unsignedLead")
-                : t("notAvailableLead")}
+              : !showOnlineSigning
+                ? tPortal("signing.manualTitle")
+                : contract.providerConfigured
+                  ? t("unsignedLead")
+                  : t("notAvailableLead")}
           </p>
 
           {isSigned ? (
@@ -921,6 +945,44 @@ function ContractCard({ token }: { token: string }) {
                 </span>
               </a>
             ) : null
+          ) : !showOnlineSigning ? (
+            /* Online signing disabled → sign on paper at handover. Offer a
+               required acknowledgement plus a link to read the contract now. */
+            <>
+              {contract.hasGeneratedPdf && (
+                <a
+                  href={contractDocumentUrl(token, "generated")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost btn-block"
+                  style={{ textDecoration: "none", marginBottom: 14 }}
+                >
+                  {tPortal("contract.readInAdvance")}
+                  <span className="arrow">
+                    <Ic.arrow />
+                  </span>
+                </a>
+              )}
+              <label
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "flex-start",
+                  cursor: "pointer",
+                  fontSize: 13.5,
+                  color: "var(--text)",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  required
+                  checked={manualAgreed}
+                  onChange={(e) => setManualAgreed(e.target.checked)}
+                  style={{ marginTop: 3, accentColor: "var(--lime)", flex: "0 0 auto" }}
+                />
+                <span>{tPortal("signing.manualAgree")}</span>
+              </label>
+            </>
           ) : contract.providerConfigured ? (
             <>
               <button
@@ -951,8 +1013,8 @@ function ContractCard({ token }: { token: string }) {
                   flexWrap: "wrap",
                 }}
               >
-                <img src="/payment/smart-id.svg" alt="Smart-ID" height={26} style={{ width: "auto", borderRadius: 4 }} />
-                <img src="/payment/mobile-id.svg" alt="Mobile-ID" height={26} style={{ width: "auto", borderRadius: 4 }} />
+                <img src="/payment/smart-id.svg" alt="Smart-ID" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
+                <img src="/payment/mobile-id.svg" alt="Mobile-ID" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
               </div>
             </>
           ) : (
@@ -1113,9 +1175,9 @@ function PayCard({
                   flexWrap: "wrap",
                 }}
               >
-                <img src="/payment/montonio.svg" alt="Montonio" height={26} style={{ width: "auto", borderRadius: 4 }} />
-                <img src="/payment/visa.svg" alt="Visa" height={26} style={{ width: "auto", borderRadius: 4 }} />
-                <img src="/payment/mastercard.svg" alt="Mastercard" height={26} style={{ width: "auto", borderRadius: 4 }} />
+                <img src="/payment/montonio.svg" alt="Montonio" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
+                <img src="/payment/visa.svg" alt="Visa" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
+                <img src="/payment/mastercard.svg" alt="Mastercard" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
               </div>
             </>
           )}

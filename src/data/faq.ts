@@ -1,6 +1,6 @@
 import type { Faq } from "@/types";
 
-/** SOURCE: /api/public/faq — open #3 ("How does the pricing work?") by default. */
+/** SOURCE: /api/public/faq — no item is open by default (see defaultOpenFaq). */
 export const faqs: Faq[] = [
   {
     q: "Can I use the bike for delivery work?",
@@ -36,5 +36,5 @@ export const faqs: Faq[] = [
   },
 ];
 
-/** Index of the FAQ open by default (the pricing question). */
-export const defaultOpenFaq = 2;
+/** Index of the FAQ open by default. -1 means no item is open on load. */
+export const defaultOpenFaq = -1;

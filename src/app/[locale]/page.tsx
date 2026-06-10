@@ -13,6 +13,7 @@ import { Accessories } from "@/components/sections/Accessories";
 import { Service } from "@/components/sections/Service";
 import { Faq } from "@/components/sections/Faq";
 import { FinalCta } from "@/components/sections/FinalCta";
+import { getSettings } from "@/services/settingsService";
 
 export async function generateMetadata({
   params,
@@ -27,7 +28,8 @@ export async function generateMetadata({
   };
 }
 
-export default function Home() {
+export default async function Home() {
+  const settings = await getSettings();
   return (
     <main>
       <HeroServer />
@@ -37,7 +39,7 @@ export default function Home() {
       <Fleet />
       <HowItWorks />
       <Cities />
-      <Accessories />
+      {settings.showAccessories && <Accessories />}
       <Service />
       <Faq />
       <FinalCta />

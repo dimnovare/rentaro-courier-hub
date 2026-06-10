@@ -13,7 +13,41 @@ import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
-import type { PlanId } from "@/types";
+import { resolveImg } from "@/services/modelService";
+import type { SiteSettings } from "@/services/settingsService";
+import type { BikeModel, PlanId } from "@/types";
+
+/** Contact preference captured on the review step. */
+type ContactMethod = "email" | "phone";
+/** Payment preference captured on the review step. */
+type PaymentMethod = "cash" | "transfer";
+
+/* Inline styles for the review-step segmented choices, kept here (rather than in
+   globals.css, which is out of this agent's scope) so they reuse the brand
+   tokens without touching shared CSS. */
+const segHeadStyle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 600,
+  letterSpacing: "-0.01em",
+  margin: "0 0 10px",
+};
+const segRowStyle: React.CSSProperties = { display: "flex", gap: 10 };
+const segBtnStyle = (on: boolean): React.CSSProperties => ({
+  flex: 1,
+  boxSizing: "border-box",
+  cursor: "pointer",
+  textAlign: "center",
+  padding: "12px 14px",
+  borderRadius: "var(--r-sm)",
+  fontSize: 14,
+  fontWeight: 600,
+  background: on
+    ? "linear-gradient(180deg, rgba(216,255,54,0.08), rgba(255,255,255,0.02))"
+    : "var(--surface)",
+  border: `1px solid ${on ? "var(--lime)" : "var(--border)"}`,
+  color: on ? "var(--text)" : "var(--text-2)",
+  transition: "border-color .2s, background .2s, color .2s",
+});
 
 /** The single-select steps that a deep link can pre-satisfy and thus skip. */
 type StepKey = "city" | "model" | "plan" | "details" | "review";
@@ -25,7 +59,7 @@ const countryKey: Record<string, string> = {
   Finland: "finland",
 };
 
-export function BookingWizard() {
+export function BookingWizard({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
   const params = useSearchParams();
   const t = useTranslations("booking");
@@ -105,6 +139,15 @@ export function BookingWizard() {
   // Required-fields consent gate on the Review step.
   const [consent, setConsent] = useState(false);
 
+  // Contact + payment preferences (review step). Contact defaults to email;
+  // payment defaults to cash-at-pickup. Both ride along in the booking payload.
+  const [contactMethod, setContactMethod] = useState<ContactMethod>("email");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+
+  // Model the visitor is previewing in the info popup (null = closed). The popup
+  // is informational only and never changes the selection.
+  const [infoModel, setInfoModel] = useState<BikeModel | null>(null);
+
   // Steps actually shown: skip any single-select already provided by a deep link.
   // Add-ons are folded into the Details screen, so there is no separate step.
   const steps = (
@@ -133,10 +176,35 @@ export function BookingWizard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  // Close the model info popup on Esc and lock background scroll while open.
+  useEffect(() => {
+    if (!infoModel) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setInfoModel(null);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [infoModel]);
+
   const model = bikeModels.find((m) => m.id === modelId);
   const plan = planId ? getPlanById(planId) : undefined;
   const city = cities.find((c) => c.id === cityId);
   const today = new Date().toISOString().slice(0, 10);
+
+  // End date = preferred start date + plan.months calendar months. Returned as a
+  // localised date string (or "" when either input is missing).
+  const endDate = (() => {
+    if (!startDate || !plan) return "";
+    const d = new Date(startDate);
+    if (Number.isNaN(d.getTime())) return "";
+    d.setMonth(d.getMonth() + plan.months);
+    return d.toISOString().slice(0, 10);
+  })();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const detailsValid =
     !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && !!startDate;
@@ -200,7 +268,9 @@ export function BookingWizard() {
         preferredStartDate: startDate,
         customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() },
         notes: notes.trim() || undefined,
-        referralCode: referralCode.trim() || undefined,
+        referralCode: settings.showReferralCode ? referralCode.trim() || undefined : undefined,
+        contactMethod,
+        paymentMethod,
       });
       const summary = {
         id: result.id,
@@ -306,26 +376,80 @@ export function BookingWizard() {
             <h3>{t("model.heading")}</h3>
             <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
-              {bikeModels.map((m) => (
-                <button
-                  key={m.id}
-                  className={`opt ${modelId === m.id ? "selected" : ""}`}
-                  onClick={() => pick(() => setModelId(m.id))}
-                >
-                  <span className="opt-t">{m.name}</span>
-                  <span className="opt-m">
-                    {m.brand} · {tm(`${m.id}.tagline`)}
-                  </span>
-                  <span className="opt-p">
-                    {t("model.fromDay", { price: m.fromDay.toFixed(2) })}
-                    {(() => {
-                      const liveCount = availMap[`model:${m.id}`];
-                      const isWait = liveCount !== undefined ? liveCount === 0 : m.status === "wait";
-                      return isWait ? t("model.waitlistSuffix") : "";
-                    })()}
-                  </span>
-                </button>
-              ))}
+              {bikeModels.map((m) => {
+                const liveCount = availMap[`model:${m.id}`];
+                const isWait = liveCount !== undefined ? liveCount === 0 : m.status === "wait";
+                return (
+                  <div key={m.id} style={{ position: "relative" }}>
+                    <button
+                      type="button"
+                      className={`opt ${modelId === m.id ? "selected" : ""}`}
+                      onClick={() => pick(() => setModelId(m.id))}
+                      style={{ flexDirection: "row", alignItems: "center", gap: 13, paddingRight: 46 }}
+                    >
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 58,
+                          height: 58,
+                          flexShrink: 0,
+                          borderRadius: "var(--r-sm)",
+                          overflow: "hidden",
+                          background: "var(--bg-2)",
+                          border: "1px solid var(--border)",
+                        }}
+                      >
+                        <img
+                          src={resolveImg(m.img)}
+                          alt=""
+                          loading="lazy"
+                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        />
+                      </span>
+                      <span style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+                        <span className="opt-t">{m.name}</span>
+                        <span className="opt-m">
+                          {m.brand} · {tm(`${m.id}.tagline`)}
+                        </span>
+                        <span className="opt-p">
+                          {t("plan.perDay", { price: m.fromDay.toFixed(2) })}
+                          {isWait ? t("model.waitlistSuffix") : ""}
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={t("bike.viewDetails")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInfoModel(m);
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        width: 30,
+                        height: 30,
+                        borderRadius: 8,
+                        display: "grid",
+                        placeItems: "center",
+                        cursor: "pointer",
+                        background: "var(--bg-2)",
+                        border: "1px solid var(--border)",
+                        color: "var(--text-muted)",
+                        padding: 0,
+                        zIndex: 2,
+                      }}
+                    >
+                      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 11 V16.5" />
+                        <path d="M12 7.5 V7.6" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
@@ -429,21 +553,25 @@ export function BookingWizard() {
               <label htmlFor="notes">{t("details.notes")}</label>
               <textarea id="notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("details.notesPlaceholder")} />
             </div>
-            <div className="field">
-              <label htmlFor="referral">{t("referral.label")}</label>
-              <input
-                id="referral"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                placeholder={t("referral.placeholder")}
-                autoComplete="off"
-                autoCapitalize="characters"
-                enterKeyHint="next"
-              />
-            </div>
+            {settings.showReferralCode && (
+              <div className="field">
+                <label htmlFor="referral">{t("referral.label")}</label>
+                <input
+                  id="referral"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  placeholder={t("referral.placeholder")}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  enterKeyHint="next"
+                />
+              </div>
+            )}
 
             {/* Add-ons folded in here (optional), collapsed by default so the
-                Details step stays short above the validation gate. */}
+                Details step stays short above the validation gate. Hidden until
+                the admin enables the add-gear feature. */}
+            {settings.showAddGear && (
             <div className="wizard-addons">
               <button
                 type="button"
@@ -489,6 +617,7 @@ export function BookingWizard() {
                 </div>
               )}
             </div>
+            )}
           </>
         )}
 
@@ -511,17 +640,23 @@ export function BookingWizard() {
                   {planId ? tp(`terms.${planId}`) : plan?.term} · {t("plan.perDay", { price: plan?.daily.toFixed(2) ?? "" })}
                 </span>
               </div>
-              <div className="summary-row">
-                <span className="l">{t("review.addons")}</span>
-                <span className="v">
-                  {accessoryIds.length
-                    ? accessoryIds.map((id) => ta(`names.${id}`)).join(", ")
-                    : t("review.none")}
-                </span>
-              </div>
+              {settings.showAddGear && (
+                <div className="summary-row">
+                  <span className="l">{t("review.addons")}</span>
+                  <span className="v">
+                    {accessoryIds.length
+                      ? accessoryIds.map((id) => ta(`names.${id}`)).join(", ")
+                      : t("review.none")}
+                  </span>
+                </div>
+              )}
               <div className="summary-row">
                 <span className="l">{t("review.startDate")}</span>
                 <span className="v">{startDate}</span>
+              </div>
+              <div className="summary-row">
+                <span className="l">{t("review.endDate")}</span>
+                <span className="v">{endDate || "—"}</span>
               </div>
               <div className="summary-row">
                 <span className="l">{t("review.contact")}</span>
@@ -539,13 +674,75 @@ export function BookingWizard() {
                 </span>
               </div>
               <div className="summary-total">
-                <span className="l">{t("review.from")}</span>
+                <span className="l">{planId ? tp(`terms.${planId}`) : plan?.term}</span>
                 <span className="big">
                   €{plan?.monthly}
                   <span className="per"> {t("review.per30Addons")}</span>
                 </span>
               </div>
             </div>
+            {plan && (
+              <p className="sub" style={{ marginTop: 12 }}>
+                {t("review.billedMonthly", { monthly: plan.monthly })}
+              </p>
+            )}
+            {plan && endDate && (
+              <p className="sub" style={{ marginTop: 4 }}>
+                {t("review.endNote", { months: plan.months, date: endDate })}
+              </p>
+            )}
+
+            {/* Contact preference — how rentaro should reach the customer. */}
+            <div style={{ marginTop: 20 }}>
+              <h4 style={segHeadStyle}>{t("contact.title")}</h4>
+              <div style={segRowStyle}>
+                <button
+                  type="button"
+                  style={segBtnStyle(contactMethod === "email")}
+                  aria-pressed={contactMethod === "email"}
+                  onClick={() => setContactMethod("email")}
+                >
+                  {t("contact.email")}
+                </button>
+                <button
+                  type="button"
+                  style={segBtnStyle(contactMethod === "phone")}
+                  aria-pressed={contactMethod === "phone"}
+                  onClick={() => setContactMethod("phone")}
+                >
+                  {t("contact.phone")}
+                </button>
+              </div>
+            </div>
+
+            {/* Payment preference — cash at pickup or bank transfer. */}
+            <div style={{ marginTop: 20 }}>
+              <h4 style={segHeadStyle}>{t("payment.title")}</h4>
+              <div style={segRowStyle}>
+                <button
+                  type="button"
+                  style={segBtnStyle(paymentMethod === "cash")}
+                  aria-pressed={paymentMethod === "cash"}
+                  onClick={() => setPaymentMethod("cash")}
+                >
+                  {t("payment.cash")}
+                </button>
+                <button
+                  type="button"
+                  style={segBtnStyle(paymentMethod === "transfer")}
+                  aria-pressed={paymentMethod === "transfer"}
+                  onClick={() => setPaymentMethod("transfer")}
+                >
+                  {t("payment.transfer")}
+                </button>
+              </div>
+              {paymentMethod === "transfer" && (
+                <p className="sub" style={{ marginTop: 8 }}>
+                  {t("payment.transferNote")}
+                </p>
+              )}
+            </div>
+
             <p className="sub" style={{ marginTop: 16 }}>
               {t("review.paymentNote")}
             </p>
@@ -615,6 +812,109 @@ export function BookingWizard() {
           )}
         </div>
       </article>
+
+      {/* Informational model preview popup. Opened by the per-option info button;
+          never changes the selection. Closes on Esc, backdrop or the close button. */}
+      {infoModel && (
+        <div
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setInfoModel(null);
+          }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 300,
+            display: "grid",
+            placeItems: "center",
+            padding: 20,
+            background: "rgba(6, 8, 12, 0.72)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={infoModel.name}
+            className="card"
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: 460,
+              padding: 0,
+              overflow: "hidden",
+              boxShadow: "0 30px 80px rgba(0,0,0,0.6), 0 0 60px -16px var(--lime-glow)",
+            }}
+          >
+            <button
+              type="button"
+              aria-label={t("bike.close")}
+              onClick={() => setInfoModel(null)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                zIndex: 2,
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                display: "grid",
+                placeItems: "center",
+                cursor: "pointer",
+                background: "rgba(6,8,12,0.55)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                padding: 0,
+              }}
+            >
+              <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                <path d="M4 4 L12 12" />
+                <path d="M12 4 L4 12" />
+              </svg>
+            </button>
+            <div style={{ aspectRatio: "16 / 10", background: "var(--bg-2)" }}>
+              <img
+                src={resolveImg(infoModel.gallery?.[0] ?? infoModel.img)}
+                alt={infoModel.name}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+            </div>
+            <div style={{ padding: "20px 22px 22px" }}>
+              <h3>{infoModel.name}</h3>
+              <div className="model-tagline">
+                {infoModel.brand} · {tm(`${infoModel.id}.tagline`)}
+              </div>
+              <p className="lead" style={{ fontSize: 14.5, marginTop: 10 }}>
+                {infoModel.blurb}
+              </p>
+              <div className="spec-row" style={{ marginTop: 12 }}>
+                {infoModel.pills.map((p) => (
+                  <span className="spec-pill" key={p}>
+                    <Ic.bolt s={11} />
+                    {p}
+                  </span>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-block"
+                style={{ marginTop: 16 }}
+                onClick={() => {
+                  const id = infoModel.id;
+                  setInfoModel(null);
+                  pick(() => setModelId(id));
+                }}
+              >
+                {t("buttons.continue")}
+                <span className="arrow">
+                  <Ic.arrow />
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
