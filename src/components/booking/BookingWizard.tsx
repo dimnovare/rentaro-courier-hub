@@ -175,7 +175,6 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
     }
     track("wizard_step_viewed", { step: key });
     // `key` is the only signal that matters here — re-fire on each step change.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   // Close the model info popup on Esc and lock background scroll while open.
@@ -198,10 +197,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   const city = cities.find((c) => c.id === cityId);
 
   // Earliest selectable pickup date (today + 3 business days), as YYYY-MM-DD.
-  // Computed once on mount so it doesn't drift across renders.
-  const minStartDate = useRef(
+  // Computed once on mount (lazy useState initializer) so it doesn't drift across
+  // renders and never reads a ref during render.
+  const [minStartDate] = useState(() =>
     addBusinessDays(new Date(), BUSINESS_DAYS_LEAD).toISOString().slice(0, 10),
-  ).current;
+  );
 
   // Clamp/clear any pre-filled or stale start date that falls before the
   // minimum (e.g. an older value or a hand-typed earlier date).
