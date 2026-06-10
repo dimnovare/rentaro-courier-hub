@@ -677,7 +677,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                 <span className="l">{planId ? tp(`terms.${planId}`) : plan?.term}</span>
                 <span className="big">
                   €{plan?.monthly}
-                  <span className="per"> {t("review.per30Addons")}</span>
+                  <span className="per"> {t(settings.showAddGear ? "review.per30Addons" : "review.per30Only")}</span>
                 </span>
               </div>
             </div>

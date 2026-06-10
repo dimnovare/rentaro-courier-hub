@@ -155,7 +155,7 @@
       },
       "03": {
         "title": "Paraksti un maksā ar tālruni",
-        "copy": "Paraksti nomas līgumu ar Smart-ID vai Mobile-ID — tas pierāda, ka esi tu, un padara līgumu juridiski saistošu. Tad samaksā par pirmajām 30 dienām un atmaksājamo depozītu. Viena drošā sesija."
+        "copy": "Paraksti nomas līgumu — tas padara līgumu juridiski saistošu. Tad samaksā par pirmajām 30 dienām un atmaksājamo depozītu."
       },
       "04": {
         "title": "Saņem velosipēdu un sāc piegādes",
@@ -164,7 +164,7 @@
     },
     "trust": {
       "kicker": "e-Parakstīts",
-      "copy": "Tava identitāte tiek verificēta un līgums parakstīts digitāli ar Smart-ID vai Mobile-ID — juridiski saistošs, bez papīra."
+      "copy": "Tavs līgums ir parakstīts un noma apstiprināta — juridiski saistošs un gatavs braukšanai."
     }
   },
   "cities": {
@@ -266,7 +266,7 @@
   },
   "booking": {
     "title": "Rezervē savu e-velosipēdu",
-    "intro": "{n} ātri soļi, lai rezervētu savu piegādes velosipēdu. Tagad nav ne maksājuma, ne parakstīšanas — kad apstiprināsim tavu rezervāciju, portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID un samaksāsi pirms saņemšanas.",
+    "intro": "{n} ātri soļi, lai rezervētu savu piegādes velosipēdu. Tagad nav ne maksājuma, ne parakstīšanas — kad apstiprināsim tavu rezervāciju, parakstīsi nomas līgumu un samaksāsi pirms saņemšanas.",
     "steps": {
       "city": "Pilsēta",
       "model": "Modelis",
@@ -359,7 +359,8 @@
       "endNote": "Tavs {months} mēnešu plāns beidzas {date}.",
       "from": "No",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
-      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID — tas apstiprina tavu identitāti — un samaksāsi pirmo 30 dienu periodu un depozītu. Viss pirms saņemšanas.",
+      "per30Only": "/ 30 dienas",
+      "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, parakstīsi nomas līgumu un samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",
       "consent": "Esmu izlasījis un piekrītu <rules>nomas noteikumiem</rules> un <privacy>privātuma politikai</privacy>, un saprotu, ka parakstīšu formālo nomas līgumu ar savu personu apliecinošu dokumentu pirms nodošanas.",
       "readRulesLink": "Pirms apstiprināšanas izlasi pilnos nomas noteikumus →"
     },
@@ -397,7 +398,7 @@
     "cost": "Atmaksājama drošības nauda €{deposit} · €{total} samaksā portālā pēc apstiprināšanas",
     "browseFleet": "Apskatīt parku",
     "backHome": "Atpakaļ uz sākumu",
-    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, pēc tam portālā parakstīsi nomas līgumu ar Smart-ID vai Mobile-ID un samaksāsi pirmās 30 dienas + depozītu — pirms piešķiram velosipēdu un tu to saņem. Atbildēsim 24 stundu laikā.",
+    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, pēc tam parakstīsi nomas līgumu un samaksāsi pirmās 30 dienas + depozītu — pirms piešķiram velosipēdu un tu to saņem. Atbildēsim 24 stundu laikā.",
     "supportPrefix": "Jautājumi? Raksti mums uz"
   },
   "waitlist": {

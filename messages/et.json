@@ -155,7 +155,7 @@
       },
       "03": {
         "title": "Allkirjasta ja maksa telefoniga",
-        "copy": "Allkirjasta üürileping Smart-ID või Mobiil-ID-ga — see tõendab, et oled ise, ja muudab lepingu juriidiliselt siduvaks. Seejärel maksa esimesed 30 päeva ja tagastatav deposiit. Üks turvaline seanss."
+        "copy": "Allkirjasta üürileping — see muudab selle juriidiliselt siduvaks. Seejärel maksa esimesed 30 päeva ja tagastatav deposiit."
       },
       "04": {
         "title": "Võta jalgratas ja alusta tarne",
@@ -164,7 +164,7 @@
     },
     "trust": {
       "kicker": "e-Allkirjastatud",
-      "copy": "Sinu isik on tuvastatud ja leping allkirjastatud digitaalselt Smart-ID või Mobiil-ID-ga — juriidiliselt siduv, paberivaba."
+      "copy": "Sinu leping on allkirjastatud ja rent kinnitatud — juriidiliselt siduv ja sõiduvalmis."
     }
   },
   "cities": {
@@ -266,7 +266,7 @@
   },
   "booking": {
     "title": "Broneeri oma e-jalgratas",
-    "intro": "{n} kiiret sammu, et broneerida oma tarneratas. Praegu ei maksa ega allkirjasta midagi — kui kinnitame su broneeringu, allkirjastad portaalis rendilepingu Smart-ID või Mobile-ID-ga ja maksad enne kättesaamist.",
+    "intro": "{n} kiiret sammu, et broneerida oma tarneratas. Praegu ei maksa ega allkirjasta midagi — kui kinnitame su broneeringu, allkirjastad rendilepingu ja maksad enne kättesaamist.",
     "steps": {
       "city": "Linn",
       "model": "Mudel",
@@ -355,7 +355,8 @@
       "endNote": "Sinu {months}-kuine pakett lõpeb {date}.",
       "from": "Alates",
       "per30Addons": "/ 30 päeva + lisad",
-      "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, allkirjastad portaalis rendilepingu Smart-ID või Mobile-ID-ga — see kinnitab su isiku — ja maksad seejärel esimese 30 päeva ja tagatisraha. Kõik enne kättesaamist.",
+      "per30Only": "/ 30 päeva",
+      "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, allkirjastad rendilepingu ja maksad esimese 30 päeva ning tagastatava tagatisraha — kõik enne kättesaamist.",
       "consent": "Olen tutvunud <rules>üürireeglitega</rules> ja <privacy>privaatsuspoliitikaga</privacy> ning mõistan, et allkirjastan ametliku üürilepingu oma isikutunnistusega enne jalgratta kättesaamist.",
       "readRulesLink": "Loe enne kinnitamist üürireeglid läbi →"
     },
@@ -397,7 +398,7 @@
     "cost": "Tagastatav tagatis €{deposit} · €{total} makstud portaalis pärast kinnitamist",
     "browseFleet": "Sirvi pargi",
     "backHome": "Tagasi avalehele",
-    "nextSteps": "Järgmisena: kinnitame su broneeringu, seejärel portaalis allkirjastad rendilepingu Smart-ID või Mobile-ID-ga ja maksad esimesed 30 päeva + tagatisraha — enne kui määrame ratta ja tuled järele. Vastame 24 tunni jooksul.",
+    "nextSteps": "Järgmisena: kinnitame su broneeringu, seejärel allkirjastad rendilepingu ja maksad esimesed 30 päeva + tagatisraha — enne kui määrame ratta ja tuled järele. Vastame 24 tunni jooksul.",
     "supportPrefix": "Küsimused? Kirjuta meile aadressil"
   },
   "waitlist": {

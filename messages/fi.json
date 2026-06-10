@@ -155,7 +155,7 @@
       },
       "03": {
         "title": "Allekirjoita ja maksa puhelimella",
-        "copy": "Allekirjoita vuokrasopimus Smart-ID:llä tai Mobile-ID:llä — tämä todistaa, että olet sinä, ja tekee sopimuksesta oikeudellisesti sitovan. Maksa sitten ensimmäiset 30 päivää ja palautettava talletus. Yksi turvallinen istunto."
+        "copy": "Allekirjoita vuokrasopimus — tämä tekee siitä oikeudellisesti sitovan. Maksa sitten ensimmäiset 30 päivää ja palautettava talletus."
       },
       "04": {
         "title": "Nouda pyörä ja aloita toimittaminen",
@@ -164,7 +164,7 @@
     },
     "trust": {
       "kicker": "e-Allekirjoitettu",
-      "copy": "Henkilöllisyytesi varmistetaan ja sopimus allekirjoitetaan digitaalisesti Smart-ID:llä tai Mobile-ID:llä — oikeudellisesti sitova, paperiton."
+      "copy": "Sopimuksesi on allekirjoitettu ja vuokrauksesi vahvistettu — oikeudellisesti sitova ja ajovalmis."
     }
   },
   "cities": {
@@ -266,7 +266,7 @@
   },
   "booking": {
     "title": "Varaa sähköpyöräsi",
-    "intro": "{n} nopeaa vaihetta lähetyspyöräsi varaamiseen. Ei maksua eikä allekirjoitusta nyt — kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa ja maksat ennen noutoa.",
+    "intro": "{n} nopeaa vaihetta lähetyspyöräsi varaamiseen. Ei maksua eikä allekirjoitusta nyt — kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen ja maksat ennen noutoa.",
     "steps": {
       "city": "Kaupunki",
       "model": "Malli",
@@ -359,7 +359,8 @@
       "endNote": "{months} kuukauden suunnitelmasi päättyy {date}.",
       "from": "Alkaen",
       "per30Addons": "/ 30 päivää + lisävarusteet",
-      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa — tämä vahvistaa henkilöllisyytesi — ja maksat ensimmäisen 30 päivän jakson ja vakuuden. Kaikki ennen noutoa.",
+      "per30Only": "/ 30 päivää",
+      "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen ja maksat ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",
       "consent": "Olen lukenut ja hyväksyn <rules>vuokraehdot</rules> ja <privacy>tietosuojakäytännön</privacy>, ja ymmärrän allekirjoittavani virallisen vuokrasopimuksen henkilöllisyystodistuksellani ennen noutoa.",
       "readRulesLink": "Lue vuokraehdot ennen vahvistamista →"
     },
@@ -397,7 +398,7 @@
     "cost": "Palautettava vakuus €{deposit} · €{total} maksetaan portaalissa hyväksynnän jälkeen",
     "browseFleet": "Selaa kalustoa",
     "backHome": "Takaisin etusivulle",
-    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, minkä jälkeen allekirjoitat vuokrasopimuksen Smart-ID:llä tai Mobile-ID:llä portaalissa ja maksat ensimmäiset 30 päivää + vakuuden — ennen kuin varaamme pyöräsi ja noudat sen. Vastaamme 24 tunnin kuluessa.",
+    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, minkä jälkeen allekirjoitat vuokrasopimuksen ja maksat ensimmäiset 30 päivää + vakuuden — ennen kuin varaamme pyöräsi ja noudat sen. Vastaamme 24 tunnin kuluessa.",
     "supportPrefix": "Kysyttävää? Lähetä meille sähköpostia osoitteeseen"
   },
   "waitlist": {
