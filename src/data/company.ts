@@ -7,6 +7,9 @@
  * non-empty guards in `Footer.tsx`.
  */
 export interface Company {
+  /** Customer-facing brand name. */
+  brandName: string;
+  /** Registered legal entity that operates the Rentaro brand. */
   legalName: string;
   regCode: string;
   vat: string;
@@ -17,11 +20,16 @@ export interface Company {
 
 // Fields are typed as `string` (not literal `""`) so consumers can guard with
 // `company.x && …` without TypeScript narrowing the empty placeholder to `never`.
+//
+// Rentaro is the brand; the operating legal entity is Valguse Kodu OÜ. The
+// footer can render this relationship as "Rentaro — operated by Valguse Kodu OÜ"
+// using `brandName` + `legalName`.
 export const company: Company = {
-  legalName: "Rentaro OÜ",
-  regCode: "", // TODO: founder to fill (Estonian registry code)
-  vat: "", // TODO: VAT number
-  address: "", // TODO: registered address
+  brandName: "Rentaro",
+  legalName: "Valguse Kodu OÜ",
+  regCode: "14621591",
+  vat: "EE102246089",
+  address: "Narva mnt 128-4, 10127 Tallinn, Estonia",
   supportEmail: "info@rentaro.ee", // real + verified ops inbox
-  supportPhone: "", // TODO: support phone
+  supportPhone: "+372 5649 7933",
 };

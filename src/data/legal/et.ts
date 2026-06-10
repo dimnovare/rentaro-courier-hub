@@ -2,15 +2,16 @@
  * SOURCE: /api/public/legal — struktureeritud õigus- ja poliitikatekstid
  * lehtedele /rules, /privacy ja /terms.
  *
- * rentaro't haldab Rentaro OÜ, Eesti osaühing, mis rendib kulleritele
+ * rentaro't haldab Valguse Kodu OÜ, Eesti osaühing, mis rendib kulleritele
  * kuu kaupa kohaletoimetamise e-rattaid Eestis (Tallinn) ja Lätis (Riia).
  * Hinnad, 30-päevane miinimum ja tagatisraha (võrdne valitud paketi
  * 30-päevase hinnaga) kajastavad lukustatud äreegleid.
  *
- * Nurksulgudes märgised nagu `[registered address — to be provided]`
- * tähistavad ettevõttepõhiseid andmeid, mille asutaja peab enne käivitamist
- * täitma. Brändi tekstis kasutatakse väiketähtedega "rentaro"; juriidiline
- * isik on "Rentaro OÜ".
+ * Ettevõttepõhised andmed (registrikood, registreeritud aadress,
+ * käibemaksukohustuslase number, klienditoe e-post ja telefon) pärinevad
+ * allkirjastatud lepingu mallist. Brändi tekstis kasutatakse väiketähtedega
+ * "rentaro"; tegutsev juriidiline isik on "Valguse Kodu OÜ", kes haldab
+ * Rentaro kaubamärki.
  */
 
 import type { LegalDoc } from "./types";
@@ -25,7 +26,7 @@ export const rentalRules: LegalDoc = {
   title: "Renditingimused",
   updated: LAST_UPDATED,
   intro:
-    "Need reeglid selgitavad, kuidas rentaro e-ratta rent praktikas toimib — kes saab rentida, 30-päevane miinimum ja paketitingimused, sinu tagatisraha, mis on hinna sees, kuidas ratast kasutada ja hooldada ning mis toimub hoolduse, kahjustuste, varguse ja tagastamise korral. Need on osa rendilepingust, mille sõlmid Rentaro OÜ-ga enne ratta kättesaamist. Kui miski siin on vastuolus sinu allkirjastatud rendilepinguga, kehtib allkirjastatud leping.",
+    "Need reeglid selgitavad, kuidas rentaro e-ratta rent praktikas toimib — kes saab rentida, 30-päevane miinimum ja paketitingimused, sinu tagatisraha, mis on hinna sees, kuidas ratast kasutada ja hooldada ning mis toimub hoolduse, kahjustuste, varguse ja tagastamise korral. Need on osa rendilepingust, mille sõlmid Valguse Kodu OÜ-ga enne ratta kättesaamist. Kui miski siin on vastuolus sinu allkirjastatud rendilepinguga, kehtib allkirjastatud leping.",
   sections: [
     {
       heading: "Kes saab rentida",
@@ -126,13 +127,13 @@ export const termsOfService: LegalDoc = {
   title: "Tingimused",
   updated: LAST_UPDATED,
   intro:
-    "Need tingimused reguleerivad rentaro veebisaidi kasutamist ja e-ratta rendi broneerimist. rentaro't haldab Rentaro OÜ. Tingimused kehtivad kõrvuti renditingimuste ja rendilepinguga, mille sa allkirjastad enne ratta kättesaamist; renti ennast reguleerib allkirjastatud rendileping. Palun loe need tingimused enne broneerimist hoolikalt läbi.",
+    "Need tingimused reguleerivad rentaro veebisaidi kasutamist ja e-ratta rendi broneerimist. rentaro't haldab Valguse Kodu OÜ. Tingimused kehtivad kõrvuti renditingimuste ja rendilepinguga, mille sa allkirjastad enne ratta kättesaamist; renti ennast reguleerib allkirjastatud rendileping. Palun loe need tingimused enne broneerimist hoolikalt läbi.",
   sections: [
     {
       heading: "Kes me oleme ja kuidas meiega ühendust võtta",
       body: [
-        "rentaro teenust haldab Rentaro OÜ, Eestis registreeritud osaühing (registrikood [registration code — to be provided], registreeritud aadress [registered address — to be provided], käibemaksukohustuslase number [VAT number — to be provided, if registered]). Nendes tingimustes tähendavad \"rentaro\", \"me\", \"meie\" ja \"meid\" Rentaro OÜ-d ning \"sina\" tähendab klienti.",
-        "Meiega saad ühendust e-posti teel aadressil info@rentaro.ee või telefoni teel numbril [support phone — to be provided]. Need tingimused on koostatud eesti keeles; rendileping ja mis tahes nõutav seadusjärgne teave esitatakse sulle enne kohustuse võtmist.",
+        "rentaro teenust haldab Valguse Kodu OÜ (tegutseb kaubamärgi all Rentaro), Eestis registreeritud osaühing (registrikood 14621591, registreeritud aadress Narva mnt 128-4, Tallinn 10127, Eesti, käibemaksukohustuslase number EE102246089). Nendes tingimustes tähendavad \"rentaro\", \"me\", \"meie\" ja \"meid\" Valguse Kodu OÜ-d (tegutseb kaubamärgi all Rentaro) ning \"sina\" tähendab klienti.",
+        "Meiega saad ühendust e-posti teel aadressil info@rentaro.ee või telefoni teel numbril +372 5649 7933. Need tingimused on koostatud eesti keeles; rendileping ja mis tahes nõutav seadusjärgne teave esitatakse sulle enne kohustuse võtmist.",
       ],
     },
     {
@@ -294,13 +295,13 @@ export const privacyPolicy: LegalDoc = {
   title: "Privaatsuspoliitika",
   updated: LAST_UPDATED,
   intro:
-    "See poliitika selgitab, milliseid isikuandmeid rentaro kogub, miks ja millisel õiguslikul alusel me neid kasutame, kellega me neid jagame, kui kaua me neid säilitame ja millised on sinu õigused ELi isikuandmete kaitse üldmääruse (GDPR) alusel. rentaro't haldab Rentaro OÜ, kes on sinu isikuandmete vastutav töötleja. See sisaldab ka meie küpsiste poliitikat.",
+    "See poliitika selgitab, milliseid isikuandmeid rentaro kogub, miks ja millisel õiguslikul alusel me neid kasutame, kellega me neid jagame, kui kaua me neid säilitame ja millised on sinu õigused ELi isikuandmete kaitse üldmääruse (GDPR) alusel. rentaro't haldab Valguse Kodu OÜ, kes on sinu isikuandmete vastutav töötleja. See sisaldab ka meie küpsiste poliitikat.",
   sections: [
     {
       heading: "Kes me oleme (vastutav töötleja)",
       body: [
-        "rentaro't haldab Rentaro OÜ, Eestis registreeritud osaühing, kes on sinu isikuandmete eest vastutav töötleja. Registreeritud aadress: [registered address — to be provided]. Registrikood: [registration code — to be provided].",
-        "Mis tahes privaatsusküsimuse korral või oma õiguste teostamiseks võta meiega ühendust aadressil [DPO / privacy contact — to be provided]. Me ei ole määranud seadusjärgset andmekaitseametnikku seal, kus see ei ole õiguslikult nõutav; kui see muutub, seda kontakti uuendatakse.",
+        "rentaro't haldab Valguse Kodu OÜ (tegutseb kaubamärgi all Rentaro), Eestis registreeritud osaühing, kes on sinu isikuandmete eest vastutav töötleja. Registreeritud aadress: Narva mnt 128-4, Tallinn 10127, Eesti. Registrikood: 14621591.",
+        "Mis tahes privaatsusküsimuse korral või oma õiguste teostamiseks võta meiega ühendust aadressil info@rentaro.ee. Me ei ole määranud seadusjärgset andmekaitseametnikku seal, kus see ei ole õiguslikult nõutav; kui see muutub, seda kontakti uuendatakse.",
       ],
     },
     {

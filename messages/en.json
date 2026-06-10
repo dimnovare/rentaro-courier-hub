@@ -60,7 +60,7 @@
     "stats": {
       "priceValue": "€3.90",
       "priceUnit": "/day",
-      "priceLabel": "From, 12-mo plan",
+      "priceLabel": "12-mo plan",
       "termValue": "30",
       "termUnit": "days",
       "termLabel": "Minimum term",
@@ -84,7 +84,7 @@
     "serviceSupport": "Service support included",
     "lockCharger": "Lock + charger in every plan",
     "extraBattery": "Extra battery available",
-    "digitalContract": "Digital contract — sign on your phone",
+    "digitalContract": "Clear rental contract",
     "builtForShifts": "Built for delivery shifts",
     "pickupDelivery": "Pickup or local delivery"
   },
@@ -154,8 +154,8 @@
         "copy": "We confirm you are a real courier and reserve a specific bike for you, usually within 24 hours. You receive a secure portal link by email."
       },
       "03": {
-        "title": "Sign & pay from your phone",
-        "copy": "Sign the rental agreement — this makes it legally binding. Then pay your first 30 days and the refundable deposit."
+        "title": "Sign & pay",
+        "copy": "You sign the rental agreement in person at pickup — this makes it legally binding. Then pay your first 30 days and the refundable deposit."
       },
       "04": {
         "title": "Pick up and start delivering",
@@ -163,7 +163,7 @@
       }
     },
     "trust": {
-      "kicker": "e-Signed",
+      "kicker": "Signed",
       "copy": "Your agreement is signed and your rental is confirmed — legally binding and ready to ride."
     }
   },
@@ -253,8 +253,8 @@
         "a": "We operate in Tallinn and Riga today, with Helsinki coming soon. Collect at a city pickup point or request local delivery in your area."
       },
       "contract": {
-        "q": "Do I sign a contract online?",
-        "a": "Yes — the full rental agreement is digital and signed on your phone before pickup. No paperwork at the depot."
+        "q": "How do I sign the contract?",
+        "a": "We send your rental agreement by email so you can read it in advance. You sign it in person when you collect the bike."
       }
     }
   },
@@ -288,7 +288,7 @@
     "model": {
       "heading": "Pick your bike",
       "sub": "Every model rents on the same plans — choose the one that fits your shifts.",
-      "fromDay": "From €{price}/day",
+      "fromDay": "€{price}/day",
       "waitlistSuffix": " · waitlist"
     },
     "plan": {
@@ -354,7 +354,7 @@
       "endDate": "End date",
       "billedMonthly": "Billed monthly · €{monthly}/mo",
       "endNote": "Your {months}-month plan ends {date}.",
-      "from": "From",
+      "from": "",
       "per30Addons": "/ 30 days + add-ons",
       "per30Only": "/ 30 days",
       "paymentNote": "No payment and no signing now. After we approve your booking, you'll sign the rental agreement and pay the first 30-day period and refundable deposit — all before pickup.",
@@ -376,7 +376,7 @@
   "bookingSuccess": {
     "heading": "Request received.",
     "headingNamed": "Request received, {name}.",
-    "body": "We'll confirm availability and send your digital contract by email shortly — no payment has been taken.",
+    "body": "We'll confirm availability and send your rental agreement by email shortly — no payment has been taken.",
     "reference": "Reference",
     "model": "Model",
     "plan": "Plan",
@@ -538,7 +538,7 @@
   "contract": {
     "heading": "Rental contract",
     "signedLead": "Your rental agreement is signed. You can download a copy for your records.",
-    "unsignedLead": "Sign your rental agreement online to confirm your booking. It only takes a minute on your phone.",
+    "unsignedLead": "Read your rental agreement in advance. You sign it in person when you collect the bike.",
     "notAvailableLead": "Your rental agreement will be ready to sign here shortly.",
     "notAvailableNote": "Signing isn't available just yet — we'll email you when your contract is ready.",
     "sign": "Sign your contract",
@@ -711,7 +711,7 @@
           "steps": [
             {
               "title": "Reserve online",
-              "copy": "Pick your model and plan and send the request. No payment up front — we confirm a bike is ready for you in Tallinn and send your digital contract to sign on your phone."
+              "copy": "Pick your model and plan and send the request. No payment up front — we confirm a bike is ready for you in Tallinn and send your rental agreement to read in advance."
             },
             {
               "title": "Collect in Telliskivi or Kesklinn",
@@ -741,7 +741,7 @@
             },
             {
               "q": "I just moved to Tallinn — can I start quickly?",
-              "a": "That's exactly who monthly rental suits. Reserve online, sign on your phone and collect in the centre — most couriers are delivering within the same week, with no large purchase first."
+              "a": "That's exactly who monthly rental suits. Reserve online, sign in person at pickup and collect in the centre — most couriers are delivering within the same week, with no large purchase first."
             }
           ]
         }
@@ -813,13 +813,13 @@
     "heading": "All models.",
     "lead": "Every rentaro e-bike rents on the same simple terms — 30-day, 6 or 12-month plans with service support included. Pick the bike that fits your shifts.",
     "allModels": "All models",
-    "from": "FROM",
+    "from": "",
     "perDay": "/ day",
     "reserve": "Reserve",
     "joinWaitlist": "Join waitlist",
     "reserveThisBike": "Reserve this bike",
     "joinWaitlistLong": "Join the waitlist",
-    "planNote": "Available on 30-day, 6 or 12-month plans — from €3.90/day on the 12-month plan.",
+    "planNote": "Available on 30-day, 6 or 12-month plans — €3.90/day on the 12-month plan.",
     "fullSpec": "Full specification",
     "galleryThumbAria": "View image {index} of {total}",
     "avail": {
@@ -955,7 +955,7 @@
       "how": {
         "kicker": "How it works",
         "heading": "On a bike in three steps.",
-        "lead": "A monthly plan is built to be quick to start and easy to stop. Choose, sign and ride — most of it from your phone."
+        "lead": "A monthly plan is built to be quick to start and easy to stop. Reserve in minutes, sign at pickup and ride."
       },
       "included": {
         "kicker": "In every plan",
@@ -1069,7 +1069,7 @@
       "how": {
         "kicker": "How it works",
         "heading": "From signup to first delivery.",
-        "lead": "Getting on a delivery bike is built to be fast. Choose your model and plan, sign on your phone and pick up — service support included from day one."
+        "lead": "Getting on a delivery bike is built to be fast. Choose your model and plan, then sign and pick up your bike — service support included from day one."
       },
       "faq": {
         "kicker": "Delivery riding — good to know",
@@ -1098,14 +1098,14 @@
       "hero": {
         "kicker": "E-bike rental for couriers",
         "heading": "Made for couriers, not weekend riders.",
-        "lead": "rentaro exists for one job: keeping delivery couriers earning. You rent a delivery-built e-bike by the month, start quickly, and ride with service support behind you. No big purchase, no resale headache, no day lost to a bike you can’t fix. Choose your model, sign online and start your next shift.",
+        "lead": "rentaro exists for one job: keeping delivery couriers earning. You rent a delivery-built e-bike by the month, start quickly, and ride with service support behind you. No big purchase, no resale headache, no day lost to a bike you can’t fix. Choose your model, reserve online and start your next shift.",
         "ctaBook": "Start booking",
         "ctaExplore": "Explore the fleet"
       },
       "points": {
         "startThisWeek": {
           "title": "Start delivering this week",
-          "copy": "Choose your model online, sign the contract on your phone and pick up the same week. No long wait, no big purchase before your first shift."
+          "copy": "Choose your model online, sign the contract at pickup and collect the same week. No long wait, no big purchase before your first shift."
         },
         "incomeTool": {
           "title": "Your bike is your income tool",
@@ -1123,7 +1123,7 @@
       "howItWorks": {
         "kicker": "How couriers start",
         "heading": "Choose. Sign. Ride.",
-        "lead": "Three steps from picking a bike to your first delivery — most of it from your phone."
+        "lead": "Three steps from picking a bike to your first delivery — reserve online, sign at pickup and ride."
       },
       "models": {
         "kicker": "Courier favourites",

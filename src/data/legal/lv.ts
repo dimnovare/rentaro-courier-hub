@@ -2,16 +2,16 @@
  * SOURCE: /api/public/legal — strukturēts juridiskais/politikas saturs
  * lapām /rules, /privacy un /terms.
  *
- * rentaro pakalpojumu sniedz Rentaro OÜ, Igaunijas privāta sabiedrība ar
+ * rentaro pakalpojumu sniedz Valguse Kodu OÜ, Igaunijas privāta sabiedrība ar
  * ierobežotu atbildību, kas izīrē piegādes elektrovelosipēdus pa mēnesim
  * kurjeriem Igaunijā (Tallinn) un Latvijā (Riga). Cenas, 30 dienu minimālais
  * periods un drošības nauda (vienāda ar izvēlētā plāna 30 dienu cenu)
  * atspoguļo fiksētos uzņēmējdarbības noteikumus.
  *
- * Kvadrātiekavu atzīmes, piemēram, `[registered address — to be provided]`,
- * norāda uz uzņēmuma specifiskām detaļām, kuras dibinātājam vēl jāaizpilda
- * pirms darbības uzsākšanas. Zīmola tekstā lieto mazo burtu "rentaro";
- * juridiskā persona ir "Rentaro OÜ".
+ * Uzņēmuma specifiskās detaļas (reģistrācijas kods, reģistrētā adrese, PVN
+ * numurs, atbalsta e-pasts un tālrunis) ir ņemtas no parakstītā līguma
+ * veidnes. Zīmola tekstā lieto mazo burtu "rentaro"; darbojošā juridiskā
+ * persona ir "Valguse Kodu OÜ", kas pārvalda Rentaro zīmolu.
  */
 
 import type { LegalDoc } from "./types";
@@ -26,7 +26,7 @@ export const rentalRules: LegalDoc = {
   title: "Īres noteikumi",
   updated: LAST_UPDATED,
   intro:
-    "Šie noteikumi izskaidro, kā praktiski darbojas rentaro elektrovelosipēda īre — kas drīkst īrēt, 30 dienu minimums un plānu nosacījumi, jūsu drošības nauda, kas ir iekļauts, kā lietot un kopt velosipēdu, kā arī kas notiek ar apkopi, bojājumiem, zādzību un atgriešanu. Tie ir daļa no īres līguma, ko parakstāt ar Rentaro OÜ pirms saņemšanas. Ja kaut kas šeit ir pretrunā ar jūsu parakstīto īres līgumu, piemērojams ir parakstītais līgums.",
+    "Šie noteikumi izskaidro, kā praktiski darbojas rentaro elektrovelosipēda īre — kas drīkst īrēt, 30 dienu minimums un plānu nosacījumi, jūsu drošības nauda, kas ir iekļauts, kā lietot un kopt velosipēdu, kā arī kas notiek ar apkopi, bojājumiem, zādzību un atgriešanu. Tie ir daļa no īres līguma, ko parakstāt ar Valguse Kodu OÜ pirms saņemšanas. Ja kaut kas šeit ir pretrunā ar jūsu parakstīto īres līgumu, piemērojams ir parakstītais līgums.",
   sections: [
     {
       heading: "Kas drīkst īrēt",
@@ -127,13 +127,13 @@ export const termsOfService: LegalDoc = {
   title: "Noteikumi un nosacījumi",
   updated: LAST_UPDATED,
   intro:
-    "Šie noteikumi regulē jūsu rentaro tīmekļa vietnes lietošanu un jūsu elektrovelosipēda īres rezervāciju. rentaro pakalpojumu sniedz Rentaro OÜ. Šie noteikumi pastāv līdzās īres noteikumiem un īres līgumam, ko parakstāt pirms saņemšanas; parakstītais īres līgums regulē pašu īri. Lūdzu, rūpīgi izlasiet šos noteikumus pirms rezervēšanas.",
+    "Šie noteikumi regulē jūsu rentaro tīmekļa vietnes lietošanu un jūsu elektrovelosipēda īres rezervāciju. rentaro pakalpojumu sniedz Valguse Kodu OÜ. Šie noteikumi pastāv līdzās īres noteikumiem un īres līgumam, ko parakstāt pirms saņemšanas; parakstītais īres līgums regulē pašu īri. Lūdzu, rūpīgi izlasiet šos noteikumus pirms rezervēšanas.",
   sections: [
     {
       heading: "Kas mēs esam un kā ar mums sazināties",
       body: [
-        "rentaro pakalpojumu sniedz Rentaro OÜ, privāta sabiedrība ar ierobežotu atbildību, kas reģistrēta Igaunijā (reģistrācijas kods [registration code — to be provided], reģistrētā adrese [registered address — to be provided], PVN numurs [VAT number — to be provided, if registered]). Šajos noteikumos \"rentaro\", \"mēs\", \"mūs\" un \"mūsu\" nozīmē Rentaro OÜ, un \"jūs\" nozīmē klientu.",
-        "Ar mums varat sazināties pa e-pastu info@rentaro.ee vai pa tālruni [support phone — to be provided]. Šie noteikumi ir rakstīti angļu valodā; īres līgums un jebkura nepieciešamā likumā noteiktā informācija jums tiek sniegta pirms saistību uzņemšanās.",
+        "rentaro pakalpojumu sniedz Valguse Kodu OÜ (darbojas ar zīmolu Rentaro), privāta sabiedrība ar ierobežotu atbildību, kas reģistrēta Igaunijā (reģistrācijas kods 14621591, reģistrētā adrese Narva mnt 128-4, Tallinn 10127, Igaunija, PVN numurs EE102246089). Šajos noteikumos \"rentaro\", \"mēs\", \"mūs\" un \"mūsu\" nozīmē Valguse Kodu OÜ (darbojas ar zīmolu Rentaro), un \"jūs\" nozīmē klientu.",
+        "Ar mums varat sazināties pa e-pastu info@rentaro.ee vai pa tālruni +372 5649 7933. Šie noteikumi ir rakstīti angļu valodā; īres līgums un jebkura nepieciešamā likumā noteiktā informācija jums tiek sniegta pirms saistību uzņemšanās.",
       ],
     },
     {
@@ -295,13 +295,13 @@ export const privacyPolicy: LegalDoc = {
   title: "Privātuma politika",
   updated: LAST_UPDATED,
   intro:
-    "Šī politika izskaidro, kādus personas datus rentaro vāc, kāpēc un uz kāda juridiskā pamata mēs tos izmantojam, ar ko mēs tos kopīgojam, cik ilgi mēs tos glabājam un kādas tiesības jums ir saskaņā ar ES Vispārīgo datu aizsardzības regulu (VDAR). rentaro pakalpojumu sniedz Rentaro OÜ, kas ir jūsu personas datu pārzinis. Tā ietver arī mūsu sīkdatņu politiku.",
+    "Šī politika izskaidro, kādus personas datus rentaro vāc, kāpēc un uz kāda juridiskā pamata mēs tos izmantojam, ar ko mēs tos kopīgojam, cik ilgi mēs tos glabājam un kādas tiesības jums ir saskaņā ar ES Vispārīgo datu aizsardzības regulu (VDAR). rentaro pakalpojumu sniedz Valguse Kodu OÜ, kas ir jūsu personas datu pārzinis. Tā ietver arī mūsu sīkdatņu politiku.",
   sections: [
     {
       heading: "Kas mēs esam (datu pārzinis)",
       body: [
-        "rentaro pakalpojumu sniedz Rentaro OÜ, privāta sabiedrība ar ierobežotu atbildību, kas reģistrēta Igaunijā un ir pārzinis, kurš atbildīgs par jūsu personas datiem. Reģistrētā adrese: [registered address — to be provided]. Reģistrācijas kods: [registration code — to be provided].",
-        "Jebkuram privātuma jautājumam vai lai īstenotu savas tiesības, sazinieties ar mums [DPO / privacy contact — to be provided]. Mēs neesam iecēluši likumā noteiktu datu aizsardzības speciālistu, ja tas nav juridiski nepieciešams; ja tas mainās, šī kontaktinformācija tiks atjaunināta.",
+        "rentaro pakalpojumu sniedz Valguse Kodu OÜ (darbojas ar zīmolu Rentaro), privāta sabiedrība ar ierobežotu atbildību, kas reģistrēta Igaunijā un ir pārzinis, kurš atbildīgs par jūsu personas datiem. Reģistrētā adrese: Narva mnt 128-4, Tallinn 10127, Igaunija. Reģistrācijas kods: 14621591.",
+        "Jebkuram privātuma jautājumam vai lai īstenotu savas tiesības, sazinieties ar mums info@rentaro.ee. Mēs neesam iecēluši likumā noteiktu datu aizsardzības speciālistu, ja tas nav juridiski nepieciešams; ja tas mainās, šī kontaktinformācija tiks atjaunināta.",
       ],
     },
     {

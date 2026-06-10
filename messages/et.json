@@ -60,7 +60,7 @@
     "stats": {
       "priceValue": "€3.90",
       "priceUnit": "/päev",
-      "priceLabel": "Alates, 12-kuu pakett",
+      "priceLabel": "12-kuu pakett",
       "termValue": "30",
       "termUnit": "päeva",
       "termLabel": "Minimaalne periood",
@@ -84,7 +84,7 @@
     "serviceSupport": "Teenindustugi sees",
     "lockCharger": "Lukk + laadija igas paketis",
     "extraBattery": "Lisaaku saadaval",
-    "digitalContract": "Digileping — allkirjasta telefonis",
+    "digitalContract": "Selge üürileping",
     "builtForShifts": "Ehitatud tarnevahetusteks",
     "pickupDelivery": "Järeletulek või kohale toomine"
   },
@@ -154,8 +154,8 @@
         "copy": "Kinnitame, et oled päris kullerid, ja reserveerime sulle konkreetse jalgratta, tavaliselt 24 tunni jooksul. Saad e-postile turvalise portaalilingi."
       },
       "03": {
-        "title": "Allkirjasta ja maksa telefoniga",
-        "copy": "Allkirjasta üürileping — see muudab selle juriidiliselt siduvaks. Seejärel maksa esimesed 30 päeva ja tagastatav deposiit."
+        "title": "Allkirjasta ja maksa",
+        "copy": "Allkirjastad üürilepingu kohapeal ratta kättesaamisel — see muudab selle juriidiliselt siduvaks. Seejärel maksa esimesed 30 päeva ja tagastatav deposiit."
       },
       "04": {
         "title": "Võta jalgratas ja alusta tarne",
@@ -163,7 +163,7 @@
       }
     },
     "trust": {
-      "kicker": "e-Allkirjastatud",
+      "kicker": "Allkirjastatud",
       "copy": "Sinu leping on allkirjastatud ja rent kinnitatud — juriidiliselt siduv ja sõiduvalmis."
     }
   },
@@ -253,8 +253,8 @@
         "a": "Praegu tegutseme Tallinnas ja Riias, peagi lisandub Helsingi. Tule järele linna järeletulekupunkti või telli kohale toomine oma piirkonnas."
       },
       "contract": {
-        "q": "Kas allkirjastan lepingu veebis?",
-        "a": "Jah — kogu rendileping on digitaalne ja allkirjastatakse telefonis enne järeletulekut. Depoos paberimajandust pole."
+        "q": "Kuidas ma lepingu allkirjastan?",
+        "a": "Saadame su rendilepingu e-postiga, et saaksid sellega eelnevalt tutvuda. Allkirjastad selle kohapeal, kui ratta järele tuled."
       }
     }
   },
@@ -287,7 +287,7 @@
     "model": {
       "heading": "Vali oma ratas",
       "sub": "Kõiki mudeleid renditakse samade pakettidega — vali see, mis sinu vahetustele sobib.",
-      "fromDay": "Alates €{price}/päev",
+      "fromDay": "€{price}/päev",
       "waitlistSuffix": " · ootenimekiri"
     },
     "plan": {
@@ -353,7 +353,7 @@
       "endDate": "Lõppkuupäev",
       "billedMonthly": "Arve kord kuus · €{monthly}/kuus",
       "endNote": "Sinu {months}-kuine pakett lõpeb {date}.",
-      "from": "Alates",
+      "from": "",
       "per30Addons": "/ 30 päeva + lisad",
       "per30Only": "/ 30 päeva",
       "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, allkirjastad rendilepingu ja maksad esimese 30 päeva ning tagastatava tagatisraha — kõik enne kättesaamist.",
@@ -375,7 +375,7 @@
   "bookingSuccess": {
     "heading": "Taotlus vastu võetud.",
     "headingNamed": "Taotlus vastu võetud, {name}.",
-    "body": "Kinnitame peagi saadavuse ja saadame digilepingu e-postiga — makset ei ole võetud.",
+    "body": "Kinnitame peagi saadavuse ja saadame su rendilepingu e-postiga — makset ei ole võetud.",
     "reference": "Viitenumber",
     "model": "Mudel",
     "plan": "Pakett",
@@ -537,7 +537,7 @@
   "contract": {
     "heading": "Rendileping",
     "signedLead": "Sinu rendileping on allkirjastatud. Saad oma tarvis koopia alla laadida.",
-    "unsignedLead": "Allkirjasta oma rendileping veebis, et broneering kinnitada. See võtab telefonis vaid minuti.",
+    "unsignedLead": "Tutvu oma rendilepinguga eelnevalt. Allkirjastad selle kohapeal, kui ratta järele tuled.",
     "notAvailableLead": "Sinu rendileping on siin peagi allkirjastamiseks valmis.",
     "notAvailableNote": "Allkirjastamine pole veel saadaval — saadame sulle e-kirja, kui leping on valmis.",
     "sign": "Allkirjasta leping",
@@ -710,7 +710,7 @@
           "steps": [
             {
               "title": "Broneeri internetis",
-              "copy": "Vali mudel ja pakett ning saada päring. Ettemakset pole — kinnitame, et ratas on Tallinnas sinu jaoks valmis, ja saadame digilepingu telefonis allkirjastamiseks."
+              "copy": "Vali mudel ja pakett ning saada päring. Ettemakset pole — kinnitame, et ratas on Tallinnas sinu jaoks valmis, ja saadame rendilepingu eelnevaks tutvumiseks."
             },
             {
               "title": "Võta kätte Telliskivil või Kesklinnas",
@@ -740,7 +740,7 @@
             },
             {
               "q": "Kolisin just Tallinna — kas saan kiiresti alustada?",
-              "a": "Just neile igakuine rent sobibki. Broneeri internetis, allkirjasta telefonis ja võta kesklinnas kätte — enamik kullereid tarnib juba samal nädalal, ilma suure ostuta."
+              "a": "Just neile igakuine rent sobibki. Broneeri internetis, allkirjasta kohapeal kättesaamisel ja võta kesklinnas kätte — enamik kullereid tarnib juba samal nädalal, ilma suure ostuta."
             }
           ]
         }
@@ -812,13 +812,13 @@
     "heading": "Kõik mudelid.",
     "lead": "Kõiki rentaro e-jalgrattaid renditakse samadel lihtsatel tingimustel — 30-päevased, 6- või 12-kuised paketid koos teenindustoega. Vali ratas, mis sinu vahetustele sobib.",
     "allModels": "Kõik mudelid",
-    "from": "ALATES",
+    "from": "",
     "perDay": "/ päev",
     "reserve": "Broneeri",
     "joinWaitlist": "Liitu ootenimekirjaga",
     "reserveThisBike": "Broneeri see ratas",
     "joinWaitlistLong": "Liitu ootenimekirjaga",
-    "planNote": "Saadaval 30-päevase, 6- või 12-kuise paketiga — alates €3.90/päev 12-kuise paketiga.",
+    "planNote": "Saadaval 30-päevase, 6- või 12-kuise paketiga — €3.90/päev 12-kuise paketiga.",
     "fullSpec": "Täielik spetsifikatsioon",
     "galleryThumbAria": "Vaata pilti {index}/{total}",
     "avail": {
@@ -954,7 +954,7 @@
       "how": {
         "kicker": "Kuidas see käib",
         "heading": "Rattal kolme sammuga.",
-        "lead": "Kuupakett on tehtud kiiresti alustamiseks ja lihtsalt lõpetamiseks. Vali, allkirjasta ja sõida — suure osa saad tehtud telefonist."
+        "lead": "Kuupakett on tehtud kiiresti alustamiseks ja lihtsalt lõpetamiseks. Broneeri mõne minutiga, allkirjasta kättesaamisel ja sõida."
       },
       "included": {
         "kicker": "Igas paketis",
@@ -1068,7 +1068,7 @@
       "how": {
         "kicker": "Kuidas see käib",
         "heading": "Registreerimisest esimese tarneni.",
-        "lead": "Tarnerattale saamine on tehtud kiireks. Vali mudel ja pakett, allkirjasta telefonis ja võta ratas kätte — teenindustugi kuulub juurde esimesest päevast."
+        "lead": "Tarnerattale saamine on tehtud kiireks. Vali mudel ja pakett, seejärel allkirjasta ja võta ratas kätte — teenindustugi kuulub juurde esimesest päevast."
       },
       "faq": {
         "kicker": "Tarnesõit — tasub teada",
@@ -1097,14 +1097,14 @@
       "hero": {
         "kicker": "E-jalgrataste rent kulleritele",
         "heading": "Tehtud kulleritele, mitte nädalavahetuse sõitjatele.",
-        "lead": "rentaro on olemas ühe töö jaoks: hoida tarnekullerid teenimas. Rendid tarnevalmis e-jalgratta kuupõhiselt, alustad kiiresti ja sõidad teenindustugi selja taga. Ei mingit suurt ostu, edasimüügipeavalu ega päeva, mis kaob ratta peale, mida sa ise parandada ei saa. Vali oma mudel, allkirjasta veebis ja alusta järgmist vahetust.",
+        "lead": "rentaro on olemas ühe töö jaoks: hoida tarnekullerid teenimas. Rendid tarnevalmis e-jalgratta kuupõhiselt, alustad kiiresti ja sõidad teenindustugi selja taga. Ei mingit suurt ostu, edasimüügipeavalu ega päeva, mis kaob ratta peale, mida sa ise parandada ei saa. Vali oma mudel, broneeri veebis ja alusta järgmist vahetust.",
         "ctaBook": "Alusta broneerimist",
         "ctaExplore": "Uuri parki"
       },
       "points": {
         "startThisWeek": {
           "title": "Alusta tarnetega sel nädalal",
-          "copy": "Vali oma mudel veebis, allkirjasta leping telefonis ja saa ratas kätte samal nädalal. Ei mingit pikka ootamist ega suurt ostu enne esimest vahetust."
+          "copy": "Vali oma mudel veebis, allkirjasta leping kättesaamisel ja saa ratas kätte samal nädalal. Ei mingit pikka ootamist ega suurt ostu enne esimest vahetust."
         },
         "incomeTool": {
           "title": "Sinu ratas on sinu sissetulekuallikas",
@@ -1122,7 +1122,7 @@
       "howItWorks": {
         "kicker": "Kuidas kullerid alustavad",
         "heading": "Vali. Allkirjasta. Sõida.",
-        "lead": "Kolm sammu ratta valimisest esimese tarneni — enamiku sellest teed oma telefonist."
+        "lead": "Kolm sammu ratta valimisest esimese tarneni — broneeri veebis, allkirjasta kättesaamisel ja sõida."
       },
       "models": {
         "kicker": "Kullerite lemmikud",

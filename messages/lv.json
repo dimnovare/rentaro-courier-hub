@@ -60,7 +60,7 @@
     "stats": {
       "priceValue": "€3.90",
       "priceUnit": "/dienā",
-      "priceLabel": "No, 12 mēn. plāns",
+      "priceLabel": "12 mēn. plāns",
       "termValue": "30",
       "termUnit": "dienas",
       "termLabel": "Minimālais termiņš",
@@ -84,7 +84,7 @@
     "serviceSupport": "Servisa atbalsts iekļauts",
     "lockCharger": "Slēdzene + lādētājs katrā plānā",
     "extraBattery": "Pieejams papildu akumulators",
-    "digitalContract": "Digitāls līgums — paraksti telefonā",
+    "digitalContract": "Skaidrs nomas līgums",
     "builtForShifts": "Būvēti piegādes maiņām",
     "pickupDelivery": "Saņemšana vai vietējā piegāde"
   },
@@ -154,8 +154,8 @@
         "copy": "Mēs apstiprinām, ka esi īsts kurjers, un rezervējam tev konkrētu velosipēdu, parasti 24 stundu laikā. Uz e-pastu saņemsi drošu portāla saiti."
       },
       "03": {
-        "title": "Paraksti un maksā ar tālruni",
-        "copy": "Paraksti nomas līgumu — tas padara līgumu juridiski saistošu. Tad samaksā par pirmajām 30 dienām un atmaksājamo depozītu."
+        "title": "Paraksti un maksā",
+        "copy": "Nomas līgumu paraksti klātienē, kad saņem velosipēdu — tas padara līgumu juridiski saistošu. Tad samaksā par pirmajām 30 dienām un atmaksājamo depozītu."
       },
       "04": {
         "title": "Saņem velosipēdu un sāc piegādes",
@@ -163,7 +163,7 @@
       }
     },
     "trust": {
-      "kicker": "e-Parakstīts",
+      "kicker": "Parakstīts",
       "copy": "Tavs līgums ir parakstīts un noma apstiprināta — juridiski saistošs un gatavs braukšanai."
     }
   },
@@ -253,8 +253,8 @@
         "a": "Šobrīd darbojamies Tallinā un Rīgā, drīzumā arī Helsinkos. Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi savā apkārtnē."
       },
       "contract": {
-        "q": "Vai līgumu paraksta tiešsaistē?",
-        "a": "Jā — pilns nomas līgums ir digitāls un tiek parakstīts telefonā pirms saņemšanas. Bāzē nekādu papīru kārtošanas."
+        "q": "Kā es parakstu līgumu?",
+        "a": "Nosūtām tev nomas līgumu e-pastā, lai vari ar to iepazīties iepriekš. Tu to paraksti klātienē, kad saņem velosipēdu."
       }
     }
   },
@@ -287,7 +287,7 @@
     "model": {
       "heading": "Izvēlies savu velosipēdu",
       "sub": "Visi modeļi pieejami uz vieniem un tiem pašiem plāniem — izvēlies to, kas der tavām maiņām.",
-      "fromDay": "No €{price}/dienā",
+      "fromDay": "€{price}/dienā",
       "waitlistSuffix": " · gaidīšanas saraksts"
     },
     "plan": {
@@ -357,7 +357,7 @@
       "endDate": "Beigu datums",
       "billedMonthly": "Rēķins reizi mēnesī · €{monthly}/mēn.",
       "endNote": "Tavs {months} mēnešu plāns beidzas {date}.",
-      "from": "No",
+      "from": "",
       "per30Addons": "/ 30 dienas + papildaprīkojums",
       "per30Only": "/ 30 dienas",
       "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, parakstīsi nomas līgumu un samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",
@@ -375,7 +375,7 @@
   "bookingSuccess": {
     "heading": "Pieprasījums saņemts.",
     "headingNamed": "Pieprasījums saņemts, {name}.",
-    "body": "Drīzumā e-pastā apstiprināsim pieejamību un nosūtīsim tavu digitālo līgumu — maksājums nav ieturēts.",
+    "body": "Drīzumā e-pastā apstiprināsim pieejamību un nosūtīsim tavu nomas līgumu — maksājums nav ieturēts.",
     "reference": "Atsauces numurs",
     "model": "Modelis",
     "plan": "Plāns",
@@ -537,7 +537,7 @@
   "contract": {
     "heading": "Nomas līgums",
     "signedLead": "Tavs nomas līgums ir parakstīts. Vari lejupielādēt kopiju savai uzskaitei.",
-    "unsignedLead": "Paraksti savu nomas līgumu tiešsaistē, lai apstiprinātu rezervāciju. Tas aizņem tikai minūti tavā telefonā.",
+    "unsignedLead": "Iepazīsties ar savu nomas līgumu iepriekš. Tu to paraksti klātienē, kad saņem velosipēdu.",
     "notAvailableLead": "Tavs nomas līgums drīz būs šeit gatavs parakstīšanai.",
     "notAvailableNote": "Parakstīšana vēl nav pieejama — nosūtīsim tev e-pastu, kad līgums būs gatavs.",
     "sign": "Parakstīt līgumu",
@@ -710,7 +710,7 @@
           "steps": [
             {
               "title": "Rezervē tiešsaistē",
-              "copy": "Izvēlies modeli un plānu un nosūti pieprasījumu. Bez avansa — mēs apstiprinām, ka velosipēds Tallinā tev ir gatavs, un nosūtām digitālo līgumu parakstīšanai telefonā."
+              "copy": "Izvēlies modeli un plānu un nosūti pieprasījumu. Bez avansa — mēs apstiprinām, ka velosipēds Tallinā tev ir gatavs, un nosūtām nomas līgumu, lai vari ar to iepazīties iepriekš."
             },
             {
               "title": "Saņem Telliskivi vai Kesklinn",
@@ -740,7 +740,7 @@
             },
             {
               "q": "Tikko pārcēlos uz Tallinu — vai varu sākt ātri?",
-              "a": "Tieši tādiem mēneša noma der vislabāk. Rezervē tiešsaistē, paraksti telefonā un saņem centrā — lielākā daļa kurjeru piegādā jau tajā pašā nedēļā, bez liela pirkuma."
+              "a": "Tieši tādiem mēneša noma der vislabāk. Rezervē tiešsaistē, paraksti klātienē saņemšanas brīdī un saņem centrā — lielākā daļa kurjeru piegādā jau tajā pašā nedēļā, bez liela pirkuma."
             }
           ]
         }
@@ -812,13 +812,13 @@
     "heading": "Visi modeļi.",
     "lead": "Visi rentaro e-velosipēdi pieejami uz vieniem un tiem pašiem vienkāršajiem noteikumiem — 30 dienu, 6 vai 12 mēnešu plāni ar iekļautu servisa atbalstu. Izvēlies velosipēdu, kas der tavām maiņām.",
     "allModels": "Visi modeļi",
-    "from": "NO",
+    "from": "",
     "perDay": "/ dienā",
     "reserve": "Rezervēt",
     "joinWaitlist": "Gaidīšanas sarakstā",
     "reserveThisBike": "Rezervēt šo velosipēdu",
     "joinWaitlistLong": "Pievienoties gaidīšanas sarakstam",
-    "planNote": "Pieejams uz 30 dienu, 6 vai 12 mēnešu plāniem — no €3.90/dienā uz 12 mēnešu plāna.",
+    "planNote": "Pieejams uz 30 dienu, 6 vai 12 mēnešu plāniem — €3.90/dienā uz 12 mēnešu plāna.",
     "fullSpec": "Pilna specifikācija",
     "galleryThumbAria": "Skatīt attēlu {index} no {total}",
     "avail": {
@@ -954,7 +954,7 @@
       "how": {
         "kicker": "Kā tas darbojas",
         "heading": "Uz velosipēda trīs soļos.",
-        "lead": "Mēneša plāns ir veidots, lai būtu ātri sākams un viegli pārtraucams. Izvēlies, paraksti un brauc — lielāko daļu vari paveikt telefonā."
+        "lead": "Mēneša plāns ir veidots, lai būtu ātri sākams un viegli pārtraucams. Rezervē dažās minūtēs, paraksti saņemšanas brīdī un brauc."
       },
       "included": {
         "kicker": "Katrā plānā",
@@ -1068,7 +1068,7 @@
       "how": {
         "kicker": "Kā tas darbojas",
         "heading": "No reģistrēšanās līdz pirmajai piegādei.",
-        "lead": "Nokļūšana uz piegādes velosipēda ir veidota ātra. Izvēlies modeli un plānu, paraksti telefonā un saņem velosipēdu — servisa atbalsts iekļauts no pirmās dienas."
+        "lead": "Nokļūšana uz piegādes velosipēda ir veidota ātra. Izvēlies modeli un plānu, tad paraksti un saņem velosipēdu — servisa atbalsts iekļauts no pirmās dienas."
       },
       "faq": {
         "kicker": "Piegādes braukšana — noderīgi zināt",
@@ -1097,14 +1097,14 @@
       "hero": {
         "kicker": "E-velosipēdu noma kurjeriem",
         "heading": "Veidots kurjeriem, nevis nedēļas nogales braucējiem.",
-        "lead": "rentaro pastāv viena darba dēļ: lai piegādes kurjeri turpinātu pelnīt. Tu nomā piegādēm būvētu e-velosipēdu uz mēnesi, sāc ātri un brauc ar servisa atbalstu aiz muguras. Bez liela pirkuma, bez tālākpārdošanas raizēm, bez dienas, kas zaudēta velosipēda dēļ, ko nevari salabot. Izvēlies savu modeli, paraksti tiešsaistē un sāc savu nākamo maiņu.",
+        "lead": "rentaro pastāv viena darba dēļ: lai piegādes kurjeri turpinātu pelnīt. Tu nomā piegādēm būvētu e-velosipēdu uz mēnesi, sāc ātri un brauc ar servisa atbalstu aiz muguras. Bez liela pirkuma, bez tālākpārdošanas raizēm, bez dienas, kas zaudēta velosipēda dēļ, ko nevari salabot. Izvēlies savu modeli, rezervē tiešsaistē un sāc savu nākamo maiņu.",
         "ctaBook": "Sākt rezervēšanu",
         "ctaExplore": "Izpētīt parku"
       },
       "points": {
         "startThisWeek": {
           "title": "Sāc piegādāt jau šonedēļ",
-          "copy": "Izvēlies savu modeli tiešsaistē, paraksti līgumu savā tālrunī un saņem velosipēdu tās pašas nedēļas laikā. Bez ilgas gaidīšanas, bez liela pirkuma pirms tavas pirmās maiņas."
+          "copy": "Izvēlies savu modeli tiešsaistē, paraksti līgumu saņemšanas brīdī un saņem velosipēdu tās pašas nedēļas laikā. Bez ilgas gaidīšanas, bez liela pirkuma pirms tavas pirmās maiņas."
         },
         "incomeTool": {
           "title": "Tavs velosipēds ir tavs ienākumu rīks",
@@ -1122,7 +1122,7 @@
       "howItWorks": {
         "kicker": "Kā kurjeri sāk",
         "heading": "Izvēlies. Paraksti. Brauc.",
-        "lead": "Trīs soļi no velosipēda izvēles līdz tavai pirmajai piegādei — lielāko daļu no sava tālruņa."
+        "lead": "Trīs soļi no velosipēda izvēles līdz tavai pirmajai piegādei — rezervē tiešsaistē, paraksti saņemšanas brīdī un brauc."
       },
       "models": {
         "kicker": "Kurjeru favorīti",

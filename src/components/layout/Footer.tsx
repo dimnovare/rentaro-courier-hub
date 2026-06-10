@@ -76,18 +76,17 @@ export async function Footer() {
             only the labels are translated. Each row is omitted when its
             underlying value is empty, so no dangling "VAT:" ever renders. */}
         <div className="foot-legal">
-          <span className="foot-legal-name">{company.legalName}</span>
-          {company.regCode && (
-            <span>
-              {t("legal.regCode")} {company.regCode}
-            </span>
-          )}
+          {/* Standard operating-entity line: brand is a product operated by the
+              legal entity, with registry code + registered address. */}
+          <span className="foot-legal-name">
+            {company.brandName} is a product operated by {company.legalName}, registry
+            code {company.regCode}, registered at {company.address}.
+          </span>
           {company.vat && (
             <span>
               {t("legal.vat")} {company.vat}
             </span>
           )}
-          {company.address && <span>{company.address}</span>}
           {company.supportEmail && (
             <a href={`mailto:${company.supportEmail}`}>{company.supportEmail}</a>
           )}
@@ -103,7 +102,9 @@ export async function Footer() {
             <span className="word">rentaro</span>
           </Link>
           <div className="foot-meta">
-            <span>{t("copyright")}</span>
+            <span>
+              © {new Date().getFullYear()} {company.legalName} · {company.brandName}
+            </span>
             <span>{cityLine}</span>
             <span>{t("independent")}</span>
           </div>

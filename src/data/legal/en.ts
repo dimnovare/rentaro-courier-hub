@@ -2,15 +2,15 @@
  * SOURCE: /api/public/legal — structured legal/policy copy for the
  * /rules, /privacy and /terms pages.
  *
- * rentaro is operated by Rentaro OÜ, an Estonian private limited company
+ * rentaro is operated by Valguse Kodu OÜ, an Estonian private limited company
  * renting delivery e-bikes by the month to couriers in Estonia (Tallinn) and
  * Latvia (Riga). Pricing, the 30-day minimum and the deposit (equal to the
  * selected plan's 30-day price) reflect the locked business rules.
  *
- * Square-bracket markers such as `[registered address — to be provided]`
- * flag company-specific details the founder still needs to fill in before
- * go-live. Brand prose uses lowercase "rentaro"; the legal entity is
- * "Rentaro OÜ".
+ * Company-specific details (registration code, registered address, VAT number,
+ * support email and phone) are taken from the signed contract template. Brand
+ * prose uses lowercase "rentaro"; the operating legal entity is
+ * "Valguse Kodu OÜ", which operates the Rentaro brand.
  */
 
 import type { LegalDoc } from "./types";
@@ -25,7 +25,7 @@ export const rentalRules: LegalDoc = {
   title: "Rental rules",
   updated: LAST_UPDATED,
   intro:
-    "These rules explain how a rentaro e-bike rental works in practice — who can rent, the 30-day minimum and plan terms, your deposit, what is included, how to use and care for the bike, and what happens with maintenance, damage, theft and returns. They form part of the rental agreement you sign with Rentaro OÜ before pickup. If anything here conflicts with your signed rental agreement, the signed agreement applies.",
+    "These rules explain how a rentaro e-bike rental works in practice — who can rent, the 30-day minimum and plan terms, your deposit, what is included, how to use and care for the bike, and what happens with maintenance, damage, theft and returns. They form part of the rental agreement you sign with Valguse Kodu OÜ before pickup. If anything here conflicts with your signed rental agreement, the signed agreement applies.",
   sections: [
     {
       heading: "Who can rent",
@@ -126,13 +126,13 @@ export const termsOfService: LegalDoc = {
   title: "Terms and conditions",
   updated: LAST_UPDATED,
   intro:
-    "These terms govern your use of the rentaro website and your booking of an e-bike rental. rentaro is operated by Rentaro OÜ. The terms sit alongside the rental rules and the rental agreement you sign before pickup; the signed rental agreement governs the rental itself. Please read these terms carefully before booking.",
+    "These terms govern your use of the rentaro website and your booking of an e-bike rental. rentaro is operated by Valguse Kodu OÜ. The terms sit alongside the rental rules and the rental agreement you sign before pickup; the signed rental agreement governs the rental itself. Please read these terms carefully before booking.",
   sections: [
     {
       heading: "Who we are and how to reach us",
       body: [
-        "The rentaro service is operated by Rentaro OÜ, a private limited company registered in Estonia (registration code [registration code — to be provided], registered address [registered address — to be provided], VAT number [VAT number — to be provided, if registered]). In these terms \"rentaro\", \"we\", \"us\" and \"our\" mean Rentaro OÜ, and \"you\" means the customer.",
-        "You can contact us by email at info@rentaro.ee or by phone at [support phone — to be provided]. These terms are written in English; the rental agreement and any required statutory information are provided to you before you commit.",
+        "The rentaro service is operated by Valguse Kodu OÜ (operating as Rentaro), a private limited company registered in Estonia (registration code 14621591, registered address Narva mnt 128-4, Tallinn 10127, Estonia, VAT number EE102246089). In these terms \"rentaro\", \"we\", \"us\" and \"our\" mean Valguse Kodu OÜ (operating as Rentaro), and \"you\" means the customer.",
+        "You can contact us by email at info@rentaro.ee or by phone at +372 5649 7933. These terms are written in English; the rental agreement and any required statutory information are provided to you before you commit.",
       ],
     },
     {
@@ -294,13 +294,13 @@ export const privacyPolicy: LegalDoc = {
   title: "Privacy policy",
   updated: LAST_UPDATED,
   intro:
-    "This policy explains what personal data rentaro collects, why and on what legal basis we use it, who we share it with, how long we keep it, and the rights you have under the EU General Data Protection Regulation (GDPR). rentaro is operated by Rentaro OÜ, which is the controller of your personal data. It also includes our cookie policy.",
+    "This policy explains what personal data rentaro collects, why and on what legal basis we use it, who we share it with, how long we keep it, and the rights you have under the EU General Data Protection Regulation (GDPR). rentaro is operated by Valguse Kodu OÜ, which is the controller of your personal data. It also includes our cookie policy.",
   sections: [
     {
       heading: "Who we are (data controller)",
       body: [
-        "rentaro is operated by Rentaro OÜ, a private limited company registered in Estonia, which is the controller responsible for your personal data. Registered address: [registered address — to be provided]. Registration code: [registration code — to be provided].",
-        "For any privacy question, or to exercise your rights, contact us at [DPO / privacy contact — to be provided]. We have not appointed a statutory Data Protection Officer where one is not legally required; if that changes, this contact will be updated.",
+        "rentaro is operated by Valguse Kodu OÜ (operating as Rentaro), a private limited company registered in Estonia, which is the controller responsible for your personal data. Registered address: Narva mnt 128-4, Tallinn 10127, Estonia. Registration code: 14621591.",
+        "For any privacy question, or to exercise your rights, contact us at info@rentaro.ee. We have not appointed a statutory Data Protection Officer where one is not legally required; if that changes, this contact will be updated.",
       ],
     },
     {

@@ -9,11 +9,15 @@ import { API_BASE } from "./api";
  *
  * - `contactMethod`: how rentaro should reach the customer ("email" | "phone").
  * - `paymentMethod`: preferred payment route ("cash" | "transfer"); optional.
+ * - `locale`: the site language at booking time ("en"|"et"|"lv"|"fi"|"ru"); the
+ *   backend uses it to pick the right-language contract template (ru→RU/EN,
+ *   everything else→EE/EN).
  */
 export type SubmitBookingInput = BookingRequest & {
   referralCode?: string;
   contactMethod?: "email" | "phone";
   paymentMethod?: "cash" | "transfer";
+  locale?: string;
 };
 
 /**

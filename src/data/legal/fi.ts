@@ -2,15 +2,15 @@
  * SOURCE: /api/public/legal — structured legal/policy copy for the
  * /rules, /privacy and /terms pages.
  *
- * rentaro is operated by Rentaro OÜ, an Estonian private limited company
+ * rentaro is operated by Valguse Kodu OÜ, an Estonian private limited company
  * renting delivery e-bikes by the month to couriers in Estonia (Tallinn) and
  * Latvia (Riga). Pricing, the 30-day minimum and the deposit (equal to the
  * selected plan's 30-day price) reflect the locked business rules.
  *
- * Square-bracket markers such as `[registered address — to be provided]`
- * flag company-specific details the founder still needs to fill in before
- * go-live. Brand prose uses lowercase "rentaro"; the legal entity is
- * "Rentaro OÜ".
+ * Company-specific details (registration code, registered address, VAT number,
+ * support email and phone) are taken from the signed contract template. Brand
+ * prose uses lowercase "rentaro"; the operating legal entity is
+ * "Valguse Kodu OÜ", which operates the Rentaro brand.
  */
 
 import type { LegalDoc } from "./types";
@@ -25,7 +25,7 @@ export const rentalRules: LegalDoc = {
   title: "Vuokrausehdot",
   updated: LAST_UPDATED,
   intro:
-    "Nämä ehdot selittävät, miten rentaron sähköpyörän vuokraus käytännössä toimii — kuka voi vuokrata, 30 päivän vähimmäisaika ja sopimuksen ehdot, vakuutesi, mitä vuokraan sisältyy, miten pyörää käytetään ja huolletaan sekä mitä tapahtuu huollon, vaurioiden, varkauden ja palautusten yhteydessä. Ne ovat osa vuokrasopimusta, jonka allekirjoitat Rentaro OÜ:n kanssa ennen noutoa. Jos jokin tässä on ristiriidassa allekirjoittamasi vuokrasopimuksen kanssa, sovelletaan allekirjoitettua sopimusta.",
+    "Nämä ehdot selittävät, miten rentaron sähköpyörän vuokraus käytännössä toimii — kuka voi vuokrata, 30 päivän vähimmäisaika ja sopimuksen ehdot, vakuutesi, mitä vuokraan sisältyy, miten pyörää käytetään ja huolletaan sekä mitä tapahtuu huollon, vaurioiden, varkauden ja palautusten yhteydessä. Ne ovat osa vuokrasopimusta, jonka allekirjoitat Valguse Kodu OÜ:n kanssa ennen noutoa. Jos jokin tässä on ristiriidassa allekirjoittamasi vuokrasopimuksen kanssa, sovelletaan allekirjoitettua sopimusta.",
   sections: [
     {
       heading: "Kuka voi vuokrata",
@@ -126,13 +126,13 @@ export const termsOfService: LegalDoc = {
   title: "Käyttöehdot",
   updated: LAST_UPDATED,
   intro:
-    "Nämä ehdot säätelevät rentaron verkkosivuston käyttöäsi ja sähköpyörän vuokrauksen varaamista. rentaroa operoi Rentaro OÜ. Ehdot täydentävät vuokrausehtoja ja vuokrasopimusta, jonka allekirjoitat ennen noutoa; allekirjoitettu vuokrasopimus säätelee itse vuokrausta. Lue nämä ehdot huolellisesti ennen varaamista.",
+    "Nämä ehdot säätelevät rentaron verkkosivuston käyttöäsi ja sähköpyörän vuokrauksen varaamista. rentaroa operoi Valguse Kodu OÜ. Ehdot täydentävät vuokrausehtoja ja vuokrasopimusta, jonka allekirjoitat ennen noutoa; allekirjoitettu vuokrasopimus säätelee itse vuokrausta. Lue nämä ehdot huolellisesti ennen varaamista.",
   sections: [
     {
       heading: "Keitä olemme ja miten meihin saa yhteyden",
       body: [
-        "rentaro-palvelua operoi Rentaro OÜ, Virossa rekisteröity osakeyhtiö (rekisterinumero [registration code — to be provided], rekisteröity osoite [registered address — to be provided], ALV-numero [VAT number — to be provided, if registered]). Näissä ehdoissa \"rentaro\", \"me\" ja \"meidän\" tarkoittavat Rentaro OÜ:tä, ja \"sinä\" tarkoittaa asiakasta.",
-        "Voit ottaa meihin yhteyttä sähköpostitse osoitteessa info@rentaro.ee tai puhelimitse numerossa [support phone — to be provided]. Nämä ehdot on laadittu englanniksi; vuokrasopimus ja kaikki vaaditut lakisääteiset tiedot toimitetaan sinulle ennen sitoutumistasi.",
+        "rentaro-palvelua operoi Valguse Kodu OÜ (toimii Rentaro-tuotemerkillä), Virossa rekisteröity osakeyhtiö (rekisterinumero 14621591, rekisteröity osoite Narva mnt 128-4, Tallinn 10127, Viro, ALV-numero EE102246089). Näissä ehdoissa \"rentaro\", \"me\" ja \"meidän\" tarkoittavat Valguse Kodu OÜ:tä (toimii Rentaro-tuotemerkillä), ja \"sinä\" tarkoittaa asiakasta.",
+        "Voit ottaa meihin yhteyttä sähköpostitse osoitteessa info@rentaro.ee tai puhelimitse numerossa +372 5649 7933. Nämä ehdot on laadittu englanniksi; vuokrasopimus ja kaikki vaaditut lakisääteiset tiedot toimitetaan sinulle ennen sitoutumistasi.",
       ],
     },
     {
@@ -294,13 +294,13 @@ export const privacyPolicy: LegalDoc = {
   title: "Tietosuojakäytäntö",
   updated: LAST_UPDATED,
   intro:
-    "Tämä käytäntö selittää, mitä henkilötietoja rentaro kerää, miksi ja millä oikeusperusteella käytämme niitä, kenen kanssa jaamme niitä, kuinka kauan säilytämme niitä ja mitkä oikeudet sinulla on EU:n yleisen tietosuoja-asetuksen (GDPR) nojalla. rentaroa operoi Rentaro OÜ, joka on henkilötietojesi rekisterinpitäjä. Se sisältää myös evästekäytäntömme.",
+    "Tämä käytäntö selittää, mitä henkilötietoja rentaro kerää, miksi ja millä oikeusperusteella käytämme niitä, kenen kanssa jaamme niitä, kuinka kauan säilytämme niitä ja mitkä oikeudet sinulla on EU:n yleisen tietosuoja-asetuksen (GDPR) nojalla. rentaroa operoi Valguse Kodu OÜ, joka on henkilötietojesi rekisterinpitäjä. Se sisältää myös evästekäytäntömme.",
   sections: [
     {
       heading: "Keitä olemme (rekisterinpitäjä)",
       body: [
-        "rentaroa operoi Rentaro OÜ, Virossa rekisteröity osakeyhtiö, joka on henkilötiedoistasi vastaava rekisterinpitäjä. Rekisteröity osoite: [registered address — to be provided]. Rekisterinumero: [registration code — to be provided].",
-        "Kaikissa tietosuojaa koskevissa kysymyksissä tai oikeuksiesi käyttämiseksi ota meihin yhteyttä osoitteessa [DPO / privacy contact — to be provided]. Emme ole nimittäneet lakisääteistä tietosuojavastaavaa, kun sellaista ei lain mukaan vaadita; jos tämä muuttuu, tämä yhteystieto päivitetään.",
+        "rentaroa operoi Valguse Kodu OÜ (toimii Rentaro-tuotemerkillä), Virossa rekisteröity osakeyhtiö, joka on henkilötiedoistasi vastaava rekisterinpitäjä. Rekisteröity osoite: Narva mnt 128-4, Tallinn 10127, Viro. Rekisterinumero: 14621591.",
+        "Kaikissa tietosuojaa koskevissa kysymyksissä tai oikeuksiesi käyttämiseksi ota meihin yhteyttä osoitteessa info@rentaro.ee. Emme ole nimittäneet lakisääteistä tietosuojavastaavaa, kun sellaista ei lain mukaan vaadita; jos tämä muuttuu, tämä yhteystieto päivitetään.",
       ],
     },
     {

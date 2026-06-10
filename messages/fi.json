@@ -60,7 +60,7 @@
     "stats": {
       "priceValue": "€3.90",
       "priceUnit": "/pv",
-      "priceLabel": "Alkaen, 12 kk suunnitelma",
+      "priceLabel": "12 kk suunnitelma",
       "termValue": "30",
       "termUnit": "päivää",
       "termLabel": "Vähimmäisaika",
@@ -84,7 +84,7 @@
     "serviceSupport": "Huoltotuki sisältyy",
     "lockCharger": "Lukko + laturi joka suunnitelmassa",
     "extraBattery": "Lisäakku saatavilla",
-    "digitalContract": "Digitaalinen sopimus — allekirjoita puhelimellasi",
+    "digitalContract": "Selkeä vuokrasopimus",
     "builtForShifts": "Rakennettu lähettivuoroihin",
     "pickupDelivery": "Nouto tai paikallinen toimitus"
   },
@@ -154,8 +154,8 @@
         "copy": "Varmistamme, että olet oikea kuriiri, ja varaamme sinulle tietyn pyörän, yleensä 24 tunnin kuluessa. Saat sähköpostitse turvallisen portaalilinkin."
       },
       "03": {
-        "title": "Allekirjoita ja maksa puhelimella",
-        "copy": "Allekirjoita vuokrasopimus — tämä tekee siitä oikeudellisesti sitovan. Maksa sitten ensimmäiset 30 päivää ja palautettava talletus."
+        "title": "Allekirjoita ja maksa",
+        "copy": "Allekirjoitat vuokrasopimuksen paikan päällä, kun noudat pyörän — tämä tekee siitä oikeudellisesti sitovan. Maksa sitten ensimmäiset 30 päivää ja palautettava talletus."
       },
       "04": {
         "title": "Nouda pyörä ja aloita toimittaminen",
@@ -163,7 +163,7 @@
       }
     },
     "trust": {
-      "kicker": "e-Allekirjoitettu",
+      "kicker": "Allekirjoitettu",
       "copy": "Sopimuksesi on allekirjoitettu ja vuokrauksesi vahvistettu — oikeudellisesti sitova ja ajovalmis."
     }
   },
@@ -253,8 +253,8 @@
         "a": "Toimimme tällä hetkellä Tallinnassa ja Riiassa, ja Helsinki on tulossa pian. Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta alueellasi."
       },
       "contract": {
-        "q": "Allekirjoitanko sopimuksen verkossa?",
-        "a": "Kyllä — koko vuokrasopimus on digitaalinen ja allekirjoitetaan puhelimella ennen noutoa. Ei papereita noutopisteellä."
+        "q": "Miten allekirjoitan sopimuksen?",
+        "a": "Lähetämme vuokrasopimuksen sähköpostitse, jotta voit tutustua siihen etukäteen. Allekirjoitat sen paikan päällä, kun noudat pyörän."
       }
     }
   },
@@ -287,7 +287,7 @@
     "model": {
       "heading": "Valitse pyöräsi",
       "sub": "Jokainen malli vuokrataan samoilla suunnitelmilla — valitse vuoroihisi sopiva.",
-      "fromDay": "Alkaen €{price}/pv",
+      "fromDay": "€{price}/pv",
       "waitlistSuffix": " · jonotuslista"
     },
     "plan": {
@@ -357,7 +357,7 @@
       "endDate": "Päättymispäivä",
       "billedMonthly": "Laskutus kuukausittain · €{monthly}/kk",
       "endNote": "{months} kuukauden suunnitelmasi päättyy {date}.",
-      "from": "Alkaen",
+      "from": "",
       "per30Addons": "/ 30 päivää + lisävarusteet",
       "per30Only": "/ 30 päivää",
       "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen ja maksat ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",
@@ -375,7 +375,7 @@
   "bookingSuccess": {
     "heading": "Pyyntö vastaanotettu.",
     "headingNamed": "Pyyntö vastaanotettu, {name}.",
-    "body": "Vahvistamme saatavuuden ja lähetämme digitaalisen sopimuksen sähköpostitse pian — maksua ei ole peritty.",
+    "body": "Vahvistamme saatavuuden ja lähetämme vuokrasopimuksen sähköpostitse pian — maksua ei ole peritty.",
     "reference": "Viite",
     "model": "Malli",
     "plan": "Suunnitelma",
@@ -537,7 +537,7 @@
   "contract": {
     "heading": "Vuokrasopimus",
     "signedLead": "Vuokrasopimuksesi on allekirjoitettu. Voit ladata kopion itsellesi.",
-    "unsignedLead": "Allekirjoita vuokrasopimuksesi verkossa vahvistaaksesi varauksesi. Se vie vain minuutin puhelimellasi.",
+    "unsignedLead": "Tutustu vuokrasopimukseesi etukäteen. Allekirjoitat sen paikan päällä, kun noudat pyörän.",
     "notAvailableLead": "Vuokrasopimuksesi on pian valmis allekirjoitettavaksi täällä.",
     "notAvailableNote": "Allekirjoitus ei ole vielä käytettävissä — lähetämme sähköpostia, kun sopimuksesi on valmis.",
     "sign": "Allekirjoita sopimus",
@@ -710,7 +710,7 @@
           "steps": [
             {
               "title": "Varaa verkossa",
-              "copy": "Valitse malli ja suunnitelma ja lähetä pyyntö. Ei etumaksua — vahvistamme, että pyörä on Tallinnassa sinulle valmis, ja lähetämme digitaalisen sopimuksen allekirjoitettavaksi puhelimella."
+              "copy": "Valitse malli ja suunnitelma ja lähetä pyyntö. Ei etumaksua — vahvistamme, että pyörä on Tallinnassa sinulle valmis, ja lähetämme vuokrasopimuksen, jotta voit tutustua siihen etukäteen."
             },
             {
               "title": "Nouda Telliskivistä tai Kesklinnistä",
@@ -740,7 +740,7 @@
             },
             {
               "q": "Muutin juuri Tallinnaan — voinko aloittaa nopeasti?",
-              "a": "Juuri heille kuukausivuokraus sopii. Varaa verkossa, allekirjoita puhelimella ja nouda keskustasta — useimmat lähetit toimittavat jo samalla viikolla, ilman isoa ostoa ensin."
+              "a": "Juuri heille kuukausivuokraus sopii. Varaa verkossa, allekirjoita paikan päällä noudettaessa ja nouda keskustasta — useimmat lähetit toimittavat jo samalla viikolla, ilman isoa ostoa ensin."
             }
           ]
         }
@@ -812,13 +812,13 @@
     "heading": "Kaikki mallit.",
     "lead": "Jokainen rentaro-sähköpyörä vuokrataan samoilla yksinkertaisilla ehdoilla — 30 päivän, 6 tai 12 kuukauden suunnitelmat, joihin huoltotuki sisältyy. Valitse vuoroihisi sopiva pyörä.",
     "allModels": "Kaikki mallit",
-    "from": "ALKAEN",
+    "from": "",
     "perDay": "/ pv",
     "reserve": "Varaa",
     "joinWaitlist": "Liity jonotuslistalle",
     "reserveThisBike": "Varaa tämä pyörä",
     "joinWaitlistLong": "Liity jonotuslistalle",
-    "planNote": "Saatavilla 30 päivän, 6 tai 12 kuukauden suunnitelmilla — alkaen €3.90/pv 12 kuukauden suunnitelmalla.",
+    "planNote": "Saatavilla 30 päivän, 6 tai 12 kuukauden suunnitelmilla — €3.90/pv 12 kuukauden suunnitelmalla.",
     "fullSpec": "Tekniset tiedot",
     "galleryThumbAria": "Näytä kuva {index} / {total}",
     "avail": {
@@ -954,7 +954,7 @@
       "how": {
         "kicker": "Näin se toimii",
         "heading": "Pyörän selässä kolmessa vaiheessa.",
-        "lead": "Kuukausisuunnitelma on tehty nopeaksi aloittaa ja helpoksi lopettaa. Valitse, allekirjoita ja aja — suurimman osan hoidat puhelimellasi."
+        "lead": "Kuukausisuunnitelma on tehty nopeaksi aloittaa ja helpoksi lopettaa. Varaa minuuteissa, allekirjoita noudettaessa ja aja."
       },
       "included": {
         "kicker": "Jokaisessa suunnitelmassa",
@@ -1068,7 +1068,7 @@
       "how": {
         "kicker": "Näin se toimii",
         "heading": "Rekisteröitymisestä ensimmäiseen toimitukseen.",
-        "lead": "Lähetyspyörän selkään pääsy on tehty nopeaksi. Valitse malli ja suunnitelma, allekirjoita puhelimella ja nouda pyörä — huoltotuki mukana ensimmäisestä päivästä."
+        "lead": "Lähetyspyörän selkään pääsy on tehty nopeaksi. Valitse malli ja suunnitelma, allekirjoita ja nouda pyörä — huoltotuki mukana ensimmäisestä päivästä."
       },
       "faq": {
         "kicker": "Lähetysajo — hyvä tietää",
@@ -1097,14 +1097,14 @@
       "hero": {
         "kicker": "Sähköpyörän vuokraus läheteille",
         "heading": "Tehty läheteille, ei viikonloppuajajille.",
-        "lead": "rentaro on olemassa yhtä työtä varten: pitää lähetit ansaitsemassa. Vuokraat lähettityöhön rakennetun sähköpyörän kuukaudeksi, aloitat nopeasti ja ajat huoltotuki takanasi. Ei suurta ostosta, ei jälleenmyynnin vaivaa, ei menetettyä päivää pyörän takia, jota et voi korjata. Valitse mallisi, allekirjoita verkossa ja aloita seuraava vuorosi.",
+        "lead": "rentaro on olemassa yhtä työtä varten: pitää lähetit ansaitsemassa. Vuokraat lähettityöhön rakennetun sähköpyörän kuukaudeksi, aloitat nopeasti ja ajat huoltotuki takanasi. Ei suurta ostosta, ei jälleenmyynnin vaivaa, ei menetettyä päivää pyörän takia, jota et voi korjata. Valitse mallisi, varaa verkossa ja aloita seuraava vuorosi.",
         "ctaBook": "Aloita varaus",
         "ctaExplore": "Tutustu kalustoon"
       },
       "points": {
         "startThisWeek": {
           "title": "Aloita lähetit jo tällä viikolla",
-          "copy": "Valitse mallisi verkossa, allekirjoita sopimus puhelimellasi ja nouda pyörä jo saman viikon aikana. Ei pitkää odotusta, ei suurta ostosta ennen ensimmäistä vuoroasi."
+          "copy": "Valitse mallisi verkossa, allekirjoita sopimus noudettaessa ja nouda pyörä jo saman viikon aikana. Ei pitkää odotusta, ei suurta ostosta ennen ensimmäistä vuoroasi."
         },
         "incomeTool": {
           "title": "Pyöräsi on tulonlähteesi",
@@ -1122,7 +1122,7 @@
       "howItWorks": {
         "kicker": "Näin lähetit aloittavat",
         "heading": "Valitse. Allekirjoita. Aja.",
-        "lead": "Kolme vaihetta pyörän valinnasta ensimmäiseen toimitukseen — suurin osa puhelimellasi."
+        "lead": "Kolme vaihetta pyörän valinnasta ensimmäiseen toimitukseen — varaa verkossa, allekirjoita noudettaessa ja aja."
       },
       "models": {
         "kicker": "Lähettien suosikit",

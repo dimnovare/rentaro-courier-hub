@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { cities } from "@/data/cities";
@@ -62,6 +62,7 @@ const countryKey: Record<string, string> = {
 export function BookingWizard({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
   const params = useSearchParams();
+  const locale = useLocale();
   const t = useTranslations("booking");
   const tc = useTranslations("cities");
   const tp = useTranslations("pricing");
@@ -271,6 +272,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
         referralCode: settings.showReferralCode ? referralCode.trim() || undefined : undefined,
         contactMethod,
         paymentMethod,
+        locale,
       });
       const summary = {
         id: result.id,
