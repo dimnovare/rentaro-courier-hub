@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { InteractionProvider } from "@/components/providers/Interactions";
 import { ModelCard } from "@/components/models/ModelCard";
 import { enginePro } from "@/data/bikeModels";
+import { pricingPlans } from "@/data/pricingPlans";
 
 // ModelCard calls useInteractions(), so it must render inside the provider.
 // next/navigation + next/link are mocked globally in vitest.setup.tsx.
@@ -23,12 +24,16 @@ describe("ModelCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the 'From €X.XX / day' price", () => {
+  it("shows the daily price range / day", () => {
     const { container } = renderCard();
-    // The price is split across FROM / €5.90 / "/ day" nodes, so assert on the
-    // normalised text content of the card.
+    // The card shows the daily-rate span "€3.90–5.90 / day", derived from the
+    // pricing plans (min..max daily), not from the model. Assert on the
+    // normalised text content since the price is split across nodes.
     const text = (container.textContent ?? "").replace(/\s+/g, " ");
-    expect(text).toContain(`€${enginePro.fromDay.toFixed(2)}`);
+    const rates = pricingPlans.map((p) => p.daily);
+    const min = Math.min(...rates).toFixed(2);
+    const max = Math.max(...rates).toFixed(2);
+    expect(text).toContain(`€${min}–${max}`);
     expect(text).toContain("/ day");
   });
 
