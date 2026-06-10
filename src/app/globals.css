@@ -184,6 +184,27 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .mobile-menu a { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.04em; color: var(--text-2); text-decoration: none; padding: 15px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
 .mobile-menu a:active { color: var(--lime); }
 .mobile-menu .mm-locale { padding-top: 14px; }
+/* Mobile-menu items: ghost button + locale are real tap targets — keep them
+   full-width and comfortably tall in the dropdown. */
+.mobile-menu .btn-ghost { width: 100%; margin-top: 14px; }
+
+/* Narrow phones (≤480px): the top bar keeps brand + Reserve + hamburger. Tighten
+   the spacing + Reserve padding so the row never overflows ~360–390px widths,
+   while keeping every control at a ~44px tap target. */
+@media (max-width: 480px) {
+  .nav-inner { gap: 10px; padding: 14px var(--gut); }
+  .nav-cta { gap: 8px; flex-shrink: 0; }
+  .nav-cta .btn-primary { padding: 12px 16px; }
+  .brand .word { font-size: 19px; }
+  .nav-menu { width: 44px; height: 44px; }
+  /* The Reserve CTA + hamburger must stay fully visible (conversion + nav), so
+     let the brand be the release valve: allow it to shrink and the wordmark to
+     truncate on the longest-label locales (e.g. ru) instead of overflowing. */
+  .brand { min-width: 0; flex-shrink: 1; }
+  .brand .word { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  /* Mobile dropdown links: bump to ~46px rows for thumb-friendly tapping. */
+  .mobile-menu a { padding: 16px 4px; }
+}
 
 /* ─── Hero ───────────────────────────────────────────────── */
 .hero { padding-top: 40px; }
@@ -473,6 +494,18 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .foot-legal .foot-legal-name { color: var(--text-muted); }
 .foot-legal a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
 .foot-legal a:hover { color: var(--text); }
+/* Narrow phones (≤480px): stack the long operating-entity sentence + contact
+   rows so the registry/address line wraps cleanly instead of fighting the
+   24px column gap. Slightly smaller mono keeps the full line comfortable. */
+@media (max-width: 480px) {
+  .foot-legal { flex-direction: column; gap: 8px; font-size: 11px; }
+  .foot-legal .foot-legal-name { line-height: 1.55; }
+  /* mailto/tel are real tap targets — give them a comfortable hit height. */
+  .foot-legal a { display: inline-block; padding: 4px 0; }
+  /* Footer column links: ensure ~44px tap targets at the narrowest widths. */
+  .foot-col a { padding: 9px 0; }
+  .foot-meta { gap: 6px 18px; }
+}
 
 /* ─── Model detail page ─────────────────────────────────── */
 .detail { padding-top: 40px; }

@@ -172,7 +172,7 @@ function PortalView({
   const greeting = rental.customerFirstName?.trim();
 
   return (
-    <>
+    <div className="portal-rental">
       <Reveal className="section-head">
         <Kicker>{t("kicker")}</Kicker>
         <h2 className="h-section">
@@ -301,7 +301,69 @@ function PortalView({
         </Link>
         .
       </p>
-    </>
+
+      <style jsx>{`
+        /* Every portal card is a centred, max-width block — guarantee no
+           horizontal overflow on a narrow phone regardless of inline widths. */
+        .portal-rental :global(.card) {
+          max-width: 560px;
+          width: 100%;
+        }
+
+        /* Trust-badge rows (Smart-ID / Mobile-ID, Visa / Mastercard / Montonio).
+           A neat wrapping row of small logos that never crowds or overflows. */
+        .portal-rental :global(.trust-badges) {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 10px;
+          margin-top: 14px;
+        }
+        .portal-rental :global(.trust-badges img) {
+          flex: 0 0 auto;
+        }
+
+        /* "I'll sign the rental contract on handover" — comfortable tap target
+           with a label that wraps cleanly beside the checkbox. */
+        .portal-rental :global(.manual-agree) {
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+          cursor: pointer;
+          font-size: 13.5px;
+          line-height: 1.5;
+          color: var(--text);
+          padding: 6px 0;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .portal-rental :global(.manual-agree input) {
+          flex: 0 0 auto;
+          width: 20px;
+          height: 20px;
+          margin-top: 1px;
+          accent-color: var(--lime);
+          cursor: pointer;
+        }
+        .portal-rental :global(.manual-agree span) {
+          min-width: 0;
+          flex: 1 1 auto;
+        }
+
+        @media (max-width: 460px) {
+          /* Tighten the inner card padding so content keeps breathing room
+             without ever pushing past the viewport on small phones. */
+          .portal-rental :global(.card) > :global(div),
+          .portal-rental :global(.card) > :global(form) {
+            padding-left: 18px;
+            padding-right: 18px;
+          }
+          /* Trust badges read as a wrapping row even when space is tight. */
+          .portal-rental :global(.trust-badges) {
+            gap: 8px 12px;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
 
@@ -963,22 +1025,12 @@ function ContractCard({
                   </span>
                 </a>
               )}
-              <label
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "flex-start",
-                  cursor: "pointer",
-                  fontSize: 13.5,
-                  color: "var(--text)",
-                }}
-              >
+              <label className="manual-agree">
                 <input
                   type="checkbox"
                   required
                   checked={manualAgreed}
                   onChange={(e) => setManualAgreed(e.target.checked)}
-                  style={{ marginTop: 3, accentColor: "var(--lime)", flex: "0 0 auto" }}
                 />
                 <span>{tPortal("signing.manualAgree")}</span>
               </label>
@@ -1004,15 +1056,7 @@ function ContractCard({
                   {signError}
                 </p>
               )}
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "center",
-                  marginTop: 14,
-                  flexWrap: "wrap",
-                }}
-              >
+              <div className="trust-badges">
                 <img src="/payment/smart-id.svg" alt="Smart-ID" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
                 <img src="/payment/mobile-id.svg" alt="Mobile-ID" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
               </div>
@@ -1166,15 +1210,7 @@ function PayCard({
                   {error}
                 </p>
               )}
-              <div
-                style={{
-                  display: "flex",
-                  gap: 8,
-                  alignItems: "center",
-                  marginTop: 14,
-                  flexWrap: "wrap",
-                }}
-              >
+              <div className="trust-badges">
                 <img src="/payment/montonio.svg" alt="Montonio" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
                 <img src="/payment/visa.svg" alt="Visa" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />
                 <img src="/payment/mastercard.svg" alt="Mastercard" height={11} style={{ width: "auto", maxWidth: 64, borderRadius: 3 }} />

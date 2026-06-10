@@ -22,33 +22,6 @@ type ContactMethod = "email" | "phone";
 /** Payment preference captured on the review step. */
 type PaymentMethod = "cash" | "transfer";
 
-/* Inline styles for the review-step segmented choices, kept here (rather than in
-   globals.css, which is out of this agent's scope) so they reuse the brand
-   tokens without touching shared CSS. */
-const segHeadStyle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 600,
-  letterSpacing: "-0.01em",
-  margin: "0 0 10px",
-};
-const segRowStyle: React.CSSProperties = { display: "flex", gap: 10 };
-const segBtnStyle = (on: boolean): React.CSSProperties => ({
-  flex: 1,
-  boxSizing: "border-box",
-  cursor: "pointer",
-  textAlign: "center",
-  padding: "12px 14px",
-  borderRadius: "var(--r-sm)",
-  fontSize: 14,
-  fontWeight: 600,
-  background: on
-    ? "linear-gradient(180deg, rgba(216,255,54,0.08), rgba(255,255,255,0.02))"
-    : "var(--surface)",
-  border: `1px solid ${on ? "var(--lime)" : "var(--border)"}`,
-  color: on ? "var(--text)" : "var(--text-2)",
-  transition: "border-color .2s, background .2s, color .2s",
-});
-
 /** The single-select steps that a deep link can pre-satisfy and thus skip. */
 type StepKey = "city" | "model" | "plan" | "details" | "review";
 
@@ -308,6 +281,177 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
 
   return (
     <div className="wizard">
+      {/* Component-scoped responsive styles for elements that previously relied
+          on inline styles (which can't express @media). Reuses brand tokens; no
+          edits to globals.css. */}
+      <style jsx>{`
+        /* ---- Model picker option row ---- */
+        .bike-opt-wrap {
+          position: relative;
+        }
+        /* :global() because these classes sit on elements rendered outside this
+           styled-jsx scope boundary (className on mapped buttons/spans). */
+        :global(.bike-opt) {
+          flex-direction: row;
+          align-items: center;
+          gap: 13px;
+          padding-right: 52px; /* clear the info button */
+        }
+        :global(.bike-thumb) {
+          width: 58px;
+          height: 58px;
+          flex-shrink: 0;
+          border-radius: var(--r-sm);
+          overflow: hidden;
+          /* Lighter surface + lift so a dark bike shot stays recognizable. */
+          background: var(--surface);
+          border: 1px solid var(--border-strong);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+        :global(.bike-thumb img) {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        :global(.bike-opt-text) {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          min-width: 0;
+        }
+        :global(.bike-opt-text .opt-t),
+        :global(.bike-opt-text .opt-m) {
+          overflow-wrap: anywhere;
+        }
+        :global(.bike-info-btn) {
+          position: absolute;
+          top: 50%;
+          right: 12px;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          display: grid;
+          place-items: center;
+          cursor: pointer;
+          background: var(--bg-2);
+          border: 1px solid var(--border);
+          color: var(--text-2);
+          padding: 0;
+          z-index: 2;
+          transition: border-color 0.2s, color 0.2s;
+        }
+        :global(.bike-info-btn:hover) {
+          border-color: var(--border-strong);
+          color: var(--text);
+        }
+
+        /* ---- Segmented contact / payment choices ---- */
+        :global(.seg-block) {
+          margin-top: 20px;
+        }
+        :global(.seg-head) {
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          margin: 0 0 10px;
+        }
+        :global(.seg-row) {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        :global(.seg-btn) {
+          flex: 1 1 140px;
+          box-sizing: border-box;
+          cursor: pointer;
+          text-align: center;
+          padding: 13px 14px;
+          min-height: 46px;
+          border-radius: var(--r-sm);
+          font-size: 14px;
+          font-weight: 600;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          color: var(--text-2);
+          transition: border-color 0.2s, background 0.2s, color 0.2s;
+        }
+        :global(.seg-btn.on) {
+          background: linear-gradient(
+            180deg,
+            rgba(216, 255, 54, 0.08),
+            rgba(255, 255, 255, 0.02)
+          );
+          border-color: var(--lime);
+          color: var(--text);
+        }
+
+        /* ---- Long review values (e.g. email) must not overflow ---- */
+        :global(.summary-v-wrap) {
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+
+        /* ---- Model details modal ---- */
+        :global(.bike-modal-backdrop) {
+          position: fixed;
+          inset: 0;
+          z-index: 300;
+          display: grid;
+          place-items: center;
+          padding: 16px;
+          background: rgba(6, 8, 12, 0.72);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+        }
+        :global(.bike-modal) {
+          position: relative;
+          width: 100%;
+          max-width: 460px;
+          max-height: calc(100dvh - 32px);
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+          overflow: hidden; /* clip rounded corners; body scrolls internally */
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+            0 0 60px -16px var(--lime-glow);
+        }
+        :global(.bike-modal-close) {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          z-index: 2;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          display: grid;
+          place-items: center;
+          cursor: pointer;
+          background: rgba(6, 8, 12, 0.55);
+          border: 1px solid var(--border);
+          color: var(--text);
+          padding: 0;
+        }
+        :global(.bike-modal-img) {
+          flex-shrink: 0;
+          aspect-ratio: 16 / 10;
+          background: var(--bg-2);
+        }
+        :global(.bike-modal-body) {
+          padding: 20px 22px 22px;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        @media (max-width: 600px) {
+          :global(.bike-modal-img) {
+            aspect-ratio: 16 / 9;
+          }
+          :global(.bike-modal-body) {
+            padding: 18px 18px 20px;
+          }
+        }
+      `}</style>
       <div className="wizard-head">
         <h1>{t("title")}</h1>
         <p className="lead" style={{ marginTop: 8 }}>
@@ -381,34 +525,25 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
               {bikeModels.map((m) => {
                 const liveCount = availMap[`model:${m.id}`];
                 const isWait = liveCount !== undefined ? liveCount === 0 : m.status === "wait";
+                // Prefer a brighter gallery/lifestyle shot for the small thumbnail
+                // (the catalogue `img` is a dark studio cut-out that reads as
+                // near-invisible on the dark option surface); fall back to `img`.
+                const thumb = m.gallery?.[0] ?? m.img;
                 return (
-                  <div key={m.id} style={{ position: "relative" }}>
+                  <div key={m.id} className="bike-opt-wrap">
                     <button
                       type="button"
-                      className={`opt ${modelId === m.id ? "selected" : ""}`}
+                      className={`opt bike-opt ${modelId === m.id ? "selected" : ""}`}
                       onClick={() => pick(() => setModelId(m.id))}
-                      style={{ flexDirection: "row", alignItems: "center", gap: 13, paddingRight: 46 }}
                     >
-                      <span
-                        aria-hidden
-                        style={{
-                          width: 58,
-                          height: 58,
-                          flexShrink: 0,
-                          borderRadius: "var(--r-sm)",
-                          overflow: "hidden",
-                          background: "var(--bg-2)",
-                          border: "1px solid var(--border)",
-                        }}
-                      >
+                      <span className="bike-thumb" aria-hidden>
                         <img
-                          src={resolveImg(m.img)}
+                          src={resolveImg(thumb)}
                           alt=""
                           loading="lazy"
-                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                         />
                       </span>
-                      <span style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+                      <span className="bike-opt-text">
                         <span className="opt-t">{m.name}</span>
                         <span className="opt-m">
                           {m.brand} · {tm(`${m.id}.tagline`)}
@@ -421,29 +556,14 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                     </button>
                     <button
                       type="button"
+                      className="bike-info-btn"
                       aria-label={t("bike.viewDetails")}
                       onClick={(e) => {
                         e.stopPropagation();
                         setInfoModel(m);
                       }}
-                      style={{
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        width: 30,
-                        height: 30,
-                        borderRadius: 8,
-                        display: "grid",
-                        placeItems: "center",
-                        cursor: "pointer",
-                        background: "var(--bg-2)",
-                        border: "1px solid var(--border)",
-                        color: "var(--text-muted)",
-                        padding: 0,
-                        zIndex: 2,
-                      }}
                     >
-                      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                         <circle cx="12" cy="12" r="9" />
                         <path d="M12 11 V16.5" />
                         <path d="M12 7.5 V7.6" />
@@ -662,7 +782,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
               </div>
               <div className="summary-row">
                 <span className="l">{t("review.contact")}</span>
-                <span className="v">
+                <span className="v summary-v-wrap">
                   {first} {last}
                   <br />
                   {email}
@@ -695,12 +815,12 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
             )}
 
             {/* Contact preference — how rentaro should reach the customer. */}
-            <div style={{ marginTop: 20 }}>
-              <h4 style={segHeadStyle}>{t("contact.title")}</h4>
-              <div style={segRowStyle}>
+            <div className="seg-block">
+              <h4 className="seg-head">{t("contact.title")}</h4>
+              <div className="seg-row">
                 <button
                   type="button"
-                  style={segBtnStyle(contactMethod === "email")}
+                  className={`seg-btn ${contactMethod === "email" ? "on" : ""}`}
                   aria-pressed={contactMethod === "email"}
                   onClick={() => setContactMethod("email")}
                 >
@@ -708,7 +828,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                 </button>
                 <button
                   type="button"
-                  style={segBtnStyle(contactMethod === "phone")}
+                  className={`seg-btn ${contactMethod === "phone" ? "on" : ""}`}
                   aria-pressed={contactMethod === "phone"}
                   onClick={() => setContactMethod("phone")}
                 >
@@ -718,12 +838,12 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
             </div>
 
             {/* Payment preference — cash at pickup or bank transfer. */}
-            <div style={{ marginTop: 20 }}>
-              <h4 style={segHeadStyle}>{t("payment.title")}</h4>
-              <div style={segRowStyle}>
+            <div className="seg-block">
+              <h4 className="seg-head">{t("payment.title")}</h4>
+              <div className="seg-row">
                 <button
                   type="button"
-                  style={segBtnStyle(paymentMethod === "cash")}
+                  className={`seg-btn ${paymentMethod === "cash" ? "on" : ""}`}
                   aria-pressed={paymentMethod === "cash"}
                   onClick={() => setPaymentMethod("cash")}
                 >
@@ -731,7 +851,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                 </button>
                 <button
                   type="button"
-                  style={segBtnStyle(paymentMethod === "transfer")}
+                  className={`seg-btn ${paymentMethod === "transfer" ? "on" : ""}`}
                   aria-pressed={paymentMethod === "transfer"}
                   onClick={() => setPaymentMethod("transfer")}
                 >
@@ -820,69 +940,36 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
       {infoModel && (
         <div
           role="presentation"
+          className="bike-modal-backdrop"
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) setInfoModel(null);
-          }}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 300,
-            display: "grid",
-            placeItems: "center",
-            padding: 20,
-            background: "rgba(6, 8, 12, 0.72)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
           }}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-label={infoModel.name}
-            className="card"
-            style={{
-              position: "relative",
-              width: "100%",
-              maxWidth: 460,
-              padding: 0,
-              overflow: "hidden",
-              boxShadow: "0 30px 80px rgba(0,0,0,0.6), 0 0 60px -16px var(--lime-glow)",
-            }}
+            className="card bike-modal"
           >
             <button
               type="button"
+              className="bike-modal-close"
               aria-label={t("bike.close")}
               onClick={() => setInfoModel(null)}
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                zIndex: 2,
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                display: "grid",
-                placeItems: "center",
-                cursor: "pointer",
-                background: "rgba(6,8,12,0.55)",
-                border: "1px solid var(--border)",
-                color: "var(--text)",
-                padding: 0,
-              }}
             >
               <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
                 <path d="M4 4 L12 12" />
                 <path d="M12 4 L4 12" />
               </svg>
             </button>
-            <div style={{ aspectRatio: "16 / 10", background: "var(--bg-2)" }}>
+            <div className="bike-modal-img">
               <img
                 src={resolveImg(infoModel.gallery?.[0] ?? infoModel.img)}
                 alt={infoModel.name}
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               />
             </div>
-            <div style={{ padding: "20px 22px 22px" }}>
+            <div className="bike-modal-body">
               <h3>{infoModel.name}</h3>
               <div className="model-tagline">
                 {infoModel.brand} · {tm(`${infoModel.id}.tagline`)}

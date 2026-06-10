@@ -73,6 +73,22 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           </button>
         </div>
       </div>
+      {/* Narrow-phone guard: on the tightest widths a long localized CTA label
+          ("Join waitlist" / translated "Reserve") + the price can overflow the
+          space-between footer. Allow the footer to wrap and let the button take
+          a full row when needed. Additive — desktop layout is unchanged. */}
+      <style jsx>{`
+        @media (max-width: 360px) {
+          article :global(.model-foot) {
+            flex-wrap: wrap;
+            row-gap: 12px;
+          }
+          article :global(.model-foot .reserve-btn) {
+            flex: 1 1 100%;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </article>
   );
 }
