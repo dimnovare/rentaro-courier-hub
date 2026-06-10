@@ -7,7 +7,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { cities } from "@/data/cities";
-import { bikeModels } from "@/data/bikeModels";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
@@ -60,7 +59,7 @@ function addBusinessDays(from: Date, days: number): Date {
   return d;
 }
 
-export function BookingWizard({ settings }: { settings: SiteSettings }) {
+export function BookingWizard({ settings, models }: { settings: SiteSettings; models: BikeModel[] }) {
   const router = useRouter();
   const params = useSearchParams();
   const locale = useLocale();
@@ -77,7 +76,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
   const qCity = params.get("city");
   const initialCity = cities.find((c) => c.id === qCity && c.status !== "soon") ? (qCity as string) : "";
   const qModel = params.get("model");
-  const initialModel = bikeModels.find((m) => m.id === qModel) ? (qModel as string) : "";
+  const initialModel = models.find((m) => m.id === qModel) ? (qModel as string) : "";
   const qPlan = params.get("plan");
   const initialPlan = pricingPlans.find((p) => p.id === qPlan) ? (qPlan as PlanId) : "";
   // Referral code deep-link (e.g. a shared "?ref=ABC123" link). Prefills the
@@ -194,7 +193,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
     };
   }, [infoModel]);
 
-  const model = bikeModels.find((m) => m.id === modelId);
+  const model = models.find((m) => m.id === modelId);
   const plan = planId ? getPlanById(planId) : undefined;
   const city = cities.find((c) => c.id === cityId);
 
@@ -598,7 +597,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
             <h3>{t("model.heading")}</h3>
             <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
-              {bikeModels.map((m) => {
+              {models.map((m) => {
                 const liveCount = availMap[`model:${m.id}`];
                 const isWait = liveCount !== undefined ? liveCount === 0 : m.status === "wait";
                 // Prefer a brighter gallery/lifestyle shot for the small thumbnail

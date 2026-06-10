@@ -3,6 +3,7 @@ import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { Suspense } from "react";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { getSettings } from "@/services/settingsService";
+import { modelService } from "@/services/modelService";
 
 const title = "Reserve your e-bike — rentaro";
 const description =
@@ -29,13 +30,13 @@ export const metadata: Metadata = {
 };
 
 export default async function BookPage() {
-  const settings = await getSettings();
+  const [settings, models] = await Promise.all([getSettings(), modelService.getModels()]);
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 48 }}>
         <div className="wrap">
           <Suspense fallback={null}>
-            <BookingWizard settings={settings} />
+            <BookingWizard settings={settings} models={models} />
           </Suspense>
         </div>
       </section>
