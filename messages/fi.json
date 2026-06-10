@@ -296,7 +296,8 @@
       "perDay": "€{price}/pv",
       "per30": "€{price} per 30 päivää",
       "depositBadge": "Palautettava vakuus €{deposit} — saat sen takaisin",
-      "dueLine": "€{total} maksetaan portaalissasi hyväksynnän jälkeen"
+      "dueLine": "€{total} maksetaan portaalissasi hyväksynnän jälkeen",
+      "dayRange": "€{min}–{max}/päivä"
     },
     "addons": {
       "heading": "Lisävarusteet",
@@ -340,7 +341,10 @@
         "emailInvalid": "Anna kelvollinen sähköpostiosoite.",
         "phone": "Anna puhelinnumerosi.",
         "startDate": "Valitse toivottu aloituspäivä."
-      }
+      },
+      "dialCode": "Maakoodi",
+      "phonePlaceholder": "5649 7933",
+      "startDateHint": "Aikaisin nouto on 3 työpäivän kuluttua."
     },
     "review": {
       "heading": "Tarkista ja vahvista",

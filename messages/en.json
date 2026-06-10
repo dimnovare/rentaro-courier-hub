@@ -297,7 +297,8 @@
       "perDay": "€{price}/day",
       "per30": "€{price} per 30 days",
       "depositBadge": "Refundable deposit €{deposit} — you get it back",
-      "dueLine": "€{total} paid in your portal after approval"
+      "dueLine": "€{total} paid in your portal after approval",
+      "dayRange": "€{min}–{max}/day"
     },
     "addons": {
       "heading": "Add-ons",
@@ -337,7 +338,10 @@
         "emailInvalid": "Enter a valid email address.",
         "phone": "Enter your phone number.",
         "startDate": "Choose a preferred start date."
-      }
+      },
+      "dialCode": "Country code",
+      "phonePlaceholder": "5649 7933",
+      "startDateHint": "Earliest pickup is in 3 business days."
     },
     "review": {
       "heading": "Review & confirm",

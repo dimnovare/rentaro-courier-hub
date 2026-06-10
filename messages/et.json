@@ -296,7 +296,8 @@
       "perDay": "€{price}/päev",
       "per30": "€{price} 30 päeva eest",
       "depositBadge": "Tagastatav tagatisraha €{deposit} — saad selle tagasi",
-      "dueLine": "€{total} makstud portaalis pärast kinnitamist"
+      "dueLine": "€{total} makstud portaalis pärast kinnitamist",
+      "dayRange": "€{min}–{max}/päev"
     },
     "addons": {
       "heading": "Lisad",
@@ -336,7 +337,10 @@
         "emailInvalid": "Sisesta korrektne e-posti aadress.",
         "phone": "Sisesta oma telefoninumber.",
         "startDate": "Vali soovitud alguskuupäev."
-      }
+      },
+      "dialCode": "Riigi kood",
+      "phonePlaceholder": "5649 7933",
+      "startDateHint": "Varaseim kättesaamine on 3 tööpäeva pärast."
     },
     "review": {
       "heading": "Vaata üle ja kinnita",

@@ -32,6 +32,34 @@ const countryKey: Record<string, string> = {
   Finland: "finland",
 };
 
+// Pricing is identical across all bike models and only varies by plan, so the
+// per-model price is shown as a min–max daily RANGE derived from the plans.
+// Computed once from `pricingPlans` so it stays correct if the plans change.
+const dailyRates = pricingPlans.map((p) => p.daily);
+const dailyMin = Math.min(...dailyRates);
+const dailyMax = Math.max(...dailyRates);
+
+// Country dial codes offered next to the phone input. Estonia is the default.
+const dialCodes = [
+  { code: "+372", labelKey: "estonia" },
+  { code: "+371", labelKey: "latvia" },
+  { code: "+358", labelKey: "finland" },
+] as const;
+
+// Earliest selectable pickup date = today + 3 business days (skip Sat/Sun).
+// Kept as a small standalone helper so the lead time is easy to relax later.
+const BUSINESS_DAYS_LEAD = 3;
+function addBusinessDays(from: Date, days: number): Date {
+  const d = new Date(from);
+  let added = 0;
+  while (added < days) {
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay(); // 0 = Sun, 6 = Sat
+    if (day !== 0 && day !== 6) added += 1;
+  }
+  return d;
+}
+
 export function BookingWizard({ settings }: { settings: SiteSettings }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -63,6 +91,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [email, setEmail] = useState("");
+  const [dialCode, setDialCode] = useState<string>(dialCodes[0].code);
   const [phone, setPhone] = useState("");
   const [startDate, setStartDate] = useState("");
   const startRef = useRef<HTMLInputElement>(null);
@@ -168,7 +197,18 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
   const model = bikeModels.find((m) => m.id === modelId);
   const plan = planId ? getPlanById(planId) : undefined;
   const city = cities.find((c) => c.id === cityId);
-  const today = new Date().toISOString().slice(0, 10);
+
+  // Earliest selectable pickup date (today + 3 business days), as YYYY-MM-DD.
+  // Computed once on mount so it doesn't drift across renders.
+  const minStartDate = useRef(
+    addBusinessDays(new Date(), BUSINESS_DAYS_LEAD).toISOString().slice(0, 10),
+  ).current;
+
+  // Clamp/clear any pre-filled or stale start date that falls before the
+  // minimum (e.g. an older value or a hand-typed earlier date).
+  useEffect(() => {
+    if (startDate && startDate < minStartDate) setStartDate("");
+  }, [startDate, minStartDate]);
 
   // End date = preferred start date + plan.months calendar months. Returned as a
   // localised date string (or "" when either input is missing).
@@ -240,7 +280,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
         planId: planId as PlanId,
         accessoryIds,
         preferredStartDate: startDate,
-        customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() },
+        customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: `${dialCode} ${phone.trim()}` },
         notes: notes.trim() || undefined,
         referralCode: settings.showReferralCode ? referralCode.trim() || undefined : undefined,
         contactMethod,
@@ -385,6 +425,42 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
           );
           border-color: var(--lime);
           color: var(--text);
+        }
+
+        /* ---- Phone field: country-code select + number input ---- */
+        :global(.phone-row) {
+          display: flex;
+          gap: 8px;
+          align-items: stretch;
+        }
+        :global(.phone-row .phone-dial) {
+          flex: 0 0 auto;
+          width: auto;
+          max-width: 42%;
+          /* Inherit the same dark-field look as the text inputs. */
+          background: var(--surface);
+          border: 1px solid var(--border);
+          color: var(--text);
+          border-radius: var(--r-sm);
+          padding: 0 10px;
+          font-size: 15px;
+          cursor: pointer;
+          transition: border-color 0.2s;
+        }
+        :global(.phone-row .phone-dial:focus) {
+          outline: none;
+          border-color: var(--lime);
+        }
+        :global(.phone-row input) {
+          flex: 1 1 auto;
+          min-width: 0;
+        }
+
+        /* ---- Small inline hint under a field (e.g. earliest pickup) ---- */
+        :global(.field-hint) {
+          margin: 6px 0 0;
+          font-size: 12.5px;
+          color: var(--text-2);
         }
 
         /* ---- Long review values (e.g. email) must not overflow ---- */
@@ -549,7 +625,10 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                           {m.brand} · {tm(`${m.id}.tagline`)}
                         </span>
                         <span className="opt-p">
-                          {t("plan.perDay", { price: m.fromDay.toFixed(2) })}
+                          {t("plan.dayRange", {
+                            min: dailyMin.toFixed(2),
+                            max: dailyMax.toFixed(2),
+                          })}
                           {isWait ? t("model.waitlistSuffix") : ""}
                         </span>
                       </span>
@@ -631,7 +710,21 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
               </div>
               <div className="field">
                 <label htmlFor="phone">{t("details.phone")}</label>
-                <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => markTouched("phone")} aria-invalid={!!errFor("phone")} autoComplete="tel" enterKeyHint="next" />
+                <div className="phone-row">
+                  <select
+                    className="phone-dial"
+                    aria-label={t("details.dialCode")}
+                    value={dialCode}
+                    onChange={(e) => setDialCode(e.target.value)}
+                  >
+                    {dialCodes.map((d) => (
+                      <option key={d.code} value={d.code}>
+                        {tc(`countries.${d.labelKey}`)} {d.code}
+                      </option>
+                    ))}
+                  </select>
+                  <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => markTouched("phone")} aria-invalid={!!errFor("phone")} autoComplete="tel" enterKeyHint="next" placeholder={t("details.phonePlaceholder")} />
+                </div>
                 {errFor("phone") && <p className="field-err">{errFor("phone")}</p>}
               </div>
             </div>
@@ -659,7 +752,7 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                   ref={startRef}
                   id="start"
                   type="date"
-                  min={today}
+                  min={minStartDate}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   onBlur={() => markTouched("start")}
@@ -669,7 +762,11 @@ export function BookingWizard({ settings }: { settings: SiteSettings }) {
                   <Ic.arrow />
                 </span>
               </button>
-              {errFor("start") && <p className="field-err">{errFor("start")}</p>}
+              {errFor("start") ? (
+                <p className="field-err">{errFor("start")}</p>
+              ) : (
+                <p className="field-hint">{t("details.startDateHint")}</p>
+              )}
             </div>
             <div className="field">
               <label htmlFor="notes">{t("details.notes")}</label>

@@ -74,8 +74,10 @@ export default function BookingSuccessPage() {
                 >
                   <Ic.check s={28} />
                 </div>
-                <h2>{s?.firstName ? t("headingNamed", { name: s.firstName }) : t("heading")}</h2>
-                <p>{t("body")}</p>
+                <h2 className="success-heading">
+                  {s?.firstName ? t("headingNamed", { name: s.firstName }) : t("heading")}
+                </h2>
+                <p className="success-body">{t("body")}</p>
 
                 {s && (
                   <article
@@ -169,6 +171,26 @@ export default function BookingSuccessPage() {
           </Reveal>
         </div>
       </section>
+
+      {/* Scoped to this page only. Roman's ask: rebalance the success message so
+          the second sentence (the "we'll confirm availability…" line) reads as an
+          equal partner to the heading instead of big-then-tiny. We dial the
+          heading down a touch and bump the body up to a near-matching size,
+          brighter color and medium weight — a balanced pair, still on-brand. */}
+      <style jsx>{`
+        .success-heading {
+          font-size: clamp(26px, 3.6vw, 38px);
+          margin-bottom: 14px;
+        }
+        .success-body {
+          font-size: clamp(21px, 2.9vw, 32px);
+          line-height: 1.32;
+          font-weight: 500;
+          letter-spacing: -0.015em;
+          color: var(--text);
+          max-width: 30ch;
+        }
+      `}</style>
     </main>
   );
 }

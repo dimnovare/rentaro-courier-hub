@@ -296,7 +296,8 @@
       "perDay": "€{price}/dienā",
       "per30": "€{price} par 30 dienām",
       "depositBadge": "Atmaksājama drošības nauda €{deposit} — to saņemsi atpakaļ",
-      "dueLine": "€{total} samaksā portālā pēc apstiprināšanas"
+      "dueLine": "€{total} samaksā portālā pēc apstiprināšanas",
+      "dayRange": "€{min}–{max}/dienā"
     },
     "addons": {
       "heading": "Papildaprīkojums",
@@ -340,7 +341,10 @@
         "emailInvalid": "Ievadi derīgu e-pasta adresi.",
         "phone": "Ievadi savu tālruņa numuru.",
         "startDate": "Izvēlies vēlamo sākuma datumu."
-      }
+      },
+      "dialCode": "Valsts kods",
+      "phonePlaceholder": "5649 7933",
+      "startDateHint": "Agrākā saņemšana ir pēc 3 darba dienām."
     },
     "review": {
       "heading": "Pārskati un apstiprini",

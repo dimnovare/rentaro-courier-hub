@@ -6,7 +6,14 @@ import { useInteractions } from "@/components/providers/Interactions";
 import { Ic } from "@/components/ui/Icon";
 import { resolveImg } from "@/services/modelService";
 import { track } from "@/services/analytics";
+import { pricingPlans } from "@/data/pricingPlans";
 import type { BikeModel } from "@/types";
+
+// Daily price varies only by plan term, not by model, so every card shows the
+// same span. Derive it from pricingPlans so it stays correct if plans change.
+const dailyRates = pricingPlans.map((p) => p.daily);
+const minDaily = Math.min(...dailyRates);
+const maxDaily = Math.max(...dailyRates);
 
 export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: boolean }) {
   const { reserve } = useInteractions();
@@ -60,7 +67,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
         <div className="model-foot">
           <div className="from">
             <strong>
-              €{m.fromDay.toFixed(2)}
+              €{minDaily.toFixed(2)}–{maxDaily.toFixed(2)}
               <span className="per"> {t("perDay")}</span>
             </strong>
           </div>
