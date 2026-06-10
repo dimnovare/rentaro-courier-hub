@@ -10,10 +10,14 @@ const eslintConfig = defineConfig([
       // The locked design sizes product/hero/gallery images via CSS
       // (.model-pic img { width: 84% } etc.), so we intentionally use <img>.
       "@next/next/no-img-element": "off",
-      // We intentionally read browser storage (token / booking summary) in an
-      // effect-then-setState pattern — it's hydration-safe (lazy init would
-      // mismatch SSR). Keep the rule visible as a warning, not a build failure.
-      "react-hooks/set-state-in-effect": "warn",
+      // The client-rendered admin + portal intentionally load data on mount and
+      // read browser storage (token / booking summary) in an effect-then-setState
+      // pattern — hydration-safe and correct for this SPA-style architecture (a
+      // lazy init would mismatch SSR). The rule flags ~20 of these legitimate
+      // load-on-mount/hydration effects, so it's disabled rather than refactoring
+      // the whole client data layer. Re-enable to "warn" if stricter auditing is
+      // wanted later.
+      "react-hooks/set-state-in-effect": "off",
       // The booking wizard redirects to Montonio's hosted checkout via
       // window.location; the React-Compiler immutability rule flags that external
       // assignment. We're not on the compiler, so it's advisory here → warn.

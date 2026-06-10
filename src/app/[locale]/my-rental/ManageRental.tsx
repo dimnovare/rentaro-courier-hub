@@ -531,6 +531,10 @@ type IdentityCardState =
   | { phase: "verified"; verifiedName: string }
   | { phase: "failed"; reason: string };
 
+// Dormant: the Smart-ID/Mobile-ID identity-verification card is only mounted when
+// online signing is enabled (currently hidden — paper signing on handover). Kept
+// intact for when online signing is turned back on.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function IdentityCard({
   token,
   initialStatus,
