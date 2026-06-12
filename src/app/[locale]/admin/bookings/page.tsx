@@ -8,12 +8,18 @@ import {
   assignUnit,
   getPayment,
   confirmPayment,
+  createBooking,
   BookingApiError,
   BookingConfigError,
   type AdminBooking,
   type AdminFleetUnit,
   type AdminPayment,
+  type CreateBookingInput,
 } from "@/services/adminBookingService";
+import { modelService } from "@/services/modelService";
+import { cityService } from "@/services/cityService";
+import { pricingService } from "@/services/pricingService";
+import { Drawer } from "@/components/admin/Drawer";
 import {
   generateContract,
   openContractDocument,
@@ -29,6 +35,10 @@ import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 interface PageData {
   bookings: AdminBooking[];
   units: AdminFleetUnit[];
+  /** Catalogue options for the New-booking form. */
+  models: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
+  plans: { id: string; label: string }[];
 }
 
 type LoadState =
@@ -53,12 +63,29 @@ export default function AdminBookingsPage() {
   // Per-row action error, shown inside the open management panel. Keyed by
   // booking id so it disappears when another row is opened.
   const [rowError, setRowError] = useState<{ bookingId: string; text: string } | null>(null);
+  // Whether the "New booking" drawer is open.
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
     try {
-      const [bookings, units] = await Promise.all([listBookings(), listUnitCodes()]);
-      setState({ phase: "ready", data: { bookings, units } });
+      const [bookings, units, models, cities, plans] = await Promise.all([
+        listBookings(),
+        listUnitCodes(),
+        modelService.getModels(),
+        cityService.getCities(),
+        pricingService.getPlans(),
+      ]);
+      setState({
+        phase: "ready",
+        data: {
+          bookings,
+          units,
+          models: models.map((m) => ({ id: m.id, name: m.name })),
+          cities: cities.map((c) => ({ id: c.id, name: c.name })),
+          plans: plans.map((p) => ({ id: p.id, label: `${p.term} · €${p.monthly}/30d` })),
+        },
+      });
     } catch (err) {
       if (err instanceof BookingApiError && err.unauthorized) {
         signOut();
@@ -239,6 +266,28 @@ export default function AdminBookingsPage() {
     [setBusy, handleContractError],
   );
 
+  async function submitBooking(
+    input: CreateBookingInput,
+    notify: boolean,
+  ): Promise<string | null> {
+    try {
+      await createBooking(input, notify);
+      setDrawerOpen(false);
+      setBanner({
+        tone: "ok",
+        text: notify ? "Booking created and confirmation emailed." : "Booking created.",
+      });
+      await load();
+      return null;
+    } catch (err) {
+      if (err instanceof BookingApiError && err.unauthorized) {
+        signOut();
+        return null;
+      }
+      return err instanceof BookingApiError ? err.message : "Could not create the booking.";
+    }
+  }
+
   return (
     <div>
       {state.phase === "loading" || state.phase === "idle" ? (
@@ -264,6 +313,24 @@ export default function AdminBookingsPage() {
               {banner.text}
             </div>
           )}
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              marginBottom: 18,
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setDrawerOpen(true)}
+              style={{ padding: "11px 20px", fontSize: 14 }}
+            >
+              + New booking
+            </button>
+          </div>
 
           <AdminSection title="Bookings" count={state.data.bookings.length}>
             <BookingsManageTable
@@ -307,9 +374,297 @@ export default function AdminBookingsPage() {
               onDownloadContract={onDownloadContract}
             />
           </AdminSection>
+
+          <NewBookingDrawer
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            models={state.data.models}
+            cities={state.data.cities}
+            plans={state.data.plans}
+            onSubmit={submitBooking}
+          />
         </>
       )}
     </div>
+  );
+}
+
+/* ── New booking drawer ────────────────────────────────────────────────── */
+
+function NewBookingDrawer({
+  open,
+  onClose,
+  models,
+  cities,
+  plans,
+  onSubmit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  models: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
+  plans: { id: string; label: string }[];
+  onSubmit: (input: CreateBookingInput, notify: boolean) => Promise<string | null>;
+}) {
+  const [cityId, setCityId] = useState("");
+  const [modelId, setModelId] = useState("");
+  const [planId, setPlanId] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [notify, setNotify] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Default the selects to the first option once the catalogue arrives.
+  useEffect(() => {
+    if (!cityId && cities[0]) setCityId(cities[0].id);
+  }, [cities, cityId]);
+  useEffect(() => {
+    if (!modelId && models[0]) setModelId(models[0].id);
+  }, [models, modelId]);
+  useEffect(() => {
+    if (!planId && plans[0]) setPlanId(plans[0].id);
+  }, [plans, planId]);
+
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const canSubmit = emailOk && !!cityId && !!modelId && !!planId && !submitting;
+
+  async function handleSubmit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setFormError(null);
+    const err = await onSubmit(
+      {
+        cityId,
+        modelId,
+        planId,
+        customer: {
+          firstName: firstName.trim() || undefined,
+          lastName: lastName.trim() || undefined,
+          email: email.trim(),
+          phone: phone.trim() || undefined,
+        },
+        preferredStartDate: startDate || undefined,
+        notes: notes.trim() || undefined,
+      },
+      notify,
+    );
+    setSubmitting(false);
+    if (err) {
+      setFormError(err);
+    } else {
+      // Reset for the next entry.
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPhone("");
+      setStartDate("");
+      setNotes("");
+      setNotify(false);
+    }
+  }
+
+  function close() {
+    setFormError(null);
+    onClose();
+  }
+
+  return (
+    <Drawer
+      open={open}
+      onClose={close}
+      title="New booking"
+      footer={
+        <>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={close}
+            style={{ padding: "11px 20px", fontSize: 14 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void handleSubmit()}
+            disabled={!canSubmit}
+            style={{
+              padding: "11px 20px",
+              fontSize: 14,
+              opacity: canSubmit ? 1 : 0.55,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+            }}
+          >
+            {submitting ? "Creating…" : "Create booking"}
+          </button>
+        </>
+      }
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSubmit();
+        }}
+      >
+        {formError && (
+          <div
+            className="mono"
+            role="alert"
+            style={{
+              color: "var(--danger)",
+              fontSize: 12,
+              marginBottom: 16,
+              padding: "10px 13px",
+              borderRadius: "var(--r-sm)",
+              border: "1px solid rgba(255, 138, 120, 0.32)",
+              background: "rgba(255, 138, 120, 0.06)",
+            }}
+          >
+            {formError}
+          </div>
+        )}
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="nb-city">City</label>
+            <select id="nb-city" value={cityId} onChange={(e) => setCityId(e.target.value)} aria-label="City">
+              {cities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="nb-model">Model</label>
+            <select id="nb-model" value={modelId} onChange={(e) => setModelId(e.target.value)} aria-label="Model">
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="nb-plan">Plan</label>
+          <select id="nb-plan" value={planId} onChange={(e) => setPlanId(e.target.value)} aria-label="Plan">
+            {plans.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="nb-first">First name</label>
+            <input
+              id="nb-first"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="optional"
+              aria-label="First name"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="nb-last">Last name</label>
+            <input
+              id="nb-last"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="optional"
+              aria-label="Last name"
+            />
+          </div>
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="nb-email">Email</label>
+            <input
+              id="nb-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="rider@example.com"
+              aria-label="Email"
+              aria-invalid={email.length > 0 && !emailOk}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="nb-phone">Phone</label>
+            <input
+              id="nb-phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="optional"
+              aria-label="Phone"
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="nb-start">Preferred start date</label>
+          <input
+            id="nb-start"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            aria-label="Preferred start date"
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="nb-notes">Notes</label>
+          <textarea
+            id="nb-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="How the booking came in, anything relevant…"
+            aria-label="Notes"
+            rows={3}
+            style={{ resize: "vertical", lineHeight: 1.5 }}
+          />
+        </div>
+
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontSize: 13.5,
+            color: "var(--text-2)",
+            cursor: "pointer",
+            marginTop: 4,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={notify}
+            onChange={(e) => setNotify(e.target.checked)}
+            style={{ width: 16, height: 16, accentColor: "var(--lime)" }}
+          />
+          Email the customer the standard booking confirmation
+        </label>
+
+        {email.length > 0 && !emailOk && (
+          <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: "10px 0 0" }}>
+            A valid customer email is required.
+          </p>
+        )}
+
+        {/* Hidden submit keeps Enter-to-create working. */}
+        <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
+      </form>
+    </Drawer>
   );
 }
 

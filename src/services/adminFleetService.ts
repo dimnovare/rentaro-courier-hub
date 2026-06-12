@@ -115,3 +115,26 @@ export const updateUnitStatus = (internalCode: string, status: string) =>
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+/** Fields accepted when creating a bike unit. `internalCode`, `modelId` and
+ *  `cityId` are required; everything else is optional. */
+export interface CreateUnitInput {
+  internalCode: string;
+  modelId: string;
+  cityId: string;
+  status?: string;
+  serialNumber?: string;
+  location?: string;
+  batteryId?: string;
+  lockId?: string;
+  lastServiceDate?: string;
+  nextServiceDueDate?: string;
+  notes?: string;
+}
+
+/** Create a physical bike unit. Returns the created unit for the fleet table. */
+export const createUnit = (input: CreateUnitInput) =>
+  request<FleetUnit>("/api/admin/units", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });

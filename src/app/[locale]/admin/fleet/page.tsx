@@ -5,16 +5,21 @@ import {
   getUnits,
   getRentals,
   updateUnitStatus,
+  createUnit,
   FleetApiError,
   FleetConfigError,
   FleetAuthError,
   type FleetUnit,
   type FleetRental,
+  type CreateUnitInput,
 } from "@/services/adminFleetService";
 import { AdminTable, Th, Td, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { Drawer } from "@/components/admin/Drawer";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { modelService } from "@/services/modelService";
+import { cityService } from "@/services/cityService";
 
 /** Valid BikeUnitStatus values — must match the backend enum (Rentaro.Domain). */
 const UNIT_STATUSES = [
@@ -35,6 +40,9 @@ function statusLabel(value: string): string {
 interface FleetData {
   units: FleetUnit[];
   rentals: FleetRental[];
+  /** Catalogue options for the New-unit form (code + display name). */
+  models: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
 }
 
 type LoadState =
@@ -48,13 +56,28 @@ export default function AdminFleetPage() {
   // Tracks which unit codes currently have an in-flight status update.
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [updateError, setUpdateError] = useState<string | null>(null);
+  // Whether the "New unit" drawer is open.
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
     setUpdateError(null);
     try {
-      const [units, rentals] = await Promise.all([getUnits(), getRentals()]);
-      setState({ phase: "ready", data: { units, rentals } });
+      const [units, rentals, models, cities] = await Promise.all([
+        getUnits(),
+        getRentals(),
+        modelService.getModels(),
+        cityService.getCities(),
+      ]);
+      setState({
+        phase: "ready",
+        data: {
+          units,
+          rentals,
+          models: models.map((m) => ({ id: m.id, name: m.name })),
+          cities: cities.map((c) => ({ id: c.id, name: c.name })),
+        },
+      });
     } catch (err) {
       // A missing token / 401 means the session is gone — drop to sign-in.
       if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
@@ -116,6 +139,33 @@ export default function AdminFleetPage() {
     }
   }
 
+  async function submitUnit(input: CreateUnitInput): Promise<string | null> {
+    try {
+      const created = await createUnit(input);
+      setState((s) =>
+        s.phase === "ready"
+          ? {
+              ...s,
+              data: {
+                ...s.data,
+                units: [...s.data.units, created].sort((a, b) =>
+                  a.internalCode.localeCompare(b.internalCode),
+                ),
+              },
+            }
+          : s,
+      );
+      setDrawerOpen(false);
+      return null;
+    } catch (err) {
+      if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
+        signOut();
+        return null;
+      }
+      return err instanceof FleetApiError ? err.message : "Could not create the bike unit.";
+    }
+  }
+
   return (
     <div>
       {state.phase === "loading" ? (
@@ -141,6 +191,24 @@ export default function AdminFleetPage() {
             </div>
           )}
 
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              marginBottom: 20,
+            }}
+          >
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setDrawerOpen(true)}
+              style={{ padding: "11px 20px", fontSize: 14 }}
+            >
+              + New unit
+            </button>
+          </div>
+
           <UnitsByCity
             units={state.data.units}
             pending={pending}
@@ -148,9 +216,292 @@ export default function AdminFleetPage() {
           />
 
           <RentalTimeline units={state.data.units} rentals={state.data.rentals} />
+
+          <NewUnitDrawer
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            models={state.data.models}
+            cities={state.data.cities}
+            onSubmit={submitUnit}
+          />
         </>
       )}
     </div>
+  );
+}
+
+/* ── New bike unit drawer ──────────────────────────────────────────────── */
+
+function NewUnitDrawer({
+  open,
+  onClose,
+  models,
+  cities,
+  onSubmit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  models: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
+  onSubmit: (input: CreateUnitInput) => Promise<string | null>;
+}) {
+  const [internalCode, setInternalCode] = useState("");
+  const [modelId, setModelId] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [status, setStatus] = useState<string>("available");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [location, setLocation] = useState("");
+  const [batteryId, setBatteryId] = useState("");
+  const [lockId, setLockId] = useState("");
+  const [lastServiceDate, setLastServiceDate] = useState("");
+  const [nextServiceDueDate, setNextServiceDueDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // The catalogue loads async, so default the selects to the first option once
+  // the lists arrive (and whenever they change while still unset).
+  useEffect(() => {
+    if (!modelId && models[0]) setModelId(models[0].id);
+  }, [models, modelId]);
+  useEffect(() => {
+    if (!cityId && cities[0]) setCityId(cities[0].id);
+  }, [cities, cityId]);
+
+  const codeOk = internalCode.trim().length > 0;
+  const canSubmit = codeOk && !!modelId && !!cityId && !submitting;
+
+  async function handleSubmit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setFormError(null);
+    const err = await onSubmit({
+      internalCode: internalCode.trim(),
+      modelId,
+      cityId,
+      status,
+      serialNumber: serialNumber.trim() || undefined,
+      location: location.trim() || undefined,
+      batteryId: batteryId.trim() || undefined,
+      lockId: lockId.trim() || undefined,
+      lastServiceDate: lastServiceDate || undefined,
+      nextServiceDueDate: nextServiceDueDate || undefined,
+      notes: notes.trim() || undefined,
+    });
+    setSubmitting(false);
+    if (err) {
+      setFormError(err);
+    } else {
+      // Reset the per-unit fields; keep model/city/status for fast repeat entry.
+      setInternalCode("");
+      setSerialNumber("");
+      setLocation("");
+      setBatteryId("");
+      setLockId("");
+      setLastServiceDate("");
+      setNextServiceDueDate("");
+      setNotes("");
+    }
+  }
+
+  function close() {
+    setFormError(null);
+    onClose();
+  }
+
+  return (
+    <Drawer
+      open={open}
+      onClose={close}
+      title="New bike unit"
+      footer={
+        <>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={close}
+            style={{ padding: "11px 20px", fontSize: 14 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void handleSubmit()}
+            disabled={!canSubmit}
+            style={{
+              padding: "11px 20px",
+              fontSize: 14,
+              opacity: canSubmit ? 1 : 0.55,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+            }}
+          >
+            {submitting ? "Creating…" : "Create unit"}
+          </button>
+        </>
+      }
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSubmit();
+        }}
+      >
+        {formError && (
+          <div
+            className="mono"
+            role="alert"
+            style={{
+              color: "var(--danger)",
+              fontSize: 12,
+              marginBottom: 16,
+              padding: "10px 13px",
+              borderRadius: "var(--r-sm)",
+              border: "1px solid rgba(255, 138, 120, 0.32)",
+              background: "rgba(255, 138, 120, 0.06)",
+            }}
+          >
+            {formError}
+          </div>
+        )}
+
+        <div className="field">
+          <label htmlFor="bu-code">Internal code</label>
+          <input
+            id="bu-code"
+            value={internalCode}
+            onChange={(e) => setInternalCode(e.target.value)}
+            placeholder="e.g. TLN-EP-001"
+            aria-label="Internal code"
+          />
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="bu-model">Model</label>
+            <select id="bu-model" value={modelId} onChange={(e) => setModelId(e.target.value)} aria-label="Model">
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="bu-city">City</label>
+            <select id="bu-city" value={cityId} onChange={(e) => setCityId(e.target.value)} aria-label="City">
+              {cities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="bu-status">Status</label>
+            <select id="bu-status" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+              {UNIT_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {statusLabel(s)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="bu-serial">Serial number</label>
+            <input
+              id="bu-serial"
+              value={serialNumber}
+              onChange={(e) => setSerialNumber(e.target.value)}
+              placeholder="optional"
+              aria-label="Serial number"
+            />
+          </div>
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="bu-battery">Battery ID</label>
+            <input
+              id="bu-battery"
+              value={batteryId}
+              onChange={(e) => setBatteryId(e.target.value)}
+              placeholder="optional"
+              aria-label="Battery ID"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="bu-lock">Lock ID</label>
+            <input
+              id="bu-lock"
+              value={lockId}
+              onChange={(e) => setLockId(e.target.value)}
+              placeholder="optional"
+              aria-label="Lock ID"
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="bu-location">Location</label>
+          <input
+            id="bu-location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="e.g. Telliskivi depot (optional)"
+            aria-label="Location"
+          />
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="bu-last-svc">Last service</label>
+            <input
+              id="bu-last-svc"
+              type="date"
+              value={lastServiceDate}
+              onChange={(e) => setLastServiceDate(e.target.value)}
+              aria-label="Last service date"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="bu-next-svc">Next service due</label>
+            <input
+              id="bu-next-svc"
+              type="date"
+              value={nextServiceDueDate}
+              onChange={(e) => setNextServiceDueDate(e.target.value)}
+              aria-label="Next service due date"
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="bu-notes">Notes</label>
+          <textarea
+            id="bu-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="optional"
+            aria-label="Notes"
+            rows={3}
+            style={{ resize: "vertical", lineHeight: 1.5 }}
+          />
+        </div>
+
+        {!codeOk && (
+          <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: 0 }}>
+            An internal code is required.
+          </p>
+        )}
+
+        {/* Hidden submit keeps Enter-to-create working. */}
+        <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
+      </form>
+    </Drawer>
   );
 }
 

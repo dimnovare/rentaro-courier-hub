@@ -561,8 +561,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .opt.selected .opt-check { background: var(--lime); border-color: var(--lime); }
 .field { margin-bottom: 16px; }
 .field label { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-.field input, .field textarea { width: 100%; box-sizing: border-box; padding: 13px 15px; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 15px; }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--lime); }
+.field input, .field select, .field textarea { width: 100%; box-sizing: border-box; padding: 13px 15px; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 15px; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--lime); }
+/* Native option popups ignore translucent surfaces and render on the system's
+   light background — force a solid dark row so options stay readable on mobile. */
+.field select option { background: var(--bg-2); color: var(--text); }
 
 /* Friendly calendar date field — a tappable box wrapping a native date input.
    Tapping anywhere opens the picker (via showPicker()); the leading calendar

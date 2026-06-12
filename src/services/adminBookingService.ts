@@ -146,6 +146,30 @@ export function listBookings(): Promise<AdminBooking[]> {
   return request<AdminBooking[]>("/api/admin/bookings");
 }
 
+/** Fields for manually creating a booking (admin "New booking"). The catalogue
+ *  ids must exist: cityId/modelId/planId are validated server-side. */
+export interface CreateBookingInput {
+  cityId: string;
+  modelId: string;
+  planId: string;
+  customer: { firstName?: string; lastName?: string; email: string; phone?: string };
+  preferredStartDate?: string;
+  notes?: string;
+}
+
+/** Manually create a booking. When `notify` is true the customer is sent the
+ *  standard confirmation email; otherwise it is created silently. Returns the
+ *  new booking's id; callers reload the list to pick up the full row. */
+export function createBooking(
+  input: CreateBookingInput,
+  notify: boolean,
+): Promise<{ id: string }> {
+  return request<{ id: string }>(`/api/admin/bookings${notify ? "?notify=true" : ""}`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 /** Returns the fleet's bike-unit internal codes, for the assign control. */
 export async function listUnitCodes(): Promise<AdminFleetUnit[]> {
   const fleet = await request<AdminFleetResponse>("/api/admin/fleet");
