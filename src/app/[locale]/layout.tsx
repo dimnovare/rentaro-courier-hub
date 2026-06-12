@@ -8,6 +8,7 @@ import { InteractionProvider } from "@/components/providers/Interactions";
 import { Background } from "@/components/layout/Background";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { AdminHidden } from "@/components/layout/AdminHidden";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { buildAlternates } from "@/i18n/alternates";
@@ -40,10 +41,16 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <InteractionProvider>
         <Background />
-        <Nav />
+        <AdminHidden>
+          <Nav />
+        </AdminHidden>
         {children}
-        <Footer />
-        <CookieConsent />
+        <AdminHidden>
+          <Footer />
+        </AdminHidden>
+        <AdminHidden>
+          <CookieConsent />
+        </AdminHidden>
       </InteractionProvider>
     </NextIntlClientProvider>
   );

@@ -426,7 +426,7 @@ function ModelRow({
         <Td mono nowrap>
           {model.code}
         </Td>
-        <Td>
+        <Td nowrap>
           <div style={{ color: "var(--text)", fontSize: 13 }}>{model.name || "—"}</div>
           {model.brand && (
             <div className="mono" style={{ fontSize: 10.5, color: "var(--text-dim)", marginTop: 2 }}>
@@ -490,6 +490,13 @@ function Thumbnail({ model, version }: { model: AdminModel; version: number | un
   const fallback = /^https?:\/\//.test(model.img) ? model.img : null;
   const src = uploaded ?? fallback;
 
+  // A model can report hasUploadedImage=true while its image endpoint 404s
+  // (e.g. a reset that left the flag briefly stale, or a missing R2 object).
+  // Show the neutral placeholder instead of a broken-image icon. Reset when the
+  // source changes (e.g. after a replace upload bumps the cache-buster).
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
+
   const box: React.CSSProperties = {
     width: 56,
     height: 42,
@@ -503,7 +510,7 @@ function Thumbnail({ model, version }: { model: AdminModel; version: number | un
     flexShrink: 0,
   };
 
-  if (!src) {
+  if (!src || failed) {
     return (
       <div style={box} className="mono" aria-label="No photo">
         <span style={{ fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.05em" }}>
@@ -521,6 +528,7 @@ function Thumbnail({ model, version }: { model: AdminModel; version: number | un
       <img
         src={src}
         alt={`${model.name || model.code} photo`}
+        onError={() => setFailed(true)}
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
     </div>

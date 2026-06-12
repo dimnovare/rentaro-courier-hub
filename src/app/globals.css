@@ -655,7 +655,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-signin-foot { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
 
 /* ── App grid (sidebar + main) ───────────────────────────── */
-.admin-app { position: relative; z-index: 2; display: flex; align-items: flex-start; gap: 0; width: 100%; max-width: 1480px; margin: 0 auto; padding: 0; min-height: calc(100vh - 76px); }
+.admin-app { position: relative; z-index: 2; display: flex; align-items: flex-start; gap: 0; width: 100%; max-width: 1480px; margin: 0 auto; padding: 0; min-height: 100dvh; }
 
 /* Sidebar — sticky so the page footer still flows below it on desktop. */
 .admin-sidebar { position: sticky; top: 0; align-self: flex-start; flex-shrink: 0; width: 248px; height: 100vh; display: flex; flex-direction: column; padding: 20px 14px 16px; border-right: 1px solid var(--border); background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0)); }
