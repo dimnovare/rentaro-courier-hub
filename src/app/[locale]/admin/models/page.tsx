@@ -17,6 +17,7 @@ import {
   type AdminModel,
   type ModelInput,
 } from "@/services/adminModelService";
+import { resolveImg } from "@/services/modelService";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { Drawer } from "@/components/admin/Drawer";
@@ -1076,7 +1077,7 @@ function GalleryThumb({
       }}
     >
       <img
-        src={url}
+        src={resolveImg(url)}
         alt="Gallery image"
         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
       />

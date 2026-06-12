@@ -450,6 +450,13 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           outline: none;
           border-color: var(--lime);
         }
+        /* The native option popup ignores translucent --surface and renders on a
+           light system background, which made the light option text invisible.
+           Force a solid dark row so every country code is readable. */
+        :global(.phone-row .phone-dial option) {
+          background: #0e1118;
+          color: #ffffff;
+        }
         :global(.phone-row input) {
           flex: 1 1 auto;
           min-width: 0;
