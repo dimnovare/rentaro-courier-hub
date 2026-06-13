@@ -135,7 +135,19 @@ export function Drawer({
             onClick={onClose}
             aria-label="Close"
           >
-            ✕
+            <svg
+              width={16}
+              height={16}
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden
+            >
+              <path d="M4 4 L12 12" />
+              <path d="M12 4 L4 12" />
+            </svg>
           </button>
         </header>
 

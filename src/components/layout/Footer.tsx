@@ -60,7 +60,7 @@ export async function Footer() {
   return (
     <div className="wrap">
       <footer className="foot">
-        <nav className="foot-nav" aria-label="Footer">
+        <nav className="foot-nav" aria-label={t("navAriaLabel")}>
           {columns.map((col) => (
             <div className="foot-col" key={col.headingKey}>
               <h5>{t(`columns.${col.headingKey}`)}</h5>

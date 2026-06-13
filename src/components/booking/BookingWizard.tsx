@@ -59,6 +59,15 @@ function addBusinessDays(from: Date, days: number): Date {
   return d;
 }
 
+// Format a Date as YYYY-MM-DD from its LOCAL parts. Avoids toISOString(), whose
+// UTC slice can shift to the previous/next day for UTC+2/+3 users at night.
+function toLocalISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export function BookingWizard({ settings, models }: { settings: SiteSettings; models: BikeModel[] }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -200,7 +209,7 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   // Computed once on mount (lazy useState initializer) so it doesn't drift across
   // renders and never reads a ref during render.
   const [minStartDate] = useState(() =>
-    addBusinessDays(new Date(), BUSINESS_DAYS_LEAD).toISOString().slice(0, 10),
+    toLocalISODate(addBusinessDays(new Date(), BUSINESS_DAYS_LEAD)),
   );
 
   // Clamp/clear any pre-filled or stale start date that falls before the
@@ -215,8 +224,14 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
     if (!startDate || !plan) return "";
     const d = new Date(startDate);
     if (Number.isNaN(d.getTime())) return "";
+    // Clamp the day so a month-end start (e.g. Aug 31 + 1 month) doesn't overflow
+    // into the next month (Oct 1) but instead lands on the last valid day.
+    const day = d.getDate();
+    d.setDate(1);
     d.setMonth(d.getMonth() + plan.months);
-    return d.toISOString().slice(0, 10);
+    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(day, lastDay));
+    return toLocalISODate(d);
   })();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const detailsValid =
@@ -699,20 +714,20 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
             <div className="field-row">
               <div className="field">
                 <label htmlFor="first">{t("details.firstName")}</label>
-                <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} onBlur={() => markTouched("first")} aria-invalid={!!errFor("first")} autoComplete="given-name" enterKeyHint="next" />
-                {errFor("first") && <p className="field-err">{errFor("first")}</p>}
+                <input id="first" value={first} onChange={(e) => setFirst(e.target.value)} onBlur={() => markTouched("first")} aria-invalid={!!errFor("first")} aria-describedby={errFor("first") ? "first-err" : undefined} autoComplete="given-name" enterKeyHint="next" />
+                {errFor("first") && <p id="first-err" role="alert" className="field-err">{errFor("first")}</p>}
               </div>
               <div className="field">
                 <label htmlFor="last">{t("details.lastName")}</label>
-                <input id="last" value={last} onChange={(e) => setLast(e.target.value)} onBlur={() => markTouched("last")} aria-invalid={!!errFor("last")} autoComplete="family-name" enterKeyHint="next" />
-                {errFor("last") && <p className="field-err">{errFor("last")}</p>}
+                <input id="last" value={last} onChange={(e) => setLast(e.target.value)} onBlur={() => markTouched("last")} aria-invalid={!!errFor("last")} aria-describedby={errFor("last") ? "last-err" : undefined} autoComplete="family-name" enterKeyHint="next" />
+                {errFor("last") && <p id="last-err" role="alert" className="field-err">{errFor("last")}</p>}
               </div>
             </div>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="email">{t("details.email")}</label>
-                <input id="email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => markTouched("email")} aria-invalid={!!errFor("email")} autoComplete="email" enterKeyHint="next" />
-                {errFor("email") && <p className="field-err">{errFor("email")}</p>}
+                <input id="email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => markTouched("email")} aria-invalid={!!errFor("email")} aria-describedby={errFor("email") ? "email-err" : undefined} autoComplete="email" enterKeyHint="next" />
+                {errFor("email") && <p id="email-err" role="alert" className="field-err">{errFor("email")}</p>}
               </div>
               <div className="field">
                 <label htmlFor="phone">{t("details.phone")}</label>
@@ -729,15 +744,14 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                       </option>
                     ))}
                   </select>
-                  <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => markTouched("phone")} aria-invalid={!!errFor("phone")} autoComplete="tel" enterKeyHint="next" placeholder={t("details.phonePlaceholder")} />
+                  <input id="phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => markTouched("phone")} aria-invalid={!!errFor("phone")} aria-describedby={errFor("phone") ? "phone-err" : undefined} autoComplete="tel" enterKeyHint="next" placeholder={t("details.phonePlaceholder")} />
                 </div>
-                {errFor("phone") && <p className="field-err">{errFor("phone")}</p>}
+                {errFor("phone") && <p id="phone-err" role="alert" className="field-err">{errFor("phone")}</p>}
               </div>
             </div>
             <div className="field">
               <label htmlFor="start">{t("details.startDate")}</label>
-              <button
-                type="button"
+              <div
                 className="date-field"
                 data-empty={startDate ? undefined : ""}
                 onClick={() => {
@@ -763,13 +777,14 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                   onChange={(e) => setStartDate(e.target.value)}
                   onBlur={() => markTouched("start")}
                   aria-invalid={!!errFor("start")}
+                  aria-describedby={errFor("start") ? "start-err" : undefined}
                 />
                 <span className="date-field-caret" aria-hidden>
                   <Ic.arrow />
                 </span>
-              </button>
+              </div>
               {errFor("start") ? (
-                <p className="field-err">{errFor("start")}</p>
+                <p id="start-err" role="alert" className="field-err">{errFor("start")}</p>
               ) : (
                 <p className="field-hint">{t("details.startDateHint")}</p>
               )}
@@ -995,7 +1010,7 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                 })}
               </span>
             </label>
-            {error && <div className="wizard-err">{error}</div>}
+            {error && <div role="alert" className="wizard-err">{error}</div>}
           </>
         )}
 

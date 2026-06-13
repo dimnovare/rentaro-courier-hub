@@ -25,7 +25,7 @@ export interface Company {
 // footer can render this relationship as "Rentaro — operated by Valguse Kodu OÜ"
 // using `brandName` + `legalName`.
 export const company: Company = {
-  brandName: "Rentaro",
+  brandName: "rentaro",
   legalName: "Valguse Kodu OÜ",
   regCode: "14621591",
   vat: "EE102246089",

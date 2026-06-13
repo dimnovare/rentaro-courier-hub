@@ -43,6 +43,7 @@
     "cityLine": "Tallinn · Riga · Helsinki",
     "citySoonSuffix": "{city} soon",
     "independent": "Independent rental service",
+    "navAriaLabel": "Footer",
     "legal": {
       "regCode": "Reg. code",
       "vat": "VAT"

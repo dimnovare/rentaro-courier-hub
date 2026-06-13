@@ -43,6 +43,7 @@
     "cityLine": "Tallinn · Riia · Helsingi",
     "citySoonSuffix": "{city} peagi",
     "independent": "Sõltumatu renditeenus",
+    "navAriaLabel": "Jalus",
     "legal": {
       "regCode": "Reg. kood",
       "vat": "KMKR"
@@ -282,7 +283,8 @@
       "sub": "Vali oma linn. Praegu tegutseme Tallinnas ja Riias.",
       "soon": "Tulekul",
       "limited": "Piiratud kogus",
-      "available": "{count} saadaval"
+      "available": "{count} saadaval",
+      "waitlist": "Liitu ootejärjekorraga"
     },
     "model": {
       "heading": "Vali oma ratas",

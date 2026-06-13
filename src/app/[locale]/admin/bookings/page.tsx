@@ -66,8 +66,11 @@ export default function AdminBookingsPage() {
   // Whether the "New booking" drawer is open.
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // A "silent" refresh (after an action) keeps the current bookings on screen
+    // instead of dropping to the full-page loading notice — which would unmount
+    // and visibly blink an open Manage panel.
+    if (!opts?.silent) setState({ phase: "loading" });
     try {
       const [bookings, units, models, cities, plans] = await Promise.all([
         listBookings(),
@@ -89,6 +92,9 @@ export default function AdminBookingsPage() {
     } catch (err) {
       if (err instanceof BookingApiError && err.unauthorized) {
         signOut();
+      } else if (opts?.silent) {
+        // Silent-refresh failures keep the existing data; the triggering
+        // action's own catch surfaces the error.
       } else if (err instanceof BookingConfigError) {
         setState({ phase: "error", message: err.message, config: true });
       } else if (err instanceof BookingApiError) {
@@ -103,7 +109,7 @@ export default function AdminBookingsPage() {
     if (authenticated) void load();
   }, [authenticated, load]);
 
-  useAdminRefresh(load);
+  useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 
   // Fetch (once) the latest payment for a booking. Errors are swallowed: the
   // payment readout is non-critical, so a hiccup just leaves it unknown rather
@@ -158,7 +164,7 @@ export default function AdminBookingsPage() {
       try {
         await action();
         setBanner({ tone: "ok", text: okText });
-        await load();
+        await load({ silent: true });
       } catch (err) {
         // A 401 means the session died mid-action — drop to the shell sign-in.
         if (err instanceof BookingApiError && err.unauthorized) {
@@ -186,7 +192,7 @@ export default function AdminBookingsPage() {
         const updated = await confirmPayment(bookingId);
         setPayments((m) => ({ ...m, [bookingId]: updated }));
         setBanner({ tone: "ok", text: "Payment marked as received." });
-        await load();
+        await load({ silent: true });
       } catch (err) {
         if (err instanceof BookingApiError && err.unauthorized) {
           signOut();
@@ -239,7 +245,7 @@ export default function AdminBookingsPage() {
         const contract = await generateContract(bookingId);
         setContracts((c) => ({ ...c, [bookingId]: contract }));
         setBanner({ tone: "ok", text: "Contract generated and sent for signing." });
-        await load();
+        await load({ silent: true });
       } catch (err) {
         handleContractError(bookingId, err, "Could not generate the contract.");
       } finally {
@@ -277,7 +283,7 @@ export default function AdminBookingsPage() {
         tone: "ok",
         text: notify ? "Booking created and confirmation emailed." : "Booking created.",
       });
-      await load();
+      await load({ silent: true });
       return null;
     } catch (err) {
       if (err instanceof BookingApiError && err.unauthorized) {

@@ -4,7 +4,12 @@ import type { ReactNode } from "react";
 
 export function AdminTable({ children }: { children: ReactNode }) {
   return (
-    <div style={{ overflowX: "auto", borderRadius: "var(--r-md)", border: "1px solid var(--border)" }}>
+    <div
+      role="region"
+      aria-label="Table — scroll horizontally to see more"
+      tabIndex={0}
+      style={{ overflowX: "auto", borderRadius: "var(--r-md)", border: "1px solid var(--border)" }}
+    >
       <table
         style={{
           width: "100%",

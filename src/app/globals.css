@@ -78,6 +78,22 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; padding: 0; }
 
+/* Visible keyboard focus across the whole app (WCAG 2.4.7). Mouse/touch focus
+   stays clean because we only ring :focus-visible. Many custom controls use
+   `all: unset` (which strips the UA outline) or set outline:none, so this
+   restores a consistent lime ring on keyboard/AT focus. Inputs additionally
+   keep their lime border-color on focus as a second cue. */
+a:focus-visible, button:focus-visible, summary:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible,
+.btn:focus-visible, .opt:focus-visible, .reserve-btn:focus-visible,
+.faq-q:focus-visible, .seg-btn:focus-visible, .gallery-thumb:focus-visible,
+.addons-toggle:focus-visible, .date-field:focus-visible,
+.admin-nav-item:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
 html {
   background: var(--bg);
   color: var(--text);
@@ -163,14 +179,14 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .brand .logo { width: 38px; height: 38px; border-radius: 11px; border: 1px solid var(--border-strong); background: #0b0d11 center/72% no-repeat; box-shadow: 0 0 22px -6px var(--lime-glow), inset 0 0 0 1px rgba(216, 255, 54, 0.08); }
 .brand .word { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: -0.03em; color: var(--text); }
 .nav-links { display: flex; align-items: center; gap: 30px; }
-.nav-links a { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--text-muted); text-decoration: none; transition: color .2s; cursor: pointer; }
+.nav-links a { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--text-muted); text-decoration: none; transition: color .2s; cursor: pointer; padding: 10px 4px; margin: -10px 0; }
 .nav-links a:hover { color: var(--text); }
 .nav-cta { display: flex; align-items: center; gap: 12px; }
 .nav-menu { display: none; width: 42px; height: 42px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); place-items: center; cursor: pointer; color: var(--text); }
 .locale-switcher { position: relative; display: inline-flex; align-items: center; }
 .locale-switcher select { appearance: none; -webkit-appearance: none; -moz-appearance: none; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.04em; color: var(--text-muted); background: transparent; border: 1px solid var(--border); border-radius: var(--r-full); padding: 8px 30px 8px 14px; cursor: pointer; transition: color .2s, border-color .2s, background .2s; }
 .locale-switcher select:hover { color: var(--text); border-color: var(--border-strong); }
-.locale-switcher select:focus-visible { outline: none; border-color: var(--border-strong); }
+.locale-switcher select:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; border-color: var(--border-strong); }
 .locale-switcher select:disabled { opacity: 0.55; cursor: progress; }
 .locale-switcher select option { background: var(--panel); color: var(--text); }
 .locale-caret { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); display: inline-flex; pointer-events: none; color: var(--text-muted); }

@@ -43,6 +43,7 @@
     "cityLine": "Tallinna · Riika · Helsinki",
     "citySoonSuffix": "{city} pian",
     "independent": "Riippumaton vuokrauspalvelu",
+    "navAriaLabel": "Alatunniste",
     "legal": {
       "regCode": "Y-tunnus",
       "vat": "ALV"
@@ -282,7 +283,8 @@
       "sub": "Valitse kaupunkisi. Toimimme tällä hetkellä Tallinnassa ja Riiassa.",
       "soon": "Tulossa pian",
       "limited": "Rajoitetusti",
-      "available": "{count} saatavilla"
+      "available": "{count} saatavilla",
+      "waitlist": "Liity jonotuslistalle"
     },
     "model": {
       "heading": "Valitse pyöräsi",

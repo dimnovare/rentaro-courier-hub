@@ -297,7 +297,7 @@ function ConfigNotice({ message }: { message: string }) {
 
 /** Bookings still awaiting an operator decision. */
 function countPending(bookings: AdminBooking[]): number {
-  return bookings.filter((b) => /submitted|awaiting|review|pending|approved/i.test(b.status)).length;
+  return bookings.filter((b) => /^(submitted|awaiting_review)$/i.test(b.status)).length;
 }
 
 /** Newest five bookings by createdAt. */

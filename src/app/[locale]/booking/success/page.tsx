@@ -79,6 +79,20 @@ export default function BookingSuccessPage() {
                 </h2>
                 <p className="success-body">{t("body")}</p>
 
+                {/* Direct visit / refresh: the live summary lives in sessionStorage
+                    and is gone, so there is no reference to restate. Tell the rider
+                    plainly and point them at the status lookup (hardcoded copy —
+                    not yet in the success i18n bundle). */}
+                {!s && (
+                  <p
+                    className="lead"
+                    style={{ fontSize: 14, margin: "0 auto 22px", maxWidth: 460 }}
+                  >
+                    Your live booking summary is not available in this session. Use
+                    your booking reference to look it up below.
+                  </p>
+                )}
+
                 {s && (
                   <article
                     className="card"

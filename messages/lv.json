@@ -43,6 +43,7 @@
     "cityLine": "Tallina · Rīga · Helsinki",
     "citySoonSuffix": "{city} drīzumā",
     "independent": "Neatkarīgs nomas serviss",
+    "navAriaLabel": "Kājene",
     "legal": {
       "regCode": "Reģ. Nr.",
       "vat": "PVN"
@@ -282,7 +283,8 @@
       "sub": "Izvēlies savu pilsētu. Šobrīd darbojamies Tallinā un Rīgā.",
       "soon": "Drīzumā",
       "limited": "Ierobežots skaits",
-      "available": "Pieejami {count}"
+      "available": "Pieejami {count}",
+      "waitlist": "Pievienoties gaidīšanas sarakstam"
     },
     "model": {
       "heading": "Izvēlies savu velosipēdu",

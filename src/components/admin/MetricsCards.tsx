@@ -10,13 +10,14 @@
  * unset) this component renders nothing rather than showing an error, so it is
  * always safe to mount.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   getMetrics,
   AdminConfigError,
   AdminMetricsApiError,
   type AdminMetrics,
 } from "@/services/adminMetricsService";
+import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
 type State =
   | { phase: "loading" }
@@ -33,31 +34,32 @@ function euro(n: number): string {
 export function MetricsCards() {
   const [state, setState] = useState<State>({ phase: "loading" });
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const data = await getMetrics();
-        if (active) setState({ phase: "ready", data });
-      } catch (err) {
-        if (!active) return;
-        if (err instanceof AdminConfigError) {
-          // API base URL not set — nothing to show; stay invisible.
-          setState({ phase: "hidden" });
-        } else if (err instanceof AdminMetricsApiError && err.unauthorized) {
-          // No token / expired — the hub's gate handles re-auth; stay invisible.
-          setState({ phase: "hidden" });
-        } else if (err instanceof AdminMetricsApiError) {
-          setState({ phase: "error", message: err.message });
-        } else {
-          setState({ phase: "error", message: "Could not load metrics." });
-        }
+  const refetch = useCallback(async () => {
+    try {
+      const data = await getMetrics();
+      setState({ phase: "ready", data });
+    } catch (err) {
+      if (err instanceof AdminConfigError) {
+        // API base URL not set — nothing to show; stay invisible.
+        setState({ phase: "hidden" });
+      } else if (err instanceof AdminMetricsApiError && err.unauthorized) {
+        // No token / expired — the hub's gate handles re-auth; stay invisible.
+        setState({ phase: "hidden" });
+      } else if (err instanceof AdminMetricsApiError) {
+        setState({ phase: "error", message: err.message });
+      } else {
+        setState({ phase: "error", message: "Could not load metrics." });
       }
-    })();
-    return () => {
-      active = false;
-    };
+    }
   }, []);
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
+
+  // Refetch on the topbar Refresh so the cards never go stale relative to the
+  // dashboard's other metric-derived readouts (e.g. the Alerts counts).
+  useAdminRefresh(refetch);
 
   if (state.phase === "hidden") return null;
 

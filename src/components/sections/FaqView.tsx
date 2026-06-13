@@ -38,19 +38,29 @@ export function FaqView({ count, defaultOpen }: { count: number; defaultOpen: nu
               {col.map((key, j) => {
                 const idx = ci === 0 ? j : half + j;
                 const isOpen = open === idx;
+                const panelId = `faq-a-${key}`;
+                const btnId = `faq-q-${key}`;
                 return (
                   <div key={idx} className={`faq-item ${isOpen ? "open" : ""}`}>
                     <button
+                      id={btnId}
                       className="faq-q"
                       onClick={() => setOpen(isOpen ? -1 : idx)}
                       aria-expanded={isOpen}
+                      aria-controls={panelId}
                     >
                       <span>{t(`items.${key}.q`)}</span>
                       <span className="ic">
                         <Ic.plus s={12} />
                       </span>
                     </button>
-                    <div className="faq-a">
+                    <div
+                      id={panelId}
+                      className="faq-a"
+                      role="region"
+                      aria-labelledby={btnId}
+                      hidden={!isOpen}
+                    >
                       <div className="faq-a-in">{t(`items.${key}.a`)}</div>
                     </div>
                   </div>

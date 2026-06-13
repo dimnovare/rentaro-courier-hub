@@ -170,7 +170,7 @@ export default function AdminModelsPage() {
     }
   }
 
-  /** Swap a model's sortOrder with its neighbour and persist both. */
+  /** Move a model past its neighbour and persist distinct positional sortOrders. */
   async function reorder(code: string, direction: "up" | "down") {
     if (state.phase !== "ready") return;
     const models = state.models;
@@ -181,27 +181,33 @@ export default function AdminModelsPage() {
 
     const a = models[i];
     const b = models[j];
+
+    // Reorder the list, then assign explicit 0..n-1 sortOrders so the swap
+    // sticks even when neighbours share a value (new models default to 0).
+    const reordered = [...models];
+    reordered[i] = b;
+    reordered[j] = a;
+    const indexed = reordered.map((m, idx) => ({ ...m, sortOrder: idx }));
+    const targets = indexed.filter((m, idx) => m.sortOrder !== models[idx].sortOrder);
+
     setActionError(null);
     setBusy(a.code, true);
     setBusy(b.code, true);
     try {
-      // Persist swapped sort orders, then reflect both in state.
-      const [ua, ub] = await Promise.all([
-        updateModel(a.code, { sortOrder: b.sortOrder }),
-        updateModel(b.code, { sortOrder: a.sortOrder }),
-      ]);
+      // Persist the new positions, then reflect them in state.
+      const updated = await Promise.all(
+        targets.map((m) => updateModel(m.code, { sortOrder: m.sortOrder })),
+      );
+      const byCode = new Map(updated.map((m) => [m.code, m]));
       setState((s) =>
         s.phase === "ready"
-          ? {
-              ...s,
-              models: sortModels(
-                s.models.map((m) => (m.code === ua.code ? ua : m.code === ub.code ? ub : m)),
-              ),
-            }
+          ? { ...s, models: sortModels(s.models.map((m) => byCode.get(m.code) ?? m)) }
           : s,
       );
     } catch (err) {
       handleActionError(err, "Could not reorder models.");
+      // A partial Promise.all failure can leave the table half-applied; resync.
+      void load();
     } finally {
       setBusy(a.code, false);
       setBusy(b.code, false);
