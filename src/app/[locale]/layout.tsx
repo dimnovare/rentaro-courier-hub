@@ -40,7 +40,9 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <InteractionProvider>
-        <Background />
+        <AdminHidden>
+          <Background />
+        </AdminHidden>
         <AdminHidden>
           <Nav />
         </AdminHidden>

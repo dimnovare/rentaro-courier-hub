@@ -674,7 +674,10 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-signin-foot { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
 
 /* ── App grid (sidebar + main) ───────────────────────────── */
-.admin-app { position: relative; z-index: 2; display: flex; align-items: flex-start; gap: 0; width: 100%; max-width: 1480px; margin: 0 auto; padding: 0; min-height: 100dvh; }
+/* Full-bleed app shell: the dark chrome (sidebar + topbar) spans the whole
+   viewport so it never ends mid-screen with the page background showing through.
+   The content itself stays comfortably capped (.admin-content max-width). */
+.admin-app { position: relative; z-index: 2; display: flex; align-items: flex-start; gap: 0; width: 100%; margin: 0; padding: 0; min-height: 100dvh; background: var(--bg); }
 
 /* Sidebar — sticky so the page footer still flows below it on desktop. */
 .admin-sidebar { position: sticky; top: 0; align-self: flex-start; flex-shrink: 0; width: 248px; height: 100vh; display: flex; flex-direction: column; padding: 20px 14px 16px; border-right: 1px solid var(--border); background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0)); }
@@ -698,7 +701,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
 /* Topbar */
-.admin-topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; padding: 0 26px; border-bottom: 1px solid var(--border); background: rgba(10, 12, 17, 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.admin-topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; padding: 0 26px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(16, 19, 27, 0.88), rgba(10, 12, 17, 0.72)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 10px 26px -18px rgba(0, 0, 0, 0.75); }
 .admin-topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .admin-topbar-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-topbar-menu { display: none; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); cursor: pointer; flex-shrink: 0; }
