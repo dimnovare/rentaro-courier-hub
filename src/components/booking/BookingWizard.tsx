@@ -103,6 +103,9 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   const [phone, setPhone] = useState("");
   const [startDate, setStartDate] = useState("");
   const startRef = useRef<HTMLInputElement>(null);
+  // Refs for the model-info modal focus trap (panel + element to restore on close).
+  const infoModalRef = useRef<HTMLDivElement>(null);
+  const infoRestoreRef = useRef<HTMLElement | null>(null);
   const [notes, setNotes] = useState("");
   const [referralCode, setReferralCode] = useState(initialReferral);
   const [submitting, setSubmitting] = useState(false);
@@ -186,11 +189,40 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
     // `key` is the only signal that matters here — re-fire on each step change.
   }, [key]);
 
-  // Close the model info popup on Esc and lock background scroll while open.
+  // Model info popup: trap focus inside it, close on Esc, restore focus to the
+  // trigger on close, and lock background scroll while open (mirrors Drawer).
   useEffect(() => {
     if (!infoModel) return;
+    infoRestoreRef.current = document.activeElement as HTMLElement | null;
+    const panel = infoModalRef.current;
+    const focusables = () =>
+      panel
+        ? Array.from(
+            panel.querySelectorAll<HTMLElement>(
+              'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            ),
+          ).filter((el) => el.offsetParent !== null)
+        : [];
+    (focusables()[0] ?? panel)?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setInfoModel(null);
+      if (e.key === "Escape") {
+        setInfoModel(null);
+        return;
+      }
+      if (e.key === "Tab") {
+        const f = focusables();
+        if (f.length === 0) return;
+        const first = f[0];
+        const last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -198,6 +230,7 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      infoRestoreRef.current?.focus?.();
     };
   }, [infoModel]);
 
@@ -1064,9 +1097,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           }}
         >
           <div
+            ref={infoModalRef}
             role="dialog"
             aria-modal="true"
             aria-label={infoModel.name}
+            tabIndex={-1}
             className="card bike-modal"
           >
             <button

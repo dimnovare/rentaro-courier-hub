@@ -45,6 +45,7 @@
     "independent": "Sõltumatu renditeenus",
     "navAriaLabel": "Jalus",
     "legal": {
+      "operatedBy": "{brand} on toode, mida haldab {legal}, registrikood {regCode}, registreeritud aadressil {address}.",
       "regCode": "Reg. kood",
       "vat": "KMKR"
     }

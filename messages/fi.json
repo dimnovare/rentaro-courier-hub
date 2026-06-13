@@ -45,6 +45,7 @@
     "independent": "Riippumaton vuokrauspalvelu",
     "navAriaLabel": "Alatunniste",
     "legal": {
+      "operatedBy": "{brand} on palvelun {legal} tuote, rekisterikoodi {regCode}, rekisteröity osoitteeseen {address}.",
       "regCode": "Y-tunnus",
       "vat": "ALV"
     }

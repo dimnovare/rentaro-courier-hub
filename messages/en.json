@@ -45,6 +45,7 @@
     "independent": "Independent rental service",
     "navAriaLabel": "Footer",
     "legal": {
+      "operatedBy": "{brand} is a product operated by {legal}, registry code {regCode}, registered at {address}.",
       "regCode": "Reg. code",
       "vat": "VAT"
     }

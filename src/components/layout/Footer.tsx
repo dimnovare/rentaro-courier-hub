@@ -79,8 +79,12 @@ export async function Footer() {
           {/* Standard operating-entity line: brand is a product operated by the
               legal entity, with registry code + registered address. */}
           <span className="foot-legal-name">
-            {company.brandName} is a product operated by {company.legalName}, registry
-            code {company.regCode}, registered at {company.address}.
+            {t("legal.operatedBy", {
+              brand: company.brandName,
+              legal: company.legalName,
+              regCode: company.regCode,
+              address: company.address,
+            })}
           </span>
           {company.vat && (
             <span>

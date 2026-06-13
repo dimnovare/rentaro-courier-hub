@@ -45,6 +45,7 @@
     "independent": "Neatkarīgs nomas serviss",
     "navAriaLabel": "Kājene",
     "legal": {
+      "operatedBy": "{brand} ir produkts, ko pārvalda {legal}, reģistrācijas numurs {regCode}, reģistrēts adresē {address}.",
       "regCode": "Reģ. Nr.",
       "vat": "PVN"
     }
