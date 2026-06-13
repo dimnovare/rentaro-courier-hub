@@ -963,7 +963,13 @@ function ManagePanel({
       </PanelGroup>
 
       <PanelGroup title="4 · Assign a bike">
-        <AssignControl booking={b} units={units} onAssign={onAssign} />
+        <AssignControl
+          booking={b}
+          units={units}
+          payment={payment}
+          contract={contract}
+          onAssign={onAssign}
+        />
       </PanelGroup>
     </div>
   );
@@ -1167,14 +1173,25 @@ function ContractControl({
  * damaged unit, or a unit in the wrong city/model, which the backend would
  * either reject or — worse — silently accept.) When nothing matches we explain
  * why instead of showing an empty, un-actionable select.
+ *
+ * The backend also refuses (409) to start a rental until the payment is settled
+ * and the contract signed. We mirror those gates in the UI so the disabled
+ * reason is visible up front rather than only surfacing after a failed click.
+ * Payment is reliably fetched per row; contract state is only known once a
+ * contract has been generated in this session (no list-by-booking endpoint), so
+ * a not-yet-known contract does not block — payment alone gates in that case.
  */
 function AssignControl({
   booking: b,
   units,
+  payment,
+  contract,
   onAssign,
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
+  payment: AdminPayment | null | "loading" | undefined;
+  contract: Contract | undefined;
   onAssign: (code: string) => void;
 }) {
   const [code, setCode] = useState("");
@@ -1215,12 +1232,29 @@ function AssignControl({
     );
   }
 
+  // Mirror the backend's pre-conditions (settled payment + signed contract) so
+  // the assign button is disabled with an inline reason rather than letting the
+  // operator click into a 409. Payment is checked first; contract is only known
+  // once generated this session, so an unknown contract is not treated as a
+  // blocker (payment alone gates then).
+  const paymentSettled = payment != null && payment !== "loading" && payment.status.toLowerCase() === "paid";
+  const contractSigned = contract == null || contract.status === "Signed";
+  const blockReason =
+    payment === "loading"
+      ? "Checking payment…"
+      : !paymentSettled
+        ? "Confirm payment first"
+        : !contractSigned
+          ? "Contract must be signed first"
+          : null;
+  const gated = blockReason != null;
+
   return (
     <form
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
       onSubmit={(e) => {
         e.preventDefault();
-        if (code) onAssign(code);
+        if (code && !gated) onAssign(code);
       }}
     >
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -1232,12 +1266,14 @@ function AssignControl({
             </option>
           ))}
         </select>
-        <button type="submit" className="btn btn-primary" style={miniBtn} disabled={!code}>
+        <button type="submit" className="btn btn-primary" style={miniBtn} disabled={!code || gated}>
           Assign &amp; start rental
         </button>
       </div>
       <p style={hintStyle}>
-        {eligible.length} available {eligible.length === 1 ? "unit" : "units"} for this model + city.
+        {gated
+          ? blockReason
+          : `${eligible.length} available ${eligible.length === 1 ? "unit" : "units"} for this model + city.`}
       </p>
     </form>
   );

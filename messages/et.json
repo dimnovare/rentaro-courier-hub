@@ -1169,5 +1169,43 @@
     "decline": "Keeldun",
     "necessaryOnly": "Ainult vajalikud",
     "learnMore": "Privaatsuspoliitika"
+  },
+  "pageMeta": {
+    "accessories": {
+      "title": "Lisavarustus ja tarvikud kulleritele | rentaro",
+      "description": "Varusta oma vahetus rentaro lisadega — varuakud, kullerikotid, telefonihoidikud, tugevad lukud ja palju muud. Loodud kulleritele, saadaval iga paketiga."
+    },
+    "faq": {
+      "title": "KKK — kuupõhine elektriratta rent kulleritele | rentaro",
+      "description": "Vastused rentaro pakettide, 30-päevase miinimumi, tagatisraha, hoolduse, varuakude, järeletuleku asukohtade ja digilepingu kohta kulleritele."
+    },
+    "models": {
+      "title": "Kõik elektrirattamudelid — rentaro",
+      "description": "Sirvi kogu rentaro parki — kulleritööks valmis elektrirattad 30-päevase, 6- või 12-kuulise paketiga Tallinnas, Riias ja Helsingis."
+    },
+    "pricing": {
+      "title": "Hinnad — kuupõhised elektriratta paketid kulleritele | rentaro",
+      "description": "Lihtne hind iga 30 päeva kohta kulleritele: 5,90 €/päev 30-päevase paketiga, 4,90 €/päev 6 kuuga ja 3,90 €/päev 12 kuuga. Sama paketihind kõigil mudelitel."
+    },
+    "privacy": {
+      "title": "Privaatsuspoliitika — rentaro",
+      "description": "Kuidas rentaro kogub, kasutab ja kaitseb sinu isikuandmeid ning sinu õigused ELi andmekaitseseaduse (GDPR) järgi kullerirendi kliendina."
+    },
+    "terms": {
+      "title": "Kasutustingimused — rentaro",
+      "description": "Tingimused, mis reguleerivad rentaro veebilehe kasutamist ja elektriratta rendi broneerimist, sealhulgas broneeringud, hinnad, kohustused ja vastutus kulleritele."
+    },
+    "rules": {
+      "title": "Rendireeglid — rentaro",
+      "description": "Kuidas rentaro elektriratta rent toimib: 30-päevane miinimum, tagatisraha, sisalduv hooldus, kahjustuste ja varguste käsitlemine, laadimine ja tagastamine kulleritele."
+    },
+    "bookingStatus": {
+      "title": "Jälgi oma broneeringut — rentaro",
+      "description": "Kontrolli oma rentaro elektriratta broneeringu staatust. Sisesta kinnitusest leitav broneeringu viide, et näha oma mudelit, paketti, linna ja alguskuupäeva."
+    },
+    "couriers": {
+      "title": "Elektriratta rent kulleritele — rentaro",
+      "description": "rentaro on elektriratta rent, mis on loodud kulleritele. Alusta kiiresti kuupõhise paketiga, sõida hoolduse toega ja hoia oma ratas — sinu sissetulekuvahend — liikumas. Tallinn, Riia ja Helsingi."
+    }
   }
 }

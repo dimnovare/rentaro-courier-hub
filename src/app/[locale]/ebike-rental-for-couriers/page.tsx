@@ -19,10 +19,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isLocale(locale) ? locale : "en";
+  const t = await getTranslations({ locale: loc, namespace: "pageMeta.couriers" });
   return {
-    title: "E-bike rental for couriers — rentaro",
-    description:
-      "rentaro is e-bike rental built for delivery couriers. Start quickly on a monthly plan, ride with service support and keep your bike — your income tool — moving. Tallinn, Riga and Helsinki.",
+    title: t("title"),
+    description: t("description"),
     alternates: buildAlternates(loc, "/ebike-rental-for-couriers"),
   };
 }

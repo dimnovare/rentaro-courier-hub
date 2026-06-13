@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Prose } from "@/components/ui/Prose";
 import { getLegalDocs } from "@/data/legal";
 
-export const metadata: Metadata = {
-  title: "Rental rules — rentaro",
-  description:
-    "How a rentaro e-bike rental works: the 30-day minimum, deposit, included maintenance, damage and theft handling, charging and returns for delivery couriers.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.rules" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function RulesPage({
   params,

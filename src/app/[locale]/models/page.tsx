@@ -6,11 +6,18 @@ import { ModelCard } from "@/components/models/ModelCard";
 import { modelService } from "@/services/modelService";
 import { getLiveModelTotals, modelStatus } from "@/services/availabilityService";
 
-export const metadata: Metadata = {
-  title: "All e-bike models — rentaro",
-  description:
-    "Browse the full rentaro fleet — delivery-ready e-bikes available on 30-day, 6 or 12-month plans in Tallinn, Riga and Helsinki.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.models" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function ModelsPage() {
   const [models, liveTotals] = await Promise.all([

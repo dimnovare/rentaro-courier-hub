@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Prose } from "@/components/ui/Prose";
 import { getLegalDocs } from "@/data/legal";
 
-export const metadata: Metadata = {
-  title: "Privacy policy — rentaro",
-  description:
-    "How rentaro collects, uses and protects your personal data, and your rights under EU data protection law (GDPR) as a delivery-courier rental customer.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.privacy" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function PrivacyPage({
   params,

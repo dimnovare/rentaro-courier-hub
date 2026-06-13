@@ -5,29 +5,35 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Pricing } from "@/components/sections/Pricing";
 
-const title = "Pricing — monthly e-bike plans for couriers | rentaro";
-const description =
-  "Simple per-30-day pricing for delivery couriers: €5.90/day on the 30-day plan, €4.90/day on 6 months and €3.90/day on 12 months. Same plan pricing across every model.";
-
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: { canonical: "/pricing" },
-  openGraph: {
-    type: "website",
-    siteName: "rentaro",
-    url: "/pricing",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.pricing" });
+  const title = t("title");
+  const description = t("description");
+  return {
     title,
     description,
-    images: defaultOgImages,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: defaultTwitterImages,
-  },
-};
+    alternates: { canonical: "/pricing" },
+    openGraph: {
+      type: "website",
+      siteName: "rentaro",
+      url: "/pricing",
+      title,
+      description,
+      images: defaultOgImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: defaultTwitterImages,
+    },
+  };
+}
 
 export default async function PricingPage() {
   const t = await getTranslations("pageHeaders.pricing");

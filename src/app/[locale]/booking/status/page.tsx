@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { BookingStatusLookup } from "./BookingStatusLookup";
 
-export const metadata: Metadata = {
-  title: "Track your booking — rentaro",
-  description:
-    "Check the status of your rentaro e-bike reservation. Enter the booking reference from your confirmation to see your model, plan, city and start date.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.bookingStatus" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default function BookingStatusPage() {
   return (

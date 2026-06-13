@@ -1169,5 +1169,43 @@
     "decline": "Hylkää",
     "necessaryOnly": "Vain välttämättömät",
     "learnMore": "Tietosuojakäytäntö"
+  },
+  "pageMeta": {
+    "accessories": {
+      "title": "Tarvikkeet ja lisävarusteet lähetille | rentaro",
+      "description": "Varustaudu vuoroosi rentaron lisävarusteilla — vara-akut, lähettilaukut, puhelintelineet, järeät lukot ja muuta. Tehty läheteille, saatavilla jokaisen paketin kanssa."
+    },
+    "faq": {
+      "title": "UKK — kuukausittainen sähköpyörän vuokraus läheteille | rentaro",
+      "description": "Vastauksia rentaron paketeista, 30 päivän vähimmäisajasta, vakuuksista, huollosta, vara-akuista, noutopaikoista ja digitaalisesta sopimuksesta läheteille."
+    },
+    "models": {
+      "title": "Kaikki sähköpyörämallit — rentaro",
+      "description": "Selaa koko rentaron kalustoa — lähetystyöhön valmiit sähköpyörät 30 päivän, 6 tai 12 kuukauden paketilla Tallinnassa, Riiassa ja Helsingissä."
+    },
+    "pricing": {
+      "title": "Hinnat — kuukausittaiset sähköpyöräpaketit läheteille | rentaro",
+      "description": "Selkeä hinta per 30 päivää läheteille: 5,90 €/päivä 30 päivän paketilla, 4,90 €/päivä 6 kuukaudella ja 3,90 €/päivä 12 kuukaudella. Sama pakettihinta kaikille malleille."
+    },
+    "privacy": {
+      "title": "Tietosuojakäytäntö — rentaro",
+      "description": "Miten rentaro kerää, käyttää ja suojaa henkilötietojasi, ja oikeutesi EU:n tietosuojalain (GDPR) mukaan lähetin vuokrausasiakkaana."
+    },
+    "terms": {
+      "title": "Käyttöehdot — rentaro",
+      "description": "Ehdot, jotka koskevat rentaron sivuston käyttöä ja sähköpyörän vuokrauksen varaamista, mukaan lukien varaukset, hinnoittelu, vastuut ja vahingonkorvausvastuu läheteille."
+    },
+    "rules": {
+      "title": "Vuokrasäännöt — rentaro",
+      "description": "Miten rentaron sähköpyörän vuokraus toimii: 30 päivän vähimmäisaika, vakuus, sisältyvä huolto, vahinkojen ja varkauksien käsittely, lataus ja palautukset läheteille."
+    },
+    "bookingStatus": {
+      "title": "Seuraa varaustasi — rentaro",
+      "description": "Tarkista rentaron sähköpyörävarauksesi tila. Syötä vahvistuksesta löytyvä varausviite nähdäksesi mallisi, pakettisi, kaupunkisi ja aloituspäivän."
+    },
+    "couriers": {
+      "title": "Sähköpyörän vuokraus läheteille — rentaro",
+      "description": "rentaro on lähettityöhön tehty sähköpyörän vuokraus. Aloita nopeasti kuukausipaketilla, aja huoltotuen kanssa ja pidä pyöräsi — ansaintavälineesi — liikkeessä. Tallinna, Riika ja Helsinki."
+    }
   }
 }

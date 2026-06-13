@@ -4,11 +4,18 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Accessories } from "@/components/sections/Accessories";
 
-export const metadata: Metadata = {
-  title: "Accessories & add-ons for delivery couriers | rentaro",
-  description:
-    "Kit out your shift with rentaro add-ons — extra batteries, delivery bags, phone holders, heavy-duty locks and more. Built for couriers, available with any plan.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.accessories" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function AccessoriesPage() {
   const t = await getTranslations("pageHeaders.accessories");

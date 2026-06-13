@@ -146,6 +146,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   });
   const markTouched = (f: DetailField) =>
     setTouched((s) => (s[f] ? s : { ...s, [f]: true }));
+  // Reveal every missing field at once (e.g. tapping Continue while invalid,
+  // where the per-field blur errors haven't surfaced yet — notably on mobile
+  // where the foot hint is hidden).
+  const markAllTouched = () =>
+    setTouched({ first: true, last: true, email: true, phone: true, start: true });
 
   // Add-ons are collapsed by default to keep the Details step short.
   const [addonsOpen, setAddonsOpen] = useState(false);
@@ -1058,8 +1063,10 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
               )}
               <button
                 className="btn btn-primary"
-                onClick={next}
-                disabled={!stepValid}
+                onClick={
+                  key === "details" && !stepValid ? markAllTouched : next
+                }
+                disabled={key !== "details" && !stepValid}
                 style={!stepValid ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
               >
                 {t("buttons.continue")}

@@ -1169,5 +1169,43 @@
     "decline": "Decline",
     "necessaryOnly": "Necessary only",
     "learnMore": "Privacy policy"
+  },
+  "pageMeta": {
+    "accessories": {
+      "title": "Accessories & add-ons for delivery couriers | rentaro",
+      "description": "Kit out your shift with rentaro add-ons — extra batteries, delivery bags, phone holders, heavy-duty locks and more. Built for couriers, available with any plan."
+    },
+    "faq": {
+      "title": "FAQ — monthly e-bike rental for couriers | rentaro",
+      "description": "Answers on rentaro plans, the 30-day minimum, deposits, maintenance, extra batteries, pickup locations and the digital contract for delivery couriers."
+    },
+    "models": {
+      "title": "All e-bike models — rentaro",
+      "description": "Browse the full rentaro fleet — delivery-ready e-bikes available on 30-day, 6 or 12-month plans in Tallinn, Riga and Helsinki."
+    },
+    "pricing": {
+      "title": "Pricing — monthly e-bike plans for couriers | rentaro",
+      "description": "Simple per-30-day pricing for delivery couriers: €5.90/day on the 30-day plan, €4.90/day on 6 months and €3.90/day on 12 months. Same plan pricing across every model."
+    },
+    "privacy": {
+      "title": "Privacy policy — rentaro",
+      "description": "How rentaro collects, uses and protects your personal data, and your rights under EU data protection law (GDPR) as a delivery-courier rental customer."
+    },
+    "terms": {
+      "title": "Terms and conditions — rentaro",
+      "description": "The terms governing use of the rentaro website and booking an e-bike rental, including bookings, pricing, responsibilities and liability for delivery couriers."
+    },
+    "rules": {
+      "title": "Rental rules — rentaro",
+      "description": "How a rentaro e-bike rental works: the 30-day minimum, deposit, included maintenance, damage and theft handling, charging and returns for delivery couriers."
+    },
+    "bookingStatus": {
+      "title": "Track your booking — rentaro",
+      "description": "Check the status of your rentaro e-bike reservation. Enter the booking reference from your confirmation to see your model, plan, city and start date."
+    },
+    "couriers": {
+      "title": "E-bike rental for couriers — rentaro",
+      "description": "rentaro is e-bike rental built for delivery couriers. Start quickly on a monthly plan, ride with service support and keep your bike — your income tool — moving. Tallinn, Riga and Helsinki."
+    }
   }
 }

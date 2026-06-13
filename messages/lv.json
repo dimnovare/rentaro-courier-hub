@@ -1169,5 +1169,43 @@
     "decline": "Noraidīt",
     "necessaryOnly": "Tikai nepieciešamās",
     "learnMore": "Privātuma politika"
+  },
+  "pageMeta": {
+    "accessories": {
+      "title": "Piederumi un papildaprīkojums kurjeriem | rentaro",
+      "description": "Aprīko savu maiņu ar rentaro papildaprīkojumu — rezerves akumulatoriem, piegādes somām, telefona turētājiem, izturīgām slēdzenēm un citu. Veidots kurjeriem, pieejams ar jebkuru plānu."
+    },
+    "faq": {
+      "title": "BUJ — ikmēneša elektrovelosipēdu noma kurjeriem | rentaro",
+      "description": "Atbildes par rentaro plāniem, 30 dienu minimumu, drošības naudu, apkopi, rezerves akumulatoriem, saņemšanas vietām un digitālo līgumu kurjeriem."
+    },
+    "models": {
+      "title": "Visi elektrovelosipēdu modeļi — rentaro",
+      "description": "Pārlūko visu rentaro parku — piegādei gatavi elektrovelosipēdi ar 30 dienu, 6 vai 12 mēnešu plānu Tallinā, Rīgā un Helsinkos."
+    },
+    "pricing": {
+      "title": "Cenas — ikmēneša elektrovelosipēdu plāni kurjeriem | rentaro",
+      "description": "Vienkārša cena par 30 dienām kurjeriem: 5,90 €/dienā ar 30 dienu plānu, 4,90 €/dienā uz 6 mēnešiem un 3,90 €/dienā uz 12 mēnešiem. Vienāda plāna cena visiem modeļiem."
+    },
+    "privacy": {
+      "title": "Privātuma politika — rentaro",
+      "description": "Kā rentaro vāc, izmanto un aizsargā tavus personas datus, un tavas tiesības saskaņā ar ES datu aizsardzības likumu (GDPR) kā kurjeru nomas klientam."
+    },
+    "terms": {
+      "title": "Noteikumi un nosacījumi — rentaro",
+      "description": "Noteikumi, kas regulē rentaro vietnes lietošanu un elektrovelosipēda nomas rezervēšanu, tostarp rezervācijas, cenas, pienākumus un atbildību kurjeriem."
+    },
+    "rules": {
+      "title": "Nomas noteikumi — rentaro",
+      "description": "Kā darbojas rentaro elektrovelosipēda noma: 30 dienu minimums, drošības nauda, iekļautā apkope, bojājumu un zādzību risināšana, uzlāde un atgriešana kurjeriem."
+    },
+    "bookingStatus": {
+      "title": "Seko savai rezervācijai — rentaro",
+      "description": "Pārbaudi savas rentaro elektrovelosipēda rezervācijas statusu. Ievadi rezervācijas atsauci no apstiprinājuma, lai redzētu savu modeli, plānu, pilsētu un sākuma datumu."
+    },
+    "couriers": {
+      "title": "Elektrovelosipēdu noma kurjeriem — rentaro",
+      "description": "rentaro ir elektrovelosipēdu noma, kas veidota piegādes kurjeriem. Sāc ātri ar ikmēneša plānu, brauc ar apkopes atbalstu un uzturi savu velosipēdu — tavu ienākumu rīku — kustībā. Tallina, Rīga un Helsinki."
+    }
   }
 }

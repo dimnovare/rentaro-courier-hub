@@ -4,11 +4,18 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Faq } from "@/components/sections/Faq";
 
-export const metadata: Metadata = {
-  title: "FAQ — monthly e-bike rental for couriers | rentaro",
-  description:
-    "Answers on rentaro plans, the 30-day minimum, deposits, maintenance, extra batteries, pickup locations and the digital contract for delivery couriers.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta.faq" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function FaqPage() {
   const t = await getTranslations("pageHeaders.faq");

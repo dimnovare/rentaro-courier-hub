@@ -1,14 +1,50 @@
 /** Bare presentational table primitives shared by the admin views. Styling is
  *  done with inline styles + brand CSS vars so we never touch globals.css. */
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 export function AdminTable({ children }: { children: ReactNode }) {
+  const [edge, setEdge] = useState<"both" | "right" | "left" | "none">("none");
+
+  const onScroll = (el: HTMLDivElement | null) => {
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    if (max <= 1) {
+      setEdge("none");
+      return;
+    }
+    const atStart = el.scrollLeft <= 1;
+    const atEnd = el.scrollLeft >= max - 1;
+    setEdge(atStart ? "right" : atEnd ? "left" : "both");
+  };
+
+  // Map the scroll position to a CSS mask that fades the appropriate edge(s).
+  const fadeStop = "16px";
+  const opaque = "rgba(0,0,0,1)";
+  const clear = "rgba(0,0,0,0)";
+  const mask =
+    edge === "both"
+      ? `linear-gradient(to right, ${clear}, ${opaque} ${fadeStop}, ${opaque} calc(100% - ${fadeStop}), ${clear})`
+      : edge === "right"
+        ? `linear-gradient(to right, ${opaque} calc(100% - ${fadeStop}), ${clear})`
+        : edge === "left"
+          ? `linear-gradient(to right, ${clear}, ${opaque} ${fadeStop})`
+          : undefined;
+
   return (
     <div
       role="region"
       aria-label="Table — scroll horizontally to see more"
       tabIndex={0}
-      style={{ overflowX: "auto", borderRadius: "var(--r-md)", border: "1px solid var(--border)" }}
+      ref={(el) => onScroll(el)}
+      onScroll={(e) => onScroll(e.currentTarget)}
+      style={{
+        overflowX: "auto",
+        borderRadius: "var(--r-md)",
+        border: "1px solid var(--border)",
+        WebkitMaskImage: mask,
+        maskImage: mask,
+      }}
     >
       <table
         style={{
