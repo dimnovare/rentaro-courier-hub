@@ -44,3 +44,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /blob-report/
+
+# Claude Code local tooling (preview launch config, etc.)
+/.claude/
