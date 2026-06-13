@@ -114,6 +114,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   // Live availability: keyed as "city:<id>" and "model:<id>" → available count.
   // Falls back silently to static data when the API is unavailable.
   const [availMap, setAvailMap] = useState<Record<string, number>>({});
+  // True once the availability fetch has resolved (success OR failure). A
+  // SUCCESSFUL-but-empty fleet must read as 0 (not the stale static count), so
+  // we only fall back to static data before this flips, or when the fetch
+  // failed outright. See the city/model count logic below.
+  const [availLoaded, setAvailLoaded] = useState(false);
 
   useEffect(() => {
     const url = API_BASE
@@ -130,8 +135,9 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           m[modelKey] = (m[modelKey] ?? 0) + e.available;
         }
         setAvailMap(m);
+        setAvailLoaded(true); // live data won — empty fleet now reads as 0
       })
-      .catch(() => {}); // silent fallback to static
+      .catch(() => setAvailLoaded(false)); // failed fetch → keep static fallback
   }, []);
 
   // Inline validation: track which required fields the visitor has blurred so
@@ -271,6 +277,15 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
     d.setDate(Math.min(day, lastDay));
     return toLocalISODate(d);
   })();
+  // EU-format (dd/mm/yyyy) readout of the chosen start date. The native date input
+  // displays per the browser locale (e.g. mm/dd/yyyy for US users) and that isn't
+  // author-controllable, so we surface this explicit readout next to the field.
+  // Built from the ISO string PARTS — never a Date — to avoid any timezone shift.
+  const startDisplay = (() => {
+    if (!startDate) return "";
+    const [y, m, d] = startDate.split("-");
+    return `${d}/${m}/${y}`;
+  })();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const detailsValid =
     !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && !!startDate;
@@ -387,7 +402,9 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           flex-direction: row;
           align-items: center;
           gap: 13px;
-          padding-right: 52px; /* clear the info button */
+          padding-top: 14px;
+          padding-bottom: 14px;
+          padding-right: 56px; /* clear the info button + leave a visible gap */
         }
         :global(.bike-thumb) {
           width: 58px;
@@ -411,18 +428,54 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           flex-direction: column;
           gap: 5px;
           min-width: 0;
+          padding-right: 4px; /* small gap before the info button column */
         }
         :global(.bike-opt-text .opt-t),
         :global(.bike-opt-text .opt-m) {
           overflow-wrap: anywhere;
+        }
+        /* Per-model price: a touch larger/bolder so it reads clearly as the price. */
+        :global(.bike-opt .opt-p) {
+          font-size: 13px;
+          font-weight: 600;
+        }
+        /* Availability status, separated from the lime price. Neutral + mono so it
+           never looks like part of the price. The message carries its own " · ". */
+        :global(.bike-wait) {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          letter-spacing: 0.04em;
+          color: var(--text-2);
+        }
+        /* Clearer selected affordance for the model cards (the base .opt.selected
+           is just a faint border): a brighter lime ring + a lime check badge.
+           The badge sits in the gutter above the info button. */
+        :global(.bike-opt.selected) {
+          border-color: var(--lime);
+          box-shadow: inset 0 0 0 1px var(--lime), 0 0 0 1px var(--lime-glow-soft);
+        }
+        :global(.bike-opt.selected)::after {
+          content: "";
+          position: absolute;
+          top: 10px;
+          right: 56px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: var(--lime)
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230a0c11' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 L10 17.5 L19 7'/%3E%3C/svg%3E")
+            center / 12px no-repeat;
+          box-shadow: 0 0 10px -2px var(--lime-glow);
+          pointer-events: none;
+          z-index: 1;
         }
         :global(.bike-info-btn) {
           position: absolute;
           top: 50%;
           right: 12px;
           transform: translateY(-50%);
-          width: 40px;
-          height: 40px;
+          width: 36px;
+          height: 36px;
           border-radius: 10px;
           display: grid;
           place-items: center;
@@ -521,6 +574,19 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           font-size: 12.5px;
           color: var(--text-2);
         }
+        /* EU-format start-date readout under the date field. Mono + tighter top
+           gap so it reads as a confirmation of the chosen date, not body copy. */
+        :global(.date-readout) {
+          margin-top: 5px;
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.02em;
+          color: var(--text-muted);
+        }
+        :global(.date-readout strong) {
+          color: var(--text);
+          font-weight: 600;
+        }
 
         /* ---- Long review values (e.g. email) must not overflow ---- */
         :global(.summary-v-wrap) {
@@ -608,7 +674,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
 
       <div className="wizard-rail">
         {steps.map((k, i) => (
-          <div key={k} className={`st ${i === step ? "active" : i < step ? "done" : ""}`}>
+          <div
+            key={k}
+            className={`st ${i === step ? "active" : i < step ? "done" : ""}`}
+            aria-current={i === step ? "step" : undefined}
+          >
             <div className="bar" />
             <div className="lbl">
               {i + 1}. {t(`steps.${k === "details" ? "details" : k}`)}
@@ -638,8 +708,13 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                       {soon
                         ? t("city.soon")
                         : (() => {
-                            const liveCount = availMap[`city:${c.id}`];
-                            const count = liveCount ?? c.available;
+                            // Once the live fetch has resolved, trust it: an empty
+                            // fleet returns no entry, which must read as 0 (waitlist),
+                            // not the stale static seed count. Static c.available is
+                            // only a pre-fetch placeholder.
+                            const count = availLoaded
+                              ? (availMap[`city:${c.id}`] ?? 0)
+                              : c.available;
                             if (count === 0) return t("city.waitlist");
                             if (count <= 3) return t("city.limited");
                             return t("city.available", { count });
@@ -658,8 +733,12 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
             <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
               {models.map((m) => {
-                const liveCount = availMap[`model:${m.id}`];
-                const isWait = liveCount !== undefined ? liveCount === 0 : m.status === "wait";
+                // Once the live fetch has resolved, trust it: a model with no
+                // entry has 0 units → waitlist. The static m.status is only the
+                // pre-fetch placeholder (mirrors the City-step count logic).
+                const isWait = availLoaded
+                  ? (availMap[`model:${m.id}`] ?? 0) === 0
+                  : m.status === "wait";
                 // Prefer a brighter gallery/lifestyle shot for the small thumbnail
                 // (the catalogue `img` is a dark studio cut-out that reads as
                 // near-invisible on the dark option surface); fall back to `img`.
@@ -688,8 +767,13 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                             min: dailyMin.toFixed(2),
                             max: dailyMax.toFixed(2),
                           })}
-                          {isWait ? t("model.waitlistSuffix") : ""}
                         </span>
+                        {isWait && (
+                          // Availability status, kept OUT of the lime price span
+                          // so it doesn't read as part of the price. Reuses the
+                          // existing message (which carries its own " · " lead-in).
+                          <span className="bike-wait">{t("model.waitlistSuffix")}</span>
+                        )}
                       </span>
                     </button>
                     <button
@@ -810,6 +894,7 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                   ref={startRef}
                   id="start"
                   type="date"
+                  lang="en-GB"
                   min={minStartDate}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
@@ -825,6 +910,15 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                 <p id="start-err" role="alert" className="field-err">{errFor("start")}</p>
               ) : (
                 <p className="field-hint">{t("details.startDateHint")}</p>
+              )}
+              {/* Explicit dd/mm/yyyy readout — the native input renders per browser
+                  locale (e.g. US mm/dd/yyyy), so this guarantees the EU format is
+                  always visible. Label reuses an existing localised string; the
+                  date is built from ISO parts (no Date → no timezone shift). */}
+              {startDisplay && (
+                <p className="field-hint date-readout">
+                  {t("details.startDate")}: <strong>{startDisplay}</strong>
+                </p>
               )}
             </div>
             <div className="field">

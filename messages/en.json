@@ -535,7 +535,7 @@
     },
     "signing": {
       "manualTitle": "Signing on handover",
-      "manualAgree": "I agree to sign the rental agreement in person when I collect the bike."
+      "manualAgree": "You'll sign the rental agreement in person when you collect the bike."
     },
     "contract": {
       "readInAdvance": "Read your rental agreement in advance"

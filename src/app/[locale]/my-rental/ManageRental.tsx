@@ -929,8 +929,6 @@ function ContractCard({
   const [state, setState] = useState<ContractResult<PortalContract> | null>(null);
   const [signing, setSigning] = useState(false);
   const [signError, setSignError] = useState<string | null>(null);
-  // Manual (on-paper) signing acknowledgement — only used when online signing is off.
-  const [manualAgreed, setManualAgreed] = useState(false);
 
   const load = useCallback(async () => {
     setState(await getContract(token));
@@ -1012,8 +1010,8 @@ function ContractCard({
               </a>
             ) : null
           ) : !showOnlineSigning ? (
-            /* Online signing disabled → sign on paper at handover. Offer a
-               required acknowledgement plus a link to read the contract now. */
+            /* Online signing disabled → sign on paper at handover. Show a
+               static note plus a link to read the contract now. */
             <>
               {contract.hasGeneratedPdf && (
                 <a
@@ -1029,15 +1027,9 @@ function ContractCard({
                   </span>
                 </a>
               )}
-              <label className="manual-agree">
-                <input
-                  type="checkbox"
-                  required
-                  checked={manualAgreed}
-                  onChange={(e) => setManualAgreed(e.target.checked)}
-                />
+              <p className="manual-agree">
                 <span>{tPortal("signing.manualAgree")}</span>
-              </label>
+              </p>
             </>
           ) : contract.providerConfigured ? (
             <>

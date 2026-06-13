@@ -554,7 +554,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .wizard-rail .st .bar { height: 4px; border-radius: 3px; background: var(--surface-2); }
 .wizard-rail .st.active .bar, .wizard-rail .st.done .bar { background: var(--lime); box-shadow: 0 0 10px -2px var(--lime-glow); }
 .wizard-rail .st .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wizard-rail .st.active .lbl, .wizard-rail .st.done .lbl { color: var(--text-2); }
+.wizard-rail .st.active .lbl { color: var(--lime); font-weight: 600; }
+.wizard-rail .st.done .lbl { color: var(--text-2); }
+/* A leading check marks completed steps, so progress reads without relying on
+   colour alone (the active step is lime + bold; upcoming steps stay dim). */
+.wizard-rail .st.done .lbl::before { content: "\2713\00a0"; color: var(--lime); }
 @media (max-width: 600px) { .wizard-rail .st .lbl { display: none; } }
 .wizard-panel { padding: 32px; }
 @media (max-width: 600px) { .wizard-panel { padding: 22px 18px; } }
@@ -564,14 +568,16 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 @media (max-width: 600px) { .opt-grid { grid-template-columns: 1fr; } }
 .opt-grid.three { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 700px) { .opt-grid.three { grid-template-columns: 1fr; } }
-.opt { all: unset; cursor: pointer; box-sizing: border-box; padding: 16px 18px; border-radius: var(--r-md); border: 1px solid var(--border); background: var(--surface); transition: border-color .2s, background .2s; display: flex; flex-direction: column; gap: 5px; }
+.opt { all: unset; cursor: pointer; box-sizing: border-box; padding: 16px 18px; border-radius: var(--r-md); border: 1px solid var(--border); background: var(--surface); transition: border-color .2s, background .2s, transform .1s var(--ease-out); display: flex; flex-direction: column; gap: 5px; }
 .opt:hover { border-color: var(--border-strong); }
+.opt:active:not(.disabled) { transform: scale(0.985); }
+.seg-btn:active { transform: scale(0.97); }
 .opt.selected { border-color: var(--lime); background: linear-gradient(180deg, rgba(216,255,54,0.08), rgba(255,255,255,0.02)); }
 .opt.disabled { opacity: 0.4; cursor: not-allowed; }
 .opt .opt-t { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 .opt .opt-m { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
-.opt .opt-p { font-family: var(--font-mono); font-size: 12px; color: var(--lime); }
-.opt .opt-deposit { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--text-2); }
+.opt .opt-p { font-family: var(--font-mono); font-size: 12px; color: var(--lime); font-variant-numeric: tabular-nums; }
+.opt .opt-deposit { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .opt.row { flex-direction: row; align-items: center; justify-content: space-between; }
 .opt .opt-check { width: 20px; height: 20px; border-radius: 6px; border: 1px solid var(--border-strong); display: grid; place-items: center; color: var(--lime-ink); flex-shrink: 0; }
 .opt.selected .opt-check { background: var(--lime); border-color: var(--lime); }
@@ -826,5 +832,8 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
   .bg-scan, .streak { display: none; }
   .admin-boot-dot, .admin-live-dot { animation: none !important; }
   .admin-signin-card, .admin-content, .admin-nav-indicator, .admin-sidebar, .admin-topbar-refresh svg { animation: none !important; transition: none !important; }
+  /* No press-scale / transitions on the booking option + segment controls. */
+  .opt, .seg-btn { transition: none !important; }
+  .opt:active, .seg-btn:active { transform: none !important; }
   .cmdk-overlay, .cmdk, .drawer-overlay, .drawer { animation: none !important; }
 }
