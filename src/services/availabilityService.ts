@@ -1,4 +1,4 @@
-import { apiGet } from "./api";
+import { apiGet, API_BASE } from "./api";
 import { cities } from "@/data/cities";
 import { bikeModels } from "@/data/bikeModels";
 
@@ -55,16 +55,19 @@ export async function getAvailability(): Promise<AvailabilityEntry[]> {
   return apiGet<AvailabilityEntry[]>("/api/public/availability", []);
 }
 
-/** Get live city totals, falling back to static data when API returns empty. */
+/**
+ * Get live city totals. The static fallback is ONLY for the no-API/dev-mock case
+ * (NEXT_PUBLIC_API_BASE_URL unset). When the API IS configured we trust the live
+ * result — including an empty fleet (→ 0) — instead of masking a purged/zero
+ * fleet with stale seeded numbers.
+ */
 export async function getLiveCityTotals(): Promise<Map<string, number>> {
-  const entries = await getAvailability();
-  if (entries.length === 0) return staticCityTotals;
-  return cityTotals(entries);
+  if (!API_BASE) return staticCityTotals;
+  return cityTotals(await getAvailability());
 }
 
-/** Get live model totals, falling back to static data when API returns empty. */
+/** Get live model totals. Static fallback only when no API is configured (dev). */
 export async function getLiveModelTotals(): Promise<Map<string, number>> {
-  const entries = await getAvailability();
-  if (entries.length === 0) return staticModelTotals;
-  return modelTotals(entries);
+  if (!API_BASE) return staticModelTotals;
+  return modelTotals(await getAvailability());
 }
