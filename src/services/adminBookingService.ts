@@ -206,3 +206,14 @@ export function confirmPayment(bookingId: string): Promise<AdminPayment> {
     method: "POST",
   });
 }
+
+/**
+ * Permanently deletes a booking and its dependent rows (contract, payments and
+ * any rental), freeing the bike. Resolves on the backend's 204; throws a typed
+ * BookingApiError on any non-ok response, like the other mutations.
+ */
+export function deleteBooking(bookingId: string): Promise<void> {
+  return request<void>(`/api/admin/bookings/${bookingId}`, {
+    method: "DELETE",
+  });
+}

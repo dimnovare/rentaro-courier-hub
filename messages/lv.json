@@ -10,7 +10,7 @@
   },
   "trustStrip": {
     "freeToReserve": "Rezervēšana bez maksas",
-    "payLater": "Maksā vēlāk savā portālā",
+    "payLater": "Maksā pirms saņemšanas",
     "refundableDeposit": "Atmaksājama drošības nauda"
   },
   "localeSwitcher": {
@@ -291,7 +291,10 @@
       "heading": "Izvēlies savu velosipēdu",
       "sub": "Visi modeļi pieejami uz vieniem un tiem pašiem plāniem — izvēlies to, kas der tavām maiņām.",
       "fromDay": "€{price}/dienā",
-      "waitlistSuffix": " · gaidīšanas saraksts"
+      "waitlistSuffix": " · gaidīšanas saraksts",
+      "statAvailable": "Pieejams",
+      "statLow": "Maz atlicis",
+      "statWait": "Gaidīšanas saraksts"
     },
     "plan": {
       "heading": "Izvēlies plānu",
@@ -347,7 +350,8 @@
       },
       "dialCode": "Valsts kods",
       "phonePlaceholder": "5649 7933",
-      "startDateHint": "Agrākā saņemšana ir pēc 3 darba dienām."
+      "startDateHint": "Agrākā saņemšana ir pēc 3 darba dienām.",
+      "startDatePlaceholder": "dd/mm/gggg"
     },
     "review": {
       "heading": "Pārskati un apstiprini",
@@ -369,7 +373,11 @@
       "per30Only": "/ 30 dienas",
       "paymentNote": "Tagad nav ne maksājuma, ne parakstīšanas. Kad apstiprināsim tavu rezervāciju, parakstīsi nomas līgumu un samaksāsi pirmo 30 dienu periodu un atmaksājamo depozītu — viss pirms saņemšanas.",
       "consent": "Esmu izlasījis un piekrītu <rules>nomas noteikumiem</rules> un <privacy>privātuma politikai</privacy>, un saprotu, ka parakstīšu formālo nomas līgumu ar savu personu apliecinošu dokumentu pirms nodošanas.",
-      "readRulesLink": "Pirms apstiprināšanas izlasi pilnos nomas noteikumus →"
+      "readRulesLink": "Pirms apstiprināšanas izlasi pilnos nomas noteikumus →",
+      "paymentNoteCash": "Šobrīd nav jāmaksā — rezervēšana ir bez maksas. Pēc rezervācijas apstiprināšanas tu parakstīsi nomas līgumu klātienē un samaksāsi pirmo 30 dienu periodu un atmaksājamo drošības naudu skaidrā naudā, saņemot velosipēdu.",
+      "paymentNoteTransfer": "Šobrīd nav jāmaksā — rezervēšana ir bez maksas. Pēc rezervācijas apstiprināšanas tu parakstīsi nomas līgumu klātienē un samaksāsi pirmo 30 dienu periodu un atmaksājamo drošības naudu ar bankas pārskaitījumu pirms saņemšanas.",
+      "payStripCash": "Maksā saņemot",
+      "payStripTransfer": "Maksā pirms saņemšanas"
     },
     "buttons": {
       "cancel": "Atcelt",
@@ -394,18 +402,18 @@
   "success": {
     "heading": "Pieprasījums saņemts.",
     "headingNamed": "Pieprasījums saņemts, {name}.",
-    "body": "Drīzumā apstiprināsim pieejamību un nosūtīsim tavu drošā portāla saiti — tagad nav ne maksājuma, ne parakstīšanas.",
+    "body": "Drīz apstiprināsim pieejamību un nosūtīsim e-pastā drošu saiti rezervācijas izsekošanai — pagaidām bez maksas.",
     "reference": "Atsauces numurs",
     "model": "Modelis",
     "plan": "Plāns",
     "city": "Pilsēta",
     "startDate": "Sākuma datums",
-    "trackAndSign": "Atver portālu, lai parakstītu un samaksātu",
+    "trackAndSign": "Atvērt rezervācijas portālu",
     "trackOnly": "Seko rezervācijai",
-    "cost": "Atmaksājama drošības nauda €{deposit} · €{total} samaksā portālā pēc apstiprināšanas",
+    "cost": "Atmaksājamā drošības nauda €{deposit} · €{total} jāsamaksā pirms velosipēda saņemšanas",
     "browseFleet": "Apskatīt parku",
     "backHome": "Atpakaļ uz sākumu",
-    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, pēc tam parakstīsi nomas līgumu un samaksāsi pirmās 30 dienas + depozītu — pirms piešķiram velosipēdu un tu to saņem. Atbildēsim 24 stundu laikā.",
+    "nextSteps": "Tālāk: apstiprināsim tavu rezervāciju, tad tu samaksāsi pirmās 30 dienas un atmaksājamo drošības naudu un parakstīsi nomas līgumu klātienē — pirms velosipēda nodošanas. Parasti atbildam 24 stundu laikā.",
     "supportPrefix": "Jautājumi? Raksti mums uz"
   },
   "waitlist": {

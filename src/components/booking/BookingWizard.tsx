@@ -31,13 +31,6 @@ const countryKey: Record<string, string> = {
   Finland: "finland",
 };
 
-// Pricing is identical across all bike models and only varies by plan, so the
-// per-model price is shown as a min–max daily RANGE derived from the plans.
-// Computed once from `pricingPlans` so it stays correct if the plans change.
-const dailyRates = pricingPlans.map((p) => p.daily);
-const dailyMin = Math.min(...dailyRates);
-const dailyMax = Math.max(...dailyRates);
-
 // Country dial codes offered next to the phone input. Estonia is the default.
 const dialCodes = [
   { code: "+372", labelKey: "estonia" },
@@ -434,18 +427,35 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
         :global(.bike-opt-text .opt-m) {
           overflow-wrap: anywhere;
         }
-        /* Per-model price: a touch larger/bolder so it reads clearly as the price. */
-        :global(.bike-opt .opt-p) {
-          font-size: 13px;
-          font-weight: 600;
-        }
-        /* Availability status, separated from the lime price. Neutral + mono so it
-           never looks like part of the price. The message carries its own " · ". */
-        :global(.bike-wait) {
+        /* Availability status pill (Available / Few left / Waitlist). The price
+           is intentionally NOT shown per card — it's identical for every model
+           (pricing varies only by plan, picked on the next step), so repeating it
+           on six cards was redundant noise. A coloured dot carries the state. */
+        :global(.bike-stat) {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
           font-family: var(--font-mono);
           font-size: 10.5px;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
           color: var(--text-2);
+          margin-top: 1px;
+        }
+        :global(.bike-stat-dot) {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          flex-shrink: 0;
+          background: var(--text-dim);
+        }
+        :global(.bike-stat.in .bike-stat-dot) {
+          background: var(--lime);
+          box-shadow: 0 0 7px -1px var(--lime-glow);
+        }
+        :global(.bike-stat.low .bike-stat-dot) {
+          background: #ffd24a;
+          box-shadow: 0 0 7px -1px rgba(255, 210, 74, 0.5);
         }
         /* Clearer selected affordance for the model cards (the base .opt.selected
            is just a faint border): a brighter lime ring + a lime check badge.
@@ -574,20 +584,6 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           font-size: 12.5px;
           color: var(--text-2);
         }
-        /* EU-format start-date readout under the date field. Mono + tighter top
-           gap so it reads as a confirmation of the chosen date, not body copy. */
-        :global(.date-readout) {
-          margin-top: 5px;
-          font-family: var(--font-mono);
-          font-size: 12px;
-          letter-spacing: 0.02em;
-          color: var(--text-muted);
-        }
-        :global(.date-readout strong) {
-          color: var(--text);
-          font-weight: 600;
-        }
-
         /* ---- Long review values (e.g. email) must not overflow ---- */
         :global(.summary-v-wrap) {
           overflow-wrap: anywhere;
@@ -733,12 +729,24 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
             <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
               {models.map((m) => {
-                // Once the live fetch has resolved, trust it: a model with no
-                // entry has 0 units → waitlist. The static m.status is only the
-                // pre-fetch placeholder (mirrors the City-step count logic).
-                const isWait = availLoaded
-                  ? (availMap[`model:${m.id}`] ?? 0) === 0
-                  : m.status === "wait";
+                // Once the live fetch has resolved, trust it: 0 units → waitlist,
+                // 1–3 → few left, more → available. Before the fetch resolves we
+                // fall back to the model's static status (mirrors the City step).
+                const count = availLoaded ? (availMap[`model:${m.id}`] ?? 0) : null;
+                const stat =
+                  count === null
+                    ? m.status
+                    : count === 0
+                      ? "wait"
+                      : count <= 3
+                        ? "low"
+                        : "in";
+                const statLabel =
+                  stat === "in"
+                    ? t("model.statAvailable")
+                    : stat === "low"
+                      ? t("model.statLow")
+                      : t("model.statWait");
                 // Prefer a brighter gallery/lifestyle shot for the small thumbnail
                 // (the catalogue `img` is a dark studio cut-out that reads as
                 // near-invisible on the dark option surface); fall back to `img`.
@@ -755,6 +763,18 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                           src={resolveImg(thumb)}
                           alt=""
                           loading="lazy"
+                          onError={(e) => {
+                            // A broken gallery shot falls back to the cut-out
+                            // `img`; if that also fails, hide the broken-image
+                            // glyph and let the clean thumb surface show.
+                            const i = e.currentTarget;
+                            if (i.dataset.fb !== "1" && thumb !== m.img) {
+                              i.dataset.fb = "1";
+                              i.src = resolveImg(m.img);
+                            } else {
+                              i.style.visibility = "hidden";
+                            }
+                          }}
                         />
                       </span>
                       <span className="bike-opt-text">
@@ -762,18 +782,10 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                         <span className="opt-m">
                           {m.brand} · {tm(`${m.id}.tagline`)}
                         </span>
-                        <span className="opt-p">
-                          {t("plan.dayRange", {
-                            min: dailyMin.toFixed(2),
-                            max: dailyMax.toFixed(2),
-                          })}
+                        <span className={`bike-stat ${stat}`}>
+                          <span className="bike-stat-dot" aria-hidden />
+                          {statLabel}
                         </span>
-                        {isWait && (
-                          // Availability status, kept OUT of the lime price span
-                          // so it doesn't read as part of the price. Reuses the
-                          // existing message (which carries its own " · " lead-in).
-                          <span className="bike-wait">{t("model.waitlistSuffix")}</span>
-                        )}
                       </span>
                     </button>
                     <button
@@ -880,9 +892,14 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                   const el = startRef.current;
                   if (!el) return;
                   // Open the native calendar on a tap anywhere in the field.
-                  // showPicker() is the modern path; focus()+click() is the fallback.
-                  if (typeof el.showPicker === "function") el.showPicker();
-                  else el.focus();
+                  // The transparent input also opens on its own click, so guard
+                  // showPicker() — calling it while the picker is mid-open throws.
+                  try {
+                    if (typeof el.showPicker === "function") el.showPicker();
+                    else el.focus();
+                  } catch {
+                    el.focus();
+                  }
                 }}
               >
                 <span className="date-field-ico" aria-hidden>
@@ -890,11 +907,20 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                     <rect x="3.5" y="5" width="17" height="16" rx="2" /><path d="M3.5 9.5 H20.5" /><path d="M8 3 V6" /><path d="M16 3 V6" /><path d="M7.5 13 H9" /><path d="M11.5 13 H13" /><path d="M15.5 13 H17" />
                   </svg>
                 </span>
+                {/* Author-controlled dd/mm/yyyy display (the native input below is
+                    invisible). Shows the placeholder until a date is chosen. */}
+                <span className="date-field-value">
+                  {startDisplay || t("details.startDatePlaceholder")}
+                </span>
+                <span className="date-field-caret" aria-hidden>
+                  <Ic.arrow />
+                </span>
+                {/* Invisible overlay: drives selection + the native calendar, but
+                    its locale-formatted text is hidden behind .date-field-value. */}
                 <input
                   ref={startRef}
                   id="start"
                   type="date"
-                  lang="en-GB"
                   min={minStartDate}
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
@@ -902,23 +928,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                   aria-invalid={!!errFor("start")}
                   aria-describedby={errFor("start") ? "start-err" : undefined}
                 />
-                <span className="date-field-caret" aria-hidden>
-                  <Ic.arrow />
-                </span>
               </div>
               {errFor("start") ? (
                 <p id="start-err" role="alert" className="field-err">{errFor("start")}</p>
               ) : (
                 <p className="field-hint">{t("details.startDateHint")}</p>
-              )}
-              {/* Explicit dd/mm/yyyy readout — the native input renders per browser
-                  locale (e.g. US mm/dd/yyyy), so this guarantees the EU format is
-                  always visible. Label reuses an existing localised string; the
-                  date is built from ISO parts (no Date → no timezone shift). */}
-              {startDisplay && (
-                <p className="field-hint date-readout">
-                  {t("details.startDate")}: <strong>{startDisplay}</strong>
-                </p>
               )}
             </div>
             <div className="field">
@@ -1115,8 +1129,10 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
               )}
             </div>
 
+            {/* Payment note + trust strip both reflect the chosen method: cash →
+                pay at pickup, transfer → pay by bank transfer before pickup. */}
             <p className="sub" style={{ marginTop: 16 }}>
-              {t("review.paymentNote")}
+              {t(paymentMethod === "cash" ? "review.paymentNoteCash" : "review.paymentNoteTransfer")}
             </p>
             <a
               href="/rules"
@@ -1127,7 +1143,10 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
             >
               {t("review.readRulesLink")}
             </a>
-            <TrustStrip className="trust-strip-review" />
+            <TrustStrip
+              className="trust-strip-review"
+              payLabel={t(paymentMethod === "cash" ? "review.payStripCash" : "review.payStripTransfer")}
+            />
             <label className="consent-row">
               <input
                 type="checkbox"

@@ -10,7 +10,7 @@
   },
   "trustStrip": {
     "freeToReserve": "Broneerimine on tasuta",
-    "payLater": "Maksa hiljem portaalis",
+    "payLater": "Maksa enne üleandmist",
     "refundableDeposit": "Tagastatav tagatisraha"
   },
   "localeSwitcher": {
@@ -291,7 +291,10 @@
       "heading": "Vali oma ratas",
       "sub": "Kõiki mudeleid renditakse samade pakettidega — vali see, mis sinu vahetustele sobib.",
       "fromDay": "€{price}/päev",
-      "waitlistSuffix": " · ootenimekiri"
+      "waitlistSuffix": " · ootenimekiri",
+      "statAvailable": "Saadaval",
+      "statLow": "Vähe jäänud",
+      "statWait": "Ootenimekiri"
     },
     "plan": {
       "heading": "Vali pakett",
@@ -343,7 +346,8 @@
       },
       "dialCode": "Riigi kood",
       "phonePlaceholder": "5649 7933",
-      "startDateHint": "Varaseim kättesaamine on 3 tööpäeva pärast."
+      "startDateHint": "Varaseim kättesaamine on 3 tööpäeva pärast.",
+      "startDatePlaceholder": "pp/kk/aaaa"
     },
     "review": {
       "heading": "Vaata üle ja kinnita",
@@ -365,7 +369,11 @@
       "per30Only": "/ 30 päeva",
       "paymentNote": "Praegu ei maksa ega allkirjasta midagi. Kui kinnitame su broneeringu, allkirjastad rendilepingu ja maksad esimese 30 päeva ning tagastatava tagatisraha — kõik enne kättesaamist.",
       "consent": "Olen tutvunud <rules>üürireeglitega</rules> ja <privacy>privaatsuspoliitikaga</privacy> ning mõistan, et allkirjastan ametliku üürilepingu oma isikutunnistusega enne jalgratta kättesaamist.",
-      "readRulesLink": "Loe enne kinnitamist üürireeglid läbi →"
+      "readRulesLink": "Loe enne kinnitamist üürireeglid läbi →",
+      "paymentNoteCash": "Praegu makset pole — broneerimine on tasuta. Pärast broneeringu kinnitamist allkirjastad rendilepingu kohapeal ning maksad esimese 30-päevase perioodi ja tagastatava tagatise sularahas ratta üleandmisel.",
+      "paymentNoteTransfer": "Praegu makset pole — broneerimine on tasuta. Pärast broneeringu kinnitamist allkirjastad rendilepingu kohapeal ning maksad esimese 30-päevase perioodi ja tagastatava tagatise pangaülekandega enne üleandmist.",
+      "payStripCash": "Maksa kohapeal",
+      "payStripTransfer": "Maksa enne üleandmist"
     },
     "buttons": {
       "cancel": "Tühista",
@@ -394,18 +402,18 @@
   "success": {
     "heading": "Taotlus vastu võetud.",
     "headingNamed": "Taotlus vastu võetud, {name}.",
-    "body": "Kinnitame peagi saadavuse ja saadame su turvalise portaali lingi — praegu ei maksa ega allkirjasta midagi.",
+    "body": "Kinnitame saadavuse peatselt ja saadame e-kirjaga turvalise lingi broneeringu jälgimiseks — makset veel pole.",
     "reference": "Viitenumber",
     "model": "Mudel",
     "plan": "Pakett",
     "city": "Linn",
     "startDate": "Alguskuupäev",
-    "trackAndSign": "Ava portaal allkirjastamiseks ja maksmiseks",
+    "trackAndSign": "Ava broneeringu portaal",
     "trackOnly": "Jälgi broneeringut",
-    "cost": "Tagastatav tagatis €{deposit} · €{total} makstud portaalis pärast kinnitamist",
+    "cost": "Tagastatav tagatis €{deposit} · €{total} tasumisele enne ratta kättesaamist",
     "browseFleet": "Sirvi pargi",
     "backHome": "Tagasi avalehele",
-    "nextSteps": "Järgmisena: kinnitame su broneeringu, seejärel allkirjastad rendilepingu ja maksad esimesed 30 päeva + tagatisraha — enne kui määrame ratta ja tuled järele. Vastame 24 tunni jooksul.",
+    "nextSteps": "Järgmisena: kinnitame su broneeringu, seejärel maksad esimese 30 päeva ja tagastatava tagatise ning allkirjastad rendilepingu kohapeal — enne ratta üleandmist. Vastame tavaliselt 24 tunni jooksul.",
     "supportPrefix": "Küsimused? Kirjuta meile aadressil"
   },
   "waitlist": {

@@ -10,7 +10,7 @@
   },
   "trustStrip": {
     "freeToReserve": "Varaus maksutta",
-    "payLater": "Maksa myöhemmin portaalissa",
+    "payLater": "Maksa ennen noutoa",
     "refundableDeposit": "Palautettava vakuus"
   },
   "localeSwitcher": {
@@ -291,7 +291,10 @@
       "heading": "Valitse pyöräsi",
       "sub": "Jokainen malli vuokrataan samoilla suunnitelmilla — valitse vuoroihisi sopiva.",
       "fromDay": "€{price}/pv",
-      "waitlistSuffix": " · jonotuslista"
+      "waitlistSuffix": " · jonotuslista",
+      "statAvailable": "Saatavilla",
+      "statLow": "Vähän jäljellä",
+      "statWait": "Jonotuslista"
     },
     "plan": {
       "heading": "Valitse suunnitelma",
@@ -347,7 +350,8 @@
       },
       "dialCode": "Maakoodi",
       "phonePlaceholder": "5649 7933",
-      "startDateHint": "Aikaisin nouto on 3 työpäivän kuluttua."
+      "startDateHint": "Aikaisin nouto on 3 työpäivän kuluttua.",
+      "startDatePlaceholder": "pp/kk/vvvv"
     },
     "review": {
       "heading": "Tarkista ja vahvista",
@@ -369,7 +373,11 @@
       "per30Only": "/ 30 päivää",
       "paymentNote": "Ei maksua eikä allekirjoitusta nyt. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen ja maksat ensimmäisen 30 päivän jakson ja palautettavan vakuuden — kaikki ennen noutoa.",
       "consent": "Olen lukenut ja hyväksyn <rules>vuokraehdot</rules> ja <privacy>tietosuojakäytännön</privacy>, ja ymmärrän allekirjoittavani virallisen vuokrasopimuksen henkilöllisyystodistuksellani ennen noutoa.",
-      "readRulesLink": "Lue vuokraehdot ennen vahvistamista →"
+      "readRulesLink": "Lue vuokraehdot ennen vahvistamista →",
+      "paymentNoteCash": "Ei maksua nyt — varaaminen on ilmaista. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen paikan päällä ja maksat ensimmäisen 30 päivän jakson sekä palautettavan vakuuden käteisellä pyörää noutaessasi.",
+      "paymentNoteTransfer": "Ei maksua nyt — varaaminen on ilmaista. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen paikan päällä ja maksat ensimmäisen 30 päivän jakson sekä palautettavan vakuuden pankkisiirrolla ennen noutoa.",
+      "payStripCash": "Maksa noudettaessa",
+      "payStripTransfer": "Maksa ennen noutoa"
     },
     "buttons": {
       "cancel": "Peruuta",
@@ -394,18 +402,18 @@
   "success": {
     "heading": "Pyyntö vastaanotettu.",
     "headingNamed": "Pyyntö vastaanotettu, {name}.",
-    "body": "Vahvistamme saatavuuden pian ja lähetämme turvallisen portaalilinkkisi — ei maksua eikä allekirjoitusta vielä.",
+    "body": "Vahvistamme saatavuuden pian ja lähetämme sähköpostiisi turvallisen linkin varauksen seurantaan — ei vielä maksua.",
     "reference": "Viite",
     "model": "Malli",
     "plan": "Suunnitelma",
     "city": "Kaupunki",
     "startDate": "Aloituspäivä",
-    "trackAndSign": "Avaa portaali allekirjoittaaksesi ja maksaaksesi",
+    "trackAndSign": "Avaa varausportaali",
     "trackOnly": "Seuraa varausta",
-    "cost": "Palautettava vakuus €{deposit} · €{total} maksetaan portaalissa hyväksynnän jälkeen",
+    "cost": "Palautettava vakuus €{deposit} · €{total} maksettava ennen pyörän noutoa",
     "browseFleet": "Selaa kalustoa",
     "backHome": "Takaisin etusivulle",
-    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, minkä jälkeen allekirjoitat vuokrasopimuksen ja maksat ensimmäiset 30 päivää + vakuuden — ennen kuin varaamme pyöräsi ja noudat sen. Vastaamme 24 tunnin kuluessa.",
+    "nextSteps": "Seuraavaksi: hyväksymme varauksesi, sitten maksat ensimmäiset 30 päivää ja palautettavan vakuuden sekä allekirjoitat vuokrasopimuksen paikan päällä — ennen pyörän luovutusta. Vastaamme yleensä 24 tunnin kuluessa.",
     "supportPrefix": "Kysyttävää? Lähetä meille sähköpostia osoitteeseen"
   },
   "waitlist": {

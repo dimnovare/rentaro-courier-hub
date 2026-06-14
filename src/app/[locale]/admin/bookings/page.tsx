@@ -9,6 +9,7 @@ import {
   getPayment,
   confirmPayment,
   createBooking,
+  deleteBooking,
   BookingApiError,
   BookingConfigError,
   type AdminBooking,
@@ -378,6 +379,19 @@ export default function AdminBookingsPage() {
               }
               onGenerateContract={onGenerateContract}
               onDownloadContract={onDownloadContract}
+              onDelete={(id) => {
+                const ok = window.confirm(
+                  "Delete this booking permanently? This removes its contract, payments and any rental, and frees the bike. This cannot be undone.",
+                );
+                if (!ok) return;
+                void runAction(
+                  id,
+                  async () => {
+                    await deleteBooking(id);
+                  },
+                  "Booking deleted.",
+                );
+              }}
             />
           </AdminSection>
 
@@ -699,6 +713,7 @@ function BookingsManageTable({
   onConfirmPayment,
   onGenerateContract,
   onDownloadContract,
+  onDelete,
 }: {
   bookings: AdminBooking[];
   units: AdminFleetUnit[];
@@ -714,6 +729,7 @@ function BookingsManageTable({
   onConfirmPayment: (id: string) => void;
   onGenerateContract: (id: string) => void;
   onDownloadContract: (id: string, contractId: string, kind: "generated" | "signed") => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <AdminTable>
@@ -755,6 +771,7 @@ function BookingsManageTable({
                   const c = contracts[b.id];
                   if (c) onDownloadContract(b.id, c.id, kind);
                 }}
+                onDelete={() => onDelete(b.id)}
               />
             );
           })
@@ -779,6 +796,7 @@ function BookingRow({
   onConfirmPayment,
   onGenerateContract,
   onDownloadContract,
+  onDelete,
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
@@ -794,6 +812,7 @@ function BookingRow({
   onConfirmPayment: () => void;
   onGenerateContract: () => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
+  onDelete: () => void;
 }) {
   return (
     <>
@@ -846,6 +865,7 @@ function BookingRow({
               onConfirmPayment={onConfirmPayment}
               onGenerateContract={onGenerateContract}
               onDownloadContract={onDownloadContract}
+              onDelete={onDelete}
             />
           </td>
         </tr>
@@ -872,6 +892,7 @@ function ManagePanel({
   onConfirmPayment,
   onGenerateContract,
   onDownloadContract,
+  onDelete,
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
@@ -885,6 +906,7 @@ function ManagePanel({
   onConfirmPayment: () => void;
   onGenerateContract: () => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
+  onDelete: () => void;
 }) {
   return (
     <div
@@ -971,6 +993,34 @@ function ManagePanel({
           onAssign={onAssign}
         />
       </PanelGroup>
+
+      {/* Danger zone — set apart on its own full-width row, behind a divider, so
+          the destructive Delete is never fat-fingered alongside the lifecycle
+          actions above. */}
+      <div
+        style={{
+          flexBasis: "100%",
+          marginTop: 4,
+          paddingTop: 14,
+          borderTop: "1px solid rgba(255,138,120,0.22)",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <button
+          type="button"
+          className="btn btn-ghost"
+          style={dangerBtn}
+          onClick={onDelete}
+        >
+          Delete booking
+        </button>
+        <p style={hintStyle}>
+          Permanently removes this booking with its contract, payments and any rental. This cannot be undone.
+        </p>
+      </div>
     </div>
   );
 }
@@ -1317,6 +1367,16 @@ function referralCodeOf(b: AdminBooking): string | null {
 /* ── Inline styles for the compact action controls ─────────────────────── */
 
 const miniBtn: React.CSSProperties = { padding: "8px 14px", fontSize: 12.5 };
+
+// Destructive variant of the ghost button: red-tinted border/text over a faint
+// danger wash, matching the --danger treatment used elsewhere in the admin UI.
+const dangerBtn: React.CSSProperties = {
+  padding: "8px 14px",
+  fontSize: 12.5,
+  color: "var(--danger)",
+  background: "rgba(255,138,120,0.06)",
+  borderColor: "rgba(255,138,120,0.32)",
+};
 
 const hintStyle: React.CSSProperties = {
   fontSize: 11,

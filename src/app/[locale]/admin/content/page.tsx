@@ -379,11 +379,16 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
     setFormError(null);
     setBusy(true);
     try {
+      // `available` is derived server-side from the real BikeUnit count for every
+      // read (list + the create/update responses), so whatever we send here is not
+      // what gets displayed. Pass the draft through unchanged — never fabricate a 0,
+      // which previously zeroed the stored column on every edit.
+      const body: CityInput = { ...draft };
       if (editor.mode === "create") {
-        const saved = await createCity(draft);
+        const saved = await createCity(body);
         patch((d) => ({ ...d, cities: [...d.cities, saved] }));
       } else {
-        const saved = await updateCity(editor.id, draft);
+        const saved = await updateCity(editor.id, body);
         patch((d) => ({ ...d, cities: d.cities.map((c) => (c.id === editor.id ? saved : c)) }));
       }
       close();
@@ -495,19 +500,16 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
           onChange={(v) => setDraft({ ...draft, pickup: v })}
           placeholder="Telliskivi · Kesklinn"
         />
-        <div className="field-row">
-          <FieldSelect
-            label="Status"
-            value={draft.status}
-            onChange={(v) => setDraft({ ...draft, status: v as CityStatusValue })}
-            options={CITY_STATUSES.map((s) => ({ value: s, label: s }))}
-          />
-          <FieldNumber
-            label="Available"
-            value={draft.available}
-            onChange={(v) => setDraft({ ...draft, available: v })}
-          />
-        </div>
+        <FieldSelect
+          label="Status"
+          value={draft.status}
+          onChange={(v) => setDraft({ ...draft, status: v as CityStatusValue })}
+          options={CITY_STATUSES.map((s) => ({ value: s, label: s }))}
+        />
+        <FieldNote
+          label="Available bikes"
+          text="Availability is calculated automatically from the bike units in this city. Manage stock under Fleet → bike units."
+        />
         <FieldNumber
           label="Sort order"
           value={draft.sortOrder}
@@ -1030,6 +1032,31 @@ function FieldSelect({
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+/**
+ * Read-only informational field — same label chrome as the editable fields, but
+ * renders explanatory copy instead of an input. Used where a value is derived
+ * elsewhere (e.g. city availability is computed from the fleet, not edited here).
+ */
+function FieldNote({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="field">
+      <label>{label}</label>
+      <p
+        className="mono"
+        style={{
+          margin: 0,
+          fontSize: 12,
+          lineHeight: 1.6,
+          letterSpacing: "0.01em",
+          color: "var(--text-dim)",
+        }}
+      >
+        {text}
+      </p>
     </div>
   );
 }

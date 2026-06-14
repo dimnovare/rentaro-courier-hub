@@ -599,14 +599,15 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .date-field-ico { display: inline-grid; place-items: center; color: var(--lime); flex-shrink: 0; }
 .date-field-caret { display: inline-grid; place-items: center; color: var(--text-dim); flex-shrink: 0; margin-left: auto; transition: color .2s, transform .2s var(--ease-out); }
 .date-field:hover .date-field-caret { color: var(--text-muted); }
-.date-field input[type="date"] { flex: 1; min-width: 0; background: transparent; border: 0; outline: none; padding: 14px 0; color: var(--text); font-family: var(--font-body); font-size: 15px; cursor: pointer; color-scheme: dark; }
-/* Dim the value text until a date is chosen, so the field reads like a prompt. */
-.date-field[data-empty] input[type="date"] { color: var(--text-dim); }
-/* Make the WebKit calendar indicator fill the field as a transparent click
-   target (fallback for cases where the wrapper click doesn't reach showPicker);
-   our own lime icon/chevron remain the visible affordances. */
+/* The native date input can't have its displayed format overridden (the browser
+   renders it per OS locale, e.g. US mm/dd/yyyy). So we overlay it INVISIBLY over
+   the whole field — it still drives selection + the calendar picker — and show
+   our own author-controlled dd/mm/yyyy text in `.date-field-value` underneath. */
+.date-field input[type="date"] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; outline: none; opacity: 0; cursor: pointer; color-scheme: dark; -webkit-appearance: none; appearance: none; }
 .date-field input[type="date"]::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; }
-.date-field input[type="date"]::-webkit-datetime-edit { padding: 0; }
+/* Visible, always-dd/mm/yyyy value text. Dimmed until a date is chosen. */
+.date-field-value { flex: 1; min-width: 0; font-family: var(--font-body); font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.date-field[data-empty] .date-field-value { color: var(--text-dim); }
 
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
