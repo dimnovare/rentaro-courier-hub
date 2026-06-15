@@ -11,7 +11,6 @@ import { Footer } from "@/components/layout/Footer";
 import { AdminHidden } from "@/components/layout/AdminHidden";
 import { CookieConsent } from "@/components/ui/CookieConsent";
 import { isLocale, locales, type Locale } from "@/i18n/config";
-import { buildAlternates } from "@/i18n/alternates";
 
 type Props = {
   children: React.ReactNode;
@@ -26,7 +25,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const loc = isLocale(locale) ? (locale as Locale) : "en";
   return {
-    alternates: buildAlternates(loc, "/"),
     openGraph: { locale: loc, images: defaultOgImages },
   };
 }

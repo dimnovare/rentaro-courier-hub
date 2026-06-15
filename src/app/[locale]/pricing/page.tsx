@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
 import { getTranslations } from "next-intl/server";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Pricing } from "@/components/sections/Pricing";
@@ -11,13 +13,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "pageMeta.pricing" });
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  const t = await getTranslations({ locale: loc, namespace: "pageMeta.pricing" });
   const title = t("title");
   const description = t("description");
   return {
     title,
     description,
-    alternates: { canonical: "/pricing" },
+    alternates: buildAlternates(loc, "/pricing"),
     openGraph: {
       type: "website",
       siteName: "rentaro",

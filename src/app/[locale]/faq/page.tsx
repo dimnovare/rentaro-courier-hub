@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Faq } from "@/components/sections/Faq";
@@ -10,10 +12,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "pageMeta.faq" });
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  const t = await getTranslations({ locale: loc, namespace: "pageMeta.faq" });
   return {
     title: t("title"),
     description: t("description"),
+    alternates: buildAlternates(loc, "/faq"),
   };
 }
 

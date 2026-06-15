@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
+import { buildAlternates } from "@/i18n/alternates";
+import { isLocale, type Locale } from "@/i18n/config";
 import { Suspense } from "react";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { getSettings } from "@/services/settingsService";
@@ -9,25 +11,33 @@ const title = "Reserve your e-bike — rentaro";
 const description =
   "Reserve a delivery-ready rentaro e-bike in Tallinn or Riga. Choose your model and plan in a few steps — no payment now.";
 
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: { canonical: "/book" },
-  openGraph: {
-    type: "website",
-    siteName: "rentaro",
-    url: "/book",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const loc: Locale = isLocale(locale) ? locale : "en";
+  return {
     title,
     description,
-    images: defaultOgImages,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: defaultTwitterImages,
-  },
-};
+    alternates: buildAlternates(loc, "/book"),
+    openGraph: {
+      type: "website",
+      siteName: "rentaro",
+      url: "/book",
+      title,
+      description,
+      images: defaultOgImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: defaultTwitterImages,
+    },
+  };
+}
 
 export default async function BookPage() {
   const [settings, models] = await Promise.all([getSettings(), modelService.getModels()]);
