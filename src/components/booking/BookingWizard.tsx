@@ -397,7 +397,7 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           gap: 13px;
           padding-top: 14px;
           padding-bottom: 14px;
-          padding-right: 56px; /* clear the info button + leave a visible gap */
+          padding-right: 60px; /* clear the full-height info rail on the right */
         }
         :global(.bike-thumb) {
           width: 58px;
@@ -479,26 +479,30 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           pointer-events: none;
           z-index: 1;
         }
+        /* Info trigger as a full-height rail on the card's right edge, split off by
+           a divider — reads as a deliberate "details" zone instead of a small
+           button floating in empty space. Sits inside the 1px card border and
+           matches the card's rounded right corners. */
         :global(.bike-info-btn) {
           position: absolute;
-          top: 50%;
-          right: 12px;
-          transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
+          top: 1px;
+          right: 1px;
+          bottom: 1px;
+          width: 48px;
+          border: 0;
+          border-left: 1px solid var(--border);
+          border-radius: 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0;
           display: grid;
           place-items: center;
           cursor: pointer;
-          background: var(--bg-2);
-          border: 1px solid var(--border);
-          color: var(--text-2);
+          background: transparent;
+          color: var(--text-dim);
           padding: 0;
           z-index: 2;
-          transition: border-color 0.2s, color 0.2s;
+          transition: background 0.2s, color 0.2s;
         }
         :global(.bike-info-btn:hover) {
-          border-color: var(--border-strong);
+          background: var(--bg-2);
           color: var(--text);
         }
 

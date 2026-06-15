@@ -551,7 +551,6 @@ interface EditorFields {
   blurb: string;
   fromDay: string;
   status: string;
-  availability: string;
   popular: boolean;
   sortOrder: string;
   badgeText: string;
@@ -652,13 +651,20 @@ function ModelEditor({
       blurb: f.blurb.trim(),
       fromDay: parseNum(f.fromDay),
       status: f.status,
-      availability: parseIntOr0(f.availability),
       popular: f.popular,
       sortOrder: parseIntOr0(f.sortOrder),
       badge: badgeText ? { text: badgeText, variant: f.badgeVariant } : null,
       pills: parseCsv(f.pills),
       spec,
     };
+    // `availability` is derived server-side from the real BikeUnit count for this
+    // model, so whatever we send here is not what gets displayed. On edit, pass the
+    // model's stored value through unchanged — never fabricate a 0 (which would zero
+    // the stored column on every save). On create there is no value yet, so omit it
+    // and let the backend default it.
+    if (mode === "edit" && model?.availability != null) {
+      input.availability = model.availability;
+    }
     // Only send `code` on create (it's immutable on update — the URL carries it).
     if (mode === "create") input.code = codeTrimmed;
 
@@ -821,22 +827,10 @@ function ModelEditor({
           />
         </Field>
         <Field label="Availability">
-          <input
-            value={f.availability}
-            onChange={(e) => set("availability", e.target.value)}
-            inputMode="numeric"
-            placeholder="0"
-            aria-label="Availability"
-            style={inputStyle}
-          />
+          <FieldNote text="Availability is calculated automatically from the bike units for this model. Manage stock under Fleet → bike units." />
         </Field>
         <Field label="Status">
-          <Select
-            value={f.status}
-            onChange={(v) => set("status", v)}
-            options={MODEL_STATUSES}
-            ariaLabel="Status"
-          />
+          <FieldNote text="Set automatically from current stock (in / low / waitlist), derived from the bike units." />
         </Field>
         <Field label="Sort order">
           <input
@@ -1136,7 +1130,6 @@ function initialFields(model?: AdminModel): EditorFields {
     blurb: model?.blurb ?? "",
     fromDay: model?.fromDay != null ? String(model.fromDay) : "5.90",
     status: model?.status ?? MODEL_STATUSES[0].value,
-    availability: model?.availability != null ? String(model.availability) : "0",
     popular: model?.popular ?? false,
     sortOrder: model?.sortOrder != null ? String(model.sortOrder) : "0",
     badgeText: model?.badge?.text ?? "",
@@ -1221,6 +1214,29 @@ function Field({
       </span>
       {children}
     </label>
+  );
+}
+
+/**
+ * Read-only informational text rendered in place of an input, inside the same
+ * {@link Field} label chrome. Used where a value is derived elsewhere (model
+ * availability is computed from the fleet's bike units, not edited here) —
+ * mirrors the city editor's note.
+ */
+function FieldNote({ text }: { text: string }) {
+  return (
+    <p
+      className="mono"
+      style={{
+        margin: 0,
+        fontSize: 12,
+        lineHeight: 1.6,
+        letterSpacing: "0.01em",
+        color: "var(--text-dim)",
+      }}
+    >
+      {text}
+    </p>
   );
 }
 
