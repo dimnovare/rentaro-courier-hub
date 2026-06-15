@@ -392,6 +392,12 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
         /* :global() because these classes sit on elements rendered outside this
            styled-jsx scope boundary (className on mapped buttons/spans). */
         :global(.bike-opt) {
+          /* Fill the grid cell. Without this the flexed button (base .opt uses
+             all:unset) shrinks to its content width, so cards with longer names
+             render wider than others and the right edge no longer lines up with the
+             absolutely-positioned info rail — making every tile a different width. */
+          width: 100%;
+          box-sizing: border-box;
           flex-direction: row;
           align-items: center;
           gap: 13px;
