@@ -91,6 +91,16 @@ export interface BikeModel {
   /** Full manufacturer sheet (detail page + backend compliance). */
   spec?: BikeSpecSheet;
   colors?: string[];
+  /** Display colour name for this variant (admin free-text, e.g. "Black"). */
+  color?: string | null;
+  /** CSS colour for the swatch (e.g. "#111111"). */
+  colorHex?: string | null;
+  /**
+   * Group key shared by colour variants of the same bike. Models with the same
+   * non-empty `family` collapse into one card shown as colour swatches; a
+   * null/empty `family` means the model is its own singleton card.
+   */
+  family?: string | null;
   isActive?: boolean;
   sortOrder?: number;
 }

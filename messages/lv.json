@@ -51,7 +51,7 @@
     }
   },
   "hero": {
-    "pill": "PARKS DARBOJAS · {live} · {soon} DRĪZ",
+    "pill": "PARKS DARBOJAS · {live}{soonState, select, some{ · {soon} DRĪZ} other{}}",
     "headingLine1": "Piegādēm gatavi",
     "headingLine2": "e-velosipēdi uz",
     "headingLine3Pre": "katru ",
@@ -67,7 +67,7 @@
       "termUnit": "dienas",
       "termLabel": "Minimālais termiņš",
       "citiesUnit": "pilsētas",
-      "citiesLabel": "Darbojas tagad · {soon} drīz",
+      "citiesLabel": "Darbojas tagad{soonState, select, some{ · {soon} drīz} other{}}",
       "availableUnit": "velosipēdi",
       "availableLabel": "Pieejami tagad"
     },
@@ -215,7 +215,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Atbalsta logs",
-      "citiesLabel": "Aktīvas pilsētas · {soon} drīz",
+      "citiesLabel": "Aktīvas pilsētas{soonState, select, some{ · {soon} drīz} other{}}",
       "modelsValue": "6",
       "modelsLabel": "Modeļi",
       "minPlanValue": "30d",
@@ -252,7 +252,7 @@
       },
       "pickup": {
         "q": "Kur varu saņemt velosipēdu?",
-        "a": "Šobrīd darbojamies Tallinā un Rīgā, drīzumā arī Helsinkos. Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi savā apkārtnē."
+        "a": "Šobrīd darbojamies: {live}{soonState, select, some{, drīzumā arī {soon}} other{}}. Saņem pilsētas saņemšanas punktā vai pieprasi vietējo piegādi savā apkārtnē."
       },
       "contract": {
         "q": "Kā es parakstu līgumu?",
@@ -281,7 +281,7 @@
     },
     "city": {
       "heading": "Kur tu brauc?",
-      "sub": "Izvēlies savu pilsētu. Šobrīd darbojamies Tallinā un Rīgā.",
+      "sub": "Izvēlies savu pilsētu. Šobrīd darbojamies: {live}.",
       "soon": "Drīzumā",
       "limited": "Ierobežots skaits",
       "available": "Pieejami {count}",
@@ -294,7 +294,8 @@
       "waitlistSuffix": " · gaidīšanas saraksts",
       "statAvailable": "Pieejams",
       "statLow": "Maz atlicis",
-      "statWait": "Gaidīšanas saraksts"
+      "statWait": "Gaidīšanas saraksts",
+      "chooseColor": "Izvēlieties krāsu"
     },
     "plan": {
       "heading": "Izvēlies plānu",
@@ -846,6 +847,9 @@
       "limited": "Ierobežots",
       "waitlist": "Gaidīšanas saraksts",
       "comingSoon": "Drīzumā"
+    },
+    "colors": {
+      "choose": "Izvēlieties krāsu"
     }
   },
   "modelItems": {

@@ -51,7 +51,7 @@
     }
   },
   "hero": {
-    "pill": "АВТОПАРК В РАБОТЕ · {live} · {soon} СКОРО",
+    "pill": "АВТОПАРК В РАБОТЕ · {live}{soonState, select, some{ · {soon} СКОРО} other{}}",
     "headingLine1": "Электробайки",
     "headingLine2": "для доставки —",
     "headingLine3Pre": "по ",
@@ -67,7 +67,7 @@
       "termUnit": "дней",
       "termLabel": "Минимальный срок",
       "citiesUnit": "города",
-      "citiesLabel": "Уже работаем · {soon} скоро",
+      "citiesLabel": "Уже работаем{soonState, select, some{ · {soon} скоро} other{}}",
       "availableUnit": "велосипедов",
       "availableLabel": "Доступно сейчас"
     },
@@ -215,7 +215,7 @@
     "stats": {
       "supportValue": "24ч",
       "supportLabel": "Окно поддержки",
-      "citiesLabel": "Города в работе · {soon} скоро",
+      "citiesLabel": "Города в работе{soonState, select, some{ · {soon} скоро} other{}}",
       "modelsValue": "6",
       "modelsLabel": "Моделей",
       "minPlanValue": "30д",
@@ -252,7 +252,7 @@
       },
       "pickup": {
         "q": "Где можно забрать байк?",
-        "a": "Сейчас мы работаем в Таллинне и Риге, Хельсинки скоро. Забери в городском пункте выдачи или закажи доставку по своему району."
+        "a": "Сейчас работаем в городах: {live}{soonState, select, some{, скоро добавится {soon}} other{}}. Забери в городском пункте выдачи или закажи доставку по своему району."
       },
       "contract": {
         "q": "Как я подписываю договор?",
@@ -281,7 +281,7 @@
     },
     "city": {
       "heading": "Где вы ездите?",
-      "sub": "Выберите свой город. Сегодня мы работаем в Таллинне и Риге.",
+      "sub": "Выберите свой город. Сейчас работаем в городах: {live}.",
       "soon": "Скоро",
       "limited": "Мало в наличии",
       "available": "В наличии: {count}",
@@ -294,7 +294,8 @@
       "waitlistSuffix": " · лист ожидания",
       "statAvailable": "В наличии",
       "statLow": "Осталось мало",
-      "statWait": "Лист ожидания"
+      "statWait": "Лист ожидания",
+      "chooseColor": "Выберите цвет"
     },
     "plan": {
       "heading": "Выберите тариф",
@@ -846,6 +847,9 @@
       "limited": "Ограниченно",
       "waitlist": "Лист ожидания",
       "comingSoon": "Скоро"
+    },
+    "colors": {
+      "choose": "Выберите цвет"
     }
   },
   "modelItems": {

@@ -19,11 +19,34 @@ const faqKeys = [
   "contract",
 ] as const;
 
-export function FaqView({ count, defaultOpen }: { count: number; defaultOpen: number }) {
+export function FaqView({
+  count,
+  defaultOpen,
+  liveCityIds = [],
+  soonCityIds = [],
+}: {
+  count: number;
+  defaultOpen: number;
+  liveCityIds?: string[];
+  soonCityIds?: string[];
+}) {
   const t = useTranslations("faq");
+  const tc = useTranslations("cities");
   const [open, setOpen] = useState(defaultOpen);
   const half = Math.ceil(count / 2);
   const cols = [faqKeys.slice(0, half), faqKeys.slice(half)];
+
+  // The "Where can I pick up the bike?" answer names the live/soon markets, so
+  // it derives from real city status with LOCALIZED names (cities.names.*). The
+  // ICU message uses {live} / {soon} placeholders; all other answers take none.
+  const liveCityNames = liveCityIds.map((id) => tc(`names.${id}`)).join(" + ");
+  const soonCityNames = soonCityIds.map((id) => tc(`names.${id}`)).join(", ");
+  // `soonState` drives an ICU select so the "…coming soon" clause is dropped
+  // entirely when no market is pending — keeping the sentence natural.
+  const answerVars = (key: string): Record<string, string> =>
+    key === "pickup"
+      ? { live: liveCityNames, soon: soonCityNames, soonState: soonCityNames ? "some" : "none" }
+      : {};
 
   return (
     <section className="section-pad">
@@ -61,7 +84,7 @@ export function FaqView({ count, defaultOpen }: { count: number; defaultOpen: nu
                       aria-labelledby={btnId}
                       hidden={!isOpen}
                     >
-                      <div className="faq-a-in">{t(`items.${key}.a`)}</div>
+                      <div className="faq-a-in">{t(`items.${key}.a`, answerVars(key))}</div>
                     </div>
                   </div>
                 );

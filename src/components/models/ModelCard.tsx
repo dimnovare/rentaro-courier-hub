@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
@@ -15,47 +16,115 @@ const dailyRates = pricingPlans.map((p) => p.daily);
 const minDaily = Math.min(...dailyRates);
 const maxDaily = Math.max(...dailyRates);
 
-export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: boolean }) {
+/**
+ * One bike card.
+ *
+ * `m` is the model to render by default. When `variants` holds more than one
+ * model (colour variants of the same bike, grouped by `family`), the card shows
+ * a row of colour swatches; the active variant drives the image, name,
+ * availability and the Reserve/Details targets. Clicking a swatch swaps the
+ * active variant client-side — no navigation. With a single variant (or none),
+ * the card renders exactly as before (an optional single static swatch shows
+ * when the model carries a `color`).
+ */
+export function ModelCard({
+  m,
+  compact = false,
+  variants,
+}: {
+  m: BikeModel;
+  compact?: boolean;
+  variants?: BikeModel[];
+}) {
   const { reserve } = useInteractions();
   const t = useTranslations("modelsPage");
   const tm = useTranslations("modelItems");
+
+  // The list of colour variants to offer (defaults to just `m`). The active
+  // index selects which one the card currently shows.
+  const list = variants && variants.length > 0 ? variants : [m];
+  const initial = Math.max(0, list.findIndex((v) => v.id === m.id));
+  const [activeIdx, setActiveIdx] = useState(initial >= 0 ? initial : 0);
+  const active = list[activeIdx] ?? m;
+  const hasSwatches = list.length > 1;
+
   const avail =
-    m.status === "in"
-      ? { label: t("avail.inStock", { count: m.availability }), cls: "in" }
-      : m.status === "low"
-        ? { label: t("avail.left", { count: m.availability }), cls: "low" }
+    active.status === "in"
+      ? { label: t("avail.inStock", { count: active.availability }), cls: "in" }
+      : active.status === "low"
+        ? { label: t("avail.left", { count: active.availability }), cls: "low" }
         : { label: t("avail.waitlist"), cls: "wait" };
-  const pills = compact ? m.pills.slice(0, 2) : m.pills;
-  const isWait = m.status === "wait";
+  const pills = compact ? active.pills.slice(0, 2) : active.pills;
+  const isWait = active.status === "wait";
+  // A single static swatch only when there's exactly one variant that has a colour.
+  const singleColor = !hasSwatches && active.colorHex ? active : null;
 
   return (
-    <article className={`card model-card ${m.popular && !compact ? "feat" : ""}`}>
+    <article className={`card model-card ${active.popular && !compact ? "feat" : ""}`}>
       <Link
         className="model-pic"
-        href={`/models/${m.slug}`}
-        aria-label={m.name}
-        onClick={() => track("cta_view_details", { model: m.id, source: "model-card-image" })}
+        href={`/models/${active.slug}`}
+        aria-label={active.name}
+        onClick={() => track("cta_view_details", { model: active.id, source: "model-card-image" })}
       >
-        <span className={`model-badge ${m.badge.variant}`}>{m.badge.text}</span>
+        <span className={`model-badge ${active.badge.variant}`}>{active.badge.text}</span>
         <span className={`model-avail ${avail.cls}`}>
           <span className="dot" />
           {avail.label}
         </span>
-        <img src={resolveImg(m.img)} alt={m.name} loading="lazy" />
+        <img src={resolveImg(active.img)} alt={active.name} loading="lazy" />
       </Link>
       <div className="model-body">
         <h3>
           <Link
-            href={`/models/${m.slug}`}
+            href={`/models/${active.slug}`}
             style={{ color: "inherit", textDecoration: "none" }}
-            onClick={() => track("cta_view_details", { model: m.id, source: "model-card-title" })}
+            onClick={() => track("cta_view_details", { model: active.id, source: "model-card-title" })}
           >
-            {m.name}
+            {active.name}
           </Link>
         </h3>
         <div className="model-tagline">
-          {m.brand} · {tm(`${m.id}.tagline`)}
+          {active.brand} · {tm(`${active.id}.tagline`)}
         </div>
+
+        {/* Colour swatches — only when this card groups >1 variant. */}
+        {hasSwatches && (
+          <div className="model-swatches" role="group" aria-label={t("colors.choose")}>
+            {list.map((v, i) => (
+              <button
+                key={v.id}
+                type="button"
+                className={`model-swatch ${i === activeIdx ? "on" : ""}`}
+                style={{ background: v.colorHex ?? "transparent" }}
+                aria-label={v.color ?? v.name}
+                aria-pressed={i === activeIdx}
+                title={v.color ?? v.name}
+                onClick={() => setActiveIdx(i)}
+              >
+                {i === activeIdx && (
+                  <span className="model-swatch-check" aria-hidden>
+                    <Ic.check s={11} />
+                  </span>
+                )}
+              </button>
+            ))}
+            {active.color && <span className="model-swatch-name">{active.color}</span>}
+          </div>
+        )}
+
+        {/* Singleton with a colour: a single static, non-interactive swatch. */}
+        {singleColor && (
+          <div className="model-swatches">
+            <span
+              className="model-swatch static"
+              style={{ background: singleColor.colorHex ?? "transparent" }}
+              aria-hidden
+            />
+            <span className="model-swatch-name">{singleColor.color}</span>
+          </div>
+        )}
+
         <div className="spec-row">
           {pills.map((p) => (
             <span className="spec-pill" key={p}>
@@ -73,7 +142,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           </div>
           <button
             className={`reserve-btn ${isWait ? "wait" : ""}`}
-            onClick={() => reserve(isWait ? `waitlist:${m.id}` : m.id, "model-card")}
+            onClick={() => reserve(isWait ? `waitlist:${active.id}` : active.id, "model-card")}
           >
             {isWait ? t("joinWaitlist") : t("reserve")}
             {!isWait && <Ic.arrow s={13} />}

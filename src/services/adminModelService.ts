@@ -60,6 +60,12 @@ export interface AdminModel {
   badge: AdminModelBadge | null;
   pills: string[];
   spec: AdminModelSpec | null;
+  /** Colour variant: display name (e.g. "Black"), null when not a colour variant. */
+  color: string | null;
+  /** Colour variant: swatch CSS colour (e.g. "#111111"), null when unset. */
+  colorHex: string | null;
+  /** Group key shared by colour variants of the same bike (e.g. "engine-pro"). */
+  family: string | null;
   hasUploadedImage: boolean;
   /**
    * Absolute urls of the model's gallery images (R2-hosted). Safe to use
@@ -89,6 +95,9 @@ export interface ModelInput {
   badge?: AdminModelBadge | null;
   pills?: string[];
   spec?: AdminModelSpec | null;
+  color?: string | null;
+  colorHex?: string | null;
+  family?: string | null;
 }
 
 /* ── Typed errors ──────────────────────────────────────────────────────── */

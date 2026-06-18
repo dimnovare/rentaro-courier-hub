@@ -20,6 +20,9 @@ export interface FleetUnit {
   lastServiceDate: string | null;
   nextServiceDueDate: string | null;
   notes: string | null;
+  condition: "new" | "used";
+  forSale: boolean;
+  salePrice: number | null;
 }
 
 export interface FleetRental {
@@ -116,6 +119,22 @@ export const updateUnitStatus = (internalCode: string, status: string) =>
     body: JSON.stringify({ status }),
   });
 
+/** Fields that can be patched on an existing unit. Any subset is accepted;
+ *  only the provided keys are updated server-side (salePrice must be >= 0). */
+export interface UpdateUnitInput {
+  condition?: "new" | "used";
+  forSale?: boolean;
+  salePrice?: number | null;
+}
+
+/** Update the used/for-sale state of an existing bike unit. Returns the
+ *  updated unit for the fleet table. */
+export const updateUnit = (internalCode: string, patch: UpdateUnitInput) =>
+  request<FleetUnit>(`/api/admin/units/${encodeURIComponent(internalCode)}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+
 /** Fields accepted when creating a bike unit. `internalCode`, `modelId` and
  *  `cityId` are required; everything else is optional. */
 export interface CreateUnitInput {
@@ -130,6 +149,9 @@ export interface CreateUnitInput {
   lastServiceDate?: string;
   nextServiceDueDate?: string;
   notes?: string;
+  condition?: "new" | "used";
+  forSale?: boolean;
+  salePrice?: number | null;
 }
 
 /** Create a physical bike unit. Returns the created unit for the fleet table. */

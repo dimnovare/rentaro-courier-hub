@@ -51,7 +51,7 @@
     }
   },
   "hero": {
-    "pill": "KALUSTO LIVENÄ · {live} · {soon} PIAN",
+    "pill": "KALUSTO LIVENÄ · {live}{soonState, select, some{ · {soon} PIAN} other{}}",
     "headingLine1": "Lähettivalmiit",
     "headingLine2": "sähköpyörät",
     "headingLine3Pre": "",
@@ -67,7 +67,7 @@
       "termUnit": "päivää",
       "termLabel": "Vähimmäisaika",
       "citiesUnit": "kaupunkia",
-      "citiesLabel": "Käytössä nyt · {soon} pian",
+      "citiesLabel": "Käytössä nyt{soonState, select, some{ · {soon} pian} other{}}",
       "availableUnit": "pyörää",
       "availableLabel": "Saatavilla nyt"
     },
@@ -215,7 +215,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Tukiaika",
-      "citiesLabel": "Kaupunkia käytössä · {soon} pian",
+      "citiesLabel": "Kaupunkia käytössä{soonState, select, some{ · {soon} pian} other{}}",
       "modelsValue": "6",
       "modelsLabel": "Mallia",
       "minPlanValue": "30d",
@@ -252,7 +252,7 @@
       },
       "pickup": {
         "q": "Mistä voin noutaa pyörän?",
-        "a": "Toimimme tällä hetkellä Tallinnassa ja Riiassa, ja Helsinki on tulossa pian. Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta alueellasi."
+        "a": "Käytössä tällä hetkellä: {live}{soonState, select, some{, ja {soon} tulossa pian} other{}}. Nouda kaupungin noutopisteeltä tai pyydä paikallista toimitusta alueellasi."
       },
       "contract": {
         "q": "Miten allekirjoitan sopimuksen?",
@@ -281,7 +281,7 @@
     },
     "city": {
       "heading": "Missä ajat?",
-      "sub": "Valitse kaupunkisi. Toimimme tällä hetkellä Tallinnassa ja Riiassa.",
+      "sub": "Valitse kaupunkisi. Käytössä tällä hetkellä: {live}.",
       "soon": "Tulossa pian",
       "limited": "Rajoitetusti",
       "available": "{count} saatavilla",
@@ -294,7 +294,8 @@
       "waitlistSuffix": " · jonotuslista",
       "statAvailable": "Saatavilla",
       "statLow": "Vähän jäljellä",
-      "statWait": "Jonotuslista"
+      "statWait": "Jonotuslista",
+      "chooseColor": "Valitse väri"
     },
     "plan": {
       "heading": "Valitse suunnitelma",
@@ -846,6 +847,9 @@
       "limited": "Rajoitetusti",
       "waitlist": "Jonotuslista",
       "comingSoon": "Tulossa pian"
+    },
+    "colors": {
+      "choose": "Valitse väri"
     }
   },
   "modelItems": {

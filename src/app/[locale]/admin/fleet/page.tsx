@@ -5,6 +5,7 @@ import {
   getUnits,
   getRentals,
   updateUnitStatus,
+  updateUnit,
   createUnit,
   FleetApiError,
   FleetConfigError,
@@ -12,6 +13,7 @@ import {
   type FleetUnit,
   type FleetRental,
   type CreateUnitInput,
+  type UpdateUnitInput,
 } from "@/services/adminFleetService";
 import { AdminTable, Th, Td, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
@@ -58,6 +60,8 @@ export default function AdminFleetPage() {
   const [updateError, setUpdateError] = useState<string | null>(null);
   // Whether the "New unit" drawer is open.
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // The unit currently being edited (used/for-sale state), or null when closed.
+  const [editingUnit, setEditingUnit] = useState<FleetUnit | null>(null);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
@@ -166,6 +170,33 @@ export default function AdminFleetPage() {
     }
   }
 
+  async function submitEdit(internalCode: string, patch: UpdateUnitInput): Promise<string | null> {
+    try {
+      const updated = await updateUnit(internalCode, patch);
+      setState((s) =>
+        s.phase === "ready"
+          ? {
+              ...s,
+              data: {
+                ...s.data,
+                units: s.data.units.map((u) =>
+                  u.internalCode === internalCode ? updated : u,
+                ),
+              },
+            }
+          : s,
+      );
+      setEditingUnit(null);
+      return null;
+    } catch (err) {
+      if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
+        signOut();
+        return null;
+      }
+      return err instanceof FleetApiError ? err.message : `Could not update ${internalCode}.`;
+    }
+  }
+
   return (
     <div>
       {state.phase === "loading" ? (
@@ -213,6 +244,7 @@ export default function AdminFleetPage() {
             units={state.data.units}
             pending={pending}
             onChangeStatus={changeStatus}
+            onEdit={setEditingUnit}
           />
 
           <RentalTimeline units={state.data.units} rentals={state.data.rentals} />
@@ -223,6 +255,12 @@ export default function AdminFleetPage() {
             models={state.data.models}
             cities={state.data.cities}
             onSubmit={submitUnit}
+          />
+
+          <EditUnitDrawer
+            unit={editingUnit}
+            onClose={() => setEditingUnit(null)}
+            onSubmit={submitEdit}
           />
         </>
       )}
@@ -256,6 +294,9 @@ function NewUnitDrawer({
   const [lastServiceDate, setLastServiceDate] = useState("");
   const [nextServiceDueDate, setNextServiceDueDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [condition, setCondition] = useState<"new" | "used">("new");
+  const [forSale, setForSale] = useState(false);
+  const [salePrice, setSalePrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -287,6 +328,9 @@ function NewUnitDrawer({
       lastServiceDate: lastServiceDate || undefined,
       nextServiceDueDate: nextServiceDueDate || undefined,
       notes: notes.trim() || undefined,
+      condition,
+      forSale,
+      salePrice: forSale && salePrice.trim() !== "" ? Number(salePrice) : null,
     });
     setSubmitting(false);
     if (err) {
@@ -301,6 +345,9 @@ function NewUnitDrawer({
       setLastServiceDate("");
       setNextServiceDueDate("");
       setNotes("");
+      setCondition("new");
+      setForSale(false);
+      setSalePrice("");
     }
   }
 
@@ -492,6 +539,51 @@ function NewUnitDrawer({
           />
         </div>
 
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="bu-condition">Condition</label>
+            <select
+              id="bu-condition"
+              value={condition}
+              onChange={(e) => setCondition(e.target.value as "new" | "used")}
+              aria-label="Condition"
+            >
+              <option value="new">New</option>
+              <option value="used">Used</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="bu-sale-price">Sale price (€)</label>
+            <input
+              id="bu-sale-price"
+              type="number"
+              min={0}
+              step="0.01"
+              value={salePrice}
+              onChange={(e) => setSalePrice(e.target.value)}
+              disabled={!forSale}
+              placeholder={forSale ? "optional" : "for-sale only"}
+              aria-label="Sale price in euros"
+              style={{ opacity: forSale ? 1 : 0.5 }}
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label
+            style={{ display: "inline-flex", alignItems: "center", gap: 9, cursor: "pointer" }}
+          >
+            <input
+              type="checkbox"
+              checked={forSale}
+              onChange={(e) => setForSale(e.target.checked)}
+              aria-label="For sale"
+              style={{ width: "auto", margin: 0, cursor: "pointer" }}
+            />
+            For sale
+          </label>
+        </div>
+
         {!codeOk && (
           <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: 0 }}>
             An internal code is required.
@@ -511,10 +603,12 @@ function UnitsByCity({
   units,
   pending,
   onChangeStatus,
+  onEdit,
 }: {
   units: FleetUnit[];
   pending: Record<string, boolean>;
   onChangeStatus: (code: string, status: string) => void;
+  onEdit: (unit: FleetUnit) => void;
 }) {
   // Group units by city, preserving first-seen city order.
   const groups = useMemo(() => {
@@ -563,9 +657,11 @@ function UnitsByCity({
                     <Th>Serial</Th>
                     <Th>Status</Th>
                     <Th>Change status</Th>
+                    <Th>Sale state</Th>
                     <Th>Last service</Th>
                     <Th>Next due</Th>
                     <Th>Notes</Th>
+                    <Th>Edit</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -590,6 +686,9 @@ function UnitsByCity({
                           onChange={(next) => onChangeStatus(u.internalCode, next)}
                         />
                       </Td>
+                      <Td nowrap>
+                        <SaleState unit={u} />
+                      </Td>
                       <Td mono nowrap>
                         {fmtDay(u.lastServiceDate)}
                       </Td>
@@ -597,6 +696,16 @@ function UnitsByCity({
                         {fmtDay(u.nextServiceDueDate)}
                       </Td>
                       <Td dim>{u.notes?.trim() ? u.notes : "—"}</Td>
+                      <Td nowrap>
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          onClick={() => onEdit(u)}
+                          style={{ padding: "7px 14px", fontSize: 12 }}
+                        >
+                          Edit
+                        </button>
+                      </Td>
                     </tr>
                   ))}
                 </tbody>
@@ -606,6 +715,174 @@ function UnitsByCity({
         </div>
       )}
     </section>
+  );
+}
+
+/** Compact used/for-sale tags for a unit row. Renders nothing extra for a new,
+ *  not-for-sale unit (just a muted dash) to keep the table quiet. */
+function SaleState({ unit }: { unit: FleetUnit }) {
+  const used = unit.condition === "used";
+  if (!used && !unit.forSale) {
+    return <span style={{ color: "var(--text-dim)" }}>—</span>;
+  }
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      {used && <StatusPill value="used" tone="neutral" />}
+      {unit.forSale && (
+        <StatusPill
+          value={unit.salePrice != null ? `for sale · €${unit.salePrice}` : "for sale"}
+          tone="info"
+        />
+      )}
+    </span>
+  );
+}
+
+/* ── Edit bike unit drawer (used / for-sale state) ─────────────────────── */
+
+function EditUnitDrawer({
+  unit,
+  onClose,
+  onSubmit,
+}: {
+  unit: FleetUnit | null;
+  onClose: () => void;
+  onSubmit: (internalCode: string, patch: UpdateUnitInput) => Promise<string | null>;
+}) {
+  const [condition, setCondition] = useState<"new" | "used">("new");
+  const [forSale, setForSale] = useState(false);
+  const [salePrice, setSalePrice] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Seed the form from the unit each time a new one is opened.
+  useEffect(() => {
+    if (!unit) return;
+    setCondition(unit.condition);
+    setForSale(unit.forSale);
+    setSalePrice(unit.salePrice != null ? String(unit.salePrice) : "");
+    setFormError(null);
+  }, [unit]);
+
+  async function handleSubmit() {
+    if (!unit || submitting) return;
+    setSubmitting(true);
+    setFormError(null);
+    const err = await onSubmit(unit.internalCode, {
+      condition,
+      forSale,
+      salePrice: forSale && salePrice.trim() !== "" ? Number(salePrice) : null,
+    });
+    setSubmitting(false);
+    if (err) setFormError(err);
+  }
+
+  return (
+    <Drawer
+      open={unit !== null}
+      onClose={onClose}
+      title="Edit bike unit"
+      subtitle={unit?.internalCode}
+      footer={
+        <>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={onClose}
+            style={{ padding: "11px 20px", fontSize: 14 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void handleSubmit()}
+            disabled={submitting}
+            style={{
+              padding: "11px 20px",
+              fontSize: 14,
+              opacity: submitting ? 0.55 : 1,
+              cursor: submitting ? "not-allowed" : "pointer",
+            }}
+          >
+            {submitting ? "Saving…" : "Save changes"}
+          </button>
+        </>
+      }
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSubmit();
+        }}
+      >
+        {formError && (
+          <div
+            className="mono"
+            role="alert"
+            style={{
+              color: "var(--danger)",
+              fontSize: 12,
+              marginBottom: 16,
+              padding: "10px 13px",
+              borderRadius: "var(--r-sm)",
+              border: "1px solid rgba(255, 138, 120, 0.32)",
+              background: "rgba(255, 138, 120, 0.06)",
+            }}
+          >
+            {formError}
+          </div>
+        )}
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="eu-condition">Condition</label>
+            <select
+              id="eu-condition"
+              value={condition}
+              onChange={(e) => setCondition(e.target.value as "new" | "used")}
+              aria-label="Condition"
+            >
+              <option value="new">New</option>
+              <option value="used">Used</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="eu-sale-price">Sale price (€)</label>
+            <input
+              id="eu-sale-price"
+              type="number"
+              min={0}
+              step="0.01"
+              value={salePrice}
+              onChange={(e) => setSalePrice(e.target.value)}
+              disabled={!forSale}
+              placeholder={forSale ? "optional" : "for-sale only"}
+              aria-label="Sale price in euros"
+              style={{ opacity: forSale ? 1 : 0.5 }}
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label
+            style={{ display: "inline-flex", alignItems: "center", gap: 9, cursor: "pointer" }}
+          >
+            <input
+              type="checkbox"
+              checked={forSale}
+              onChange={(e) => setForSale(e.target.checked)}
+              aria-label="For sale"
+              style={{ width: "auto", margin: 0, cursor: "pointer" }}
+            />
+            For sale
+          </label>
+        </div>
+
+        {/* Hidden submit keeps Enter-to-save working. */}
+        <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
+      </form>
+    </Drawer>
   );
 }
 

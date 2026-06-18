@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { BookingWizard } from "@/components/booking/BookingWizard";
 import { getSettings } from "@/services/settingsService";
 import { modelService } from "@/services/modelService";
+import { cityService } from "@/services/cityService";
 
 const title = "Reserve your e-bike — rentaro";
 const description =
@@ -40,13 +41,17 @@ export async function generateMetadata({
 }
 
 export default async function BookPage() {
-  const [settings, models] = await Promise.all([getSettings(), modelService.getModels()]);
+  const [settings, models, cities] = await Promise.all([
+    getSettings(),
+    modelService.getModels(),
+    cityService.getCities(),
+  ]);
   return (
     <main>
       <section className="section-pad" style={{ paddingTop: 48 }}>
         <div className="wrap">
           <Suspense fallback={null}>
-            <BookingWizard settings={settings} models={models} />
+            <BookingWizard settings={settings} models={models} cities={cities} />
           </Suspense>
         </div>
       </section>

@@ -6,15 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
-import { cities } from "@/data/cities";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
 import { resolveImg } from "@/services/modelService";
+import { operatingCityNames } from "@/lib/cities";
+import { groupByFamily } from "@/lib/modelFamilies";
 import type { SiteSettings } from "@/services/settingsService";
-import type { BikeModel, PlanId } from "@/types";
+import type { BikeModel, City, PlanId } from "@/types";
 
 /** Contact preference captured on the review step. */
 type ContactMethod = "email" | "phone";
@@ -61,7 +62,15 @@ function toLocalISODate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function BookingWizard({ settings, models }: { settings: SiteSettings; models: BikeModel[] }) {
+export function BookingWizard({
+  settings,
+  models,
+  cities,
+}: {
+  settings: SiteSettings;
+  models: BikeModel[];
+  cities: City[];
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const locale = useLocale();
@@ -70,6 +79,11 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   const tp = useTranslations("pricing");
   const ta = useTranslations("accessories");
   const tm = useTranslations("modelItems");
+
+  // Localized names of the cities we currently operate in (status !== "soon"),
+  // used to derive the city-step subtitle ("We operate in {live} today.") so the
+  // copy can never name a market that admin has flipped to "coming soon".
+  const { live: liveCityNames } = operatingCityNames(cities, (id) => tc(`names.${id}`));
 
   // Pre-fill from deep-link query params (e.g. "Reserve this bike" → ?model=…,
   // "Reserve in Tallinn" → ?city=…, "Choose 6 months" → ?plan=…). A pre-filled
@@ -165,6 +179,15 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
   // Model the visitor is previewing in the info popup (null = closed). The popup
   // is informational only and never changes the selection.
   const [infoModel, setInfoModel] = useState<BikeModel | null>(null);
+
+  // Colour-variant grouping for the model step: variants of the same bike share
+  // a `family` and collapse into one card with swatches. With all-null families
+  // every model is its own singleton group (the step renders exactly as before).
+  const modelGroups = groupByFamily(models);
+  // Per-family active variant id (which colour a multi-variant card is showing).
+  // Defaults to the first variant; a card with a deep-linked/selected variant
+  // shows that one.
+  const [activeVariant, setActiveVariant] = useState<Record<string, string>>({});
 
   // Steps actually shown: skip any single-select already provided by a deep link.
   // Add-ons are folded into the Details screen, so there is no separate step.
@@ -512,6 +535,56 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
           color: var(--text);
         }
 
+        /* ---- Colour swatches inside a multi-variant model option ----
+           Sibling of .bike-opt inside .bike-opt-wrap (NOT nested in the card
+           button, which would be invalid interactive nesting). Each swatch is a
+           real <button>; the visible coloured dot is a child span so the hit
+           area can be >=44px while the dot stays ~20px. */
+        :global(.bike-swatches) {
+          display: flex;
+          align-items: center;
+          /* negative margin trims the buttons' transparent padding back to the
+             card edges so the row keeps its tight visual gap/alignment */
+          gap: 0;
+          margin: -8px 0 4px;
+          padding: 0 50px 0 9px; /* clear the info rail (right) + align dots under thumb area */
+          flex-wrap: wrap;
+        }
+        :global(.bike-swatch) {
+          all: unset;
+          box-sizing: border-box;
+          /* Hit area >=44px (WCAG 2.5.8 / repo convention); the visible dot is
+             the inner .bike-swatch-dot. */
+          width: 44px;
+          height: 44px;
+          flex-shrink: 0;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        :global(.bike-swatch-dot) {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          /* Subtle border so light/white colours stay visible on the dark card. */
+          border: 1px solid rgba(255, 255, 255, 0.28);
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+          flex-shrink: 0;
+          transition: transform 0.15s, box-shadow 0.2s;
+        }
+        :global(.bike-swatch:hover .bike-swatch-dot) {
+          transform: scale(1.08);
+        }
+        :global(.bike-swatch.on .bike-swatch-dot) {
+          border-color: var(--lime);
+          box-shadow: 0 0 0 2px var(--lime), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+        }
+        :global(.bike-swatch:focus-visible .bike-swatch-dot) {
+          outline: 2px solid var(--lime);
+          outline-offset: 2px;
+        }
+
         /* ---- Segmented contact / payment choices ---- */
         :global(.seg-block) {
           margin-top: 20px;
@@ -697,7 +770,7 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
         {key === "city" && (
           <>
             <h3>{t("city.heading")}</h3>
-            <p className="sub">{t("city.sub")}</p>
+            <p className="sub">{t("city.sub", { live: liveCityNames.join(" + ") })}</p>
             <div className="opt-grid three">
               {cities.map((c) => {
                 const soon = c.status === "soon";
@@ -738,7 +811,18 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
             <h3>{t("model.heading")}</h3>
             <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
-              {models.map((m) => {
+              {modelGroups.map((g) => {
+                const groupKey = g.family ?? g.variants[0].id;
+                const hasSwatches = g.variants.length > 1;
+                // The variant this card currently shows: a swatch the visitor
+                // tapped, else the selected variant if it belongs to this group,
+                // else the first variant.
+                const selectedInGroup = g.variants.find((v) => v.id === modelId);
+                const activeId =
+                  activeVariant[groupKey] ?? selectedInGroup?.id ?? g.variants[0].id;
+                const m = g.variants.find((v) => v.id === activeId) ?? g.variants[0];
+                // A card is selected when its DISPLAYED variant is the chosen model.
+                const isSelected = modelId === m.id;
                 // Once the live fetch has resolved, trust it: 0 units → waitlist,
                 // 1–3 → few left, more → available. Before the fetch resolves we
                 // fall back to the model's static status (mirrors the City step).
@@ -761,12 +845,21 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                 // (the catalogue `img` is a dark studio cut-out that reads as
                 // near-invisible on the dark option surface); fall back to `img`.
                 const thumb = m.gallery?.[0] ?? m.img;
+                // Pick a card: select the displayed variant (and advance).
+                const pickCard = () => pick(() => setModelId(m.id));
+                // Tap a swatch: make that variant the displayed one. If the card
+                // is already the selected model, move the selection to the new
+                // variant too (no navigation / no step advance).
+                const pickSwatch = (v: BikeModel) => {
+                  setActiveVariant((s) => ({ ...s, [groupKey]: v.id }));
+                  if (selectedInGroup) setModelId(v.id);
+                };
                 return (
-                  <div key={m.id} className="bike-opt-wrap">
+                  <div key={groupKey} className="bike-opt-wrap">
                     <button
                       type="button"
-                      className={`opt bike-opt ${modelId === m.id ? "selected" : ""}`}
-                      onClick={() => pick(() => setModelId(m.id))}
+                      className={`opt bike-opt ${isSelected ? "selected" : ""}`}
+                      onClick={pickCard}
                     >
                       <span className="bike-thumb" aria-hidden>
                         <img
@@ -798,6 +891,34 @@ export function BookingWizard({ settings, models }: { settings: SiteSettings; mo
                         </span>
                       </span>
                     </button>
+                    {hasSwatches && (
+                      <span
+                        className="bike-swatches"
+                        role="group"
+                        aria-label={t("model.chooseColor")}
+                      >
+                        {g.variants.map((v) => (
+                          <button
+                            key={v.id}
+                            type="button"
+                            className={`bike-swatch ${v.id === m.id ? "on" : ""}`}
+                            aria-label={v.color ?? v.name}
+                            aria-pressed={v.id === m.id}
+                            title={v.color ?? v.name}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              pickSwatch(v);
+                            }}
+                          >
+                            <span
+                              className="bike-swatch-dot"
+                              style={{ background: v.colorHex ?? "transparent" }}
+                              aria-hidden
+                            />
+                          </button>
+                        ))}
+                      </span>
+                    )}
                     <button
                       type="button"
                       className="bike-info-btn"

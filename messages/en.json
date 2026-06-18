@@ -51,7 +51,7 @@
     }
   },
   "hero": {
-    "pill": "FLEET LIVE · {live} · {soon} SOON",
+    "pill": "FLEET LIVE · {live}{soonState, select, some{ · {soon} SOON} other{}}",
     "headingLine1": "Delivery-ready",
     "headingLine2": "e-bikes by",
     "headingLine3Pre": "the ",
@@ -67,7 +67,7 @@
       "termUnit": "days",
       "termLabel": "Minimum term",
       "citiesUnit": "cities",
-      "citiesLabel": "Live now · {soon} soon",
+      "citiesLabel": "Live now{soonState, select, some{ · {soon} soon} other{}}",
       "availableUnit": "bikes",
       "availableLabel": "Available now"
     },
@@ -215,7 +215,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Support window",
-      "citiesLabel": "Cities live · {soon} soon",
+      "citiesLabel": "Cities live{soonState, select, some{ · {soon} soon} other{}}",
       "modelsValue": "6",
       "modelsLabel": "Models",
       "minPlanValue": "30d",
@@ -252,7 +252,7 @@
       },
       "pickup": {
         "q": "Where can I pick up the bike?",
-        "a": "We operate in Tallinn and Riga today, with Helsinki coming soon. Collect at a city pickup point or request local delivery in your area."
+        "a": "We operate in {live} today{soonState, select, some{, with {soon} coming soon} other{}}. Collect at a city pickup point or request local delivery in your area."
       },
       "contract": {
         "q": "How do I sign the contract?",
@@ -281,7 +281,7 @@
     },
     "city": {
       "heading": "Where do you ride?",
-      "sub": "Choose your city. We operate in Tallinn and Riga today.",
+      "sub": "Choose your city. We operate in {live} today.",
       "soon": "Coming soon",
       "limited": "Limited stock",
       "available": "{count} available",
@@ -294,7 +294,8 @@
       "waitlistSuffix": " · waitlist",
       "statAvailable": "Available",
       "statLow": "Few left",
-      "statWait": "Waitlist"
+      "statWait": "Waitlist",
+      "chooseColor": "Choose colour"
     },
     "plan": {
       "heading": "Choose a plan",
@@ -846,6 +847,9 @@
       "limited": "Limited",
       "waitlist": "Waitlist",
       "comingSoon": "Coming soon"
+    },
+    "colors": {
+      "choose": "Choose colour"
     }
   },
   "modelItems": {

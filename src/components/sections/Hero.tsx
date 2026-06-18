@@ -5,18 +5,8 @@ import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { Ic } from "@/components/ui/Icon";
-import { cities } from "@/data/cities";
-
-// Single source of truth for "how many cities are live" — a city counts as live
-// once it is no longer "soon". Derived here so the pill, the hero stat and the
-// service stat can never disagree.
-const liveCities = cities.filter((c) => c.status !== "soon");
-const soonCities = cities.filter((c) => c.status === "soon");
-const liveCityCount = liveCities.length;
-// Proper-case lists for the stat label; the all-caps pill uppercases its own.
-const liveCityNames = liveCities.map((c) => c.name).join(" + ");
-const soonCityNames = soonCities.map((c) => c.name).join(", ");
-
+import { operatingCityNames } from "@/lib/cities";
+import type { City } from "@/types";
 
 /** Marquee item keys, in display order — copy lives in the `marquee` namespace. */
 const marqueeKeys = [
@@ -29,11 +19,22 @@ const marqueeKeys = [
   "pickupDelivery",
 ] as const;
 
-export function Hero({ liveAvailable }: { liveAvailable?: number } = {}) {
+export function Hero({
+  liveAvailable,
+  cities = [],
+}: { liveAvailable?: number; cities?: City[] } = {}) {
   const { reserve, goModels } = useInteractions();
   const t = useTranslations("hero");
   const tm = useTranslations("marquee");
+  const tc = useTranslations("cities");
   const showBikes = typeof liveAvailable === "number" && liveAvailable > 0;
+
+  // A city counts as live once it is no longer "soon". Derived from the LIVE
+  // city list (passed from the server) with LOCALIZED names so the pill, the
+  // hero stat and the cities section can never disagree.
+  const { live, soon, liveCount } = operatingCityNames(cities, (id) => tc(`names.${id}`));
+  const liveCityNames = live.join(" + ");
+  const soonCityNames = soon.join(", ");
   return (
     <section className="hero" id="top">
       <div className="wrap hero-grid">
@@ -43,6 +44,7 @@ export function Hero({ liveAvailable }: { liveAvailable?: number } = {}) {
             {t("pill", {
               live: liveCityNames.toUpperCase(),
               soon: soonCityNames.toUpperCase(),
+              soonState: soonCityNames ? "some" : "none",
             })}
           </Reveal>
           <Reveal delay={60}>
@@ -91,13 +93,13 @@ export function Hero({ liveAvailable }: { liveAvailable?: number } = {}) {
               </div>
               <div className="hero-stat">
                 <div className="n">
-                  {showBikes ? liveAvailable : liveCityCount}
+                  {showBikes ? liveAvailable : liveCount}
                   <span className="u">
                     {showBikes ? t("stats.availableUnit") : t("stats.citiesUnit")}
                   </span>
                 </div>
                 <div className="l">
-                  {showBikes ? t("stats.availableLabel") : t("stats.citiesLabel", { soon: soonCityNames })}
+                  {showBikes ? t("stats.availableLabel") : t("stats.citiesLabel", { soon: soonCityNames, soonState: soonCityNames ? "some" : "none" })}
                 </div>
               </div>
             </div>

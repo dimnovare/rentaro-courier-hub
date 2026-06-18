@@ -53,7 +53,7 @@ export function Nav() {
           <Link href="/#cities" onClick={(e) => onNavClick(e, "cities")}>{t("cities")}</Link>
         </div>
         <div className="nav-cta">
-          <LocaleSwitcher />
+          <LocaleSwitcher variant="bar" />
           <button className="btn btn-ghost" onClick={() => goModels("nav")}>{t("viewFleet")}</button>
           <button className="btn btn-primary" onClick={() => reserve(undefined, "nav")}>
             {t("reserve")}<span className="arrow"><Ic.arrow /></span>
@@ -81,7 +81,7 @@ export function Nav() {
           <Link href="/#cities" onClick={(e) => { e.preventDefault(); go(() => nav("cities")); }}>{t("cities")}</Link>
           <button type="button" className="btn btn-ghost" onClick={() => go(() => goModels("nav-mobile"))}>{t("viewFleet")}</button>
           <div className="mm-locale">
-            <LocaleSwitcher />
+            <LocaleSwitcher variant="menu" />
           </div>
         </div>
       )}

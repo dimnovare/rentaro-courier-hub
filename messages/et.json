@@ -51,7 +51,7 @@
     }
   },
   "hero": {
-    "pill": "PARK TÖÖS · {live} · {soon} VARSTI",
+    "pill": "PARK TÖÖS · {live}{soonState, select, some{ · {soon} VARSTI} other{}}",
     "headingLine1": "Tarneks valmis",
     "headingLine2": "e-rattad",
     "headingLine3Pre": "kuu ",
@@ -67,7 +67,7 @@
       "termUnit": "päeva",
       "termLabel": "Minimaalne periood",
       "citiesUnit": "linna",
-      "citiesLabel": "Juba töös · {soon} varsti",
+      "citiesLabel": "Juba töös{soonState, select, some{ · {soon} varsti} other{}}",
       "availableUnit": "jalgrattad",
       "availableLabel": "Saadaval praegu"
     },
@@ -215,7 +215,7 @@
     "stats": {
       "supportValue": "24h",
       "supportLabel": "Tugiaken",
-      "citiesLabel": "Linna töös · {soon} varsti",
+      "citiesLabel": "Linna töös{soonState, select, some{ · {soon} varsti} other{}}",
       "modelsValue": "6",
       "modelsLabel": "Mudelit",
       "minPlanValue": "30d",
@@ -252,7 +252,7 @@
       },
       "pickup": {
         "q": "Kust saan rattale järele tulla?",
-        "a": "Praegu tegutseme Tallinnas ja Riias, peagi lisandub Helsingi. Tule järele linna järeletulekupunkti või telli kohale toomine oma piirkonnas."
+        "a": "Praegu töös linnades: {live}{soonState, select, some{, peagi lisandub {soon}} other{}}. Tule järele linna järeletulekupunkti või telli kohale toomine oma piirkonnas."
       },
       "contract": {
         "q": "Kuidas ma lepingu allkirjastan?",
@@ -281,7 +281,7 @@
     },
     "city": {
       "heading": "Kus sa sõidad?",
-      "sub": "Vali oma linn. Praegu tegutseme Tallinnas ja Riias.",
+      "sub": "Vali oma linn. Praegu töös linnades: {live}.",
       "soon": "Tulekul",
       "limited": "Piiratud kogus",
       "available": "{count} saadaval",
@@ -294,7 +294,8 @@
       "waitlistSuffix": " · ootenimekiri",
       "statAvailable": "Saadaval",
       "statLow": "Vähe jäänud",
-      "statWait": "Ootenimekiri"
+      "statWait": "Ootenimekiri",
+      "chooseColor": "Vali värv"
     },
     "plan": {
       "heading": "Vali pakett",
@@ -846,6 +847,9 @@
       "limited": "Piiratud",
       "waitlist": "Ootenimekiri",
       "comingSoon": "Tulekul"
+    },
+    "colors": {
+      "choose": "Vali värv"
     }
   },
   "modelItems": {

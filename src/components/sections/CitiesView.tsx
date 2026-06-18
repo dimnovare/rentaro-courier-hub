@@ -5,6 +5,7 @@ import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
+import { operatingCityNames } from "@/lib/cities";
 import type { City } from "@/types";
 
 /** Map the data `country` value onto its message key. */
@@ -18,11 +19,10 @@ export function CitiesView({ cities }: { cities: City[] }) {
   const { reserve, openWaitlist } = useInteractions();
   const t = useTranslations("cities");
 
-  // Derive the live/soon split from data (same rule as the hero pill: a city is
-  // "live" once it's no longer "soon") so the heading can never claim more
-  // markets than are actually open.
-  const liveNames = cities.filter((c) => c.status !== "soon").map((c) => t(`names.${c.id}`));
-  const soonNames = cities.filter((c) => c.status === "soon").map((c) => t(`names.${c.id}`));
+  // Derive the live/soon split from LIVE data (same rule as the hero pill: a
+  // city is "live" once it's no longer "soon") so the heading can never claim
+  // more markets than are actually open. Names are localized via cities.names.*.
+  const { live: liveNames, soon: soonNames } = operatingCityNames(cities, (id) => t(`names.${id}`));
   const heading =
     soonNames.length > 0
       ? t("headingWithSoon", { live: liveNames.join(" + "), soon: soonNames.join(", ") })

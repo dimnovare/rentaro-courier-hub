@@ -28,7 +28,7 @@ export const faqs: Faq[] = [
   },
   {
     q: "Where can I pick up the bike?",
-    a: "We operate in Tallinn and Riga today, with Helsinki coming soon. Collect at a city pickup point or request local delivery in your area.",
+    a: "Collect at a city pickup point or request local delivery where we operate.",
   },
   {
     q: "Do I sign a contract online?",

@@ -557,6 +557,9 @@ interface EditorFields {
   badgeVariant: string;
   pills: string; // comma-separated
   spec: string; // raw JSON
+  color: string; // display colour name (e.g. "Black")
+  colorHex: string; // swatch colour (e.g. "#111111")
+  family: string; // group key for colour variants (e.g. "engine-pro")
 }
 
 function ModelEditor({
@@ -656,6 +659,11 @@ function ModelEditor({
       badge: badgeText ? { text: badgeText, variant: f.badgeVariant } : null,
       pills: parseCsv(f.pills),
       spec,
+      // Colour-variant fields: send null when blank so they clear cleanly and
+      // the model degrades to a singleton card on the public site.
+      color: f.color.trim() || null,
+      colorHex: f.colorHex.trim() || null,
+      family: f.family.trim() || null,
     };
     // `availability` is derived server-side from the real BikeUnit count for this
     // model, so whatever we send here is not what gets displayed. On edit, pass the
@@ -899,6 +907,62 @@ function ModelEditor({
         </Field>
       </div>
 
+      {/* Colour variant row. Models sharing a Family collapse into one card on
+          the public site, shown as colour swatches. Blank = a singleton card. */}
+      <div style={{ ...gridStyle, marginTop: 16 }}>
+        <Field label="Colour" hint="display name, e.g. Black">
+          <input
+            value={f.color}
+            onChange={(e) => set("color", e.target.value)}
+            placeholder="e.g. Black"
+            aria-label="Colour"
+            style={inputStyle}
+          />
+        </Field>
+        <Field label="Colour hex" hint="swatch colour, e.g. #111111">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="color"
+              // <input type=color> requires a valid #rrggbb; fall back to a
+              // neutral grey when the text value is blank or not yet valid.
+              value={/^#[0-9a-fA-F]{6}$/.test(f.colorHex.trim()) ? f.colorHex.trim() : "#888888"}
+              onChange={(e) => set("colorHex", e.target.value)}
+              aria-label="Colour hex picker"
+              style={{
+                width: 40,
+                height: 38,
+                padding: 2,
+                borderRadius: "var(--r-sm)",
+                background: "var(--bg-2)",
+                border: "1px solid var(--border)",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+            />
+            <input
+              value={f.colorHex}
+              onChange={(e) => set("colorHex", e.target.value)}
+              placeholder="#111111"
+              aria-label="Colour hex"
+              spellCheck={false}
+              style={inputStyle}
+            />
+          </div>
+        </Field>
+        <Field
+          label="Family"
+          hint="Models sharing a family show as color swatches on one card"
+        >
+          <input
+            value={f.family}
+            onChange={(e) => set("family", e.target.value)}
+            placeholder="e.g. engine-pro"
+            aria-label="Family"
+            style={inputStyle}
+          />
+        </Field>
+      </div>
+
       {/* Blurb */}
       <div style={{ marginTop: 16 }}>
         <Field label="Blurb">
@@ -1136,6 +1200,9 @@ function initialFields(model?: AdminModel): EditorFields {
     badgeVariant: model?.badge?.variant ?? BADGE_VARIANTS[0].value,
     pills: (model?.pills ?? []).join(", "),
     spec: model?.spec ? JSON.stringify(model.spec, null, 2) : "",
+    color: model?.color ?? "",
+    colorHex: model?.colorHex ?? "",
+    family: model?.family ?? "",
   };
 }
 
