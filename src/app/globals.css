@@ -208,9 +208,21 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 @media (max-width: 900px) {
   .nav-links { display: none; }
   .nav-cta .btn-ghost { display: none; }
-  /* Keep the language picker reachable from the top bar on mobile (compact bar
-     variant) instead of burying it two taps deep in the hamburger menu. */
-  .nav-cta .locale-switcher--bar .locale-trigger { min-height: 44px; padding: 10px 12px; }
+  /* Keep the language picker reachable from the top bar on mobile, but as a
+     compact FLAG-ONLY 44x44 icon button — the "EN" label + caret are dropped so
+     it stops crowding the brand wordmark (which previously truncated to "re…").
+     The accessible name stays on the button's aria-label. */
+  .nav-cta .locale-switcher--bar .locale-trigger-label,
+  .nav-cta .locale-switcher--bar .locale-caret { display: none; }
+  .nav-cta .locale-switcher--bar .locale-trigger {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
   .nav-menu { display: grid; }
 }
 
@@ -230,14 +242,16 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
    the spacing + Reserve padding so the row never overflows ~360–390px widths,
    while keeping every control at a ~44px tap target. */
 @media (max-width: 480px) {
-  .nav-inner { gap: 10px; padding: 14px var(--gut); }
+  /* Tighter gutter + gaps so the brand wordmark "rentaro" shows in full next to
+     the flag-only switcher + Reserve + hamburger (it previously truncated). */
+  .nav-inner { gap: 8px; padding: 14px 14px; }
   .nav-cta { gap: 8px; flex-shrink: 0; }
   .nav-cta .btn-primary { padding: 12px 16px; }
+  .brand { gap: 8px; }
   .brand .word { font-size: 19px; }
   .nav-menu { width: 44px; height: 44px; }
-  /* The Reserve CTA + hamburger must stay fully visible (conversion + nav), so
-     let the brand be the release valve: allow it to shrink and the wordmark to
-     truncate on the longest-label locales (e.g. ru) instead of overflowing. */
+  /* Safety net only (very narrow <360px / long future wordmarks): the brand may
+     shrink rather than overflow. At 375px "rentaro" now fits without truncating. */
   .brand { min-width: 0; flex-shrink: 1; }
   .brand .word { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   /* Mobile dropdown links: bump to ~46px rows for thumb-friendly tapping. */
