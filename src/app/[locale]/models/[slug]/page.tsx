@@ -60,13 +60,7 @@ export default async function ModelDetail({ params }: Params) {
   const t = await getTranslations("modelsPage");
   const tm = await getTranslations("modelItems");
 
-  // Colour variants: sibling models that share this model's `family` (this one
-  // included), so the visitor can hop between colours. With a null/empty family
-  // there are no siblings and only this model's own colour swatch shows.
-  const family = m.family?.trim();
-  const siblings = family
-    ? (await modelService.getModels()).filter((s) => s.family?.trim() === family)
-    : [];
+  const colors = m.colors ?? [];
 
   const avail =
     m.status === "in"
@@ -105,45 +99,20 @@ export default async function ModelDetail({ params }: Params) {
                   {avail.label}
                 </span>
 
-                {/* Colour: sibling variants (other models sharing this family)
-                    as small swatches linking to their slugs, with the current
-                    one highlighted. Falls back to this model's single colour. */}
-                {siblings.length > 1 ? (
-                  <div className="model-swatches" role="group" aria-label={t("colors.choose")} style={{ marginTop: 18 }}>
-                    {siblings.map((s) =>
-                      s.id === m.id ? (
-                        <span
-                          key={s.id}
-                          className="model-swatch static on"
-                          style={{ background: s.colorHex ?? "transparent" }}
-                          aria-label={s.color ?? s.name}
-                          aria-current="true"
-                          title={s.color ?? s.name}
-                        />
-                      ) : (
-                        <Link
-                          key={s.id}
-                          href={`/models/${s.slug}`}
-                          className="model-swatch"
-                          style={{ background: s.colorHex ?? "transparent" }}
-                          aria-label={s.color ?? s.name}
-                          title={s.color ?? s.name}
-                        />
-                      ),
-                    )}
-                    {m.color && <span className="model-swatch-name">{m.color}</span>}
-                  </div>
-                ) : (
-                  m.color && (
-                    <div className="model-swatches" style={{ marginTop: 18 }}>
+                {/* Read-only colour swatches: this model's own available colours
+                    as small hex dots, each labelled with its colour name. */}
+                {colors.length > 0 && (
+                  <div className="model-swatches" role="group" aria-label={t("colors.available")} style={{ marginTop: 18 }}>
+                    {colors.map((c) => (
                       <span
-                        className="model-swatch static"
-                        style={{ background: m.colorHex ?? "transparent" }}
-                        aria-hidden
+                        key={c.name}
+                        className="model-swatch"
+                        style={{ background: c.hex }}
+                        title={c.name}
+                        aria-label={c.name}
                       />
-                      <span className="model-swatch-name">{m.color}</span>
-                    </div>
-                  )
+                    ))}
+                  </div>
                 )}
 
                 {m.blurb && (
@@ -185,10 +154,8 @@ export default async function ModelDetail({ params }: Params) {
             <SpecTable m={m} />
             {m.spec?.sku && (
               <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 14 }}>
+                {/* Available colours are shown as the labelled swatch row above. */}
                 {m.brand} · SKU {m.spec.sku}
-                {/* Colour now lives in the labelled swatch above; fall back to the
-                    legacy `colors` list only when no per-variant colour is set. */}
-                {!m.color && m.colors?.length ? ` · ${m.colors.join(", ")}` : ""}
               </p>
             )}
           </Reveal>

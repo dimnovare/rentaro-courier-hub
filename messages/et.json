@@ -197,6 +197,7 @@
   "accessories": {
     "kicker": "Lisad",
     "heading": "Varustus, mis toob vahetusi.",
+    "colors": "Saadaolevad värvid",
     "names": {
       "battery": "Lisaaku",
       "bag": "Tarnekott",
@@ -295,7 +296,7 @@
       "statAvailable": "Saadaval",
       "statLow": "Vähe jäänud",
       "statWait": "Ootenimekiri",
-      "chooseColor": "Vali värv"
+      "colors": "Saadaolevad värvid"
     },
     "plan": {
       "heading": "Vali pakett",
@@ -849,7 +850,7 @@
       "comingSoon": "Tulekul"
     },
     "colors": {
-      "choose": "Vali värv"
+      "available": "Saadaolevad värvid"
     }
   },
   "modelItems": {

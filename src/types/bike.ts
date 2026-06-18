@@ -10,6 +10,13 @@
 export type BikeStatus = "in" | "low" | "wait";
 export type BadgeVariant = "popular" | "cargo" | "light";
 
+/** A single available colour, shown as a read-only swatch. Used by bike models
+ *  and accessories alike: a name (admin free-text, e.g. "Black") + a CSS hex. */
+export interface ColorOption {
+  name: string;
+  hex: string;
+}
+
 export interface ModelBadge {
   text: string;
   variant: BadgeVariant;
@@ -90,17 +97,8 @@ export interface BikeModel {
   specs: SpecItem[];
   /** Full manufacturer sheet (detail page + backend compliance). */
   spec?: BikeSpecSheet;
-  colors?: string[];
-  /** Display colour name for this variant (admin free-text, e.g. "Black"). */
-  color?: string | null;
-  /** CSS colour for the swatch (e.g. "#111111"). */
-  colorHex?: string | null;
-  /**
-   * Group key shared by colour variants of the same bike. Models with the same
-   * non-empty `family` collapse into one card shown as colour swatches; a
-   * null/empty `family` means the model is its own singleton card.
-   */
-  family?: string | null;
+  /** Available colours, shown as read-only swatches (name + hex dot). */
+  colors?: ColorOption[];
   isActive?: boolean;
   sortOrder?: number;
 }

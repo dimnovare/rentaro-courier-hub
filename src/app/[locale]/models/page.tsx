@@ -7,7 +7,6 @@ import { Kicker } from "@/components/ui/Kicker";
 import { ModelCard } from "@/components/models/ModelCard";
 import { modelService } from "@/services/modelService";
 import { getLiveModelTotals, modelStatus } from "@/services/availabilityService";
-import { groupByFamily } from "@/lib/modelFamilies";
 
 export async function generateMetadata({
   params,
@@ -34,9 +33,6 @@ export default async function ModelsPage() {
     if (avail === undefined) return m;
     return { ...m, availability: avail, status: modelStatus(avail) };
   });
-  // Collapse colour variants (shared `family`) into one card; with all-null
-  // families every model is its own singleton group (unchanged layout).
-  const groups = groupByFamily(patched);
   const t = await getTranslations("modelsPage");
   return (
     <main>
@@ -50,9 +46,9 @@ export default async function ModelsPage() {
             </p>
           </Reveal>
           <div className="models-grid">
-            {groups.map((g, i) => (
-              <Reveal key={g.family ?? g.variants[0].id} delay={(i % 3) * 80}>
-                <ModelCard m={g.variants[0]} variants={g.variants} />
+            {patched.map((model, i) => (
+              <Reveal key={model.id} delay={(i % 3) * 80}>
+                <ModelCard m={model} />
               </Reveal>
             ))}
           </div>

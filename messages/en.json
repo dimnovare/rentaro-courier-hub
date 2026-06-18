@@ -197,6 +197,7 @@
   "accessories": {
     "kicker": "Add-ons",
     "heading": "Gear that earns shifts.",
+    "colors": "Available colours",
     "names": {
       "battery": "Extra battery",
       "bag": "Delivery bag",
@@ -295,7 +296,7 @@
       "statAvailable": "Available",
       "statLow": "Few left",
       "statWait": "Waitlist",
-      "chooseColor": "Choose colour"
+      "colors": "Available colours"
     },
     "plan": {
       "heading": "Choose a plan",
@@ -849,7 +850,7 @@
       "comingSoon": "Coming soon"
     },
     "colors": {
-      "choose": "Choose colour"
+      "available": "Available colours"
     }
   },
   "modelItems": {

@@ -197,6 +197,7 @@
   "accessories": {
     "kicker": "Papildinājumi",
     "heading": "Aprīkojums, kas pelna maiņas.",
+    "colors": "Pieejamās krāsas",
     "names": {
       "battery": "Papildu akumulators",
       "bag": "Piegādes soma",
@@ -295,7 +296,7 @@
       "statAvailable": "Pieejams",
       "statLow": "Maz atlicis",
       "statWait": "Gaidīšanas saraksts",
-      "chooseColor": "Izvēlieties krāsu"
+      "colors": "Pieejamās krāsas"
     },
     "plan": {
       "heading": "Izvēlies plānu",
@@ -849,7 +850,7 @@
       "comingSoon": "Drīzumā"
     },
     "colors": {
-      "choose": "Izvēlieties krāsu"
+      "available": "Pieejamās krāsas"
     }
   },
   "modelItems": {

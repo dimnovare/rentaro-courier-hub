@@ -17,6 +17,7 @@ export async function Accessories() {
         <div className="acc-grid">
           {accessories.map((a, i) => {
             const Glyph = getIcon(a.icon);
+            const colors = a.colors ?? [];
             return (
               <Reveal key={a.id} delay={(i % 4) * 70}>
                 <div className="acc">
@@ -26,6 +27,19 @@ export async function Accessories() {
                   <div>
                     <div className="an">{t(`names.${a.id}`)}</div>
                     <div className="ap">{a.price}</div>
+                    {colors.length > 0 && (
+                      <div className="model-swatches" role="group" aria-label={t("colors")}>
+                        {colors.map((c) => (
+                          <span
+                            key={c.name}
+                            className="model-swatch"
+                            style={{ background: c.hex }}
+                            title={c.name}
+                            aria-label={c.name}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Reveal>

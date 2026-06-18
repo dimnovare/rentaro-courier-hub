@@ -31,8 +31,10 @@ import {
   type FaqInput,
   type CityStatusValue,
 } from "@/services/adminCatalogService";
+import type { ColorOption } from "@/types/bike";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { ColorListEditor } from "@/components/admin/ColorListEditor";
 import { Drawer } from "@/components/admin/Drawer";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
@@ -175,7 +177,7 @@ type Editor<Id> = { mode: "create" } | { mode: "edit"; id: Id };
    Accessories — id, name, price, icon, sortOrder. Create + edit + delete.
    ════════════════════════════════════════════════════════════════════════ */
 
-const EMPTY_ACCESSORY: AccessoryInput = { id: "", name: "", price: "", icon: "", sortOrder: 0 };
+const EMPTY_ACCESSORY: AccessoryInput = { id: "", name: "", price: "", icon: "", sortOrder: 0, colors: [] };
 
 function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<AdminAccessory>) {
   const [editor, setEditor] = useState<Editor<string> | null>(null);
@@ -193,7 +195,8 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
   function openEdit(row: AdminAccessory) {
     clearError();
     setFormError(null);
-    setDraft({ ...row });
+    // Clone the colour rows so editing the draft never mutates the loaded row.
+    setDraft({ ...row, colors: (row.colors ?? []).map((c) => ({ ...c })) });
     setEditor({ mode: "edit", id: row.id });
   }
 
@@ -208,11 +211,13 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
     setFormError(null);
     setBusy(true);
     try {
+      // Drop blank-name colour rows and trim before sending.
+      const body: AccessoryInput = { ...draft, colors: cleanColors(draft.colors ?? []) };
       if (editor.mode === "create") {
-        const saved = await createAccessory(draft);
+        const saved = await createAccessory(body);
         patch((d) => ({ ...d, accessories: [...d.accessories, saved] }));
       } else {
-        const saved = await updateAccessory(editor.id, draft);
+        const saved = await updateAccessory(editor.id, body);
         patch((d) => ({ ...d, accessories: d.accessories.map((a) => (a.id === editor.id ? saved : a)) }));
       }
       close();
@@ -327,6 +332,13 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
           value={draft.sortOrder}
           onChange={(v) => setDraft({ ...draft, sortOrder: v })}
         />
+        <div className="field">
+          <label>Colours</label>
+          <ColorListEditor
+            value={draft.colors ?? []}
+            onChange={(next) => setDraft({ ...draft, colors: next })}
+          />
+        </div>
         <FormError message={formError} />
       </Drawer>
     </Section>
@@ -1350,4 +1362,11 @@ function parseList(text: string): string[] {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+/** Drop blank-name colour rows and trim each, so we never send empty swatches. */
+function cleanColors(colors: ColorOption[]): ColorOption[] {
+  return colors
+    .map((c) => ({ name: c.name.trim(), hex: c.hex.trim() }))
+    .filter((c) => c.name.length > 0);
 }

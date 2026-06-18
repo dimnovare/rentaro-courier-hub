@@ -21,6 +21,8 @@
  */
 /* ── Contract types (match the live API exactly) ───────────────────────── */
 
+import type { ColorOption } from "@/types/bike";
+
 /** City status enum — must match the backend CityStatus enum (lowercased). */
 export type CityStatusValue = "available" | "limited" | "soon";
 
@@ -33,6 +35,8 @@ export interface AdminAccessory {
   /** Icon key (see components/ui/Icon). */
   icon: string;
   sortOrder: number;
+  /** Available colours, shown as read-only swatches (name + hex) on the site. */
+  colors?: ColorOption[];
 }
 
 export interface AdminCity {

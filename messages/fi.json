@@ -197,6 +197,7 @@
   "accessories": {
     "kicker": "Lisävarusteet",
     "heading": "Varusteet, jotka tuovat vuoroja.",
+    "colors": "Saatavilla olevat värit",
     "names": {
       "battery": "Lisäakku",
       "bag": "Lähettilaukku",
@@ -295,7 +296,7 @@
       "statAvailable": "Saatavilla",
       "statLow": "Vähän jäljellä",
       "statWait": "Jonotuslista",
-      "chooseColor": "Valitse väri"
+      "colors": "Saatavilla olevat värit"
     },
     "plan": {
       "heading": "Valitse suunnitelma",
@@ -849,7 +850,7 @@
       "comingSoon": "Tulossa pian"
     },
     "colors": {
-      "choose": "Valitse väri"
+      "available": "Saatavilla olevat värit"
     }
   },
   "modelItems": {

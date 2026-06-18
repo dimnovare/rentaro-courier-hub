@@ -13,7 +13,6 @@ import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
 import { resolveImg } from "@/services/modelService";
 import { operatingCityNames } from "@/lib/cities";
-import { groupByFamily } from "@/lib/modelFamilies";
 import type { SiteSettings } from "@/services/settingsService";
 import type { BikeModel, City, PlanId } from "@/types";
 
@@ -179,15 +178,6 @@ export function BookingWizard({
   // Model the visitor is previewing in the info popup (null = closed). The popup
   // is informational only and never changes the selection.
   const [infoModel, setInfoModel] = useState<BikeModel | null>(null);
-
-  // Colour-variant grouping for the model step: variants of the same bike share
-  // a `family` and collapse into one card with swatches. With all-null families
-  // every model is its own singleton group (the step renders exactly as before).
-  const modelGroups = groupByFamily(models);
-  // Per-family active variant id (which colour a multi-variant card is showing).
-  // Defaults to the first variant; a card with a deep-linked/selected variant
-  // shows that one.
-  const [activeVariant, setActiveVariant] = useState<Record<string, string>>({});
 
   // Steps actually shown: skip any single-select already provided by a deep link.
   // Add-ons are folded into the Details screen, so there is no separate step.
@@ -535,54 +525,13 @@ export function BookingWizard({
           color: var(--text);
         }
 
-        /* ---- Colour swatches inside a multi-variant model option ----
+        /* ---- Read-only colour dots inside a model option ----
            Sibling of .bike-opt inside .bike-opt-wrap (NOT nested in the card
-           button, which would be invalid interactive nesting). Each swatch is a
-           real <button>; the visible coloured dot is a child span so the hit
-           area can be >=44px while the dot stays ~20px. */
-        :global(.bike-swatches) {
-          display: flex;
-          align-items: center;
-          /* negative margin trims the buttons' transparent padding back to the
-             card edges so the row keeps its tight visual gap/alignment */
-          gap: 0;
-          margin: -8px 0 4px;
-          padding: 0 50px 0 9px; /* clear the info rail (right) + align dots under thumb area */
-          flex-wrap: wrap;
-        }
-        :global(.bike-swatch) {
-          all: unset;
-          box-sizing: border-box;
-          /* Hit area >=44px (WCAG 2.5.8 / repo convention); the visible dot is
-             the inner .bike-swatch-dot. */
-          width: 44px;
-          height: 44px;
-          flex-shrink: 0;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-        :global(.bike-swatch-dot) {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          /* Subtle border so light/white colours stay visible on the dark card. */
-          border: 1px solid rgba(255, 255, 255, 0.28);
-          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
-          flex-shrink: 0;
-          transition: transform 0.15s, box-shadow 0.2s;
-        }
-        :global(.bike-swatch:hover .bike-swatch-dot) {
-          transform: scale(1.08);
-        }
-        :global(.bike-swatch.on .bike-swatch-dot) {
-          border-color: var(--lime);
-          box-shadow: 0 0 0 2px var(--lime), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
-        }
-        :global(.bike-swatch:focus-visible .bike-swatch-dot) {
-          outline: 2px solid var(--lime);
-          outline-offset: 2px;
+           button). Reuses the shared read-only .model-swatch dot; this only
+           positions the row to align under the text and clear the info rail. */
+        :global(.bike-colors) {
+          margin: -4px 0 4px;
+          padding: 0 50px 0 9px; /* clear the info rail (right) + align with thumb */
         }
 
         /* ---- Segmented contact / payment choices ---- */
@@ -811,17 +760,7 @@ export function BookingWizard({
             <h3>{t("model.heading")}</h3>
             <p className="sub">{t("model.sub")}</p>
             <div className="opt-grid">
-              {modelGroups.map((g) => {
-                const groupKey = g.family ?? g.variants[0].id;
-                const hasSwatches = g.variants.length > 1;
-                // The variant this card currently shows: a swatch the visitor
-                // tapped, else the selected variant if it belongs to this group,
-                // else the first variant.
-                const selectedInGroup = g.variants.find((v) => v.id === modelId);
-                const activeId =
-                  activeVariant[groupKey] ?? selectedInGroup?.id ?? g.variants[0].id;
-                const m = g.variants.find((v) => v.id === activeId) ?? g.variants[0];
-                // A card is selected when its DISPLAYED variant is the chosen model.
+              {models.map((m) => {
                 const isSelected = modelId === m.id;
                 // Once the live fetch has resolved, trust it: 0 units → waitlist,
                 // 1–3 → few left, more → available. Before the fetch resolves we
@@ -845,21 +784,13 @@ export function BookingWizard({
                 // (the catalogue `img` is a dark studio cut-out that reads as
                 // near-invisible on the dark option surface); fall back to `img`.
                 const thumb = m.gallery?.[0] ?? m.img;
-                // Pick a card: select the displayed variant (and advance).
-                const pickCard = () => pick(() => setModelId(m.id));
-                // Tap a swatch: make that variant the displayed one. If the card
-                // is already the selected model, move the selection to the new
-                // variant too (no navigation / no step advance).
-                const pickSwatch = (v: BikeModel) => {
-                  setActiveVariant((s) => ({ ...s, [groupKey]: v.id }));
-                  if (selectedInGroup) setModelId(v.id);
-                };
+                const colors = m.colors ?? [];
                 return (
-                  <div key={groupKey} className="bike-opt-wrap">
+                  <div key={m.id} className="bike-opt-wrap">
                     <button
                       type="button"
                       className={`opt bike-opt ${isSelected ? "selected" : ""}`}
-                      onClick={pickCard}
+                      onClick={() => pick(() => setModelId(m.id))}
                     >
                       <span className="bike-thumb" aria-hidden>
                         <img
@@ -891,31 +822,22 @@ export function BookingWizard({
                         </span>
                       </span>
                     </button>
-                    {hasSwatches && (
+                    {/* Read-only colour dots — decorative, no selection. Lives
+                        outside the option <button> (no focusable children). */}
+                    {colors.length > 0 && (
                       <span
-                        className="bike-swatches"
+                        className="model-swatches bike-colors"
                         role="group"
-                        aria-label={t("model.chooseColor")}
+                        aria-label={t("model.colors")}
                       >
-                        {g.variants.map((v) => (
-                          <button
-                            key={v.id}
-                            type="button"
-                            className={`bike-swatch ${v.id === m.id ? "on" : ""}`}
-                            aria-label={v.color ?? v.name}
-                            aria-pressed={v.id === m.id}
-                            title={v.color ?? v.name}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              pickSwatch(v);
-                            }}
-                          >
-                            <span
-                              className="bike-swatch-dot"
-                              style={{ background: v.colorHex ?? "transparent" }}
-                              aria-hidden
-                            />
-                          </button>
+                        {colors.map((c) => (
+                          <span
+                            key={c.name}
+                            className="model-swatch"
+                            style={{ background: c.hex }}
+                            title={c.name}
+                            aria-label={c.name}
+                          />
                         ))}
                       </span>
                     )}

@@ -416,33 +416,16 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .reserve-btn.ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); }
 .reserve-btn.wait { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
 
-/* ─── Colour swatches (model-card colour variants) ──────── */
-/* A model card collapses colour variants of one bike (shared `family`) into a
-   single card. The swatch row swaps the active variant client-side. Singleton
-   cards with a single colour show one static swatch. Additive — cards without
-   colours render exactly as before. */
+/* ─── Colour swatches (read-only) ───────────────────────── */
+/* A simple, read-only row of available colours, used by model cards, the model
+   detail page, the booking model step and accessories. Each .model-swatch is a
+   non-interactive dot (the inline `background` carries the hex); the colour name
+   rides on title/aria-label. No selection, no hit area, no focus ring. Additive
+   — anything without colours renders exactly as before. */
 .model-swatches { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
-/* The visible dot stays 22px; the clickable button is 44px via transparent
-   padding (background-clip: content-box keeps the inline colour on the dot
-   only). The -11px margin collapses the 44px footprint back to a 22px box in
-   normal flow, so the row keeps its original 8px gap and left alignment while
-   each 44px hit area still sits wholly within its own slot (no overlap with the
-   neighbour). The border, selected ring and :focus-visible outline all draw on
-   the dot (content box) via ::before — not the padded hit box — so the
-   affordance is visually unchanged. */
-.model-swatch { all: unset; box-sizing: content-box; width: 22px; height: 22px; padding: 11px; margin: -11px; border-radius: 50%; cursor: pointer; position: relative; display: inline-flex; align-items: center; justify-content: center; background-clip: content-box; transition: transform .15s var(--ease-spring), box-shadow .2s; }
-/* The dot's border-ring + active/focus rings, sized to the 22px content box. */
-.model-swatch::before { content: ""; position: absolute; inset: 11px; border-radius: 50%; /* subtle border so light/white colours stay visible on the dark card */ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28), inset 0 0 0 2px rgba(0, 0, 0, 0.25); transition: box-shadow .2s; }
-.model-swatch:hover { transform: scale(1.08); }
-.model-swatch.on::before { box-shadow: 0 0 0 2px var(--lime), inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
-.model-swatch:focus-visible::before { outline: 2px solid var(--lime); outline-offset: 2px; }
-/* Static singleton swatch is a non-interactive <span> — keep the original 22px
-   dot with its border directly on the box (no hit-area padding needed). */
-.model-swatch.static { padding: 0; margin: 0; cursor: default; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28), inset 0 0 0 2px rgba(0, 0, 0, 0.25); }
-.model-swatch.static::before { content: none; }
-.model-swatch.static:hover { transform: none; }
-.model-swatch-check { display: inline-flex; color: var(--lime-ink); filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5)); }
-.model-swatch-name { font-family: var(--font-mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.02em; }
+/* A small dot (~17px) with a subtle 1px border so light/white colours stay
+   visible on the dark surface. */
+.model-swatch { width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28), inset 0 0 0 2px rgba(0, 0, 0, 0.25); }
 
 /* ─── Spec showcase ─────────────────────────────────────── */
 .showcase { position: relative; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--border); background: linear-gradient(135deg, rgba(216, 255, 54, 0.06), rgba(111, 180, 255, 0.05) 70%, transparent); }

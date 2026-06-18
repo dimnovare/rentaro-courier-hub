@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
@@ -19,109 +18,66 @@ const maxDaily = Math.max(...dailyRates);
 /**
  * One bike card.
  *
- * `m` is the model to render by default. When `variants` holds more than one
- * model (colour variants of the same bike, grouped by `family`), the card shows
- * a row of colour swatches; the active variant drives the image, name,
- * availability and the Reserve/Details targets. Clicking a swatch swaps the
- * active variant client-side — no navigation. With a single variant (or none),
- * the card renders exactly as before (an optional single static swatch shows
- * when the model carries a `color`).
+ * Renders the model `m`. When the model carries `colors`, a small read-only
+ * swatch row (a hex dot + the colour name as title/aria-label) shows beneath the
+ * tagline — purely informational, no selection or navigation.
  */
-export function ModelCard({
-  m,
-  compact = false,
-  variants,
-}: {
-  m: BikeModel;
-  compact?: boolean;
-  variants?: BikeModel[];
-}) {
+export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: boolean }) {
   const { reserve } = useInteractions();
   const t = useTranslations("modelsPage");
   const tm = useTranslations("modelItems");
 
-  // The list of colour variants to offer (defaults to just `m`). The active
-  // index selects which one the card currently shows.
-  const list = variants && variants.length > 0 ? variants : [m];
-  const initial = Math.max(0, list.findIndex((v) => v.id === m.id));
-  const [activeIdx, setActiveIdx] = useState(initial >= 0 ? initial : 0);
-  const active = list[activeIdx] ?? m;
-  const hasSwatches = list.length > 1;
-
   const avail =
-    active.status === "in"
-      ? { label: t("avail.inStock", { count: active.availability }), cls: "in" }
-      : active.status === "low"
-        ? { label: t("avail.left", { count: active.availability }), cls: "low" }
+    m.status === "in"
+      ? { label: t("avail.inStock", { count: m.availability }), cls: "in" }
+      : m.status === "low"
+        ? { label: t("avail.left", { count: m.availability }), cls: "low" }
         : { label: t("avail.waitlist"), cls: "wait" };
-  const pills = compact ? active.pills.slice(0, 2) : active.pills;
-  const isWait = active.status === "wait";
-  // A single static swatch only when there's exactly one variant that has a colour.
-  const singleColor = !hasSwatches && active.colorHex ? active : null;
+  const pills = compact ? m.pills.slice(0, 2) : m.pills;
+  const isWait = m.status === "wait";
+  const colors = m.colors ?? [];
 
   return (
-    <article className={`card model-card ${active.popular && !compact ? "feat" : ""}`}>
+    <article className={`card model-card ${m.popular && !compact ? "feat" : ""}`}>
       <Link
         className="model-pic"
-        href={`/models/${active.slug}`}
-        aria-label={active.name}
-        onClick={() => track("cta_view_details", { model: active.id, source: "model-card-image" })}
+        href={`/models/${m.slug}`}
+        aria-label={m.name}
+        onClick={() => track("cta_view_details", { model: m.id, source: "model-card-image" })}
       >
-        <span className={`model-badge ${active.badge.variant}`}>{active.badge.text}</span>
+        <span className={`model-badge ${m.badge.variant}`}>{m.badge.text}</span>
         <span className={`model-avail ${avail.cls}`}>
           <span className="dot" />
           {avail.label}
         </span>
-        <img src={resolveImg(active.img)} alt={active.name} loading="lazy" />
+        <img src={resolveImg(m.img)} alt={m.name} loading="lazy" />
       </Link>
       <div className="model-body">
         <h3>
           <Link
-            href={`/models/${active.slug}`}
+            href={`/models/${m.slug}`}
             style={{ color: "inherit", textDecoration: "none" }}
-            onClick={() => track("cta_view_details", { model: active.id, source: "model-card-title" })}
+            onClick={() => track("cta_view_details", { model: m.id, source: "model-card-title" })}
           >
-            {active.name}
+            {m.name}
           </Link>
         </h3>
         <div className="model-tagline">
-          {active.brand} · {tm(`${active.id}.tagline`)}
+          {m.brand} · {tm(`${m.id}.tagline`)}
         </div>
 
-        {/* Colour swatches — only when this card groups >1 variant. */}
-        {hasSwatches && (
-          <div className="model-swatches" role="group" aria-label={t("colors.choose")}>
-            {list.map((v, i) => (
-              <button
-                key={v.id}
-                type="button"
-                className={`model-swatch ${i === activeIdx ? "on" : ""}`}
-                style={{ background: v.colorHex ?? "transparent" }}
-                aria-label={v.color ?? v.name}
-                aria-pressed={i === activeIdx}
-                title={v.color ?? v.name}
-                onClick={() => setActiveIdx(i)}
-              >
-                {i === activeIdx && (
-                  <span className="model-swatch-check" aria-hidden>
-                    <Ic.check s={11} />
-                  </span>
-                )}
-              </button>
+        {/* Read-only colour swatches — a hex dot per available colour. */}
+        {colors.length > 0 && (
+          <div className="model-swatches" role="group" aria-label={t("colors.available")}>
+            {colors.map((c) => (
+              <span
+                key={c.name}
+                className="model-swatch"
+                style={{ background: c.hex }}
+                title={c.name}
+                aria-label={c.name}
+              />
             ))}
-            {active.color && <span className="model-swatch-name">{active.color}</span>}
-          </div>
-        )}
-
-        {/* Singleton with a colour: a single static, non-interactive swatch. */}
-        {singleColor && (
-          <div className="model-swatches">
-            <span
-              className="model-swatch static"
-              style={{ background: singleColor.colorHex ?? "transparent" }}
-              aria-hidden
-            />
-            <span className="model-swatch-name">{singleColor.color}</span>
           </div>
         )}
 
@@ -142,7 +98,7 @@ export function ModelCard({
           </div>
           <button
             className={`reserve-btn ${isWait ? "wait" : ""}`}
-            onClick={() => reserve(isWait ? `waitlist:${active.id}` : active.id, "model-card")}
+            onClick={() => reserve(isWait ? `waitlist:${m.id}` : m.id, "model-card")}
           >
             {isWait ? t("joinWaitlist") : t("reserve")}
             {!isWait && <Ic.arrow s={13} />}
