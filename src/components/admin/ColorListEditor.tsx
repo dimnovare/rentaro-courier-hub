@@ -52,7 +52,7 @@ export function ColorListEditor({
       {value.map((color, index) => (
         <div key={index} style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <input
-            value={color.name}
+            value={color.name ?? ""}
             onChange={(e) => updateRow(index, { name: e.target.value })}
             placeholder="e.g. Black"
             aria-label={`Colour ${index + 1} name`}
@@ -61,8 +61,8 @@ export function ColorListEditor({
           <input
             type="color"
             // <input type=color> requires a valid #rrggbb; fall back to a
-            // neutral grey when the value is blank or not yet valid.
-            value={HEX6.test(color.hex.trim()) ? color.hex.trim() : "#888888"}
+            // neutral grey when the value is blank, missing, or not yet valid.
+            value={HEX6.test((color.hex ?? "").trim()) ? (color.hex ?? "").trim() : "#888888"}
             onChange={(e) => updateRow(index, { hex: e.target.value })}
             aria-label={`Colour ${index + 1} swatch`}
             style={SWATCH_STYLE}

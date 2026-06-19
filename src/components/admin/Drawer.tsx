@@ -52,6 +52,14 @@ export function Drawer({
 }: DrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
+  // Keep onClose in a ref so the focus-trap effect can depend on `open` ALONE.
+  // Parents typically pass a fresh onClose each render; if it were an effect dep,
+  // every keystroke (parent re-render) would re-run the trap and yank focus back
+  // to the first focusable (the × button), making inputs impossible to type into.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
   // Portals need document.body — only render after mount to avoid any SSR /
   // hydration mismatch on the client-rendered admin pages.
   const [mounted, setMounted] = useState(false);
@@ -77,7 +85,7 @@ export function Drawer({
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key === "Tab") {
@@ -104,7 +112,9 @@ export function Drawer({
       document.body.style.overflow = prevOverflow;
       restoreRef.current?.focus?.();
     };
-  }, [open, onClose]);
+    // ONLY `open` — see onCloseRef above. Re-running on every onClose identity
+    // change would steal focus on each keystroke.
+  }, [open]);
 
   if (!open || !mounted) return null;
 
