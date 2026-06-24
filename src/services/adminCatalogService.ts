@@ -18,10 +18,12 @@
  *   Cities       GET/POST/PUT/DELETE /api/admin/cities[/{code}]
  *   Pricing      GET/POST/PUT/DELETE /api/admin/pricing[/{code}]
  *   FAQ          GET/POST/PUT/DELETE /api/admin/faq[/{id}]
+ *   Marquee      GET/PUT             /api/admin/marquee
  */
 /* ── Contract types (match the live API exactly) ───────────────────────── */
 
 import type { ColorOption } from "@/types/bike";
+import type { LocalizedStrings } from "@/types/pricing";
 
 /** City status enum — must match the backend CityStatus enum (lowercased). */
 export type CityStatusValue = "available" | "limited" | "soon";
@@ -61,7 +63,8 @@ export interface AdminPlan {
   monthly: number;
   tag: string;
   featured: boolean;
-  perks: string[];
+  /** Per-language perk lists (locale → string[]); e.g. { en: [...], et: [...], … }. */
+  perks: LocalizedStrings;
   sortOrder: number;
 }
 
@@ -244,3 +247,15 @@ export const updateFaq = (id: number, body: FaqInput) =>
 
 export const deleteFaq = (id: number) =>
   request<void>(`/api/admin/faq/${encodeURIComponent(String(id))}`, { method: "DELETE" });
+
+/* ── Marquee (hero scroller items; per-language list, no id) ────────────── */
+
+/** Fetch the hero marquee items per language ({ en: [...], et: [...], … }). */
+export const getMarquee = () => request<LocalizedStrings>("/api/admin/marquee");
+
+/** Replace the hero marquee items for every language; returns the saved map. */
+export const updateMarquee = (body: LocalizedStrings) =>
+  request<LocalizedStrings>("/api/admin/marquee", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });

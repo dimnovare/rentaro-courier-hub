@@ -1,32 +1,24 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { Ic } from "@/components/ui/Icon";
 import { operatingCityNames } from "@/lib/cities";
-import type { City } from "@/types";
-
-/** Marquee item keys, in display order — copy lives in the `marquee` namespace. */
-const marqueeKeys = [
-  "minDays",
-  "serviceSupport",
-  "extraBattery",
-  "digitalContract",
-  "builtForShifts",
-  "pickupDelivery",
-] as const;
+import type { City, LocalizedStrings } from "@/types";
 
 export function Hero({
   liveAvailable,
   cities = [],
-}: { liveAvailable?: number; cities?: City[] } = {}) {
+  marquee,
+}: { liveAvailable?: number; cities?: City[]; marquee?: LocalizedStrings } = {}) {
   const { reserve, goModels } = useInteractions();
+  const locale = useLocale();
   const t = useTranslations("hero");
-  const tm = useTranslations("marquee");
   const tc = useTranslations("cities");
   const showBikes = typeof liveAvailable === "number" && liveAvailable > 0;
+  const marqueeItems = marquee?.[locale] ?? marquee?.en ?? [];
 
   // A city counts as live once it is no longer "soon". Derived from the LIVE
   // city list (passed from the server) with LOCALIZED names so the pill, the
@@ -139,10 +131,10 @@ export function Hero({
       <div className="wrap" style={{ marginTop: 0 }}>
         <div className="marquee">
           <div className="marquee-track">
-            {[...marqueeKeys, ...marqueeKeys].map((key, i) => (
+            {[...marqueeItems, ...marqueeItems].map((item, i) => (
               <span className="marquee-item" key={i}>
                 <Ic.check s={13} />
-                {tm(key)}
+                {item}
                 <span className="sep">/</span>
               </span>
             ))}

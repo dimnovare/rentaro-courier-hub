@@ -10,11 +10,13 @@ export const pricingPlans: PricingPlan[] = [
     monthly: 177,
     tag: "Flexible",
     featured: false,
-    perks: [
-      "Service support included",
-      "Lock + charger included",
-      "Extend or switch anytime",
-    ],
+    perks: {
+      en: ["Service support included", "Extend or switch anytime"],
+      et: ["Teenindustugi sees", "Pikenda või vaheta igal ajal"],
+      lv: ["Servisa atbalsts iekļauts", "Pagarini vai maini jebkurā brīdī"],
+      fi: ["Huoltotuki sisältyy", "Jatka tai vaihda milloin tahansa"],
+      ru: ["Сервис включён", "Продление или смена в любой момент"],
+    },
   },
   {
     id: "p180",
@@ -24,12 +26,38 @@ export const pricingPlans: PricingPlan[] = [
     monthly: 147,
     tag: "Most popular",
     featured: true,
-    perks: [
-      "Everything in 30 days",
-      "Lower daily rate",
-      "Priority maintenance",
-      "Free model swap once",
-    ],
+    perks: {
+      en: [
+        "Everything in 30 days",
+        "Lower daily rate",
+        "Priority maintenance",
+        "Free model swap once",
+      ],
+      et: [
+        "Kõik, mis 30 päeva paketis",
+        "Madalam päevatasu",
+        "Eelishooldus",
+        "Tasuta mudelivahetus üks kord",
+      ],
+      lv: [
+        "Viss, kas 30 dienu plānā",
+        "Zemāka dienas likme",
+        "Prioritārā apkope",
+        "Bezmaksas modeļa maiņa vienreiz",
+      ],
+      fi: [
+        "Kaikki 30 päivän suunnitelmasta",
+        "Edullisempi päivähinta",
+        "Etusijahuolto",
+        "Maksuton mallinvaihto kerran",
+      ],
+      ru: [
+        "Всё, что в 30 днях",
+        "Ниже дневная ставка",
+        "Приоритетное обслуживание",
+        "Одна бесплатная смена модели",
+      ],
+    },
   },
   {
     id: "p365",
@@ -39,11 +67,33 @@ export const pricingPlans: PricingPlan[] = [
     monthly: 117,
     tag: "Best price",
     featured: false,
-    perks: [
-      "Everything in 6 months",
-      "Lowest daily rate",
-      "Free accessory bundle",
-    ],
+    perks: {
+      en: [
+        "Everything in 6 months",
+        "Lowest daily rate",
+        "Free accessory bundle",
+      ],
+      et: [
+        "Kõik, mis 6 kuu paketis",
+        "Madalaim päevatasu",
+        "Tasuta lisavarustuse komplekt",
+      ],
+      lv: [
+        "Viss, kas 6 mēnešu plānā",
+        "Zemākā dienas likme",
+        "Bezmaksas piederumu komplekts",
+      ],
+      fi: [
+        "Kaikki 6 kuukauden suunnitelmasta",
+        "Edullisin päivähinta",
+        "Maksuton lisävarustepaketti",
+      ],
+      ru: [
+        "Всё, что в 6 месяцах",
+        "Самая низкая дневная ставка",
+        "Бесплатный набор аксессуаров",
+      ],
+    },
   },
 ];
 

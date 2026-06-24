@@ -1,25 +1,16 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
 import type { PricingPlan } from "@/types";
 
-/**
- * Perk message keys per plan id, in display order — mirrors the perk order in
- * `@/data/pricingPlans`. Copy lives in the `pricing.perks` namespace.
- */
-const perkKeysByPlan: Record<string, string[]> = {
-  p30: ["serviceSupport", "extendSwitch"],
-  p180: ["everythingIn30", "lowerDailyRate", "priorityMaintenance", "freeModelSwap"],
-  p365: ["everythingIn6mo", "lowestDailyRate", "freeAccessoryBundle"],
-};
-
 export function PricingView({ plans }: { plans: PricingPlan[] }) {
   const { reserve } = useInteractions();
   const t = useTranslations("pricing");
+  const locale = useLocale();
   return (
     <section className="section-pad" id="pricing">
       <div className="wrap">
@@ -33,7 +24,7 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
         <div className="pricing-grid">
           {plans.map((plan, i) => {
             const term = t(`terms.${plan.id}`);
-            const perkKeys = perkKeysByPlan[plan.id] ?? [];
+            const perks = plan.perks[locale] ?? plan.perks.en ?? [];
             return (
               <Reveal key={plan.id} delay={i * 90} style={{ display: "flex" }}>
                 <article className={`card price-card ${plan.featured ? "feat" : ""}`} style={{ flex: 1 }}>
@@ -61,12 +52,12 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
                     </span>
                   </div>
                   <ul>
-                    {perkKeys.map((pk) => (
-                      <li key={pk}>
+                    {perks.map((perk) => (
+                      <li key={perk}>
                         <span className="ck">
                           <Ic.check s={11} />
                         </span>
-                        {t(`perks.${pk}`)}
+                        {perk}
                       </li>
                     ))}
                   </ul>

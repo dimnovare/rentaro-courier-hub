@@ -18,6 +18,8 @@ import {
   createFaq,
   updateFaq,
   deleteFaq,
+  getMarquee,
+  updateMarquee,
   CatalogApiError,
   CatalogConfigError,
   CatalogAuthError,
@@ -32,9 +34,15 @@ import {
   type CityStatusValue,
 } from "@/services/adminCatalogService";
 import type { ColorOption } from "@/types/bike";
+import type { LocalizedStrings } from "@/types/pricing";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { ColorListEditor } from "@/components/admin/ColorListEditor";
+import {
+  LocalizedListEditor,
+  ADMIN_LOCALES,
+  toLocalizedStrings,
+} from "@/components/admin/LocalizedListEditor";
 import { Drawer } from "@/components/admin/Drawer";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
@@ -49,6 +57,8 @@ interface ContentData {
   cities: AdminCity[];
   plans: AdminPlan[];
   faqs: AdminFaq[];
+  /** Hero marquee items per language (locale → string[]). */
+  marquee: LocalizedStrings;
 }
 
 type LoadState =
@@ -66,13 +76,14 @@ export default function AdminContentPage() {
     setState({ phase: "loading" });
     setActionError(null);
     try {
-      const [accessories, cities, plans, faqs] = await Promise.all([
+      const [accessories, cities, plans, faqs, marquee] = await Promise.all([
         getAccessories(),
         getCities(),
         getPlans(),
         getFaqs(),
+        getMarquee(),
       ]);
-      setState({ phase: "ready", data: { accessories, cities, plans, faqs } });
+      setState({ phase: "ready", data: { accessories, cities, plans, faqs, marquee } });
     } catch (err) {
       // Auth failure → drop to the shell's sign-in; otherwise show an error.
       if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
@@ -139,6 +150,13 @@ export default function AdminContentPage() {
 
           <PlansSection
             rows={state.data.plans}
+            onError={handleActionError}
+            clearError={() => setActionError(null)}
+            patch={patch}
+          />
+
+          <MarqueeSection
+            marquee={state.data.marquee}
             onError={handleActionError}
             clearError={() => setActionError(null)}
             patch={patch}
@@ -535,8 +553,9 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
 
 /* ════════════════════════════════════════════════════════════════════════
    Pricing plans — id (code), term, months, daily, monthly, tag, featured,
-   perks[] (comma-separated), sortOrder. Create + edit + delete. Pricing is
-   GLOBAL per plan (the same tier applies to every model).
+   perks (per-language list), sortOrder. Create + edit + delete. Pricing is
+   GLOBAL per plan (the same tier applies to every model). Perks are edited per
+   locale (EN / ET / LV / FI / RU) via the shared LocalizedListEditor.
    ════════════════════════════════════════════════════════════════════════ */
 
 const EMPTY_PLAN: AdminPlan = {
@@ -547,15 +566,15 @@ const EMPTY_PLAN: AdminPlan = {
   monthly: 0,
   tag: "",
   featured: false,
-  perks: [],
+  perks: {},
   sortOrder: 0,
 };
 
 function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPlan>) {
   const [editor, setEditor] = useState<Editor<string> | null>(null);
   const [draft, setDraft] = useState<AdminPlan>(EMPTY_PLAN);
-  // perks edited as a single comma-separated string while the drawer is open.
-  const [perksText, setPerksText] = useState("");
+  // perks edited per language while the drawer is open (always all 5 locales).
+  const [perks, setPerks] = useState<LocalizedStrings>(() => toLocalizedStrings(undefined));
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -563,7 +582,7 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
     clearError();
     setFormError(null);
     setDraft(EMPTY_PLAN);
-    setPerksText("");
+    setPerks(toLocalizedStrings(undefined));
     setEditor({ mode: "create" });
   }
 
@@ -571,7 +590,7 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
     clearError();
     setFormError(null);
     setDraft({ ...row });
-    setPerksText(row.perks.join(", "));
+    setPerks(toLocalizedStrings(row.perks));
     setEditor({ mode: "edit", id: row.id });
   }
 
@@ -586,14 +605,16 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
     setFormError(null);
     setBusy(true);
     try {
-      const perks = parseList(perksText);
+      // Normalise to a full { en, et, lv, fi, ru } map (LocalizedListEditor already
+      // parses/trims/drops blanks on every keystroke).
+      const perksBody = toLocalizedStrings(perks);
       if (editor.mode === "create") {
-        const saved = await createPlan({ ...draft, perks });
+        const saved = await createPlan({ ...draft, perks: perksBody });
         patch((d) => ({ ...d, plans: [...d.plans, saved] }));
       } else {
         const { id: _id, ...rest } = draft;
         void _id;
-        const body: PlanInput = { ...rest, perks };
+        const body: PlanInput = { ...rest, perks: perksBody };
         const saved = await updatePlan(editor.id, body);
         patch((d) => ({ ...d, plans: d.plans.map((p) => (p.id === editor.id ? saved : p)) }));
       }
@@ -639,7 +660,7 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
             <Th>Monthly €</Th>
             <Th>Tag</Th>
             <Th>Featured</Th>
-            <Th>Perks (comma-separated)</Th>
+            <Th>Perks (EN)</Th>
             <Th>Sort</Th>
             <Th>Actions</Th>
           </tr>
@@ -656,7 +677,7 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
               <Td mono dim>{row.monthly}</Td>
               <Td dim>{row.tag}</Td>
               <Td nowrap><BoolPill value={row.featured} /></Td>
-              <Td dim>{row.perks.length ? row.perks.join(", ") : "—"}</Td>
+              <Td dim>{(row.perks?.en ?? []).length ? (row.perks.en as string[]).join(", ") : "—"}</Td>
               <Td mono dim>{row.sortOrder}</Td>
               <Td nowrap><RowEdit busy={busy} onEdit={() => openEdit(row)} /></Td>
             </tr>
@@ -719,17 +740,132 @@ function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPl
           onChange={(v) => setDraft({ ...draft, featured: v === "true" })}
           options={BOOL_OPTIONS}
         />
-        <FieldText
-          label="Perks (comma-separated)"
-          value={perksText}
-          onChange={setPerksText}
-          placeholder="Free service · Priority support · Free helmet"
-        />
+        <div className="field">
+          <label>
+            Perks per language
+            <FieldHint text="Comma-separated. EN is the fallback when a locale is empty." />
+          </label>
+          <LocalizedListEditor
+            value={perks}
+            onChange={setPerks}
+            placeholder="Free service, Priority support, Free helmet"
+          />
+        </div>
         <FieldNumber
           label="Sort order"
           value={draft.sortOrder}
           onChange={(v) => setDraft({ ...draft, sortOrder: v })}
         />
+        <FormError message={formError} />
+      </Drawer>
+    </Section>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Hero marquee — per-language list of scroller items (locale → string[]).
+   Single record (no id); GET loads it, PUT replaces it. Reuses the shared
+   LocalizedListEditor (EN / ET / LV / FI / RU).
+   ════════════════════════════════════════════════════════════════════════ */
+
+function MarqueeSection({
+  marquee,
+  onError,
+  clearError,
+  patch,
+}: {
+  marquee: LocalizedStrings;
+  onError: (err: unknown, fallback: string) => string;
+  clearError: () => void;
+  patch: (fn: (d: ContentData) => ContentData) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<LocalizedStrings>(() => toLocalizedStrings(marquee));
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  function openEdit() {
+    clearError();
+    setFormError(null);
+    setDraft(toLocalizedStrings(marquee));
+    setOpen(true);
+  }
+
+  function close() {
+    setOpen(false);
+    setFormError(null);
+  }
+
+  async function submit() {
+    if (busy) return;
+    clearError();
+    setFormError(null);
+    setBusy(true);
+    try {
+      const body = toLocalizedStrings(draft);
+      const saved = await updateMarquee(body);
+      patch((d) => ({ ...d, marquee: saved }));
+      close();
+    } catch (err) {
+      setFormError(onError(err, "Could not save the marquee."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const enItems = marquee.en ?? [];
+
+  return (
+    <Section title="Hero marquee" note="Scrolling hero strip. Items are set per language; EN is the fallback.">
+      <AdminTable>
+        <thead>
+          <tr>
+            <Th>Language</Th>
+            <Th>Items</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {ADMIN_LOCALES.map((locale) => {
+            const items = marquee[locale] ?? [];
+            return (
+              <tr key={locale}>
+                <Td mono nowrap>{locale.toUpperCase()}</Td>
+                <Td dim>{items.length ? items.join(", ") : "—"}</Td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </AdminTable>
+
+      <button
+        type="button"
+        className="btn btn-ghost"
+        onClick={openEdit}
+        style={{ padding: "10px 18px", fontSize: 13.5, marginTop: 16 }}
+      >
+        Edit marquee
+      </button>
+
+      <Drawer
+        open={open}
+        onClose={close}
+        title="Edit hero marquee"
+        subtitle={`${enItems.length} EN ${enItems.length === 1 ? "item" : "items"}`}
+        footer={
+          <DrawerFooter busy={busy} onSave={submit} onCancel={close} saveLabel="Save" />
+        }
+      >
+        <div className="field">
+          <label>
+            Marquee items per language
+            <FieldHint text="Comma-separated. EN is the fallback when a locale is empty." />
+          </label>
+          <LocalizedListEditor
+            value={draft}
+            onChange={setDraft}
+            placeholder="Tallinn, Riga, Helsinki"
+          />
+        </div>
         <FormError message={formError} />
       </Drawer>
     </Section>
@@ -1354,14 +1490,6 @@ function toErrorState(err: unknown): LoadState {
     return { phase: "error", message: err.message, config: false };
   }
   return { phase: "error", message: "Something went wrong loading content.", config: false };
-}
-
-/** Parse a comma-separated text field into a trimmed, non-empty string array. */
-function parseList(text: string): string[] {
-  return text
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
 }
 
 /** Drop blank-name colour rows and trim each, so we never send empty swatches. */
