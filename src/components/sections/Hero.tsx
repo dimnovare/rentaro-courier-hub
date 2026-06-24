@@ -12,7 +12,6 @@ import type { City } from "@/types";
 const marqueeKeys = [
   "minDays",
   "serviceSupport",
-  "lockCharger",
   "extraBattery",
   "digitalContract",
   "builtForShifts",

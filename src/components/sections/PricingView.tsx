@@ -12,7 +12,7 @@ import type { PricingPlan } from "@/types";
  * `@/data/pricingPlans`. Copy lives in the `pricing.perks` namespace.
  */
 const perkKeysByPlan: Record<string, string[]> = {
-  p30: ["serviceSupport", "lockCharger", "extendSwitch"],
+  p30: ["serviceSupport", "extendSwitch"],
   p180: ["everythingIn30", "lowerDailyRate", "priorityMaintenance", "freeModelSwap"],
   p365: ["everythingIn6mo", "lowestDailyRate", "freeAccessoryBundle"],
 };
