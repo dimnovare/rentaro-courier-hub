@@ -7,6 +7,7 @@ import {
   updateUnitStatus,
   updateUnit,
   createUnit,
+  deleteUnit,
   FleetApiError,
   FleetConfigError,
   FleetAuthError,
@@ -197,6 +198,46 @@ export default function AdminFleetPage() {
     }
   }
 
+  async function removeUnit(internalCode: string) {
+    if (
+      !window.confirm(`Delete unit ${internalCode}? This cannot be undone.`)
+    ) {
+      return;
+    }
+    setUpdateError(null);
+    setPending((p) => ({ ...p, [internalCode]: true }));
+    try {
+      await deleteUnit(internalCode);
+      setState((s) =>
+        s.phase === "ready"
+          ? {
+              ...s,
+              data: {
+                ...s.data,
+                units: s.data.units.filter((u) => u.internalCode !== internalCode),
+              },
+            }
+          : s,
+      );
+      // Close the edit drawer if it was open on the deleted unit.
+      setEditingUnit((cur) => (cur?.internalCode === internalCode ? null : cur));
+    } catch (err) {
+      if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
+        signOut();
+      } else {
+        const msg =
+          err instanceof FleetApiError ? err.message : `Could not delete ${internalCode}.`;
+        setUpdateError(msg);
+      }
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[internalCode];
+        return next;
+      });
+    }
+  }
+
   return (
     <div>
       {state.phase === "loading" ? (
@@ -245,6 +286,7 @@ export default function AdminFleetPage() {
             pending={pending}
             onChangeStatus={changeStatus}
             onEdit={setEditingUnit}
+            onDelete={removeUnit}
           />
 
           <RentalTimeline units={state.data.units} rentals={state.data.rentals} />
@@ -263,6 +305,7 @@ export default function AdminFleetPage() {
             cities={state.data.cities}
             onClose={() => setEditingUnit(null)}
             onSubmit={submitEdit}
+            onDelete={removeUnit}
           />
         </>
       )}
@@ -606,11 +649,13 @@ function UnitsByCity({
   pending,
   onChangeStatus,
   onEdit,
+  onDelete,
 }: {
   units: FleetUnit[];
   pending: Record<string, boolean>;
   onChangeStatus: (code: string, status: string) => void;
   onEdit: (unit: FleetUnit) => void;
+  onDelete: (code: string) => void;
 }) {
   // Group units by city, preserving first-seen city order.
   const groups = useMemo(() => {
@@ -663,7 +708,7 @@ function UnitsByCity({
                     <Th>Last service</Th>
                     <Th>Next due</Th>
                     <Th>Notes</Th>
-                    <Th>Edit</Th>
+                    <Th>Actions</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -699,14 +744,32 @@ function UnitsByCity({
                       </Td>
                       <Td dim>{u.notes?.trim() ? u.notes : "—"}</Td>
                       <Td nowrap>
-                        <button
-                          type="button"
-                          className="btn btn-ghost"
-                          onClick={() => onEdit(u)}
-                          style={{ padding: "7px 14px", fontSize: 12 }}
-                        >
-                          Edit
-                        </button>
+                        <span style={{ display: "inline-flex", gap: 8 }}>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            onClick={() => onEdit(u)}
+                            style={{ padding: "7px 14px", fontSize: 12 }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            onClick={() => onDelete(u.internalCode)}
+                            disabled={Boolean(pending[u.internalCode])}
+                            style={{
+                              padding: "7px 14px",
+                              fontSize: 12,
+                              color: "var(--danger)",
+                              borderColor: "rgba(255, 138, 120, 0.32)",
+                              opacity: pending[u.internalCode] ? 0.55 : 1,
+                              cursor: pending[u.internalCode] ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </span>
                       </Td>
                     </tr>
                   ))}
@@ -748,13 +811,16 @@ function EditUnitDrawer({
   cities,
   onClose,
   onSubmit,
+  onDelete,
 }: {
   unit: FleetUnit | null;
   models: { id: string; name: string }[];
   cities: { id: string; name: string }[];
   onClose: () => void;
   onSubmit: (internalCode: string, patch: UpdateUnitInput) => Promise<string | null>;
+  onDelete: (code: string) => void;
 }) {
+  const [internalCode, setInternalCode] = useState("");
   const [modelId, setModelId] = useState("");
   const [cityId, setCityId] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
@@ -773,6 +839,7 @@ function EditUnitDrawer({
   // Seed every field from the unit each time a new one is opened.
   useEffect(() => {
     if (!unit) return;
+    setInternalCode(unit.internalCode);
     setModelId(unit.modelId);
     setCityId(unit.cityId);
     setSerialNumber(unit.serialNumber ?? "");
@@ -790,12 +857,19 @@ function EditUnitDrawer({
 
   async function handleSubmit() {
     if (!unit || submitting) return;
+    const nextCode = internalCode.trim();
+    if (!nextCode) {
+      setFormError("An internal code is required.");
+      return;
+    }
     setSubmitting(true);
     setFormError(null);
     // Send each field's current/edited value. Optional strings send the trimmed
     // value or "" to clear; modelId/cityId are validated server-side (blank
-    // leaves the current one). internalCode is the key and not editable.
+    // leaves the current one). Include internalCode only when it actually
+    // changed — that renames the unit (backend 409s on a code collision).
     const err = await onSubmit(unit.internalCode, {
+      ...(nextCode !== unit.internalCode ? { internalCode: nextCode } : {}),
       modelId,
       cityId,
       serialNumber: serialNumber.trim(),
@@ -821,6 +895,24 @@ function EditUnitDrawer({
       subtitle={unit?.internalCode}
       footer={
         <>
+          {unit && (
+            <button
+              type="button"
+              className="btn btn-ghost spacer"
+              onClick={() => onDelete(unit.internalCode)}
+              disabled={submitting}
+              style={{
+                padding: "11px 20px",
+                fontSize: 14,
+                color: "var(--danger)",
+                borderColor: "rgba(255, 138, 120, 0.32)",
+                opacity: submitting ? 0.55 : 1,
+                cursor: submitting ? "not-allowed" : "pointer",
+              }}
+            >
+              Delete
+            </button>
+          )}
           <button
             type="button"
             className="btn btn-ghost"
@@ -870,15 +962,17 @@ function EditUnitDrawer({
           </div>
         )}
 
-        {/* Internal code is the key — shown read-only, not editable. */}
+        {/* Internal code is a unique business key — editable here so a mistyped
+            code can be corrected; submitting a new value renames the unit. */}
         <div className="field">
-          <label>Internal code</label>
-          <div
-            className="mono"
-            style={{ fontSize: 13, color: "var(--text-2)", paddingTop: 2 }}
-          >
-            {unit?.internalCode}
-          </div>
+          <label htmlFor="eu-code">Internal code</label>
+          <input
+            id="eu-code"
+            value={internalCode}
+            onChange={(e) => setInternalCode(e.target.value)}
+            placeholder="e.g. TLN-EP-001"
+            aria-label="Internal code"
+          />
         </div>
 
         <div className="field-row">

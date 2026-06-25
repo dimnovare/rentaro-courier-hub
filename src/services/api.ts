@@ -10,8 +10,10 @@ export async function apiGet<T>(path: string, fallback: T): Promise<T> {
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       headers: { Accept: "application/json" },
-      // Revalidate periodically when wired to the API.
-      next: { revalidate: 60 },
+      // Revalidate often so live availability (derived from real bike-unit status)
+      // reflects fleet changes — a reserve/return — within ~20-40s, matching the
+      // API's 20s output-cache window.
+      next: { revalidate: 20 },
     });
     if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
     return (await res.json()) as T;

@@ -242,6 +242,19 @@ export function getContract(id: string): Promise<Contract> {
   return request<Contract>(`/api/admin/contracts/${encodeURIComponent(id)}`).then(normalizeContract);
 }
 
+/**
+ * Fetch a booking's latest agreement contract (same shape as generateContract),
+ * or null when none has been generated yet (the backend answers 200 with a JSON
+ * `null` body in that case). Lets a Manage panel restore the contract state after
+ * a page refresh instead of forgetting it. The status is normalised to PascalCase
+ * like the other contract calls.
+ */
+export function getBookingContract(bookingId: string): Promise<Contract | null> {
+  return request<Contract | null>(
+    `/api/admin/bookings/${encodeURIComponent(bookingId)}/contract`,
+  ).then((c) => (c ? normalizeContract(c) : null));
+}
+
 /* ── Document download ─────────────────────────────────────────────────── */
 
 /**

@@ -125,9 +125,12 @@ export const updateUnitStatus = (internalCode: string, status: string) =>
 /** Fields that can be patched on an existing unit. Any subset is accepted;
  *  only the provided keys are updated server-side (salePrice must be >= 0).
  *  For optional strings, send the trimmed value to set it, "" to clear it, or
- *  omit the key to leave it unchanged. `internalCode` is the key and not editable;
- *  a blank modelId/cityId leaves the current one. */
+ *  omit the key to leave it unchanged. The PATCH route param is the unit's
+ *  CURRENT internal code; sending `internalCode` here RENAMES it to that new
+ *  (unique) code — backend ignores an unchanged value, 409s on a collision.
+ *  A blank modelId/cityId leaves the current one. */
 export interface UpdateUnitInput {
+  internalCode?: string;
   modelId?: string;
   cityId?: string;
   serialNumber?: string;
@@ -148,6 +151,14 @@ export const updateUnit = (internalCode: string, patch: UpdateUnitInput) =>
   request<FleetUnit>(`/api/admin/units/${encodeURIComponent(internalCode)}`, {
     method: "PATCH",
     body: JSON.stringify(patch),
+  });
+
+/** Permanently delete a bike unit (204 on success). 409 when the unit has
+ *  rental history — retire it instead. The request helper returns undefined
+ *  for a 204 body. */
+export const deleteUnit = (internalCode: string): Promise<void> =>
+  request<void>(`/api/admin/units/${encodeURIComponent(internalCode)}`, {
+    method: "DELETE",
   });
 
 /** Fields accepted when creating a bike unit. `internalCode`, `modelId` and

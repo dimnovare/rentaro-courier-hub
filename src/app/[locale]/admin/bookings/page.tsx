@@ -26,6 +26,7 @@ import {
   generateContract,
   markContractSigned,
   openContractDocument,
+  getBookingContract,
   ContractApiError,
   ContractConfigError,
   type Contract,
@@ -75,8 +76,12 @@ export default function AdminBookingsPage() {
   const { authenticated, signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "idle" });
   const [banner, setBanner] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
-  // Contracts generated this session, keyed by booking id.
+  // Contracts known for a booking, keyed by booking id — populated either by
+  // generating one this session or by the lazy-load when a Manage panel opens.
   const [contracts, setContracts] = useState<Record<string, Contract>>({});
+  // Booking ids whose contract has been lazy-fetched (regardless of result), so
+  // a booking with genuinely no contract isn't re-fetched every time it opens.
+  const [contractLoaded, setContractLoaded] = useState<Record<string, true>>({});
   // Booking ids with an in-flight contract action (generate / download).
   const [contractBusy, setContractBusy] = useState<Record<string, boolean>>({});
   // Latest payment per booking, fetched lazily when a Manage panel opens.
@@ -159,18 +164,44 @@ export default function AdminBookingsPage() {
     [signOut],
   );
 
+  // Fetch (once) the latest agreement contract for a booking, so the panel
+  // restores its generated/signed state after a page refresh instead of falling
+  // back to "Generate contract". Mirrors loadPayment: a 401 drops to sign-in,
+  // other errors are swallowed (the contract readout is non-critical). The id is
+  // marked loaded either way so a booking with no contract isn't re-fetched.
+  const loadContract = useCallback(
+    async (bookingId: string) => {
+      try {
+        const contract = await getBookingContract(bookingId);
+        if (contract) setContracts((c) => ({ ...c, [bookingId]: contract }));
+      } catch (err) {
+        if (err instanceof ContractApiError && err.unauthorized) {
+          signOut();
+          return;
+        }
+        /* non-critical — leave the contract unknown. */
+      } finally {
+        setContractLoaded((m) => ({ ...m, [bookingId]: true }));
+      }
+    },
+    [signOut],
+  );
+
   // Toggle a booking's management panel; clears any stale per-row error. Opening
-  // a row lazily loads its payment status (unless already known).
+  // a row lazily loads its payment status and contract (unless already known).
   const toggleOpen = useCallback(
     (bookingId: string) => {
       setRowError(null);
       setOpenId((cur) => {
         const next = cur === bookingId ? null : bookingId;
         if (next && payments[bookingId] === undefined) void loadPayment(bookingId);
+        if (next && !contractLoaded[bookingId] && contracts[bookingId] === undefined) {
+          void loadContract(bookingId);
+        }
         return next;
       });
     },
-    [payments, loadPayment],
+    [payments, loadPayment, contractLoaded, contracts, loadContract],
   );
 
   // Surface a per-row error inside the management panel for a booking.
@@ -1301,10 +1332,24 @@ function PaymentControl({
   }
 
   if (payment == null) {
+    // No payment row exists (cash / walk-in / admin booking). The confirm-payment
+    // endpoint CREATES a settled Paid payment in that case, so still offer the
+    // "Mark payment received" button — clicking it records the payment and
+    // unblocks bike assignment, just like the pending path below.
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <StatusPill value="no payment" tone="neutral" />
-        <p style={hintStyle}>No payment recorded for this booking.</p>
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ ...miniBtn, alignSelf: "flex-start" }}
+          onClick={onConfirm}
+        >
+          Mark payment received
+        </button>
+        <p style={hintStyle}>
+          No payment recorded. Confirm once you have received payment (e.g. cash) to record it and unlock bike assignment.
+        </p>
       </div>
     );
   }
@@ -1569,11 +1614,15 @@ function AssignControl({
 }) {
   const [code, setCode] = useState("");
 
+  // Units that can start this rental: status "available" OR "reserved" (the
+  // backend accepts a reserved unit unless it's held by a *different* booking),
+  // and matching the booking's model + city. Reserved ones are labelled
+  // distinctly so the operator knows what they're picking.
   const eligible = useMemo(
     () =>
       units.filter(
         (u) =>
-          u.status?.toLowerCase() === "available" &&
+          (u.status?.toLowerCase() === "available" || u.status?.toLowerCase() === "reserved") &&
           u.modelId === b.modelId &&
           u.cityId === b.cityId,
       ),
@@ -1594,7 +1643,7 @@ function AssignControl({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <span className="mono" style={{ fontSize: 11.5, color: "var(--warn)" }}>
-          No available <b>{b.modelId}</b> unit in <b>{b.cityId}</b>.
+          No assignable <b>{b.modelId}</b> unit in <b>{b.cityId}</b>.
         </span>
         <p style={hintStyle}>
           {availableElsewhere > 0
@@ -1635,7 +1684,9 @@ function AssignControl({
           <option value="">Choose a unit…</option>
           {eligible.map((u) => (
             <option key={u.internalCode} value={u.internalCode}>
-              {u.internalCode}
+              {u.status?.toLowerCase() === "reserved"
+                ? `${u.internalCode} · reserved`
+                : u.internalCode}
             </option>
           ))}
         </select>
@@ -1646,7 +1697,7 @@ function AssignControl({
       <p style={hintStyle}>
         {gated
           ? blockReason
-          : `${eligible.length} available ${eligible.length === 1 ? "unit" : "units"} for this model + city.`}
+          : `${eligible.length} assignable ${eligible.length === 1 ? "unit" : "units"} for this model + city.`}
       </p>
     </form>
   );
