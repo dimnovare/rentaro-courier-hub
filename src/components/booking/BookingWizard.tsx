@@ -268,19 +268,16 @@ export function BookingWizard({
     if (startDate && startDate < minStartDate) setStartDate("");
   }, [startDate, minStartDate]);
 
-  // End date = preferred start date + plan.months calendar months. Returned as a
-  // localised date string (or "" when either input is missing).
+  // End date = preferred start date + plan.months * 30 days. The backend derives
+  // PlannedEndDate the same way (30-day periods, matching the per-30-day pricing),
+  // so we use 30-day arithmetic here rather than calendar months to stay in sync.
+  // Returned as a localised date string (or "" when either input is missing).
   const endDate = (() => {
     if (!startDate || !plan) return "";
-    const d = new Date(startDate);
+    // Parse the ISO start date as a LOCAL date to avoid a UTC timezone shift.
+    const d = new Date(startDate + "T00:00:00");
     if (Number.isNaN(d.getTime())) return "";
-    // Clamp the day so a month-end start (e.g. Aug 31 + 1 month) doesn't overflow
-    // into the next month (Oct 1) but instead lands on the last valid day.
-    const day = d.getDate();
-    d.setDate(1);
-    d.setMonth(d.getMonth() + plan.months);
-    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-    d.setDate(Math.min(day, lastDay));
+    d.setDate(d.getDate() + plan.months * 30);
     return toLocalISODate(d);
   })();
   // EU-format (dd/mm/yyyy) readout of the chosen start date. The native date input

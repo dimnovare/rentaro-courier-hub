@@ -17,6 +17,7 @@
  *   POST /api/admin/rentals/{id}/return
  *   POST /api/admin/rentals/{id}/inspect             { passed, notes? }
  *   POST /api/admin/rentals/{id}/extend              { plannedEndDate }
+ *   PATCH /api/admin/rentals/{id}                    { startDate?, plannedEndDate? }
  */
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
@@ -41,7 +42,12 @@ export interface AdminRental {
 export interface CalendarBlock {
   type: "rental" | "maintenance";
   from: string;
-  to: string;
+  /**
+   * End of the block, YYYY-MM-DD. Null for open-ended blocks — an active rental
+   * with no scheduled return, or an unresolved maintenance ticket. Matches the
+   * backend CalendarBlockDto.To (`string?`).
+   */
+  to: string | null;
   label: string;
   rentalId: string | null;
 }
@@ -172,4 +178,19 @@ export const extendRental = (id: string, plannedEndDate: string) =>
   request<AdminRental>(`/api/admin/rentals/${encodeURIComponent(id)}/extend`, {
     method: "POST",
     body: JSON.stringify({ plannedEndDate }),
+  });
+
+/**
+ * Corrects a rental's dates (YYYY-MM-DD). A blank/omitted startDate keeps the
+ * current one; passing startDate without plannedEndDate makes the server
+ * recompute the planned end from the plan length (plan months × 30 days). An
+ * explicit plannedEndDate overrides that. The server validates end ≥ start.
+ */
+export const updateRentalDates = (
+  id: string,
+  body: { startDate?: string; plannedEndDate?: string },
+) =>
+  request<AdminRental>(`/api/admin/rentals/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
   });

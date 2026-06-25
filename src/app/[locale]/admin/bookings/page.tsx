@@ -21,6 +21,7 @@ import {
 import { modelService } from "@/services/modelService";
 import { cityService } from "@/services/cityService";
 import { pricingService } from "@/services/pricingService";
+import { getSettings } from "@/services/settingsService";
 import { Drawer } from "@/components/admin/Drawer";
 import {
   generateContract,
@@ -94,6 +95,12 @@ export default function AdminBookingsPage() {
   const [rowError, setRowError] = useState<{ bookingId: string; text: string } | null>(null);
   // Whether the "New booking" drawer is open.
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Whether online (Smart-ID / Mobile-ID) signing is enabled site-wide. Mirrors
+  // the backend assign gate: it only blocks assignment on an unsigned agreement
+  // when ShowOnlineSigning is true. In the default paper mode (false), approval
+  // auto-generates an UNSIGNED "Generated" agreement that must NOT gate assigning.
+  // Defaults to false (paper mode) so a missing/failed read never falsely blocks.
+  const [onlineSigning, setOnlineSigning] = useState(false);
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     // A "silent" refresh (after an action) keeps the current bookings on screen
@@ -137,6 +144,21 @@ export default function AdminBookingsPage() {
   useEffect(() => {
     if (authenticated) void load();
   }, [authenticated, load]);
+
+  // Load the site's online-signing flag so the client assign gate matches the
+  // backend (which only blocks on an unsigned contract when ShowOnlineSigning is
+  // true). getSettings is fail-safe — it returns showOnlineSigning=false on any
+  // error — so a hiccup leaves the gate in the safe paper-mode default.
+  useEffect(() => {
+    if (!authenticated) return;
+    let active = true;
+    void getSettings().then((s) => {
+      if (active) setOnlineSigning(s.showOnlineSigning);
+    });
+    return () => {
+      active = false;
+    };
+  }, [authenticated]);
 
   useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 
@@ -346,15 +368,17 @@ export default function AdminBookingsPage() {
 
   // Mark a booking's contract as signed — the path for paper signing, where the
   // renter signs in person. When `notify` is true the customer is emailed a
-  // "contract signed" confirmation; otherwise no email is sent. The returned
-  // Contract replaces the stored one so the panel reflects the signed state.
+  // "contract signed" confirmation; otherwise no email is sent. `signedAt` is the
+  // optional day the paper contract was actually signed (ISO yyyy-MM-dd); omitted
+  // → today. The returned Contract replaces the stored one so the panel reflects
+  // the signed state (and any corrected date).
   const onMarkSigned = useCallback(
-    async (bookingId: string, notify: boolean) => {
+    async (bookingId: string, notify: boolean, signedAt?: string) => {
       setBanner(null);
       setRowError(null);
       setBusy(bookingId, true);
       try {
-        const contract = await markContractSigned(bookingId, notify);
+        const contract = await markContractSigned(bookingId, notify, signedAt);
         setContracts((c) => ({ ...c, [bookingId]: contract }));
         setBanner({
           tone: "ok",
@@ -490,6 +514,7 @@ export default function AdminBookingsPage() {
               contracts={contracts}
               contractBusy={contractBusy}
               payments={payments}
+              onlineSigning={onlineSigning}
               openId={openId}
               rowError={rowError}
               onToggle={toggleOpen}
@@ -800,6 +825,11 @@ function NewBookingDrawer({
             onChange={(e) => setStartDate(e.target.value)}
             aria-label="Preferred start date"
           />
+          {startDate && (
+            <p className="mono" style={{ fontSize: 11.5, color: "var(--text-muted)", margin: "6px 0 0" }}>
+              {ddmmyyyy(startDate)} (dd/mm/yyyy)
+            </p>
+          )}
         </div>
 
         <div className="field">
@@ -884,6 +914,7 @@ function BookingsManageTable({
   contracts,
   contractBusy,
   payments,
+  onlineSigning,
   openId,
   rowError,
   onToggle,
@@ -903,6 +934,7 @@ function BookingsManageTable({
   contracts: Record<string, Contract>;
   contractBusy: Record<string, boolean>;
   payments: Record<string, AdminPayment | null | "loading">;
+  onlineSigning: boolean;
   openId: string | null;
   rowError: { bookingId: string; text: string } | null;
   onToggle: (id: string) => void;
@@ -913,7 +945,7 @@ function BookingsManageTable({
   onRevokePayment: (id: string) => void;
   onSetStatus: (id: string, status: string, label: string) => void;
   onGenerateContract: (id: string, notify: boolean) => void;
-  onMarkSigned: (id: string, notify: boolean) => void;
+  onMarkSigned: (id: string, notify: boolean, signedAt?: string) => void;
   onDownloadContract: (id: string, contractId: string, kind: "generated" | "signed") => void;
   onDelete: (id: string) => void;
 }) {
@@ -945,6 +977,7 @@ function BookingsManageTable({
                 contract={contracts[b.id]}
                 contractBusy={Boolean(contractBusy[b.id])}
                 payment={payments[b.id]}
+                onlineSigning={onlineSigning}
                 open={open}
                 error={rowError && rowError.bookingId === b.id ? rowError.text : null}
                 onToggle={() => onToggle(b.id)}
@@ -955,7 +988,7 @@ function BookingsManageTable({
                 onRevokePayment={() => onRevokePayment(b.id)}
                 onSetStatus={(status, label) => onSetStatus(b.id, status, label)}
                 onGenerateContract={(notify) => onGenerateContract(b.id, notify)}
-                onMarkSigned={(notify) => onMarkSigned(b.id, notify)}
+                onMarkSigned={(notify, signedAt) => onMarkSigned(b.id, notify, signedAt)}
                 onDownloadContract={(kind) => {
                   const c = contracts[b.id];
                   if (c) onDownloadContract(b.id, c.id, kind);
@@ -976,6 +1009,7 @@ function BookingRow({
   contract,
   contractBusy,
   payment,
+  onlineSigning,
   open,
   error,
   onToggle,
@@ -995,6 +1029,7 @@ function BookingRow({
   contract: Contract | undefined;
   contractBusy: boolean;
   payment: AdminPayment | null | "loading" | undefined;
+  onlineSigning: boolean;
   open: boolean;
   error: string | null;
   onToggle: () => void;
@@ -1005,7 +1040,7 @@ function BookingRow({
   onRevokePayment: () => void;
   onSetStatus: (status: string, label: string) => void;
   onGenerateContract: (notify: boolean) => void;
-  onMarkSigned: (notify: boolean) => void;
+  onMarkSigned: (notify: boolean, signedAt?: string) => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
   onDelete: () => void;
 }) {
@@ -1053,6 +1088,7 @@ function BookingRow({
               contract={contract}
               contractBusy={contractBusy}
               payment={payment}
+              onlineSigning={onlineSigning}
               error={error}
               onApprove={onApprove}
               onReject={onReject}
@@ -1083,6 +1119,7 @@ function ManagePanel({
   contract,
   contractBusy,
   payment,
+  onlineSigning,
   error,
   onApprove,
   onReject,
@@ -1100,6 +1137,7 @@ function ManagePanel({
   contract: Contract | undefined;
   contractBusy: boolean;
   payment: AdminPayment | null | "loading" | undefined;
+  onlineSigning: boolean;
   error: string | null;
   onApprove: () => void;
   onReject: () => void;
@@ -1108,7 +1146,7 @@ function ManagePanel({
   onRevokePayment: () => void;
   onSetStatus: (status: string, label: string) => void;
   onGenerateContract: (notify: boolean) => void;
-  onMarkSigned: (notify: boolean) => void;
+  onMarkSigned: (notify: boolean, signedAt?: string) => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
   onDelete: () => void;
 }) {
@@ -1196,6 +1234,7 @@ function ManagePanel({
           units={units}
           payment={payment}
           contract={contract}
+          onlineSigning={onlineSigning}
           onAssign={onAssign}
         />
       </PanelGroup>
@@ -1356,10 +1395,14 @@ function PaymentControl({
 
   const status = payment.status.toLowerCase();
   const settled = status === "paid";
-  // "pending" (awaiting the provider) and "pending_manual" (no auto-charge) both
-  // allow a manual confirmation. Terminal states (cancelled/refunded) and the
-  // settled "paid" state do not.
-  const confirmable = status === "pending" || status === "pending_manual";
+  // Only "pending_manual" (no automatic charge — cash / walk-in) may be confirmed
+  // by hand. A bare "pending" from a real provider (e.g. Montonio) is a card charge
+  // in flight that settles via webhook; manually flipping it to Paid would mark an
+  // unsettled real payment as received, so it is NOT confirmable here. Terminal
+  // states (cancelled/refunded) and the settled "paid" state are not confirmable.
+  const confirmable = status === "pending_manual";
+  // A real provider charge still awaiting settlement (a non-manual "pending").
+  const providerPending = status === "pending" && payment.provider.toLowerCase() !== "manual";
   const amount = `${payment.amount.toFixed(2)} ${payment.currency}`;
 
   return (
@@ -1393,7 +1436,9 @@ function PaymentControl({
           ? "Payment confirmed — bike assignment is unlocked."
           : confirmable
             ? "No automatic charge was taken. Confirm once you have received payment to unlock bike assignment."
-            : `Payment is ${status.replace(/_/g, " ")} — bike assignment stays blocked.`}
+            : providerPending
+              ? "Awaiting card payment via the provider — not yet settled. It will settle automatically once the charge clears; bike assignment stays blocked until then."
+              : `Payment is ${status.replace(/_/g, " ")} — bike assignment stays blocked.`}
       </p>
     </div>
   );
@@ -1443,13 +1488,24 @@ function ContractControl({
   contract: Contract | undefined;
   busy: boolean;
   onGenerate: (notify: boolean) => void;
-  onMarkSigned: (notify: boolean) => void;
+  onMarkSigned: (notify: boolean, signedAt?: string) => void;
   onDownload: (kind: "generated" | "signed") => void;
 }) {
   // Email the customer a copy when generating — defaults on (the prior behaviour).
   const [emailOnGenerate, setEmailOnGenerate] = useState(true);
   // Email the customer when marking signed — defaults off (paper signing is quiet).
   const [emailOnSign, setEmailOnSign] = useState(false);
+  // The day the paper contract was signed, ISO yyyy-MM-dd — defaults to today.
+  // Sent as the mark-signed `signedAt` so the recorded date can differ from now.
+  const [signOnDate, setSignOnDate] = useState(todayIso);
+  // Editable signed date for an already-signed contract, seeded from its stored
+  // signedAt (first 10 chars of the ISO timestamp); lets an operator correct it.
+  const [editSignedDate, setEditSignedDate] = useState(() => isoDay(contract?.signedAt));
+  // Re-seed the editable date whenever the stored signed date changes (e.g. after
+  // a successful correction returns a fresh contract), so the input stays in sync.
+  useEffect(() => {
+    setEditSignedDate(isoDay(contract?.signedAt));
+  }, [contract?.signedAt]);
 
   if (!contract) {
     return (
@@ -1480,9 +1536,37 @@ function ContractControl({
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <StatusPill value={contractStatusLabel(contract.status)} tone={contractStatusTone(contract.status)} />
       {signed && (
-        <p style={signerStyle}>
-          Contract signed{contract.signedAt ? ` · ${fmtDay(contract.signedAt)}` : ""}
-        </p>
+        <>
+          <p style={signerStyle}>
+            Contract signed{contract.signedAt ? ` · ${fmtDay(contract.signedAt)}` : ""}
+          </p>
+          {/* Let the operator correct the recorded signed date. Re-calls the
+              mark-signed path (notify off) with the new signedAt; the backend
+              re-stamps even when already signed, and the returned Contract
+              refreshes the stored one. */}
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <label className="mono" style={{ ...hintStyle, display: "flex", flexDirection: "column", gap: 4 }}>
+              Signed on
+              <input
+                type="date"
+                value={editSignedDate}
+                disabled={busy}
+                onChange={(e) => setEditSignedDate(e.target.value)}
+                style={dateInputStyle}
+                aria-label="Edit signed date"
+              />
+            </label>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ padding: "6px 11px", fontSize: 11.5 }}
+              disabled={busy || !editSignedDate || editSignedDate === isoDay(contract.signedAt)}
+              onClick={() => onMarkSigned(false, editSignedDate)}
+            >
+              {busy ? "Working…" : "Update date"}
+            </button>
+          </div>
+        </>
       )}
       {contract.signedByName && (
         <p style={signerStyle}>
@@ -1525,12 +1609,23 @@ function ContractControl({
       </div>
       {!signed && (
         <>
+          <label className="mono" style={{ ...hintStyle, display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>
+            Signed on
+            <input
+              type="date"
+              value={signOnDate}
+              disabled={busy}
+              onChange={(e) => setSignOnDate(e.target.value)}
+              style={dateInputStyle}
+              aria-label="Signed date"
+            />
+          </label>
           <button
             type="button"
             className="btn btn-primary"
             style={{ ...miniBtn, alignSelf: "flex-start", marginTop: 2 }}
-            disabled={busy}
-            onClick={() => onMarkSigned(emailOnSign)}
+            disabled={busy || !signOnDate}
+            onClick={() => onMarkSigned(emailOnSign, signOnDate)}
           >
             {busy ? "Working…" : "Mark contract as signed"}
           </button>
@@ -1541,7 +1636,7 @@ function ContractControl({
             label="Email the customer"
           />
           <p style={hintStyle}>
-            For paper signing — mark the contract signed by hand. Bike assignment unlocks once it is signed.
+            For paper signing — mark the contract signed by hand on the date above. Bike assignment unlocks once it is signed.
           </p>
         </>
       )}
@@ -1604,12 +1699,14 @@ function AssignControl({
   units,
   payment,
   contract,
+  onlineSigning,
   onAssign,
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
   payment: AdminPayment | null | "loading" | undefined;
   contract: Contract | undefined;
+  onlineSigning: boolean;
   onAssign: (code: string) => void;
 }) {
   const [code, setCode] = useState("");
@@ -1660,7 +1757,11 @@ function AssignControl({
   // once generated this session, so an unknown contract is not treated as a
   // blocker (payment alone gates then).
   const paymentSettled = payment != null && payment !== "loading" && payment.status.toLowerCase() === "paid";
-  const contractSigned = contract == null || contract.status === "Signed";
+  // Mirror the backend, which only blocks assignment on an unsigned agreement when
+  // ShowOnlineSigning is true. In the default paper mode (onlineSigning=false), the
+  // auto-generated "Generated" agreement is signed on paper, so it must never gate
+  // assignment — otherwise the operator is forced to falsely mark it signed.
+  const contractSigned = !onlineSigning || contract == null || contract.status === "Signed";
   const blockReason =
     payment === "loading"
       ? "Checking payment…"
@@ -1726,6 +1827,28 @@ function contractStatusLabel(status: Contract["status"]): string {
   return status.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
 }
 
+/** Today's date as an ISO `yyyy-MM-dd` string (local), for seeding date inputs. */
+function todayIso(): string {
+  const now = new Date();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${m}-${d}`;
+}
+
+/** First 10 chars (the `yyyy-MM-dd` date part) of an ISO timestamp, or "" when
+ *  absent — the value a `<input type="date">` expects. */
+function isoDay(iso: string | null | undefined): string {
+  return iso ? iso.slice(0, 10) : "";
+}
+
+/** Reformat an ISO `yyyy-MM-dd` value to a `d/m/y` readout, built from the date
+ *  PARTS (not via Date) so it never shifts across a timezone. Returns the input
+ *  unchanged if it isn't in the expected shape. */
+function ddmmyyyy(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return y && m && d ? `${d}/${m}/${y}` : iso;
+}
+
 /**
  * Reads the optional `referralCode` from a booking. The backend includes it on
  * the bookings list payload; the shared AdminBooking type doesn't declare it, so
@@ -1779,6 +1902,18 @@ const selectStyle: React.CSSProperties = {
   color: "var(--text)",
   fontFamily: "var(--font-mono)",
   fontSize: 12,
+};
+
+// Compact date-input matching the select styling, sized for a yyyy-MM-dd value.
+const dateInputStyle: React.CSSProperties = {
+  padding: "7px 9px",
+  borderRadius: "var(--r-sm)",
+  background: "var(--bg-2)",
+  border: "1px solid var(--border)",
+  color: "var(--text)",
+  fontFamily: "var(--font-mono)",
+  fontSize: 12,
+  colorScheme: "dark",
 };
 
 /* ── Pieces ────────────────────────────────────────────────────────────── */

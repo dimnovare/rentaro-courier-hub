@@ -7,6 +7,7 @@ import {
   markReturned,
   inspectRental,
   extendRental,
+  updateRentalDates,
   RentalApiError,
   RentalConfigError,
   RentalAuthError,
@@ -23,6 +24,16 @@ function todayISO(): string {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/**
+ * dd/mm/yyyy readout built from the ISO string PARTS (not a Date object), so it
+ * matches what EU operators expect regardless of the browser's date-input locale.
+ */
+function fmtIsoEU(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return "—";
+  return `${d}/${m}/${y}`;
 }
 
 /** €-format a numeric amount; em-dash for nullish. */
@@ -165,6 +176,9 @@ export default function AdminRentalsPage() {
             onExtend={(id, date) =>
               runAction(id, () => extendRental(id, date), "Rental extended.")
             }
+            onEditDates={(id, body) =>
+              runAction(id, () => updateRentalDates(id, body), "Dates updated.")
+            }
           />
         </>
       )}
@@ -298,6 +312,7 @@ function ManageRentalDrawer({
   onReturn,
   onInspect,
   onExtend,
+  onEditDates,
 }: {
   rental: AdminRental | null;
   banner: { tone: "ok" | "bad"; text: string } | null;
@@ -307,6 +322,7 @@ function ManageRentalDrawer({
   onReturn: (id: string) => void;
   onInspect: (id: string, passed: boolean, notes?: string) => void;
   onExtend: (id: string, date: string) => void;
+  onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
 }) {
   return (
     <Drawer
@@ -337,6 +353,7 @@ function ManageRentalDrawer({
           onReturn={onReturn}
           onInspect={onInspect}
           onExtend={onExtend}
+          onEditDates={onEditDates}
         />
       )}
     </Drawer>
@@ -351,6 +368,7 @@ function ManageRentalBody({
   onReturn,
   onInspect,
   onExtend,
+  onEditDates,
 }: {
   rental: AdminRental;
   banner: { tone: "ok" | "bad"; text: string } | null;
@@ -359,11 +377,15 @@ function ManageRentalBody({
   onReturn: (id: string) => void;
   onInspect: (id: string, passed: boolean, notes?: string) => void;
   onExtend: (id: string, date: string) => void;
+  onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
 }) {
   const id = rental.id;
   const [returnDate, setReturnDate] = useState(todayISO());
   const [extendDate, setExtendDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
+  // Edit-dates block, seeded from the rental's current ISO dates.
+  const [startDate, setStartDate] = useState(rental.startDate);
+  const [plannedEnd, setPlannedEnd] = useState(rental.plannedEndDate ?? "");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
@@ -465,6 +487,61 @@ function ManageRentalBody({
         </form>
       </ActionBlock>
 
+      {/* 5 · Edit dates */}
+      <ActionBlock label="5 · Edit dates">
+        <form
+          style={{ display: "flex", flexDirection: "column", gap: 10 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (startDate && !busy) {
+              onEditDates(id, { startDate, plannedEndDate: plannedEnd || undefined });
+            }
+          }}
+        >
+          <label style={editDateField}>
+            <span style={editDateLabel}>Start date</span>
+            <div style={actionRow}>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                aria-label="Start date"
+                style={dateStyle}
+                disabled={busy}
+              />
+              <span className="mono" style={editDateReadout}>{fmtIsoEU(startDate)}</span>
+            </div>
+          </label>
+
+          <label style={editDateField}>
+            <span style={editDateLabel}>Planned end</span>
+            <div style={actionRow}>
+              <input
+                type="date"
+                value={plannedEnd}
+                onChange={(e) => setPlannedEnd(e.target.value)}
+                aria-label="Planned end date"
+                style={dateStyle}
+                disabled={busy}
+              />
+              <span className="mono" style={editDateReadout}>
+                {plannedEnd ? fmtIsoEU(plannedEnd) : "—"}
+              </span>
+            </div>
+          </label>
+
+          <p className="mono" style={editDateHint}>
+            Leave end blank to auto-set 30 days / the plan length from the start.
+          </p>
+
+          <div>
+            <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !startDate}>
+              Save dates
+            </button>
+          </div>
+        </form>
+      </ActionBlock>
+
       {busy && (
         <span className="mono" style={{ fontSize: 11, color: "var(--text-dim)" }}>
           Working…
@@ -513,6 +590,27 @@ const dateStyle: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
   fontSize: 12,
   colorScheme: "dark",
+};
+
+const editDateField: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 5 };
+
+const editDateLabel: React.CSSProperties = {
+  fontSize: 11,
+  color: "var(--text-muted)",
+  fontFamily: "var(--font-mono)",
+};
+
+const editDateReadout: React.CSSProperties = {
+  fontSize: 12,
+  color: "var(--text-dim)",
+  whiteSpace: "nowrap",
+};
+
+const editDateHint: React.CSSProperties = {
+  margin: 0,
+  fontSize: 11,
+  lineHeight: 1.5,
+  color: "var(--text-dim)",
 };
 
 /* ── Shared pieces (match the other admin pages) ───────────────────────── */

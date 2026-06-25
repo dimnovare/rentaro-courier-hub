@@ -338,12 +338,15 @@ function BlockBar({
 }) {
   const sMs = parseDayMs(block.from);
   const eMs = parseDayMs(block.to);
-  if (sMs === null || eMs === null) return null;
+  // A block must have a start, but an open-ended block (no/unparseable `to` —
+  // an active rental with no scheduled return, or an unresolved maintenance
+  // ticket) is valid: extend it to the right edge of the visible window.
+  if (sMs === null) return null;
 
   const span = axis.totalDays * DAY_MS;
   // Clamp the block to the visible window; render the end day inclusively.
   const startMs = Math.max(sMs, axis.min);
-  const endMs = Math.min(eMs + DAY_MS, axis.max);
+  const endMs = eMs === null ? axis.max : Math.min(eMs + DAY_MS, axis.max);
   if (endMs <= startMs) return null;
 
   const left = ((startMs - axis.min) / span) * 100;
@@ -366,7 +369,9 @@ function BlockBar({
 
   return (
     <span
-      title={`${block.type}: ${block.label} · ${block.from.slice(0, 10)} → ${block.to.slice(0, 10)}`}
+      title={`${block.type}: ${block.label} · ${block.from.slice(0, 10)} → ${
+        block.to ? block.to.slice(0, 10) : "ongoing"
+      }`}
       style={{
         position: "absolute",
         top: 4,

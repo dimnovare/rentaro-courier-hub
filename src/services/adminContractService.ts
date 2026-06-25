@@ -226,13 +226,21 @@ export function generateContract(bookingId: string, notify = true): Promise<Cont
  * Mark a booking's latest generated AGREEMENT contract as Signed — for paper
  * signing, where the renter signs in person rather than through a digital
  * provider. When `notify` is true the customer is emailed a "contract signed"
- * confirmation; otherwise no email is sent. Returns the updated Contract (same
- * shape as generateContract). Throws ContractApiError (404) if no contract has
- * been generated for the booking yet.
+ * confirmation; otherwise no email is sent. `signedAt` is the optional day the
+ * paper contract was actually signed (ISO `yyyy-MM-dd`, stamped at UTC midnight);
+ * omitted → today. Re-posting with a different `signedAt` corrects the recorded
+ * date even when the contract is already signed. Returns the updated Contract
+ * (same shape as generateContract). Throws ContractApiError (404) if no contract
+ * has been generated for the booking yet, or (400) on an invalid `signedAt`.
  */
-export function markContractSigned(bookingId: string, notify: boolean): Promise<Contract> {
+export function markContractSigned(
+  bookingId: string,
+  notify: boolean,
+  signedAt?: string,
+): Promise<Contract> {
+  const signedAtParam = signedAt ? `&signedAt=${encodeURIComponent(signedAt)}` : "";
   return request<Contract>(
-    `/api/admin/bookings/${encodeURIComponent(bookingId)}/contract/mark-signed?notify=${notify}`,
+    `/api/admin/bookings/${encodeURIComponent(bookingId)}/contract/mark-signed?notify=${notify}${signedAtParam}`,
     { method: "POST" },
   ).then(normalizeContract);
 }
