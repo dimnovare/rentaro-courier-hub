@@ -23,6 +23,7 @@ import { cityService } from "@/services/cityService";
 import { pricingService } from "@/services/pricingService";
 import { getSettings } from "@/services/settingsService";
 import { Drawer } from "@/components/admin/Drawer";
+import { DateField } from "@/components/admin/DateField";
 import {
   generateContract,
   markContractSigned,
@@ -818,18 +819,7 @@ function NewBookingDrawer({
 
         <div className="field">
           <label htmlFor="nb-start">Preferred start date</label>
-          <input
-            id="nb-start"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            aria-label="Preferred start date"
-          />
-          {startDate && (
-            <p className="mono" style={{ fontSize: 11.5, color: "var(--text-muted)", margin: "6px 0 0" }}>
-              {ddmmyyyy(startDate)} (dd/mm/yyyy)
-            </p>
-          )}
+          <DateField value={startDate} onChange={setStartDate} disabled={submitting} />
         </div>
 
         <div className="field">
@@ -1547,14 +1537,7 @@ function ContractControl({
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
             <label className="mono" style={{ ...hintStyle, display: "flex", flexDirection: "column", gap: 4 }}>
               Signed on
-              <input
-                type="date"
-                value={editSignedDate}
-                disabled={busy}
-                onChange={(e) => setEditSignedDate(e.target.value)}
-                style={dateInputStyle}
-                aria-label="Edit signed date"
-              />
+              <DateField value={editSignedDate} onChange={setEditSignedDate} disabled={busy} />
             </label>
             <button
               type="button"
@@ -1611,14 +1594,7 @@ function ContractControl({
         <>
           <label className="mono" style={{ ...hintStyle, display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>
             Signed on
-            <input
-              type="date"
-              value={signOnDate}
-              disabled={busy}
-              onChange={(e) => setSignOnDate(e.target.value)}
-              style={dateInputStyle}
-              aria-label="Signed date"
-            />
+            <DateField value={signOnDate} onChange={setSignOnDate} disabled={busy} />
           </label>
           <button
             type="button"
@@ -1841,14 +1817,6 @@ function isoDay(iso: string | null | undefined): string {
   return iso ? iso.slice(0, 10) : "";
 }
 
-/** Reformat an ISO `yyyy-MM-dd` value to a `d/m/y` readout, built from the date
- *  PARTS (not via Date) so it never shifts across a timezone. Returns the input
- *  unchanged if it isn't in the expected shape. */
-function ddmmyyyy(iso: string): string {
-  const [y, m, d] = iso.split("-");
-  return y && m && d ? `${d}/${m}/${y}` : iso;
-}
-
 /**
  * Reads the optional `referralCode` from a booking. The backend includes it on
  * the bookings list payload; the shared AdminBooking type doesn't declare it, so
@@ -1902,18 +1870,6 @@ const selectStyle: React.CSSProperties = {
   color: "var(--text)",
   fontFamily: "var(--font-mono)",
   fontSize: 12,
-};
-
-// Compact date-input matching the select styling, sized for a yyyy-MM-dd value.
-const dateInputStyle: React.CSSProperties = {
-  padding: "7px 9px",
-  borderRadius: "var(--r-sm)",
-  background: "var(--bg-2)",
-  border: "1px solid var(--border)",
-  color: "var(--text)",
-  fontFamily: "var(--font-mono)",
-  fontSize: 12,
-  colorScheme: "dark",
 };
 
 /* ── Pieces ────────────────────────────────────────────────────────────── */

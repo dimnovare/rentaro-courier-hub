@@ -18,22 +18,13 @@ import { StatusPill } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
+import { DateField } from "@/components/admin/DateField";
 
 /** Today as YYYY-MM-DD (local), used to seed the date inputs. */
 function todayISO(): string {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-/**
- * dd/mm/yyyy readout built from the ISO string PARTS (not a Date object), so it
- * matches what EU operators expect regardless of the browser's date-input locale.
- */
-function fmtIsoEU(iso: string): string {
-  const [y, m, d] = iso.split("-");
-  if (!y || !m || !d) return "—";
-  return `${d}/${m}/${y}`;
 }
 
 /** €-format a numeric amount; em-dash for nullish. */
@@ -400,14 +391,7 @@ function ManageRentalBody({
             if (returnDate && !busy) onScheduleReturn(id, returnDate);
           }}
         >
-          <input
-            type="date"
-            value={returnDate}
-            onChange={(e) => setReturnDate(e.target.value)}
-            aria-label="Return date"
-            style={dateStyle}
-            disabled={busy}
-          />
+          <DateField value={returnDate} onChange={setReturnDate} disabled={busy} />
           <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !returnDate}>
             Schedule return
           </button>
@@ -473,14 +457,7 @@ function ManageRentalBody({
             if (extendDate && !busy) onExtend(id, extendDate);
           }}
         >
-          <input
-            type="date"
-            value={extendDate}
-            onChange={(e) => setExtendDate(e.target.value)}
-            aria-label="New planned end date"
-            style={dateStyle}
-            disabled={busy}
-          />
+          <DateField value={extendDate} onChange={setExtendDate} disabled={busy} />
           <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !extendDate}>
             Extend
           </button>
@@ -500,34 +477,12 @@ function ManageRentalBody({
         >
           <label style={editDateField}>
             <span style={editDateLabel}>Start date</span>
-            <div style={actionRow}>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                aria-label="Start date"
-                style={dateStyle}
-                disabled={busy}
-              />
-              <span className="mono" style={editDateReadout}>{fmtIsoEU(startDate)}</span>
-            </div>
+            <DateField value={startDate} onChange={setStartDate} disabled={busy} />
           </label>
 
           <label style={editDateField}>
             <span style={editDateLabel}>Planned end</span>
-            <div style={actionRow}>
-              <input
-                type="date"
-                value={plannedEnd}
-                onChange={(e) => setPlannedEnd(e.target.value)}
-                aria-label="Planned end date"
-                style={dateStyle}
-                disabled={busy}
-              />
-              <span className="mono" style={editDateReadout}>
-                {plannedEnd ? fmtIsoEU(plannedEnd) : "—"}
-              </span>
-            </div>
+            <DateField value={plannedEnd} onChange={setPlannedEnd} disabled={busy} />
           </label>
 
           <p className="mono" style={editDateHint}>
@@ -598,12 +553,6 @@ const editDateLabel: React.CSSProperties = {
   fontSize: 11,
   color: "var(--text-muted)",
   fontFamily: "var(--font-mono)",
-};
-
-const editDateReadout: React.CSSProperties = {
-  fontSize: 12,
-  color: "var(--text-dim)",
-  whiteSpace: "nowrap",
 };
 
 const editDateHint: React.CSSProperties = {
