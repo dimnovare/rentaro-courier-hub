@@ -10,6 +10,7 @@
  *   POST  /api/admin/bookings/{id}/assign           (assign a bike unit → rental)
  *   GET   /api/admin/bookings/{id}/payment          (latest payment for a booking)
  *   POST  /api/admin/bookings/{id}/confirm-payment  (manually mark payment received)
+ *   POST  /api/admin/bookings/{id}/revoke-payment   (revert a payment back to un-paid)
  *   GET   /api/admin/fleet                          (unit codes for the assign control)
  */
 /* ── Contract types (must match the backend exactly) ───────────────────── */
@@ -203,6 +204,13 @@ export function getPayment(bookingId: string): Promise<AdminPayment | null> {
 /** Manually marks a booking's latest payment as received (Paid). */
 export function confirmPayment(bookingId: string): Promise<AdminPayment> {
   return request<AdminPayment>(`/api/admin/bookings/${bookingId}/confirm-payment`, {
+    method: "POST",
+  });
+}
+
+/** Reverts a booking's latest payment back to PendingManual (un-paid). */
+export function revokePayment(bookingId: string): Promise<AdminPayment> {
+  return request<AdminPayment>(`/api/admin/bookings/${bookingId}/revoke-payment`, {
     method: "POST",
   });
 }

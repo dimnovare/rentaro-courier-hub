@@ -8,6 +8,7 @@ import {
   assignUnit,
   getPayment,
   confirmPayment,
+  revokePayment,
   createBooking,
   deleteBooking,
   BookingApiError,
@@ -23,6 +24,7 @@ import { pricingService } from "@/services/pricingService";
 import { Drawer } from "@/components/admin/Drawer";
 import {
   generateContract,
+  markContractSigned,
   openContractDocument,
   ContractApiError,
   ContractConfigError,
@@ -32,6 +34,27 @@ import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate, fmtDay } from "@/c
 import { StatusPill, type PillTone } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+
+/**
+ * Every status the operator can set from the Manage panel's "Set status" select.
+ * `value` is the wire form the backend expects (the BookingStatus enum name,
+ * lower-cased with separators removed — matching the "approved"/"rejected" the
+ * Approve/Reject buttons already send); `label` is a readable form. The status
+ * endpoint is permissive (no forward-only guard), so any of these can move a
+ * booking backward — e.g. an accidental Approve back to "Awaiting review".
+ */
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: "submitted", label: "Submitted" },
+  { value: "awaitingreview", label: "Awaiting review" },
+  { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "paymentpending", label: "Payment pending" },
+  { value: "bikeassigned", label: "Bike assigned" },
+  { value: "signaturepending", label: "Signature pending" },
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
+];
 
 interface PageData {
   bookings: AdminBooking[];
@@ -209,6 +232,33 @@ export default function AdminBookingsPage() {
     [load, signOut, setRowErr],
   );
 
+  // Revert a booking's payment back to un-paid (PendingManual). Mirrors
+  // onConfirmPayment: patches the local payment readout (so the panel flips back
+  // out of "paid" and re-gates assignment) and refreshes the list.
+  const onRevokePayment = useCallback(
+    async (bookingId: string) => {
+      setBanner(null);
+      setRowError(null);
+      try {
+        const updated = await revokePayment(bookingId);
+        setPayments((m) => ({ ...m, [bookingId]: updated }));
+        setBanner({ tone: "ok", text: "Payment marked as unpaid." });
+        await load({ silent: true });
+      } catch (err) {
+        if (err instanceof BookingApiError && err.unauthorized) {
+          signOut();
+          return;
+        }
+        const text =
+          err instanceof BookingApiError || err instanceof BookingConfigError
+            ? err.message
+            : "Could not revoke the payment.";
+        setRowErr(bookingId, text);
+      }
+    },
+    [load, signOut, setRowErr],
+  );
+
   // Mark a booking's contract action busy/idle.
   const setBusy = useCallback((bookingId: string, busy: boolean) => {
     setContractBusy((m) => {
@@ -236,19 +286,54 @@ export default function AdminBookingsPage() {
     [signOut, setRowErr],
   );
 
-  // Generate (or regenerate) a contract for a booking and remember it.
+  // Generate (or regenerate) a contract for a booking and remember it. When
+  // `notify` is true the customer is emailed a copy to sign; otherwise the
+  // contract is generated silently (e.g. for in-person paper signing).
   const onGenerateContract = useCallback(
-    async (bookingId: string) => {
+    async (bookingId: string, notify: boolean) => {
       setBanner(null);
       setRowError(null);
       setBusy(bookingId, true);
       try {
-        const contract = await generateContract(bookingId);
+        const contract = await generateContract(bookingId, notify);
         setContracts((c) => ({ ...c, [bookingId]: contract }));
-        setBanner({ tone: "ok", text: "Contract generated and sent for signing." });
+        setBanner({
+          tone: "ok",
+          text: notify
+            ? "Contract generated and emailed to the customer."
+            : "Contract generated.",
+        });
         await load({ silent: true });
       } catch (err) {
         handleContractError(bookingId, err, "Could not generate the contract.");
+      } finally {
+        setBusy(bookingId, false);
+      }
+    },
+    [setBusy, handleContractError, load],
+  );
+
+  // Mark a booking's contract as signed — the path for paper signing, where the
+  // renter signs in person. When `notify` is true the customer is emailed a
+  // "contract signed" confirmation; otherwise no email is sent. The returned
+  // Contract replaces the stored one so the panel reflects the signed state.
+  const onMarkSigned = useCallback(
+    async (bookingId: string, notify: boolean) => {
+      setBanner(null);
+      setRowError(null);
+      setBusy(bookingId, true);
+      try {
+        const contract = await markContractSigned(bookingId, notify);
+        setContracts((c) => ({ ...c, [bookingId]: contract }));
+        setBanner({
+          tone: "ok",
+          text: notify
+            ? "Contract marked as signed and confirmation emailed to the customer."
+            : "Contract marked as signed.",
+        });
+        await load({ silent: true });
+      } catch (err) {
+        handleContractError(bookingId, err, "Could not mark the contract as signed.");
       } finally {
         setBusy(bookingId, false);
       }
@@ -276,16 +361,11 @@ export default function AdminBookingsPage() {
   async function submitBooking(
     input: CreateBookingInput,
     notify: boolean,
+    markPaid: boolean,
   ): Promise<string | null> {
+    let newId: string;
     try {
-      await createBooking(input, notify);
-      setDrawerOpen(false);
-      setBanner({
-        tone: "ok",
-        text: notify ? "Booking created and confirmation emailed." : "Booking created.",
-      });
-      await load({ silent: true });
-      return null;
+      ({ id: newId } = await createBooking(input, notify));
     } catch (err) {
       if (err instanceof BookingApiError && err.unauthorized) {
         signOut();
@@ -293,6 +373,39 @@ export default function AdminBookingsPage() {
       }
       return err instanceof BookingApiError ? err.message : "Could not create the booking.";
     }
+
+    // The booking now exists. If the operator ticked "already paid", confirm its
+    // payment — but a failure here must NOT roll back or fail the create, since
+    // the booking is committed. Surface that as a non-fatal banner instead.
+    let paidWarning: string | null = null;
+    if (markPaid) {
+      try {
+        await confirmPayment(newId);
+      } catch (err) {
+        if (err instanceof BookingApiError && err.unauthorized) {
+          signOut();
+          return null;
+        }
+        paidWarning =
+          err instanceof BookingApiError || err instanceof BookingConfigError
+            ? err.message
+            : "Could not mark the new booking as paid.";
+      }
+    }
+
+    setDrawerOpen(false);
+    if (paidWarning) {
+      setBanner({ tone: "bad", text: `Booking created, but payment was not marked: ${paidWarning}` });
+    } else {
+      setBanner({
+        tone: "ok",
+        text:
+          (notify ? "Booking created and confirmation emailed." : "Booking created.") +
+          (markPaid ? " Marked as paid." : ""),
+      });
+    }
+    await load({ silent: true });
+    return null;
   }
 
   return (
@@ -350,6 +463,18 @@ export default function AdminBookingsPage() {
               rowError={rowError}
               onToggle={toggleOpen}
               onConfirmPayment={onConfirmPayment}
+              onRevokePayment={onRevokePayment}
+              onSetStatus={(id, status, label) => {
+                const ok = window.confirm(`Change this booking's status to "${label}"?`);
+                if (!ok) return;
+                void runAction(
+                  id,
+                  async () => {
+                    await updateStatus(id, status);
+                  },
+                  `Status set to ${label}.`,
+                );
+              }}
               onApprove={(id) =>
                 runAction(
                   id,
@@ -378,6 +503,7 @@ export default function AdminBookingsPage() {
                 )
               }
               onGenerateContract={onGenerateContract}
+              onMarkSigned={onMarkSigned}
               onDownloadContract={onDownloadContract}
               onDelete={(id) => {
                 const ok = window.confirm(
@@ -424,7 +550,7 @@ function NewBookingDrawer({
   models: { id: string; name: string }[];
   cities: { id: string; name: string }[];
   plans: { id: string; label: string }[];
-  onSubmit: (input: CreateBookingInput, notify: boolean) => Promise<string | null>;
+  onSubmit: (input: CreateBookingInput, notify: boolean, markPaid: boolean) => Promise<string | null>;
 }) {
   const [cityId, setCityId] = useState("");
   const [modelId, setModelId] = useState("");
@@ -436,6 +562,7 @@ function NewBookingDrawer({
   const [startDate, setStartDate] = useState("");
   const [notes, setNotes] = useState("");
   const [notify, setNotify] = useState(false);
+  const [markPaid, setMarkPaid] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -472,6 +599,7 @@ function NewBookingDrawer({
         notes: notes.trim() || undefined,
       },
       notify,
+      markPaid,
     );
     setSubmitting(false);
     if (err) {
@@ -485,6 +613,7 @@ function NewBookingDrawer({
       setStartDate("");
       setNotes("");
       setNotify(false);
+      setMarkPaid(false);
     }
   }
 
@@ -675,6 +804,26 @@ function NewBookingDrawer({
           Email the customer the standard booking confirmation
         </label>
 
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontSize: 13.5,
+            color: "var(--text-2)",
+            cursor: "pointer",
+            marginTop: 12,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={markPaid}
+            onChange={(e) => setMarkPaid(e.target.checked)}
+            style={{ width: 16, height: 16, accentColor: "var(--lime)" }}
+          />
+          Mark as already paid (payment received)
+        </label>
+
         {email.length > 0 && !emailOk && (
           <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: "10px 0 0" }}>
             A valid customer email is required.
@@ -711,7 +860,10 @@ function BookingsManageTable({
   onReject,
   onAssign,
   onConfirmPayment,
+  onRevokePayment,
+  onSetStatus,
   onGenerateContract,
+  onMarkSigned,
   onDownloadContract,
   onDelete,
 }: {
@@ -727,7 +879,10 @@ function BookingsManageTable({
   onReject: (id: string) => void;
   onAssign: (id: string, code: string) => void;
   onConfirmPayment: (id: string) => void;
-  onGenerateContract: (id: string) => void;
+  onRevokePayment: (id: string) => void;
+  onSetStatus: (id: string, status: string, label: string) => void;
+  onGenerateContract: (id: string, notify: boolean) => void;
+  onMarkSigned: (id: string, notify: boolean) => void;
   onDownloadContract: (id: string, contractId: string, kind: "generated" | "signed") => void;
   onDelete: (id: string) => void;
 }) {
@@ -766,7 +921,10 @@ function BookingsManageTable({
                 onReject={() => onReject(b.id)}
                 onAssign={(code) => onAssign(b.id, code)}
                 onConfirmPayment={() => onConfirmPayment(b.id)}
-                onGenerateContract={() => onGenerateContract(b.id)}
+                onRevokePayment={() => onRevokePayment(b.id)}
+                onSetStatus={(status, label) => onSetStatus(b.id, status, label)}
+                onGenerateContract={(notify) => onGenerateContract(b.id, notify)}
+                onMarkSigned={(notify) => onMarkSigned(b.id, notify)}
                 onDownloadContract={(kind) => {
                   const c = contracts[b.id];
                   if (c) onDownloadContract(b.id, c.id, kind);
@@ -794,7 +952,10 @@ function BookingRow({
   onReject,
   onAssign,
   onConfirmPayment,
+  onRevokePayment,
+  onSetStatus,
   onGenerateContract,
+  onMarkSigned,
   onDownloadContract,
   onDelete,
 }: {
@@ -810,7 +971,10 @@ function BookingRow({
   onReject: () => void;
   onAssign: (code: string) => void;
   onConfirmPayment: () => void;
-  onGenerateContract: () => void;
+  onRevokePayment: () => void;
+  onSetStatus: (status: string, label: string) => void;
+  onGenerateContract: (notify: boolean) => void;
+  onMarkSigned: (notify: boolean) => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
   onDelete: () => void;
 }) {
@@ -863,7 +1027,10 @@ function BookingRow({
               onReject={onReject}
               onAssign={onAssign}
               onConfirmPayment={onConfirmPayment}
+              onRevokePayment={onRevokePayment}
+              onSetStatus={onSetStatus}
               onGenerateContract={onGenerateContract}
+              onMarkSigned={onMarkSigned}
               onDownloadContract={onDownloadContract}
               onDelete={onDelete}
             />
@@ -890,7 +1057,10 @@ function ManagePanel({
   onReject,
   onAssign,
   onConfirmPayment,
+  onRevokePayment,
+  onSetStatus,
   onGenerateContract,
+  onMarkSigned,
   onDownloadContract,
   onDelete,
 }: {
@@ -904,7 +1074,10 @@ function ManagePanel({
   onReject: () => void;
   onAssign: (code: string) => void;
   onConfirmPayment: () => void;
-  onGenerateContract: () => void;
+  onRevokePayment: () => void;
+  onSetStatus: (status: string, label: string) => void;
+  onGenerateContract: (notify: boolean) => void;
+  onMarkSigned: (notify: boolean) => void;
   onDownloadContract: (kind: "generated" | "signed") => void;
   onDelete: () => void;
 }) {
@@ -960,6 +1133,7 @@ function ManagePanel({
             Reject
           </button>
         </div>
+        <SetStatusControl current={b.status} onSetStatus={onSetStatus} />
         {b.heldBikeUnitCode && (
           <p style={{ ...hintStyle, marginTop: 8 }}>
             Held:{" "}
@@ -976,12 +1150,13 @@ function ManagePanel({
           contract={contract}
           busy={contractBusy}
           onGenerate={onGenerateContract}
+          onMarkSigned={onMarkSigned}
           onDownload={onDownloadContract}
         />
       </PanelGroup>
 
       <PanelGroup title="3 · Payment">
-        <PaymentControl payment={payment} onConfirm={onConfirmPayment} />
+        <PaymentControl payment={payment} onConfirm={onConfirmPayment} onRevoke={onRevokePayment} />
       </PanelGroup>
 
       <PanelGroup title="4 · Assign a bike">
@@ -1047,6 +1222,59 @@ function PanelGroup({ title, children }: { title: string; children: React.ReactN
 }
 
 /**
+ * "Set status" override for the Review group. The Approve/Reject buttons cover
+ * the common path; this select can move a booking to ANY status — forward or
+ * backward — so an accidental Approve can be reverted (e.g. back to "Awaiting
+ * review"). The select defaults to the booking's current status; picking another
+ * confirms, then runs the same updateStatus path the Approve button uses.
+ */
+function SetStatusControl({
+  current,
+  onSetStatus,
+}: {
+  current: string;
+  onSetStatus: (status: string, label: string) => void;
+}) {
+  // Match the booking's current status to a known wire value so the select
+  // defaults to it (statuses arrive already lower-cased and separator-free).
+  const currentValue = current.toLowerCase().replace(/[\s_-]/g, "");
+  return (
+    <div style={{ marginTop: 10 }}>
+      <label
+        className="mono"
+        htmlFor={`set-status-${current}`}
+        style={{ ...hintStyle, display: "block", marginBottom: 6 }}
+      >
+        Set status
+      </label>
+      <select
+        id={`set-status-${current}`}
+        value={currentValue}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value === currentValue) return;
+          const opt = STATUS_OPTIONS.find((o) => o.value === value);
+          if (opt) onSetStatus(opt.value, opt.label);
+        }}
+        style={selectStyle}
+        aria-label="Set booking status"
+      >
+        {/* Show the current status even if it isn't one of the selectable
+            options, so the select never appears blank. */}
+        {!STATUS_OPTIONS.some((o) => o.value === currentValue) && (
+          <option value={currentValue}>{current}</option>
+        )}
+        {STATUS_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+/**
  * Per-booking payment readout + manual-confirmation control. Payment is fetched
  * lazily when the panel opens:
  *   - `"loading"`  → still fetching.
@@ -1062,9 +1290,11 @@ function PanelGroup({ title, children }: { title: string; children: React.ReactN
 function PaymentControl({
   payment,
   onConfirm,
+  onRevoke,
 }: {
   payment: AdminPayment | null | "loading" | undefined;
   onConfirm: () => void;
+  onRevoke: () => void;
 }) {
   if (payment === "loading") {
     return <p style={hintStyle}>Checking payment…</p>;
@@ -1103,6 +1333,16 @@ function PaymentControl({
           Mark payment received
         </button>
       )}
+      {settled && (
+        <button
+          type="button"
+          className="btn btn-ghost"
+          style={{ ...miniBtn, alignSelf: "flex-start" }}
+          onClick={onRevoke}
+        >
+          Mark unpaid
+        </button>
+      )}
       <p style={hintStyle}>
         {settled
           ? "Payment confirmed — bike assignment is unlocked."
@@ -1132,24 +1372,40 @@ function paymentStatusTone(status: string): PillTone {
 }
 
 /**
- * Per-booking contract control. Before generation it offers a single
- * "Generate contract" button; afterwards it shows the signature status and
- * download links for whichever PDFs exist. A contract id is only known after
- * generating it in this session (there is no list-by-booking endpoint), so a
- * page refresh resets these back to the generate button — generation is
- * idempotent on the backend, so re-running it is safe.
+ * Per-booking contract control. rentaro signs on paper, in person, so the flow
+ * is: generate the contract (optionally emailing the customer a copy), then mark
+ * it signed by hand once the renter has signed (again with an optional email).
+ *
+ * Before generation it offers a "Generate contract" button with an
+ * "email the customer a copy" checkbox (default on). Afterwards it shows the
+ * signature status, download links for whichever PDFs exist, a regenerate
+ * action, and — until signed — a "Mark contract as signed" button with its own
+ * "email the customer" checkbox (default off). Once the stored contract's status
+ * is "signed" it shows the signed confirmation (with the signed date) in place
+ * of the mark-signed control, while keeping the download actions available.
+ *
+ * A contract id is only known after generating it in this session (there is no
+ * list-by-booking endpoint), so a page refresh resets these back to the generate
+ * button — generation is idempotent on the backend, so re-running it is safe.
  */
 function ContractControl({
   contract,
   busy,
   onGenerate,
+  onMarkSigned,
   onDownload,
 }: {
   contract: Contract | undefined;
   busy: boolean;
-  onGenerate: () => void;
+  onGenerate: (notify: boolean) => void;
+  onMarkSigned: (notify: boolean) => void;
   onDownload: (kind: "generated" | "signed") => void;
 }) {
+  // Email the customer a copy when generating — defaults on (the prior behaviour).
+  const [emailOnGenerate, setEmailOnGenerate] = useState(true);
+  // Email the customer when marking signed — defaults off (paper signing is quiet).
+  const [emailOnSign, setEmailOnSign] = useState(false);
+
   if (!contract) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1158,18 +1414,31 @@ function ContractControl({
           className="btn btn-ghost"
           style={{ padding: "8px 14px", fontSize: 12.5, whiteSpace: "nowrap", alignSelf: "flex-start" }}
           disabled={busy}
-          onClick={onGenerate}
+          onClick={() => onGenerate(emailOnGenerate)}
         >
           {busy ? "Generating…" : "Generate contract"}
         </button>
-        <p style={hintStyle}>Fills the active template, emails the customer to sign.</p>
+        <ContractCheckbox
+          checked={emailOnGenerate}
+          onChange={setEmailOnGenerate}
+          disabled={busy}
+          label="Email the customer a copy"
+        />
+        <p style={hintStyle}>Fills the active template. Emailing the customer a copy is optional.</p>
       </div>
     );
   }
 
+  const signed = contract.status === "Signed";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <StatusPill value={contractStatusLabel(contract.status)} tone={contractStatusTone(contract.status)} />
+      {signed && (
+        <p style={signerStyle}>
+          Contract signed{contract.signedAt ? ` · ${fmtDay(contract.signedAt)}` : ""}
+        </p>
+      )}
       {contract.signedByName && (
         <p style={signerStyle}>
           Signed by: {contract.signedByName}
@@ -1204,15 +1473,69 @@ function ContractControl({
           className="btn btn-ghost"
           style={{ padding: "6px 11px", fontSize: 11.5 }}
           disabled={busy}
-          onClick={onGenerate}
+          onClick={() => onGenerate(emailOnGenerate)}
         >
           {busy ? "Working…" : "Regenerate"}
         </button>
       </div>
-      {contract.status !== "Signed" && (
-        <p style={hintStyle}>Bike assignment unlocks once this contract is signed.</p>
+      {!signed && (
+        <>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ ...miniBtn, alignSelf: "flex-start", marginTop: 2 }}
+            disabled={busy}
+            onClick={() => onMarkSigned(emailOnSign)}
+          >
+            {busy ? "Working…" : "Mark contract as signed"}
+          </button>
+          <ContractCheckbox
+            checked={emailOnSign}
+            onChange={setEmailOnSign}
+            disabled={busy}
+            label="Email the customer"
+          />
+          <p style={hintStyle}>
+            For paper signing — mark the contract signed by hand. Bike assignment unlocks once it is signed.
+          </p>
+        </>
       )}
     </div>
+  );
+}
+
+/** A compact labelled checkbox matching the New-booking drawer's checkbox style. */
+function ContractCheckbox({
+  checked,
+  onChange,
+  disabled,
+  label,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+  label: string;
+}) {
+  return (
+    <label
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        fontSize: 12,
+        color: "var(--text-2)",
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ width: 15, height: 15, accentColor: "var(--lime)" }}
+      />
+      {label}
+    </label>
   );
 }
 

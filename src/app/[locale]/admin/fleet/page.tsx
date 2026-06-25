@@ -259,6 +259,8 @@ export default function AdminFleetPage() {
 
           <EditUnitDrawer
             unit={editingUnit}
+            models={state.data.models}
+            cities={state.data.cities}
             onClose={() => setEditingUnit(null)}
             onSubmit={submitEdit}
           />
@@ -738,26 +740,48 @@ function SaleState({ unit }: { unit: FleetUnit }) {
   );
 }
 
-/* ── Edit bike unit drawer (used / for-sale state) ─────────────────────── */
+/* ── Edit bike unit drawer (full physical editor) ──────────────────────── */
 
 function EditUnitDrawer({
   unit,
+  models,
+  cities,
   onClose,
   onSubmit,
 }: {
   unit: FleetUnit | null;
+  models: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
   onClose: () => void;
   onSubmit: (internalCode: string, patch: UpdateUnitInput) => Promise<string | null>;
 }) {
+  const [modelId, setModelId] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [location, setLocation] = useState("");
+  const [batteryId, setBatteryId] = useState("");
+  const [lockId, setLockId] = useState("");
+  const [lastServiceDate, setLastServiceDate] = useState("");
+  const [nextServiceDueDate, setNextServiceDueDate] = useState("");
+  const [notes, setNotes] = useState("");
   const [condition, setCondition] = useState<"new" | "used">("new");
   const [forSale, setForSale] = useState(false);
   const [salePrice, setSalePrice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // Seed the form from the unit each time a new one is opened.
+  // Seed every field from the unit each time a new one is opened.
   useEffect(() => {
     if (!unit) return;
+    setModelId(unit.modelId);
+    setCityId(unit.cityId);
+    setSerialNumber(unit.serialNumber ?? "");
+    setLocation(unit.location ?? "");
+    setBatteryId(unit.batteryId ?? "");
+    setLockId(unit.lockId ?? "");
+    setLastServiceDate(unit.lastServiceDate ?? "");
+    setNextServiceDueDate(unit.nextServiceDueDate ?? "");
+    setNotes(unit.notes ?? "");
     setCondition(unit.condition);
     setForSale(unit.forSale);
     setSalePrice(unit.salePrice != null ? String(unit.salePrice) : "");
@@ -768,7 +792,19 @@ function EditUnitDrawer({
     if (!unit || submitting) return;
     setSubmitting(true);
     setFormError(null);
+    // Send each field's current/edited value. Optional strings send the trimmed
+    // value or "" to clear; modelId/cityId are validated server-side (blank
+    // leaves the current one). internalCode is the key and not editable.
     const err = await onSubmit(unit.internalCode, {
+      modelId,
+      cityId,
+      serialNumber: serialNumber.trim(),
+      location: location.trim(),
+      batteryId: batteryId.trim(),
+      lockId: lockId.trim(),
+      lastServiceDate,
+      nextServiceDueDate,
+      notes: notes.trim(),
       condition,
       forSale,
       salePrice: forSale && salePrice.trim() !== "" ? Number(salePrice) : null,
@@ -833,6 +869,121 @@ function EditUnitDrawer({
             {formError}
           </div>
         )}
+
+        {/* Internal code is the key — shown read-only, not editable. */}
+        <div className="field">
+          <label>Internal code</label>
+          <div
+            className="mono"
+            style={{ fontSize: 13, color: "var(--text-2)", paddingTop: 2 }}
+          >
+            {unit?.internalCode}
+          </div>
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="eu-model">Model</label>
+            <select id="eu-model" value={modelId} onChange={(e) => setModelId(e.target.value)} aria-label="Model">
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="eu-city">City</label>
+            <select id="eu-city" value={cityId} onChange={(e) => setCityId(e.target.value)} aria-label="City">
+              {cities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="eu-serial">Serial number</label>
+          <input
+            id="eu-serial"
+            value={serialNumber}
+            onChange={(e) => setSerialNumber(e.target.value)}
+            placeholder="optional"
+            aria-label="Serial number"
+          />
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="eu-battery">Battery ID</label>
+            <input
+              id="eu-battery"
+              value={batteryId}
+              onChange={(e) => setBatteryId(e.target.value)}
+              placeholder="optional"
+              aria-label="Battery ID"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="eu-lock">Lock ID</label>
+            <input
+              id="eu-lock"
+              value={lockId}
+              onChange={(e) => setLockId(e.target.value)}
+              placeholder="optional"
+              aria-label="Lock ID"
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="eu-location">Location</label>
+          <input
+            id="eu-location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="e.g. Telliskivi depot (optional)"
+            aria-label="Location"
+          />
+        </div>
+
+        <div className="field-row">
+          <div className="field">
+            <label htmlFor="eu-last-svc">Last service</label>
+            <input
+              id="eu-last-svc"
+              type="date"
+              value={lastServiceDate}
+              onChange={(e) => setLastServiceDate(e.target.value)}
+              aria-label="Last service date"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="eu-next-svc">Next service due</label>
+            <input
+              id="eu-next-svc"
+              type="date"
+              value={nextServiceDueDate}
+              onChange={(e) => setNextServiceDueDate(e.target.value)}
+              aria-label="Next service due date"
+            />
+          </div>
+        </div>
+
+        <div className="field">
+          <label htmlFor="eu-notes">Notes</label>
+          <textarea
+            id="eu-notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="optional"
+            aria-label="Notes"
+            rows={3}
+            style={{ resize: "vertical", lineHeight: 1.5 }}
+          />
+        </div>
 
         <div className="field-row">
           <div className="field">

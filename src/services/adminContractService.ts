@@ -154,6 +154,29 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+/* ── Status normalisation ──────────────────────────────────────────────── */
+
+/** Map the backend's lowercase status serialisation (it does
+ *  `Status.ToString().ToLowerInvariant()`) to the PascalCase ContractStatus the
+ *  UI compares against (e.g. "signed" → "Signed"). Without this every
+ *  `contract.status === "Signed"` check silently never matches. */
+const STATUS_MAP: Record<string, ContractStatus> = {
+  notstarted: "NotStarted",
+  generated: "Generated",
+  sentforsignature: "SentForSignature",
+  viewed: "Viewed",
+  signed: "Signed",
+  declined: "Declined",
+  expired: "Expired",
+  failed: "Failed",
+};
+
+/** Return the contract with its status normalised to PascalCase. */
+function normalizeContract(c: Contract): Contract {
+  const mapped = STATUS_MAP[String(c.status).toLowerCase()];
+  return mapped ? { ...c, status: mapped } : c;
+}
+
 /* ── Templates ─────────────────────────────────────────────────────────── */
 
 /** List all contract templates (newest backend ordering preserved). */
@@ -186,17 +209,37 @@ export function activateTemplate(id: string): Promise<ContractTemplate> {
 
 /* ── Contracts ─────────────────────────────────────────────────────────── */
 
-/** Generate (or regenerate) a contract for a booking from the active template. */
-export function generateContract(bookingId: string): Promise<Contract> {
+/**
+ * Generate (or regenerate) a contract for a booking from the active template.
+ * When `notify` is true (the default — matching the backend) the customer is
+ * emailed a "contract ready" message; pass `false` to generate silently (e.g.
+ * for paper signing, where the operator hands over the contract in person).
+ */
+export function generateContract(bookingId: string, notify = true): Promise<Contract> {
   return request<Contract>(
-    `/api/admin/bookings/${encodeURIComponent(bookingId)}/contract`,
+    `/api/admin/bookings/${encodeURIComponent(bookingId)}/contract${notify ? "" : "?notify=false"}`,
     { method: "POST" },
-  );
+  ).then(normalizeContract);
+}
+
+/**
+ * Mark a booking's latest generated AGREEMENT contract as Signed — for paper
+ * signing, where the renter signs in person rather than through a digital
+ * provider. When `notify` is true the customer is emailed a "contract signed"
+ * confirmation; otherwise no email is sent. Returns the updated Contract (same
+ * shape as generateContract). Throws ContractApiError (404) if no contract has
+ * been generated for the booking yet.
+ */
+export function markContractSigned(bookingId: string, notify: boolean): Promise<Contract> {
+  return request<Contract>(
+    `/api/admin/bookings/${encodeURIComponent(bookingId)}/contract/mark-signed?notify=${notify}`,
+    { method: "POST" },
+  ).then(normalizeContract);
 }
 
 /** Fetch a single contract by id. */
 export function getContract(id: string): Promise<Contract> {
-  return request<Contract>(`/api/admin/contracts/${encodeURIComponent(id)}`);
+  return request<Contract>(`/api/admin/contracts/${encodeURIComponent(id)}`).then(normalizeContract);
 }
 
 /* ── Document download ─────────────────────────────────────────────────── */

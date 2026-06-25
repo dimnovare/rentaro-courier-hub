@@ -17,6 +17,9 @@ export interface FleetUnit {
   cityId: string;
   status: string;
   serialNumber: string | null;
+  location: string | null;
+  batteryId: string | null;
+  lockId: string | null;
   lastServiceDate: string | null;
   nextServiceDueDate: string | null;
   notes: string | null;
@@ -120,8 +123,20 @@ export const updateUnitStatus = (internalCode: string, status: string) =>
   });
 
 /** Fields that can be patched on an existing unit. Any subset is accepted;
- *  only the provided keys are updated server-side (salePrice must be >= 0). */
+ *  only the provided keys are updated server-side (salePrice must be >= 0).
+ *  For optional strings, send the trimmed value to set it, "" to clear it, or
+ *  omit the key to leave it unchanged. `internalCode` is the key and not editable;
+ *  a blank modelId/cityId leaves the current one. */
 export interface UpdateUnitInput {
+  modelId?: string;
+  cityId?: string;
+  serialNumber?: string;
+  location?: string;
+  batteryId?: string;
+  lockId?: string;
+  lastServiceDate?: string;
+  nextServiceDueDate?: string;
+  notes?: string;
   condition?: "new" | "used";
   forSale?: boolean;
   salePrice?: number | null;
