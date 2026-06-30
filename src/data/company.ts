@@ -16,6 +16,12 @@ export interface Company {
   address: string;
   supportEmail: string;
   supportPhone: string;
+  /** Public social profile URLs. An empty string is omitted in the footer. */
+  social: {
+    instagram: string;
+    linkedin: string;
+    facebook: string;
+  };
 }
 
 // Fields are typed as `string` (not literal `""`) so consumers can guard with
@@ -32,4 +38,9 @@ export const company: Company = {
   address: "Narva mnt 128-4, 10127 Tallinn, Estonia",
   supportEmail: "info@rentaro.ee", // real + verified ops inbox
   supportPhone: "+372 5649 7933",
+  social: {
+    instagram: "https://www.instagram.com/rentaro.ee/",
+    linkedin: "https://www.linkedin.com/company/127023900/",
+    facebook: "https://www.facebook.com/people/rentaroee/61591672253919/",
+  },
 };

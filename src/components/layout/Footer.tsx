@@ -46,6 +46,41 @@ const columns: {
   },
 ];
 
+/** Social profiles rendered as icon links in the footer bar. Hrefs come from
+ *  company.ts; any empty one is filtered out so no dead icon renders. Icons use
+ *  currentColor so they inherit the link colour + hover state. */
+const socials = [
+  {
+    name: "Instagram",
+    href: company.social.instagram,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5" />
+        <circle cx="12" cy="12" r="3.6" />
+        <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    name: "LinkedIn",
+    href: company.social.linkedin,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zM8.34 17.34V10.5H6.06v6.84h2.28zM7.2 9.5a1.32 1.32 0 1 0 0-2.64 1.32 1.32 0 0 0 0 2.64zM18 17.34v-3.77c0-2.02-1.08-2.96-2.52-2.96-1.16 0-1.68.64-1.97 1.09v-.93h-2.28c.03.64 0 6.84 0 6.84h2.28v-3.82c0-.2.01-.41.07-.56.17-.41.54-.84 1.18-.84.83 0 1.16.63 1.16 1.56v3.66H18z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Facebook",
+    href: company.social.facebook,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.9 3.78-3.9 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z" />
+      </svg>
+    ),
+  },
+].filter((s) => s.href);
+
 export async function Footer() {
   const t = await getTranslations("footer");
 
@@ -101,10 +136,27 @@ export async function Footer() {
           )}
         </div>
         <div className="foot-grid">
-          <Link className="brand" href="/">
-            <LogoMark size={32} />
-            <span className="word">rentaro</span>
-          </Link>
+          <div className="foot-left">
+            <Link className="brand" href="/">
+              <LogoMark size={32} />
+              <span className="word">rentaro</span>
+            </Link>
+            {socials.length > 0 && (
+              <div className="foot-social">
+                {socials.map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`rentaro on ${s.name}`}
+                  >
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="foot-meta">
             <span>
               © {new Date().getFullYear()} {company.legalName} · {company.brandName}
