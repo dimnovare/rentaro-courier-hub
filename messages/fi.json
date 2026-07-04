@@ -460,6 +460,7 @@
     "previewBody": "Vuokrausportaalisi on esikatselutilassa — yhdistä rentaro-API hallitaksesi vuokrauksia reaaliajassa.",
     "errorTitle": "Jotain meni pieleen.",
     "errorBody": "Vuokraustasi ei voitu ladata juuri nyt. Päivitä hetken kuluttua.",
+    "retry": "Yritä uudelleen",
     "kicker": "Hallitse vuokraustasi",
     "heading": "Tässä on vuokrauksesi.",
     "headingNamed": "Hei {name} — tässä on vuokrauksesi.",

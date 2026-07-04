@@ -460,6 +460,7 @@
     "previewBody": "Sinu rendiportaal on eelvaates — ühenda rentaro API, et hallata rente reaalajas.",
     "errorTitle": "Midagi läks valesti.",
     "errorBody": "Praegu ei õnnestunud sinu rendiandmeid laadida. Palun värskenda hetke pärast.",
+    "retry": "Proovi uuesti",
     "kicker": "Halda oma renti",
     "heading": "Siin on sinu rent.",
     "headingNamed": "Tere {name} — siin on sinu rent.",

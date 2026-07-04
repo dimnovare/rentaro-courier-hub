@@ -117,14 +117,31 @@ export function ManageRental({ settings }: { settings: SiteSettings }) {
   const token = params.get("token") ?? "";
 
   const [state, setState] = useState<PortalResult<PortalRental> | null>(null);
-
-  const load = useCallback(async () => {
-    setState(await getRental(token));
-  }, [token]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    let cancelled = false;
+    // A transient failure — a cold API, a dropped first request — must never
+    // strand the portal on "loading" forever. Retry a few times with backoff
+    // (the second attempt usually lands once the API has warmed up), then fall
+    // through to an error the customer can retry by hand.
+    const RETRY_DELAYS = [1500, 3000, 5000];
+    setState(null);
+    void (async () => {
+      for (let attempt = 0; !cancelled; attempt++) {
+        const result = await getRental(token);
+        if (cancelled) return;
+        if (result.kind !== "error" || attempt >= RETRY_DELAYS.length) {
+          setState(result);
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS[attempt]));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token, reloadKey]);
 
   // Missing token, or the API rejected it → one clean message.
   if (!token.trim() || state?.kind === "invalid") {
@@ -145,7 +162,11 @@ export function ManageRental({ settings }: { settings: SiteSettings }) {
 
   if (state.kind === "error") {
     return (
-      <PortalNotice tone="error" title={t("errorTitle")}>
+      <PortalNotice
+        tone="error"
+        title={t("errorTitle")}
+        onRetry={() => setReloadKey((k) => k + 1)}
+      >
         {t("errorBody")}
       </PortalNotice>
     );
@@ -1399,10 +1420,12 @@ function PortalNotice({
   title,
   children,
   tone = "neutral",
+  onRetry,
 }: {
   title: string;
   children?: React.ReactNode;
   tone?: "neutral" | "error";
+  onRetry?: () => void;
 }) {
   const t = useTranslations("portal");
   return (
@@ -1417,6 +1440,16 @@ function PortalNotice({
             <p className="lead" style={{ margin: "0 auto", fontSize: 14.5 }}>
               {children}
             </p>
+          )}
+          {onRetry && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ marginTop: 18 }}
+              onClick={onRetry}
+            >
+              {t("retry")}
+            </button>
           )}
           {tone === "error" && (
             <p className="lead" style={{ margin: "16px auto 0", fontSize: 14 }}>

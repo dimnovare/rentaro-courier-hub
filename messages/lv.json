@@ -460,6 +460,7 @@
     "previewBody": "Tavs nomas portāls ir priekšskatījuma režīmā — pievieno rentaro API, lai pārvaldītu nomas reāllaikā.",
     "errorTitle": "Kaut kas nogāja greizi.",
     "errorBody": "Šobrīd neizdevās ielādēt tavu nomu. Lūdzu, pēc brīža atsvaidzini lapu.",
+    "retry": "Mēģināt vēlreiz",
     "kicker": "Pārvaldi savu nomu",
     "heading": "Lūk, tava noma.",
     "headingNamed": "Sveiks, {name} — lūk, tava noma.",

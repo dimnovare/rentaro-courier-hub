@@ -56,6 +56,14 @@ export type PortalResult<T> =
 
 const JSON_HEADERS = { "Content-Type": "application/json", Accept: "application/json" };
 
+/**
+ * Abort a portal fetch after this long. Without it a cold/stalled API (e.g. a
+ * Railway cold start) leaves the request pending forever, stranding the portal
+ * on its "loading" state with no error and no recovery. On timeout the fetch
+ * rejects, we return `{ kind: "error" }`, and the caller can retry.
+ */
+const PORTAL_TIMEOUT_MS = 12_000;
+
 /** Fetch the rental tied to a magic-link token. */
 export async function getRental(token: string): Promise<PortalResult<PortalRental>> {
   if (!API_BASE) return { kind: "no_api" };
@@ -64,7 +72,11 @@ export async function getRental(token: string): Promise<PortalResult<PortalRenta
   try {
     const res = await fetch(
       `${API_BASE}/api/portal/rental?token=${encodeURIComponent(token)}`,
-      { headers: { Accept: "application/json" }, cache: "no-store" },
+      {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(PORTAL_TIMEOUT_MS),
+      },
     );
     if (res.status === 401) return { kind: "invalid" };
     if (!res.ok) throw new Error(`portal rental → ${res.status}`);
@@ -96,7 +108,11 @@ export async function getRewards(token: string): Promise<PortalResult<PortalRewa
   try {
     const res = await fetch(
       `${API_BASE}/api/portal/rewards?token=${encodeURIComponent(token)}`,
-      { headers: { Accept: "application/json" }, cache: "no-store" },
+      {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(PORTAL_TIMEOUT_MS),
+      },
     );
     if (res.status === 401) return { kind: "invalid" };
     if (!res.ok) throw new Error(`portal rewards → ${res.status}`);
@@ -136,6 +152,7 @@ async function post<T>(
       method: "POST",
       headers: JSON_HEADERS,
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(PORTAL_TIMEOUT_MS),
     });
     if (res.status === 401) return { kind: "invalid" };
     if (!res.ok) throw new Error(`POST ${path} → ${res.status}`);

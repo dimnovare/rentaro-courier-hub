@@ -460,6 +460,7 @@
     "previewBody": "Your rental portal is in preview — connect the rentaro API to manage live rentals.",
     "errorTitle": "Something went wrong.",
     "errorBody": "We couldn't load your rental just now. Please refresh in a moment.",
+    "retry": "Try again",
     "kicker": "Manage your rental",
     "heading": "Here's your rental.",
     "headingNamed": "Hi {name} — here's your rental.",
