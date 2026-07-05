@@ -1167,6 +1167,8 @@
       "showReferAcourier": "Show 'refer a courier' card in the portal",
       "showPayConfirm": "Show 'pay & confirm your rental' card in the portal",
       "showOnlineSigning": "Show online Smart-ID / Mobile-ID signing",
+      "opsHeading": "Operations",
+      "autoSendReturnReminders": "Send return reminders automatically",
       "bankHeading": "Bank requisites",
       "bankIban": "IBAN",
       "bankAccountName": "Account name",

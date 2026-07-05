@@ -8,6 +8,7 @@ import {
   inspectRental,
   extendRental,
   updateRentalDates,
+  sendReturnReminder,
   RentalApiError,
   RentalConfigError,
   RentalAuthError,
@@ -170,6 +171,9 @@ export default function AdminRentalsPage() {
             onEditDates={(id, body) =>
               runAction(id, () => updateRentalDates(id, body), "Dates updated.")
             }
+            onSendReminder={(id) =>
+              runAction(id, () => sendReturnReminder(id), "Return reminder sent.")
+            }
           />
         </>
       )}
@@ -304,6 +308,7 @@ function ManageRentalDrawer({
   onInspect,
   onExtend,
   onEditDates,
+  onSendReminder,
 }: {
   rental: AdminRental | null;
   banner: { tone: "ok" | "bad"; text: string } | null;
@@ -314,6 +319,7 @@ function ManageRentalDrawer({
   onInspect: (id: string, passed: boolean, notes?: string) => void;
   onExtend: (id: string, date: string) => void;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
+  onSendReminder: (id: string) => void;
 }) {
   return (
     <Drawer
@@ -345,6 +351,7 @@ function ManageRentalDrawer({
           onInspect={onInspect}
           onExtend={onExtend}
           onEditDates={onEditDates}
+          onSendReminder={onSendReminder}
         />
       )}
     </Drawer>
@@ -360,6 +367,7 @@ function ManageRentalBody({
   onInspect,
   onExtend,
   onEditDates,
+  onSendReminder,
 }: {
   rental: AdminRental;
   banner: { tone: "ok" | "bad"; text: string } | null;
@@ -369,6 +377,7 @@ function ManageRentalBody({
   onInspect: (id: string, passed: boolean, notes?: string) => void;
   onExtend: (id: string, date: string) => void;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
+  onSendReminder: (id: string) => void;
 }) {
   const id = rental.id;
   const [returnDate, setReturnDate] = useState(todayISO());
@@ -495,6 +504,26 @@ function ManageRentalBody({
             </button>
           </div>
         </form>
+      </ActionBlock>
+
+      {/* 6 · Send return reminder (manual — works regardless of the auto setting) */}
+      <ActionBlock label="6 · Send return reminder">
+        <div style={actionRow}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={miniBtn}
+            disabled={busy}
+            onClick={() => onSendReminder(id)}
+          >
+            {rental.lastReturnReminderSentAt ? "Send reminder again" : "Send return reminder"}
+          </button>
+          {rental.lastReturnReminderSentAt && (
+            <span className="mono" style={{ fontSize: 11, color: "var(--text-dim)" }}>
+              Last sent {fmtDay(rental.lastReturnReminderSentAt.slice(0, 10))}
+            </span>
+          )}
+        </div>
       </ActionBlock>
 
       {busy && (

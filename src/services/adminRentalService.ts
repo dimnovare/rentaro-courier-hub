@@ -17,6 +17,7 @@
  *   POST /api/admin/rentals/{id}/return
  *   POST /api/admin/rentals/{id}/inspect             { passed, notes? }
  *   POST /api/admin/rentals/{id}/extend              { plannedEndDate }
+ *   POST /api/admin/rentals/{id}/return-reminder     (manual "ends soon" email)
  *   PATCH /api/admin/rentals/{id}                    { startDate?, plannedEndDate? }
  */
 /* ── Contract types (must match the backend exactly) ───────────────────── */
@@ -36,6 +37,8 @@ export interface AdminRental {
   depositAmount: number;
   isOverdue: boolean;
   createdAt: string;
+  /** When a "your rental ends soon" reminder was last sent (auto or manual); null if never. */
+  lastReturnReminderSentAt: string | null;
 }
 
 /** A single block on a unit's calendar row (a rental or a maintenance window). */
@@ -163,6 +166,17 @@ export const scheduleReturn = (id: string, date: string) =>
 /** Marks a rental as physically returned. */
 export const markReturned = (id: string) =>
   request<AdminRental>(`/api/admin/rentals/${encodeURIComponent(id)}/return`, {
+    method: "POST",
+  });
+
+/**
+ * Manually sends the "your rental ends soon" return-reminder email to the
+ * customer. Works regardless of the auto-send setting and can be re-sent (the
+ * server re-stamps lastReturnReminderSentAt). Rejects with 400 when the rental
+ * has no customer email, or 409 when it is already returned/closed.
+ */
+export const sendReturnReminder = (id: string) =>
+  request<AdminRental>(`/api/admin/rentals/${encodeURIComponent(id)}/return-reminder`, {
     method: "POST",
   });
 

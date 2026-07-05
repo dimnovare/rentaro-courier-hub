@@ -1167,6 +1167,8 @@
       "showReferAcourier": "Rādīt portālā kartīti “iesaki kurjeru”",
       "showPayConfirm": "Rādīt portālā kartīti “samaksā un apstiprini nomu”",
       "showOnlineSigning": "Rādīt tiešsaistes Smart-ID / Mobile-ID parakstīšanu",
+      "opsHeading": "Darbības",
+      "autoSendReturnReminders": "Sūtīt atgriešanas atgādinājumus automātiski",
       "bankHeading": "Bankas rekvizīti",
       "bankIban": "IBAN",
       "bankAccountName": "Konta turētājs",

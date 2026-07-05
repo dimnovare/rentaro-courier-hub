@@ -1167,6 +1167,8 @@
       "showReferAcourier": "Näita portaalis kaarti „soovita kullerit“",
       "showPayConfirm": "Näita portaalis kaarti „maksa ja kinnita rent“",
       "showOnlineSigning": "Näita veebis Smart-ID / Mobiil-ID allkirjastamist",
+      "opsHeading": "Haldus",
+      "autoSendReturnReminders": "Saada tagastuse meeldetuletused automaatselt",
       "bankHeading": "Pangaandmed",
       "bankIban": "IBAN",
       "bankAccountName": "Konto omanik",

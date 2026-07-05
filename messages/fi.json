@@ -1167,6 +1167,8 @@
       "showReferAcourier": "Näytä portaalissa kortti ”suosittele kuriiria”",
       "showPayConfirm": "Näytä portaalissa kortti ”maksa ja vahvista vuokrauksesi”",
       "showOnlineSigning": "Näytä verkossa Smart-ID / Mobile-ID -allekirjoitus",
+      "opsHeading": "Toiminnot",
+      "autoSendReturnReminders": "Lähetä palautusmuistutukset automaattisesti",
       "bankHeading": "Pankkitiedot",
       "bankIban": "IBAN",
       "bankAccountName": "Tilin nimi",

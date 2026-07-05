@@ -33,6 +33,12 @@ export interface SiteSettings {
   showPayConfirm: boolean;
   /** Show online Smart-ID / Mobile-ID signing (else: sign-on-handover checkbox). */
   showOnlineSigning: boolean;
+  /**
+   * Send return reminders automatically from the background scanner. Defaults ON
+   * (unlike the show* flags); when off, reminders are sent only manually by an
+   * admin from a rental's Manage panel.
+   */
+  autoSendReturnReminders: boolean;
   /** Bank IBAN for manual transfers. */
   bankIban: string;
   /** Bank account holder name. */

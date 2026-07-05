@@ -142,6 +142,19 @@ export default function AdminSettingsPage() {
         </div>
       </section>
 
+      {/* ── Operations ──────────────────────────────────────────────────── */}
+      <section style={{ marginBottom: 44 }}>
+        <SectionHeading>{t("opsHeading")}</SectionHeading>
+        <div className="card" style={{ padding: "6px 20px" }}>
+          <ToggleRow
+            label={t("autoSendReturnReminders")}
+            checked={data.autoSendReturnReminders}
+            first
+            onChange={(v) => setField("autoSendReturnReminders", v)}
+          />
+        </div>
+      </section>
+
       {/* ── Bank requisites ─────────────────────────────────────────────── */}
       <section style={{ marginBottom: 44 }}>
         <SectionHeading>{t("bankHeading")}</SectionHeading>

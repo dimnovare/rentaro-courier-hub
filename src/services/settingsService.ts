@@ -4,8 +4,10 @@ import { API_BASE } from "@/services/api";
  * Admin-controlled feature flags + bank requisites. Read publicly (server-side)
  * so the UI can gate optional sections. See backend GET /api/public/settings.
  *
- * Fail-safe: every toggle defaults to `false` (hidden) and bank* to "" so a
+ * Fail-safe: the show* toggles default to `false` (hidden) and bank* to "" so a
  * misconfigured or unreachable API never accidentally exposes a hidden feature.
+ * The operational `autoSendReturnReminders` is the exception — it defaults `true`
+ * so an unreachable API preserves auto-send rather than silently disabling it.
  */
 export interface SiteSettings {
   showAccessories: boolean;
@@ -14,6 +16,8 @@ export interface SiteSettings {
   showReferAcourier: boolean;
   showPayConfirm: boolean;
   showOnlineSigning: boolean;
+  /** Auto-send return reminders from the background scanner (default ON). */
+  autoSendReturnReminders: boolean;
   bankIban: string;
   bankAccountName: string;
   bankName: string;
@@ -28,6 +32,8 @@ export const SAFE_DEFAULT_SETTINGS: SiteSettings = {
   showReferAcourier: false,
   showPayConfirm: false,
   showOnlineSigning: false,
+  // Fail-safe ON: preserve auto-send when the API is unreachable (opposite of the show* flags).
+  autoSendReturnReminders: true,
   bankIban: "",
   bankAccountName: "",
   bankName: "",

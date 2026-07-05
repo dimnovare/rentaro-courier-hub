@@ -1167,6 +1167,8 @@
       "showReferAcourier": "Показывать в портале карточку «пригласить курьера»",
       "showPayConfirm": "Показывать в портале карточку «оплатить и подтвердить аренду»",
       "showOnlineSigning": "Показывать онлайн-подписание Smart-ID / Mobile-ID",
+      "opsHeading": "Операции",
+      "autoSendReturnReminders": "Автоматически отправлять напоминания о возврате",
       "bankHeading": "Банковские реквизиты",
       "bankIban": "IBAN",
       "bankAccountName": "Имя владельца счёта",
