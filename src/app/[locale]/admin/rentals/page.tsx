@@ -214,6 +214,7 @@ function RentalsTable({
           <Th>Plan</Th>
           <Th>Start</Th>
           <Th>Planned end</Th>
+          <Th>Return due</Th>
           <Th>Returned</Th>
           <Th>Price / deposit</Th>
           <Th>Actions</Th>
@@ -221,7 +222,7 @@ function RentalsTable({
       </thead>
       <tbody>
         {rentals.length === 0 ? (
-          <EmptyRow colSpan={9} label="No rentals yet." />
+          <EmptyRow colSpan={10} label="No rentals yet." />
         ) : (
           rentals.map((r) => {
             const overdue = r.isOverdue;
@@ -263,6 +264,7 @@ function RentalsTable({
                     {fmtDay(r.plannedEndDate)}
                   </span>
                 </Td>
+                <Td mono nowrap dim>{fmtDay(r.returnScheduledDate)}</Td>
                 <Td mono nowrap dim>{fmtDay(r.actualEndDate)}</Td>
                 <Td mono nowrap>
                   <div>{fmtMoney(r.monthlyPrice)}</div>
@@ -380,7 +382,8 @@ function ManageRentalBody({
   onSendReminder: (id: string) => void;
 }) {
   const id = rental.id;
-  const [returnDate, setReturnDate] = useState(todayISO());
+  // Seed from the saved scheduled return (if any) so re-opening shows it, not today.
+  const [returnDate, setReturnDate] = useState(rental.returnScheduledDate ?? todayISO());
   const [extendDate, setExtendDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
   // Edit-dates block, seeded from the rental's current ISO dates.
@@ -393,6 +396,11 @@ function ManageRentalBody({
 
       {/* 1 · Schedule return */}
       <ActionBlock label="1 · Schedule return">
+        {rental.returnScheduledDate && (
+          <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+            Currently scheduled: {fmtDay(rental.returnScheduledDate)}
+          </span>
+        )}
         <form
           style={actionRow}
           onSubmit={(e) => {

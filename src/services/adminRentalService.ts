@@ -32,6 +32,8 @@ export interface AdminRental {
   startDate: string;
   plannedEndDate: string | null;
   actualEndDate: string | null;
+  /** Scheduled return date (YYYY-MM-DD) once a return is scheduled; null otherwise. */
+  returnScheduledDate: string | null;
   status: string;
   monthlyPrice: number;
   depositAmount: number;

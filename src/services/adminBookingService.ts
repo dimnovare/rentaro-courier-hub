@@ -29,6 +29,14 @@ export interface AdminBooking {
   customerEmail: string;
   customerPhone: string;
   notes: string | null;
+  /** How the customer wants to be reached: "email" | "phone". */
+  contactMethod: string;
+  /** Chosen payment method: "cash" | "transfer" | null (unchosen). */
+  paymentMethod: string | null;
+  /** The customer's preferred language: "en" | "et" | "lv" | "fi" | "ru" | null. */
+  locale: string | null;
+  /** Referral code the customer entered, if any. */
+  referralCode: string | null;
   heldBikeUnitCode: string | null;
   holdExpiresAt: string | null;
 }

@@ -1050,6 +1050,11 @@ function BookingRow({
           <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>
             {b.customerEmail}
           </div>
+          {b.customerPhone && (
+            <div className="mono" style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
+              {b.customerPhone}
+            </div>
+          )}
         </Td>
         <Td mono>{b.cityId}</Td>
         <Td mono>{b.modelId}</Td>
@@ -1183,6 +1188,8 @@ function ManagePanel({
         </div>
       )}
 
+      <BookingDetails booking={b} />
+
       <PanelGroup title="1 · Review">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button type="button" className="btn btn-primary" style={miniBtn} onClick={onApprove}>
@@ -1256,6 +1263,94 @@ function ManagePanel({
           Permanently removes this booking with its contract, payments and any rental. This cannot be undone.
         </p>
       </div>
+    </div>
+  );
+}
+
+/** Language code → friendly name for the customer's preferred locale. */
+const LOCALE_LABELS: Record<string, string> = {
+  en: "English",
+  et: "Eesti",
+  lv: "Latviešu",
+  fi: "Suomi",
+  ru: "Русский",
+};
+function localeLabel(locale: string | null): string {
+  if (!locale) return "—";
+  return LOCALE_LABELS[locale.toLowerCase()] ?? locale;
+}
+
+/** One labelled fact in the read-only details grid. */
+function Detail({
+  label,
+  value,
+  mono,
+  full,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  full?: boolean;
+}) {
+  return (
+    <div style={full ? { gridColumn: "1 / -1" } : undefined}>
+      <div
+        className="mono"
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: "var(--text-dim)",
+          marginBottom: 3,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        className={mono ? "mono" : undefined}
+        style={{ fontSize: 13, color: "var(--text-2)", wordBreak: "break-word", lineHeight: 1.5 }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Read-only "who is this and what did they book" block, so an operator sees the
+ * whole record (phone, language, contact/payment method, accessories, notes)
+ * without opening the database. Every field here is already on the booking row.
+ */
+function BookingDetails({ booking: b }: { booking: AdminBooking }) {
+  return (
+    <div
+      style={{
+        flexBasis: "100%",
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+        gap: "10px 22px",
+        padding: "13px 15px",
+        borderRadius: "var(--r-sm)",
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <Detail label="Name" value={`${b.customerFirstName} ${b.customerLastName}`.trim() || "—"} />
+      <Detail label="Email" value={b.customerEmail} mono />
+      <Detail label="Phone" value={b.customerPhone || "—"} mono />
+      <Detail label="Language" value={localeLabel(b.locale)} />
+      <Detail label="Contact via" value={b.contactMethod || "—"} />
+      <Detail label="Payment" value={b.paymentMethod ?? "—"} />
+      <Detail label="City" value={b.cityId} mono />
+      <Detail label="Model" value={b.modelId} mono />
+      <Detail label="Plan" value={b.planId} mono />
+      <Detail label="Preferred start" value={fmtDay(b.preferredStartDate)} mono />
+      <Detail
+        label="Accessories"
+        value={b.accessoryIds.length ? b.accessoryIds.join(", ") : "—"}
+        mono
+      />
+      {b.notes ? <Detail label="Notes" value={b.notes} full /> : null}
     </div>
   );
 }
