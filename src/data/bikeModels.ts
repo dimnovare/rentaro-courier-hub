@@ -133,6 +133,9 @@ export const bikeModels: BikeModel[] = [
     gallery: [
       "/assets/gallery/engwe-m1/rear.webp",
       "/assets/gallery/engwe-m1/side.webp",
+      "/assets/gallery/engwe-m1/controls.webp",
+      "/assets/gallery/engwe-m1/drivetrain.webp",
+      "/assets/gallery/engwe-m1/display.webp",
     ],
     badge: { text: "Most popular", variant: "popular" },
     pills: ["Moto-style", "Hydraulic brakes", "Dual suspension"],
