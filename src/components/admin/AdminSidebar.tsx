@@ -81,6 +81,11 @@ const I = {
       <path d="M4 5 h9 l7 7 -8 8 -7-7 Z" /><circle cx="9" cy="10" r="1.4" /><path d="M11 13 h5" /><path d="M10 16 h4" />
     </svg>
   ),
+  billing: ({ s = 17 }: IcoProps): ReactElement => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10 H21" /><circle cx="17" cy="14" r="1.3" />
+    </svg>
+  ),
   signout: ({ s = 16 }: IcoProps): ReactElement => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 8 V6 a2 2 0 0 0-2-2 H6 a2 2 0 0 0-2 2 v12 a2 2 0 0 0 2 2 h6 a2 2 0 0 0 2-2 v-2" />
@@ -136,6 +141,10 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Contracts",
     items: [{ label: "Contracts", href: "/admin/contracts", icon: "contracts" }],
+  },
+  {
+    label: "Finance",
+    items: [{ label: "Billing", href: "/admin/billing", icon: "billing" }],
   },
   {
     label: "System",
