@@ -193,6 +193,25 @@ export function updateStatus(bookingId: string, status: string): Promise<AdminBo
   });
 }
 
+/** Editable customer fields on a booking. */
+export interface BookingCustomerPatch {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+/** Corrects a booking's customer details (e.g. a rental signed by a spouse). */
+export function updateCustomer(
+  bookingId: string,
+  patch: BookingCustomerPatch,
+): Promise<AdminBooking> {
+  return request<AdminBooking>(`/api/admin/bookings/${bookingId}/customer`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+}
+
 /** Assigns a bike unit to a booking, creating an active rental. */
 export function assignUnit(bookingId: string, bikeUnitInternalCode: string): Promise<AdminRentalSummary> {
   return request<AdminRentalSummary>(`/api/admin/bookings/${bookingId}/assign`, {

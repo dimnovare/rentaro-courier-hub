@@ -5,6 +5,8 @@ import {
   listBookings,
   listUnitCodes,
   updateStatus,
+  updateCustomer,
+  type BookingCustomerPatch,
   assignUnit,
   getPayment,
   confirmPayment,
@@ -563,6 +565,15 @@ export default function AdminBookingsPage() {
               onGenerateContract={onGenerateContract}
               onMarkSigned={onMarkSigned}
               onDownloadContract={onDownloadContract}
+              onSaveCustomer={(id, patch) =>
+                runAction(
+                  id,
+                  async () => {
+                    await updateCustomer(id, patch);
+                  },
+                  "Customer details updated.",
+                )
+              }
               onDelete={(id) => {
                 const ok = window.confirm(
                   "Delete this booking permanently? This removes its contract, payments and any rental, and frees the bike. This cannot be undone.",
@@ -918,6 +929,7 @@ function BookingsManageTable({
   onGenerateContract,
   onMarkSigned,
   onDownloadContract,
+  onSaveCustomer,
   onDelete,
 }: {
   bookings: AdminBooking[];
@@ -938,6 +950,7 @@ function BookingsManageTable({
   onGenerateContract: (id: string, notify: boolean) => void;
   onMarkSigned: (id: string, notify: boolean, signedAt?: string) => void;
   onDownloadContract: (id: string, contractId: string, kind: ContractDocumentKind) => void;
+  onSaveCustomer: (id: string, patch: BookingCustomerPatch) => void;
   onDelete: (id: string) => void;
 }) {
   return (
@@ -984,6 +997,7 @@ function BookingsManageTable({
                   const c = contracts[b.id];
                   if (c) onDownloadContract(b.id, c.id, kind);
                 }}
+                onSaveCustomer={(patch) => onSaveCustomer(b.id, patch)}
                 onDelete={() => onDelete(b.id)}
               />
             );
@@ -1013,6 +1027,7 @@ function BookingRow({
   onGenerateContract,
   onMarkSigned,
   onDownloadContract,
+  onSaveCustomer,
   onDelete,
 }: {
   booking: AdminBooking;
@@ -1033,6 +1048,7 @@ function BookingRow({
   onGenerateContract: (notify: boolean) => void;
   onMarkSigned: (notify: boolean, signedAt?: string) => void;
   onDownloadContract: (kind: ContractDocumentKind) => void;
+  onSaveCustomer: (patch: BookingCustomerPatch) => void;
   onDelete: () => void;
 }) {
   return (
@@ -1095,6 +1111,7 @@ function BookingRow({
               onGenerateContract={onGenerateContract}
               onMarkSigned={onMarkSigned}
               onDownloadContract={onDownloadContract}
+              onSaveCustomer={onSaveCustomer}
               onDelete={onDelete}
             />
           </td>
@@ -1126,6 +1143,7 @@ function ManagePanel({
   onGenerateContract,
   onMarkSigned,
   onDownloadContract,
+  onSaveCustomer,
   onDelete,
 }: {
   booking: AdminBooking;
@@ -1144,6 +1162,7 @@ function ManagePanel({
   onGenerateContract: (notify: boolean) => void;
   onMarkSigned: (notify: boolean, signedAt?: string) => void;
   onDownloadContract: (kind: ContractDocumentKind) => void;
+  onSaveCustomer: (patch: BookingCustomerPatch) => void;
   onDelete: () => void;
 }) {
   return (
@@ -1189,7 +1208,7 @@ function ManagePanel({
         </div>
       )}
 
-      <BookingDetails booking={b} />
+      <BookingDetails booking={b} onSave={onSaveCustomer} />
 
       <PanelGroup title="1 · Review">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -1322,7 +1341,33 @@ function Detail({
  * whole record (phone, language, contact/payment method, accessories, notes)
  * without opening the database. Every field here is already on the booking row.
  */
-function BookingDetails({ booking: b }: { booking: AdminBooking }) {
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function BookingDetails({
+  booking: b,
+  onSave,
+}: {
+  booking: AdminBooking;
+  onSave: (patch: BookingCustomerPatch) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [first, setFirst] = useState(b.customerFirstName);
+  const [last, setLast] = useState(b.customerLastName);
+  const [email, setEmail] = useState(b.customerEmail);
+  const [phone, setPhone] = useState(b.customerPhone ?? "");
+
+  // Re-sync the form to the booking after a save + refresh (or a different row).
+  useEffect(() => {
+    setFirst(b.customerFirstName);
+    setLast(b.customerLastName);
+    setEmail(b.customerEmail);
+    setPhone(b.customerPhone ?? "");
+    setEditing(false);
+  }, [b.id, b.customerFirstName, b.customerLastName, b.customerEmail, b.customerPhone]);
+
+  const emailOk = EMAIL_RE.test(email.trim());
+  const canSave = first.trim().length > 0 && emailOk;
+
   return (
     <div
       style={{
@@ -1336,9 +1381,61 @@ function BookingDetails({ booking: b }: { booking: AdminBooking }) {
         border: "1px solid var(--border)",
       }}
     >
-      <Detail label="Name" value={`${b.customerFirstName} ${b.customerLastName}`.trim() || "—"} />
-      <Detail label="Email" value={b.customerEmail} mono />
-      <Detail label="Phone" value={b.customerPhone || "—"} mono />
+      <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", marginBottom: -4 }}>
+        {editing ? (
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ padding: "5px 12px", fontSize: 11.5, opacity: canSave ? 1 : 0.5 }}
+              disabled={!canSave}
+              onClick={() => {
+                onSave({ firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() });
+              }}
+            >
+              Save customer
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ padding: "5px 12px", fontSize: 11.5 }}
+              onClick={() => {
+                setFirst(b.customerFirstName);
+                setLast(b.customerLastName);
+                setEmail(b.customerEmail);
+                setPhone(b.customerPhone ?? "");
+                setEditing(false);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ padding: "5px 12px", fontSize: 11.5 }}
+            onClick={() => setEditing(true)}
+          >
+            Edit customer
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <>
+          <EditField label="First name" value={first} onChange={setFirst} />
+          <EditField label="Last name" value={last} onChange={setLast} />
+          <EditField label="Email" value={email} onChange={setEmail} invalid={email.trim() !== "" && !emailOk} />
+          <EditField label="Phone" value={phone} onChange={setPhone} />
+        </>
+      ) : (
+        <>
+          <Detail label="Name" value={`${b.customerFirstName} ${b.customerLastName}`.trim() || "—"} />
+          <Detail label="Email" value={b.customerEmail} mono />
+          <Detail label="Phone" value={b.customerPhone || "—"} mono />
+        </>
+      )}
       <Detail label="Language" value={localeLabel(b.locale)} />
       <Detail label="Contact via" value={b.contactMethod || "—"} />
       <Detail label="Payment" value={b.paymentMethod ?? "—"} />
@@ -1353,6 +1450,43 @@ function BookingDetails({ booking: b }: { booking: AdminBooking }) {
       />
       {b.notes ? <Detail label="Notes" value={b.notes} full /> : null}
     </div>
+  );
+}
+
+/** A labelled text input used when editing a booking's customer details. */
+function EditField({
+  label,
+  value,
+  onChange,
+  invalid,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  invalid?: boolean;
+}) {
+  return (
+    <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span
+        className="mono"
+        style={{ fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-dim)" }}
+      >
+        {label}
+      </span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          padding: "7px 10px",
+          borderRadius: "var(--r-sm)",
+          background: "var(--surface)",
+          border: `1px solid ${invalid ? "var(--danger)" : "var(--border)"}`,
+          color: "var(--text)",
+          fontSize: 13,
+          width: "100%",
+        }}
+      />
+    </label>
   );
 }
 

@@ -533,14 +533,16 @@ function Thumbnail({ model, version }: { model: AdminModel; version: number | un
   // a model using its default catalogue photo shows a thumbnail, not "no img".
   const uploaded = model.hasUploadedImage ? modelImageUrl(model.code, version ?? 0) : null;
   const fallback = model.img ? resolveImg(model.img) : null;
-  const src = uploaded ?? fallback;
 
-  // A model can report hasUploadedImage=true while its image endpoint 404s
-  // (e.g. a reset that left the flag briefly stale, or a missing R2 object).
-  // Show the neutral placeholder instead of a broken-image icon. Reset when the
-  // source changes (e.g. after a replace upload bumps the cache-buster).
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [src]);
+  // Try the uploaded photo first, then the bundled catalogue photo, then give up.
+  // Crucially, a stale hasUploadedImage=true whose /image endpoint 404s must NOT
+  // block the bundled fallback — that was the "no img" bug on a model that had an
+  // upload removed but still carries a default /assets photo. On each load error
+  // we advance to the next candidate; running past the end shows the placeholder.
+  const candidates = [uploaded, fallback].filter((s): s is string => !!s);
+  const [idx, setIdx] = useState(0);
+  useEffect(() => setIdx(0), [uploaded, fallback]);
+  const src = candidates[idx];
 
   const box: React.CSSProperties = {
     width: 56,
@@ -555,7 +557,7 @@ function Thumbnail({ model, version }: { model: AdminModel; version: number | un
     flexShrink: 0,
   };
 
-  if (!src || failed) {
+  if (!src) {
     return (
       <div style={box} className="mono" aria-label="No photo">
         <span style={{ fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.05em" }}>
@@ -573,7 +575,7 @@ function Thumbnail({ model, version }: { model: AdminModel; version: number | un
       <img
         src={src}
         alt={`${model.name || model.code} photo`}
-        onError={() => setFailed(true)}
+        onError={() => setIdx((i) => i + 1)}
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
     </div>
