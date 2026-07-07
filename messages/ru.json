@@ -136,6 +136,13 @@
       "everythingIn6mo": "Всё, что в 6 месяцах",
       "lowestDailyRate": "Самая низкая дневная ставка",
       "freeAccessoryBundle": "Бесплатный набор аксессуаров"
+    },
+    "picker": {
+      "label": "Показать цены для",
+      "standard": "Стандартная цена",
+      "showingFor": "Цены для {name}",
+      "waitlistTag": "лист ожидания",
+      "joinWaitlist": "В лист ожидания"
     }
   },
   "fleet": {

@@ -136,6 +136,13 @@
       "everythingIn6mo": "Kaikki 6 kuukauden suunnitelmasta",
       "lowestDailyRate": "Edullisin päivähinta",
       "freeAccessoryBundle": "Maksuton lisävarustepaketti"
+    },
+    "picker": {
+      "label": "Näytä hinnat pyörälle",
+      "standard": "Vakiohinta",
+      "showingFor": "Hinnat pyörälle {name}",
+      "waitlistTag": "jonotus",
+      "joinWaitlist": "Liity jonotuslistalle"
     }
   },
   "fleet": {

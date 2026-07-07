@@ -23,7 +23,7 @@ type Interactions = {
    *  prefill, or opens the waitlist capture modal. `source` is analytics-only
    *  (the CTA location, e.g. "hero" / "nav" / "pricing") and never affects
    *  routing. */
-  reserve: (what?: string, source?: string) => void;
+  reserve: (what?: string, source?: string, opts?: { model?: string }) => void;
   /** Open the waitlist capture modal directly with explicit context. */
   openWaitlist: (opts: { cityId?: string; modelId?: string; source: string }) => void;
   /** Smooth-scroll to a section id on the landing, or route to /#id elsewhere. */
@@ -89,7 +89,7 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
   );
 
   const reserve = useCallback(
-    (what?: string, source?: string) => {
+    (what?: string, source?: string, opts?: { model?: string }) => {
       if (!what) {
         track("cta_reserve", { source });
         router.push("/book");
@@ -109,8 +109,11 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
         return;
       }
       if (pricingPlans.some((p) => p.id === what)) {
-        track("cta_reserve", { source: source ?? "pricing", plan: what });
-        router.push(`/book?plan=${what}`);
+        // Carry an optional chosen bike so the wizard opens with BOTH the plan and
+        // the model pre-selected (bike-aware pricing section). Without a model it
+        // stays the plan-only deep link the wizard already understands.
+        track("cta_reserve", { source: source ?? "pricing", plan: what, model: opts?.model });
+        router.push(opts?.model ? `/book?plan=${what}&model=${opts.model}` : `/book?plan=${what}`);
         return;
       }
       const m = bikeModels.find((x) => x.id === what);

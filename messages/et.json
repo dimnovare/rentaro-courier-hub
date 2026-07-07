@@ -136,6 +136,13 @@
       "everythingIn6mo": "Kõik, mis 6 kuu paketis",
       "lowestDailyRate": "Madalaim päevatasu",
       "freeAccessoryBundle": "Tasuta lisavarustuse komplekt"
+    },
+    "picker": {
+      "label": "Näita hindu rattale",
+      "standard": "Standardhind",
+      "showingFor": "Hinnad rattale {name}",
+      "waitlistTag": "ootejärjekord",
+      "joinWaitlist": "Liitu ootejärjekorraga"
     }
   },
   "fleet": {

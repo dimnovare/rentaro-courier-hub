@@ -136,6 +136,13 @@
       "everythingIn6mo": "Everything in 6 months",
       "lowestDailyRate": "Lowest daily rate",
       "freeAccessoryBundle": "Free accessory bundle"
+    },
+    "picker": {
+      "label": "Show prices for",
+      "standard": "Standard pricing",
+      "showingFor": "Showing prices for {name}",
+      "waitlistTag": "waitlist",
+      "joinWaitlist": "Join waitlist"
     }
   },
   "fleet": {

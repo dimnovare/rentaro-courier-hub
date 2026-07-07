@@ -136,6 +136,13 @@
       "everythingIn6mo": "Viss, kas 6 mēnešu plānā",
       "lowestDailyRate": "Zemākā dienas likme",
       "freeAccessoryBundle": "Bezmaksas piederumu komplekts"
+    },
+    "picker": {
+      "label": "Rādīt cenas velosipēdam",
+      "standard": "Standarta cena",
+      "showingFor": "Cenas velosipēdam {name}",
+      "waitlistTag": "gaidīšanas saraksts",
+      "joinWaitlist": "Pievienoties gaidīšanas sarakstam"
     }
   },
   "fleet": {

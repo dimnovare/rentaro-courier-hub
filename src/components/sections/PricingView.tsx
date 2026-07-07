@@ -1,16 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
-import type { PricingPlan } from "@/types";
+import { resolvePlanPrice } from "@/services/pricingService";
+import type { BikeModel, PricingPlan } from "@/types";
 
-export function PricingView({ plans }: { plans: PricingPlan[] }) {
+/** Empty price overrides → resolvePlanPrice returns the global tier (standard). */
+const STANDARD: Pick<BikeModel, "price30" | "price6mo" | "price12mo"> = {};
+
+export function PricingView({
+  plans,
+  models,
+}: {
+  plans: PricingPlan[];
+  /** Active bike models, passed only when at least one has custom pricing. */
+  models?: BikeModel[];
+}) {
   const { reserve } = useInteractions();
   const t = useTranslations("pricing");
   const locale = useLocale();
+
+  // null = "Standard pricing" (the global tiers). The section first paints in
+  // this state, so SSR/no-JS shows real standard prices; picking a bike only
+  // re-derives the four numbers on each card through resolvePlanPrice.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const showPicker = !!models && models.length > 0;
+  const selected = (showPicker && models!.find((m) => m.id === selectedId)) || null;
+  const isWaitlist = selected?.status === "wait";
+  // Stable key so the price numbers re-animate only when the chosen bike changes.
+  const flashKey = selectedId ?? "standard";
+
   return (
     <section className="section-pad" id="pricing">
       <div className="wrap">
@@ -20,11 +43,49 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
           <p className="lead" style={{ marginInline: "auto" }}>
             {t("lead")}
           </p>
+
+          {showPicker && (
+            <div className="pricing-picker">
+              <label className="pricing-picker-label" htmlFor="pricing-bike">
+                {t("picker.label")}
+              </label>
+              <div className="pricing-picker-control">
+                <select
+                  id="pricing-bike"
+                  value={selectedId ?? ""}
+                  onChange={(e) => setSelectedId(e.target.value || null)}
+                >
+                  <option value="">{t("picker.standard")}</option>
+                  {models!.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                      {m.status === "wait" ? ` · ${t("picker.waitlistTag")}` : ""}
+                    </option>
+                  ))}
+                </select>
+                <span className="pricing-picker-caret" aria-hidden>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </span>
+              </div>
+              {selected && (
+                <p className="pricing-picker-sub" aria-live="polite">
+                  {t("picker.showingFor", { name: selected.name })}
+                </p>
+              )}
+            </div>
+          )}
         </Reveal>
+
         <div className="pricing-grid">
           {plans.map((plan, i) => {
             const term = t(`terms.${plan.id}`);
             const perks = plan.perks[locale] ?? plan.perks.en ?? [];
+            // Every figure on the card flows through resolvePlanPrice so the
+            // daily, 30-day, deposit and due-at-pickup numbers all agree with the
+            // selected bike (or the global tier when none is chosen).
+            const { daily, monthly } = resolvePlanPrice(selected ?? STANDARD, plan);
             return (
               <Reveal key={plan.id} delay={i * 90} style={{ display: "flex" }}>
                 <article className={`card price-card ${plan.featured ? "feat" : ""}`} style={{ flex: 1 }}>
@@ -33,22 +94,27 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
                     <span className="tag">{t(`tags.${plan.id}`)}</span>
                   </div>
                   <div className="amount">
-                    <span className="big">€{plan.daily.toFixed(2)}</span>
+                    <span className="big price-num" key={flashKey}>
+                      €{daily.toFixed(2)}
+                    </span>
                     <span className="per">{t("perDay")}</span>
                   </div>
                   <div className="per30">
-                    <strong>€{plan.monthly}</strong> {t("per30Suffix")}
+                    <strong className="price-num" key={flashKey}>
+                      €{monthly}
+                    </strong>{" "}
+                    {t("per30Suffix")}
                   </div>
                   <div className="deposit-line">
                     <span className="deposit-badge">
                       <span className="deposit-badge-label">{t("depositLabel")}</span>
-                      <span className="deposit-badge-amount">
-                        €{plan.monthly}
+                      <span className="deposit-badge-amount price-num" key={flashKey}>
+                        €{monthly}
                       </span>
                     </span>
                     <span className="deposit-note">{t("depositReassure")}</span>
                     <span style={{ display: "block" }}>
-                      {t("dueAtPickup", { amount: plan.monthly * 2 })}
+                      {t("dueAtPickup", { amount: monthly * 2 })}
                     </span>
                   </div>
                   <ul>
@@ -63,10 +129,14 @@ export function PricingView({ plans }: { plans: PricingPlan[] }) {
                   </ul>
                   <button
                     className={`btn btn-block ${plan.featured ? "btn-primary" : "btn-ghost"}`}
-                    onClick={() => reserve(plan.id, "pricing")}
+                    onClick={() =>
+                      isWaitlist && selected
+                        ? reserve(`waitlist:${selected.id}`, "pricing")
+                        : reserve(plan.id, "pricing", selected ? { model: selected.id } : undefined)
+                    }
                   >
-                    {t("choose", { term })}
-                    {plan.featured && (
+                    {isWaitlist ? t("picker.joinWaitlist") : t("choose", { term })}
+                    {plan.featured && !isWaitlist && (
                       <span className="arrow">
                         <Ic.arrow />
                       </span>
