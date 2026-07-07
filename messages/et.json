@@ -134,8 +134,7 @@
       "priorityMaintenance": "Eelishooldus",
       "freeModelSwap": "Tasuta mudelivahetus üks kord",
       "everythingIn6mo": "Kõik, mis 6 kuu paketis",
-      "lowestDailyRate": "Madalaim päevatasu",
-      "freeAccessoryBundle": "Tasuta lisavarustuse komplekt"
+      "lowestDailyRate": "Madalaim päevatasu"
     },
     "picker": {
       "label": "Näita hindu rattale",
@@ -147,7 +146,7 @@
   },
   "fleet": {
     "kicker": "Kogu park",
-    "heading": "Kuus ratast. Üks lihtne pakett.",
+    "heading": "{count} ratast. Üks lihtne plaan.",
     "lead": "Alates vastupidavast Engine Prost kuni kergete kokkupandavate linnaratasteni — iga mudel renditakse samadel 30 päeva, 6 või 12 kuu tingimustel."
   },
   "howItWorks": {

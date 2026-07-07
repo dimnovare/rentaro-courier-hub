@@ -134,8 +134,7 @@
       "priorityMaintenance": "Prioritārā apkope",
       "freeModelSwap": "Bezmaksas modeļa maiņa vienreiz",
       "everythingIn6mo": "Viss, kas 6 mēnešu plānā",
-      "lowestDailyRate": "Zemākā dienas likme",
-      "freeAccessoryBundle": "Bezmaksas piederumu komplekts"
+      "lowestDailyRate": "Zemākā dienas likme"
     },
     "picker": {
       "label": "Rādīt cenas velosipēdam",
@@ -147,7 +146,7 @@
   },
   "fleet": {
     "kicker": "Viss parks",
-    "heading": "Seši velosipēdi. Viens vienkāršs plāns.",
+    "heading": "{count} velosipēdi. Viens vienkāršs plāns.",
     "lead": "No izturīgā Engine Pro līdz viegliem salokāmiem ikdienas velosipēdiem — katrs modelis tiek nomāts ar tiem pašiem 30 dienu, 6 vai 12 mēnešu nosacījumiem."
   },
   "howItWorks": {

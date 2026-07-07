@@ -12,7 +12,7 @@ export async function Fleet() {
       <div className="wrap">
         <Reveal className="section-head">
           <Kicker>{t("kicker")}</Kicker>
-          <h2 className="h-section">{t("heading")}</h2>
+          <h2 className="h-section">{t("heading", { count: bikeModels.length })}</h2>
           <p className="lead">
             {t("lead")}
           </p>

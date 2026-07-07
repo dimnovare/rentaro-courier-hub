@@ -2,13 +2,15 @@ import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { cityService } from "@/services/cityService";
+import { modelService } from "@/services/modelService";
 import { operatingCityNames } from "@/lib/cities";
 
 export async function Service() {
-  const [t, tc, cities] = await Promise.all([
+  const [t, tc, cities, models] = await Promise.all([
     getTranslations("service"),
     getTranslations("cities"),
     cityService.getCities(),
+    modelService.getModels(),
   ]);
   // A city is live once it is no longer "soon" — derived from LIVE data so this
   // stat stays in lockstep with the hero pill and hero stat, with localized
@@ -39,7 +41,7 @@ export async function Service() {
                   <div className="l">{t("stats.citiesLabel", { soon: soonCityNames, soonState: soonCityNames ? "some" : "none" })}</div>
                 </div>
                 <div className="svc-stat">
-                  <div className="n">{t("stats.modelsValue")}</div>
+                  <div className="n">{models.length}</div>
                   <div className="l">{t("stats.modelsLabel")}</div>
                 </div>
                 <div className="svc-stat">

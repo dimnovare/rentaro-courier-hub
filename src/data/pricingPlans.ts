@@ -71,27 +71,27 @@ export const pricingPlans: PricingPlan[] = [
       en: [
         "Everything in 6 months",
         "Lowest daily rate",
-        "Free accessory bundle",
+        "Best price, locked in",
       ],
       et: [
         "Kõik, mis 6 kuu paketis",
         "Madalaim päevatasu",
-        "Tasuta lisavarustuse komplekt",
+        "Parim hind, fikseeritud",
       ],
       lv: [
         "Viss, kas 6 mēnešu plānā",
         "Zemākā dienas likme",
-        "Bezmaksas piederumu komplekts",
+        "Labākā cena, fiksēta",
       ],
       fi: [
         "Kaikki 6 kuukauden suunnitelmasta",
         "Edullisin päivähinta",
-        "Maksuton lisävarustepaketti",
+        "Paras hinta, lukittu",
       ],
       ru: [
         "Всё, что в 6 месяцах",
         "Самая низкая дневная ставка",
-        "Бесплатный набор аксессуаров",
+        "Лучшая цена, зафиксирована",
       ],
     },
   },

@@ -561,11 +561,12 @@ function ModelRow({
 
 function Thumbnail({ model, version }: { model: AdminModel; version: number | undefined }) {
   // Prefer the uploaded image (served at a stable URL, cache-busted on replace);
-  // otherwise fall back to the model's `img` field if it's an absolute URL we
-  // can render. A local "/assets/..." path won't resolve from the admin host,
-  // so we show a neutral placeholder for those.
+  // otherwise fall back to the model's `img` field. resolveImg keeps a bundled
+  // "/assets/..." path as-is (the admin is served by the frontend, so those load
+  // from the same origin) and prefixes an "/api/..." path with the API host — so
+  // a model using its default catalogue photo shows a thumbnail, not "no img".
   const uploaded = model.hasUploadedImage ? modelImageUrl(model.code, version ?? 0) : null;
-  const fallback = /^https?:\/\//.test(model.img) ? model.img : null;
+  const fallback = model.img ? resolveImg(model.img) : null;
   const src = uploaded ?? fallback;
 
   // A model can report hasUploadedImage=true while its image endpoint 404s

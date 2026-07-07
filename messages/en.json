@@ -134,8 +134,7 @@
       "priorityMaintenance": "Priority maintenance",
       "freeModelSwap": "Free model swap once",
       "everythingIn6mo": "Everything in 6 months",
-      "lowestDailyRate": "Lowest daily rate",
-      "freeAccessoryBundle": "Free accessory bundle"
+      "lowestDailyRate": "Lowest daily rate"
     },
     "picker": {
       "label": "Show prices for",
@@ -147,7 +146,7 @@
   },
   "fleet": {
     "kicker": "The full fleet",
-    "heading": "Six bikes. One simple plan.",
+    "heading": "{count} bikes. One simple plan.",
     "lead": "From the heavy-duty Engine Pro to lightweight folding commuters — every model rents on the same 30-day, 6 or 12-month terms."
   },
   "howItWorks": {

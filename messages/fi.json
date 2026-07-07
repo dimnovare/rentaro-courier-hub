@@ -134,8 +134,7 @@
       "priorityMaintenance": "Etusijahuolto",
       "freeModelSwap": "Maksuton mallinvaihto kerran",
       "everythingIn6mo": "Kaikki 6 kuukauden suunnitelmasta",
-      "lowestDailyRate": "Edullisin päivähinta",
-      "freeAccessoryBundle": "Maksuton lisävarustepaketti"
+      "lowestDailyRate": "Edullisin päivähinta"
     },
     "picker": {
       "label": "Näytä hinnat pyörälle",
@@ -147,7 +146,7 @@
   },
   "fleet": {
     "kicker": "Koko kalusto",
-    "heading": "Kuusi pyörää. Yksi yksinkertainen suunnitelma.",
+    "heading": "{count} pyörää. Yksi selkeä suunnitelma.",
     "lead": "Järeästä Engine Prosta kevyisiin taittopyöriin — jokainen malli vuokrataan samoilla 30 päivän, 6 tai 12 kuukauden ehdoilla."
   },
   "howItWorks": {
