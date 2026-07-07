@@ -878,6 +878,18 @@
     "air-30pro": {
       "tagline": "Urbaani, suuntavilkuilla",
       "blurb": "Urbaani 700C-pyörä GPS-varkaussuojalla, integroiduilla suuntavilkuilla ja Eco / Sport -tiloilla — kaluston liikennetietoisin pyörä."
+    },
+    "engwe-ep-2-boost": {
+      "tagline": "Taittuva leveärenkainen e-pyörä, jolla on helppo aloittaa",
+      "blurb": "Taittuva leveärenkainen e-pyörä, jolla on helppo aloittaa lähettityö — yksinkertainen, vakaa ja nopea säilöä vuorojen välissä. 250 W:n moottori, Shimano 7-vaihteinen ja mekaaniset levyjarrut."
+    },
+    "engwe-m1": {
+      "tagline": "Moottoripyörätyylinen e-pyörä pitkiin päivävuoroihin",
+      "blurb": "Moottoripyörätyylinen lähetti-e-pyörä, joka on rakennettu pitkiin päivittäisiin lähettivuoroihin — tukeva teräsrunko, hydrauliset levyjarrut ja kaksoisjousitus pitävät sinut mukavana kilometri toisensa jälkeen."
+    },
+    "engwe-engine-pro-3": {
+      "tagline": "Premium täysjousitettu taittopyörä",
+      "blurb": "Premium-valinta vaativimpiin toimituspäiviin — täysjousitus, hydrauliset kaksimäntäjarrut, vääntösensorimoottori ja sisäänrakennettu GPS-varkaussuoja."
     }
   },
   "specTable": {

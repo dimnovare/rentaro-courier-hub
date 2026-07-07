@@ -54,6 +54,10 @@ export interface AdminModel {
   blurb: string;
   img: string;
   fromDay: number;
+  /** Per-model per-30-day € overrides for the 3 tiers; null = inherit the global tier. */
+  price30?: number | null;
+  price6mo?: number | null;
+  price12mo?: number | null;
   status: string;
   availability: number;
   popular: boolean;
@@ -85,6 +89,10 @@ export interface ModelInput {
   blurb?: string;
   img?: string;
   fromDay?: number;
+  /** Per-model per-30-day € overrides; null/omitted = inherit the global tier. */
+  price30?: number | null;
+  price6mo?: number | null;
+  price12mo?: number | null;
   status?: string;
   availability?: number;
   popular?: boolean;

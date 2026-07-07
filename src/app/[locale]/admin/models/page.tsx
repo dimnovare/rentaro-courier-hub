@@ -18,6 +18,7 @@ import {
   type ModelInput,
 } from "@/services/adminModelService";
 import { resolveImg } from "@/services/modelService";
+import { formatEur } from "@/lib/money";
 import type { ColorOption } from "@/types/bike";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
@@ -552,6 +553,9 @@ interface EditorFields {
   tagline: string;
   blurb: string;
   fromDay: string;
+  price30: string;
+  price6mo: string;
+  price12mo: string;
   status: string;
   popular: boolean;
   sortOrder: string;
@@ -653,6 +657,10 @@ function ModelEditor({
       tagline: f.tagline.trim(),
       blurb: f.blurb.trim(),
       fromDay: parseNum(f.fromDay),
+      // Per-model overrides: blank → null (inherit the global tier), never 0.
+      price30: optNum(f.price30),
+      price6mo: optNum(f.price6mo),
+      price12mo: optNum(f.price12mo),
       status: f.status,
       popular: f.popular,
       sortOrder: parseIntOr0(f.sortOrder),
@@ -844,6 +852,41 @@ function ModelEditor({
             inputMode="numeric"
             placeholder="0"
             aria-label="Sort order"
+            style={inputStyle}
+          />
+        </Field>
+      </div>
+
+      {/* Per-model price overrides — the per-30-day € for each tier.
+          Blank = use the global tier (177 / 147 / 117). */}
+      <div style={{ ...gridStyle, marginTop: 16 }}>
+        <Field label="30-day price (€)" hint="Blank = global tier (177)">
+          <input
+            value={f.price30}
+            onChange={(e) => set("price30", e.target.value)}
+            inputMode="numeric"
+            placeholder="177"
+            aria-label="30-day price override"
+            style={inputStyle}
+          />
+        </Field>
+        <Field label="6-month price (€/30d)" hint="Blank = global tier (147)">
+          <input
+            value={f.price6mo}
+            onChange={(e) => set("price6mo", e.target.value)}
+            inputMode="numeric"
+            placeholder="147"
+            aria-label="6-month price override"
+            style={inputStyle}
+          />
+        </Field>
+        <Field label="12-month price (€/30d)" hint="Blank = global tier (117)">
+          <input
+            value={f.price12mo}
+            onChange={(e) => set("price12mo", e.target.value)}
+            inputMode="numeric"
+            placeholder="117"
+            aria-label="12-month price override"
             style={inputStyle}
           />
         </Field>
@@ -1141,6 +1184,9 @@ function initialFields(model?: AdminModel): EditorFields {
     tagline: model?.tagline ?? "",
     blurb: model?.blurb ?? "",
     fromDay: model?.fromDay != null ? String(model.fromDay) : "5.90",
+    price30: model?.price30 != null ? String(model.price30) : "",
+    price6mo: model?.price6mo != null ? String(model.price6mo) : "",
+    price12mo: model?.price12mo != null ? String(model.price12mo) : "",
     status: model?.status ?? MODEL_STATUSES[0].value,
     popular: model?.popular ?? false,
     sortOrder: model?.sortOrder != null ? String(model.sortOrder) : "0",
@@ -1179,8 +1225,10 @@ function parseIntOr0(value: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-function formatEur(value: number): string {
-  return `€${value.toFixed(2)}`;
+/** Parse an optional price override (per-30-day €). Blank → null = inherit the
+ *  global tier; never send 0 (which would mean "free"). */
+function optNum(value: string): number | null {
+  return value.trim() === "" ? null : Math.round(parseNum(value));
 }
 
 /* ── Reusable inputs (mirrors the maintenance page) ────────────────────── */

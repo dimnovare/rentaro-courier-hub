@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="Photo coming soon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12151d"/>
+      <stop offset="1" stop-color="#0a0c11"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="rgba(216,255,54,0.10)"/>
+      <stop offset="1" stop-color="rgba(216,255,54,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="1000" height="1000" fill="url(#bg)"/>
+  <rect width="1000" height="1000" fill="url(#glow)"/>
+  <g fill="none" stroke="#d8ff36" stroke-opacity="0.55" stroke-width="9"
+     stroke-linecap="round" stroke-linejoin="round" transform="translate(210 360)">
+    <circle cx="120" cy="230" r="120"/>
+    <circle cx="460" cy="230" r="120"/>
+    <path d="M120 230 L250 60 L400 60"/>
+    <path d="M120 230 L300 230 L460 230"/>
+    <path d="M300 230 L235 60"/>
+    <path d="M250 60 L215 60"/>
+    <path d="M460 230 L410 95 L365 95"/>
+    <circle cx="120" cy="230" r="16" fill="#d8ff36" stroke="none" fill-opacity="0.7"/>
+  </g>
+  <text x="500" y="760" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+        font-size="40" font-weight="700" letter-spacing="1" fill="#d8ff36" fill-opacity="0.85">rentaro</text>
+  <text x="500" y="822" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+        font-size="30" font-weight="500" letter-spacing="3" fill="#ffffff" fill-opacity="0.42">PHOTO COMING SOON</text>
+</svg>

@@ -18,36 +18,13 @@
  * contract.
  */
 
-/* ── Contract type (matches the live API exactly) ──────────────────────── */
+/* ── Contract type ─────────────────────────────────────────────────────── */
 
-export interface SiteSettings {
-  /** Show the accessories section on the public homepage. */
-  showAccessories: boolean;
-  /** Show the referral-code input in the booking flow. */
-  showReferralCode: boolean;
-  /** Show the add-gear step in the booking flow. */
-  showAddGear: boolean;
-  /** Show the "refer a courier" card in the customer portal. */
-  showReferAcourier: boolean;
-  /** Show the "pay & confirm your rental" card in the customer portal. */
-  showPayConfirm: boolean;
-  /** Show online Smart-ID / Mobile-ID signing (else: sign-on-handover checkbox). */
-  showOnlineSigning: boolean;
-  /**
-   * Send return reminders automatically from the background scanner. Defaults ON
-   * (unlike the show* flags); when off, reminders are sent only manually by an
-   * admin from a rental's Manage panel.
-   */
-  autoSendReturnReminders: boolean;
-  /** Bank IBAN for manual transfers. */
-  bankIban: string;
-  /** Bank account holder name. */
-  bankAccountName: string;
-  /** Bank name. */
-  bankName: string;
-  /** Payment reference couriers should quote on a transfer. */
-  bankReference: string;
-}
+// One canonical SiteSettings lives in @/types/settings; import it for local use
+// and re-export so existing consumers importing it from this admin client keep
+// working.
+import type { SiteSettings } from "@/types/settings";
+export type { SiteSettings };
 
 /* ── Typed errors (mirror adminCatalogService) ─────────────────────────── */
 

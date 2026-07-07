@@ -88,6 +88,14 @@ export interface BikeModel {
   /** Uniform term pricing: every bike starts here on a 30-day plan. */
   fromDay: number;
   from30: number;
+  /**
+   * Optional per-model price overrides — the per-30-day € for each tier
+   * (p30 / p180 / p365). null/undefined = inherit the global PricingPlan tier.
+   * Resolve via pricingService.resolvePlanPrice — never read these directly.
+   */
+  price30?: number | null;
+  price6mo?: number | null;
+  price12mo?: number | null;
   availability: number;
   status: BikeStatus;
   popular: boolean;

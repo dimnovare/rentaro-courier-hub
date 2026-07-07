@@ -1,4 +1,5 @@
 import { resolveImg } from "@/services/modelService";
+import { modelFromDaily } from "@/services/pricingService";
 import type { BikeModel } from "@/types";
 
 /**
@@ -86,6 +87,8 @@ function availabilityFor(status: BikeModel["status"]): string {
 export function buildProductSchema(m: BikeModel): Record<string, unknown> {
   const resolved = resolveImg(m.img);
   const image = resolved.startsWith("http") ? resolved : `${SITE_URL}${resolved}`;
+  // Lowest daily across tiers, honouring any per-model overrides (single source).
+  const fromDay = modelFromDaily(m);
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -99,13 +102,13 @@ export function buildProductSchema(m: BikeModel): Record<string, unknown> {
     url: `${SITE_URL}/models/${m.slug}`,
     offers: {
       "@type": "Offer",
-      price: m.fromDay.toFixed(2),
+      price: fromDay.toFixed(2),
       priceCurrency: "EUR",
       // Daily rate on the entry (30-day) plan; the per-day price drops on
       // longer commitments. unitText documents the billing unit for clarity.
       priceSpecification: {
         "@type": "UnitPriceSpecification",
-        price: m.fromDay.toFixed(2),
+        price: fromDay.toFixed(2),
         priceCurrency: "EUR",
         unitText: "DAY",
       },

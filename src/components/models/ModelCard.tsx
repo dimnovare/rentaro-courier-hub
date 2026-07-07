@@ -4,16 +4,10 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useInteractions } from "@/components/providers/Interactions";
 import { Ic } from "@/components/ui/Icon";
-import { resolveImg } from "@/services/modelService";
+import { resolveImg, handleModelImgError } from "@/services/modelService";
 import { track } from "@/services/analytics";
-import { pricingPlans } from "@/data/pricingPlans";
+import { modelPriceRange } from "@/services/pricingService";
 import type { BikeModel } from "@/types";
-
-// Daily price varies only by plan term, not by model, so every card shows the
-// same span. Derive it from pricingPlans so it stays correct if plans change.
-const dailyRates = pricingPlans.map((p) => p.daily);
-const minDaily = Math.min(...dailyRates);
-const maxDaily = Math.max(...dailyRates);
 
 /**
  * One bike card.
@@ -36,6 +30,8 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
   const pills = compact ? m.pills.slice(0, 2) : m.pills;
   const isWait = m.status === "wait";
   const colors = m.colors ?? [];
+  // Per-model daily price span across the tiers (honours per-model overrides).
+  const { minDaily, maxDaily } = modelPriceRange(m);
 
   return (
     <article className={`card model-card ${m.popular && !compact ? "feat" : ""}`}>
@@ -50,7 +46,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           <span className="dot" />
           {avail.label}
         </span>
-        <img src={resolveImg(m.img)} alt={m.name} loading="lazy" />
+        <img src={resolveImg(m.img)} alt={m.name} loading="lazy" onError={handleModelImgError} />
       </Link>
       <div className="model-body">
         <h3>

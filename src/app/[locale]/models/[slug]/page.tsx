@@ -10,6 +10,7 @@ import { SpecTable } from "@/components/models/SpecTable";
 import { ReserveButton } from "@/components/models/ReserveButton";
 import { bikeModels, getModelBySlug } from "@/data/bikeModels";
 import { modelService, resolveImg } from "@/services/modelService";
+import { modelFromDaily } from "@/services/pricingService";
 import { JsonLd, buildProductSchema } from "@/components/seo/JsonLd";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
@@ -132,7 +133,7 @@ export default async function ModelDetail({ params }: Params) {
                   <div className="from">
                     {t("from")}
                     <strong>
-                      €{m.fromDay.toFixed(2)}
+                      €{modelFromDaily(m).toFixed(2)}
                       <span className="per"> {t("perDay")}</span>
                     </strong>
                   </div>

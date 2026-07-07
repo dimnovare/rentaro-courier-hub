@@ -878,6 +878,18 @@
     "air-30pro": {
       "tagline": "Linnaratas suunatuledega",
       "blurb": "700C linnaratas GPS-vargakaitse, integreeritud suunatulede ning Eco / Sport režiimidega — pargi kõige liiklusteadlikum ratas."
+    },
+    "engwe-ep-2-boost": {
+      "tagline": "Kokkupandav laia rehviga e-ratas, millega on lihtne alustada",
+      "blurb": "Kokkupandav laia rehviga e-ratas, millega on lihtne kulleritööd alustada — lihtne, stabiilne ja vahetuste vahel kiiresti hoiule pandav. 250 W mootor, Shimano 7-käiguline ja mehaanilised ketaspidurid."
+    },
+    "engwe-m1": {
+      "tagline": "Moto-stiilis e-ratas pikkadeks igapäevasteks vahetusteks",
+      "blurb": "Moto-stiilis kulleriratas, mis on ehitatud pikkadeks igapäevasteks vahetusteks — tugev terasraam, hüdraulilised ketaspidurid ja topeltvedrustus hoiavad sind mugavalt kilomeeter kilomeetri järel."
+    },
+    "engwe-engine-pro-3": {
+      "tagline": "Premium täisvedrustusega kokkupandav ratas",
+      "blurb": "Premium valik kõige nõudlikumateks tarnepäevadeks — täisvedrustus, hüdraulilised kaks-kolvilised pidurid, jõuandruga mootor ja sisseehitatud GPS-vargakaitse."
     }
   },
   "specTable": {

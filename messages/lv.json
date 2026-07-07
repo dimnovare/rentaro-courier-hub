@@ -878,6 +878,18 @@
     "air-30pro": {
       "tagline": "Pilsētai, ar pagrieziena rādītājiem",
       "blurb": "Pilsētas 700C velosipēds ar GPS pretaizdzīšanas sistēmu, integrētiem pagrieziena rādītājiem un Eco / Sport režīmiem — visapzinīgākais velosipēds parkā attiecībā uz ceļu."
+    },
+    "engwe-ep-2-boost": {
+      "tagline": "Salokāms platriepu e-velosipēds, ar ko viegli sākt",
+      "blurb": "Salokāms platriepu e-velosipēds, ar ko viegli sākt kurjera darbu — vienkāršs, stabils un ātri noglabājams starp maiņām. 250 W motors, Shimano 7 ātrumi un mehāniskās disku bremzes."
+    },
+    "engwe-m1": {
+      "tagline": "Moto stila e-velosipēds garām ikdienas maiņām",
+      "blurb": "Moto stila kurjera e-velosipēds, kas radīts garām ikdienas maiņām — izturīgs tērauda rāmis, hidrauliskās disku bremzes un dubultā piekare ļauj justies ērti kilometru pēc kilometra."
+    },
+    "engwe-engine-pro-3": {
+      "tagline": "Premium salokāms velosipēds ar pilnu piekari",
+      "blurb": "Premium izvēle visprasīgākajām piegādes dienām — pilna piekare, hidrauliskās divu virzuļu bremzes, motors ar griezes momenta sensoru un iebūvēta GPS pretaizdzīšanas sistēma."
     }
   },
   "specTable": {

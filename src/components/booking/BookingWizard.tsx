@@ -7,11 +7,12 @@ import { useTranslations, useLocale } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
+import { resolvePlanPrice } from "@/services/pricingService";
 import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
-import { resolveImg } from "@/services/modelService";
+import { resolveImg, handleModelImgError } from "@/services/modelService";
 import { operatingCityNames } from "@/lib/cities";
 import type { SiteSettings } from "@/services/settingsService";
 import type { BikeModel, City, PlanId } from "@/types";
@@ -255,6 +256,12 @@ export function BookingWizard({
   const plan = planId ? getPlanById(planId) : undefined;
   const city = cities.find((c) => c.id === cityId);
 
+  // Resolve the price a plan bills for the *currently selected* model: a model
+  // may override the global 30-day tier price (price30/price6mo/price12mo). With
+  // no model chosen yet, fall back to the global tier price.
+  const priceFor = (p: (typeof pricingPlans)[number]) =>
+    model ? resolvePlanPrice(model, p) : { monthly: p.monthly, daily: p.daily };
+
   // Earliest selectable pickup date (today + 3 business days), as YYYY-MM-DD.
   // Computed once on mount (lazy useState initializer) so it doesn't drift across
   // renders and never reads a ref during render.
@@ -361,8 +368,8 @@ export function BookingWizard({
         id: result.id,
         model: model?.name ?? "",
         plan: plan?.term ?? "",
-        monthly: plan?.monthly ?? 0,
-        daily: plan?.daily ?? 0,
+        monthly: plan ? priceFor(plan).monthly : 0,
+        daily: plan ? priceFor(plan).daily : 0,
         city: city?.name ?? "",
         startDate,
         firstName: first.trim(),
@@ -690,7 +697,7 @@ export function BookingWizard({
             {model && <span className="chip">{model.name}</span>}
             {plan && (
               <span className="chip accent">
-                {tp(`terms.${planId}`)} · {t("plan.per30", { price: plan.monthly })}
+                {tp(`terms.${planId}`)} · {t("plan.per30", { price: priceFor(plan).monthly })}
               </span>
             )}
           </div>
@@ -876,14 +883,14 @@ export function BookingWizard({
                 >
                   <span className="opt-t">{tp(`terms.${p.id}`)}</span>
                   <span className="opt-p">
-                    {t("plan.perDay", { price: p.daily.toFixed(2) })}
+                    {t("plan.perDay", { price: priceFor(p).daily.toFixed(2) })}
                   </span>
-                  <span className="opt-m">{t("plan.per30", { price: p.monthly })} · {tp(`tags.${p.id}`)}</span>
+                  <span className="opt-m">{t("plan.per30", { price: priceFor(p).monthly })} · {tp(`tags.${p.id}`)}</span>
                   <span className="opt-deposit">
-                    {t("plan.depositBadge", { deposit: p.monthly })}
+                    {t("plan.depositBadge", { deposit: priceFor(p).monthly })}
                   </span>
                   <span className="opt-m">
-                    {t("plan.dueLine", { total: p.monthly * 2 })}
+                    {t("plan.dueLine", { total: priceFor(p).monthly * 2 })}
                   </span>
                 </button>
               ))}
@@ -1105,21 +1112,21 @@ export function BookingWizard({
               <div className="summary-row">
                 <span className="l">{t("review.deposit")}</span>
                 <span className="v">
-                  €{plan?.monthly}
+                  €{plan ? priceFor(plan).monthly : ""}
                   <span className="summary-sub">{t("review.depositNote")}</span>
                 </span>
               </div>
               <div className="summary-total">
                 <span className="l">{planId ? tp(`terms.${planId}`) : plan?.term}</span>
                 <span className="big">
-                  €{plan?.monthly}
+                  €{plan ? priceFor(plan).monthly : ""}
                   <span className="per"> {t(settings.showAddGear ? "review.per30Addons" : "review.per30Only")}</span>
                 </span>
               </div>
             </div>
             {plan && (
               <p className="sub" style={{ marginTop: 12 }}>
-                {t("review.billedMonthly", { monthly: plan.monthly })}
+                {t("review.billedMonthly", { monthly: priceFor(plan).monthly })}
               </p>
             )}
             {plan && endDate && (
@@ -1289,6 +1296,7 @@ export function BookingWizard({
               <img
                 src={resolveImg(infoModel.gallery?.[0] ?? infoModel.img)}
                 alt={infoModel.name}
+                onError={handleModelImgError}
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
               />
             </div>

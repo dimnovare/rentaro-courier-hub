@@ -878,6 +878,18 @@
     "air-30pro": {
       "tagline": "Urban, with turn signals",
       "blurb": "An urban 700C bike with GPS anti-theft, integrated turn signals and Eco / Sport modes — the most road-aware bike in the fleet."
+    },
+    "engwe-ep-2-boost": {
+      "tagline": "Folding fat-tyre e-bike, easy to start on",
+      "blurb": "A folding fat-tyre e-bike that's easy to start delivery work on — simple, stable and quick to store between shifts. 250 W motor, Shimano 7-speed and mechanical disc brakes."
+    },
+    "engwe-m1": {
+      "tagline": "Moto-style e-bike for long daily shifts",
+      "blurb": "A moto-style delivery e-bike built for long daily courier shifts — a sturdy steel frame, hydraulic disc brakes and dual suspension keep you comfortable mile after mile."
+    },
+    "engwe-engine-pro-3": {
+      "tagline": "Premium full-suspension folder",
+      "blurb": "The premium pick for the most demanding delivery days — full suspension, hydraulic dual-piston brakes, a torque-sensor motor and built-in GPS anti-theft."
     }
   },
   "specTable": {
