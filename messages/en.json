@@ -333,6 +333,15 @@
       "transfer": "Bank transfer",
       "transferNote": "We'll send our bank details after we approve your booking."
     },
+    "fulfillment": {
+      "title": "How would you like to get your bike?",
+      "pickup": "Pick up (free)",
+      "deliveryFee": "Delivery (€{fee})",
+      "deliveryFree": "Delivery (free)",
+      "feeNote": "We bring the bike to you for a one-time €{fee} fee, added to your first payment.",
+      "summaryLabel": "Delivery",
+      "summaryNote": "one-time, added to your first payment"
+    },
     "details": {
       "heading": "Your details",
       "sub": "So we can confirm availability and send your contract.",

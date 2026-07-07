@@ -333,6 +333,15 @@
       "transfer": "Tilisiirto",
       "transferNote": "Lähetämme pankkitietomme, kun olemme hyväksyneet varauksesi."
     },
+    "fulfillment": {
+      "title": "Miten haluat saada pyöräsi?",
+      "pickup": "Nouda itse (ilmainen)",
+      "deliveryFee": "Toimitus (€{fee})",
+      "deliveryFree": "Toimitus (ilmainen)",
+      "feeNote": "Tuomme pyörän luoksesi kertaluonteisella €{fee} maksulla, joka lisätään ensimmäiseen maksuusi.",
+      "summaryLabel": "Toimitus",
+      "summaryNote": "kertaluonteinen, lisätään ensimmäiseen maksuun"
+    },
     "referral": {
       "label": "Onko sinulla suosittelukoodi?",
       "placeholder": "Suosittelukoodi (valinnainen)"

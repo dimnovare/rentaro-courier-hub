@@ -33,6 +33,8 @@ export interface AdminBooking {
   contactMethod: string;
   /** Chosen payment method: "cash" | "transfer" | null (unchosen). */
   paymentMethod: string | null;
+  /** How the bike reaches the customer: "pickup" (free) | "delivery" (paid). */
+  fulfillment: string;
   /** The customer's preferred language: "en" | "et" | "lv" | "fi" | "ru" | null. */
   locale: string | null;
   /** Referral code the customer entered, if any. */

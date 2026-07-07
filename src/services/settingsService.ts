@@ -15,6 +15,8 @@ export const SAFE_DEFAULT_SETTINGS: SiteSettings = {
   showOnlineSigning: false,
   // Fail-safe ON: preserve auto-send when the API is unreachable (opposite of the show* flags).
   autoSendReturnReminders: true,
+  // Fail-safe: no fee when the API is unreachable (delivery reads as free).
+  deliveryFee: 0,
   bankIban: "",
   bankAccountName: "",
   bankName: "",

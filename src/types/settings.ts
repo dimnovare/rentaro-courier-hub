@@ -15,6 +15,11 @@ export interface SiteSettings {
   showOnlineSigning: boolean;
   /** Auto-send return reminders from the background scanner (default ON). */
   autoSendReturnReminders: boolean;
+  /**
+   * Flat one-time fee (EUR) added to the customer's first payment when they choose
+   * delivery instead of free pickup at booking time. 0 (default) = delivery is free.
+   */
+  deliveryFee: number;
   bankIban: string;
   bankAccountName: string;
   bankName: string;

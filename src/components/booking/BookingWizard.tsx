@@ -21,6 +21,8 @@ import type { BikeModel, City, PlanId } from "@/types";
 type ContactMethod = "email" | "phone";
 /** Payment preference captured on the review step. */
 type PaymentMethod = "cash" | "transfer";
+/** Fulfilment: free pickup or paid delivery (we bring the bike). */
+type Fulfillment = "pickup" | "delivery";
 
 /** The single-select steps that a deep link can pre-satisfy and thus skip. */
 type StepKey = "city" | "model" | "plan" | "details" | "review";
@@ -175,6 +177,14 @@ export function BookingWizard({
   // payment defaults to cash-at-pickup. Both ride along in the booking payload.
   const [contactMethod, setContactMethod] = useState<ContactMethod>("email");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  // Fulfilment preference (review step). Defaults to free pickup; delivery adds
+  // the flat one-time delivery fee (settings.deliveryFee) to the first payment.
+  const [fulfillment, setFulfillment] = useState<Fulfillment>("pickup");
+
+  // Flat one-time delivery fee from public settings (0 when unset → delivery is
+  // free). Only added to the amounts when the customer chose delivery.
+  const deliveryFee = Math.max(0, settings.deliveryFee ?? 0);
+  const feeApplied = fulfillment === "delivery" ? deliveryFee : 0;
 
   // Model the visitor is previewing in the info popup (null = closed). The popup
   // is informational only and never changes the selection.
@@ -362,6 +372,7 @@ export function BookingWizard({
         referralCode: settings.showReferralCode ? referralCode.trim() || undefined : undefined,
         contactMethod,
         paymentMethod,
+        fulfillment,
         locale,
       });
       const summary = {
@@ -1116,10 +1127,20 @@ export function BookingWizard({
                   <span className="summary-sub">{t("review.depositNote")}</span>
                 </span>
               </div>
+              {/* One-time delivery fee — only when the customer chose paid delivery. */}
+              {feeApplied > 0 && (
+                <div className="summary-row">
+                  <span className="l">{t("fulfillment.summaryLabel")}</span>
+                  <span className="v">
+                    €{feeApplied}
+                    <span className="summary-sub">{t("fulfillment.summaryNote")}</span>
+                  </span>
+                </div>
+              )}
               <div className="summary-total">
                 <span className="l">{planId ? tp(`terms.${planId}`) : plan?.term}</span>
                 <span className="big">
-                  €{plan ? priceFor(plan).monthly : ""}
+                  €{plan ? priceFor(plan).monthly + feeApplied : ""}
                   <span className="per"> {t(settings.showAddGear ? "review.per30Addons" : "review.per30Only")}</span>
                 </span>
               </div>
@@ -1156,6 +1177,37 @@ export function BookingWizard({
                   {t("contact.phone")}
                 </button>
               </div>
+            </div>
+
+            {/* Fulfilment — free pickup or paid delivery (we bring the bike). The
+                delivery label shows the flat fee, or "(free)" when the fee is 0. */}
+            <div className="seg-block">
+              <h4 className="seg-head">{t("fulfillment.title")}</h4>
+              <div className="seg-row">
+                <button
+                  type="button"
+                  className={`seg-btn ${fulfillment === "pickup" ? "on" : ""}`}
+                  aria-pressed={fulfillment === "pickup"}
+                  onClick={() => setFulfillment("pickup")}
+                >
+                  {t("fulfillment.pickup")}
+                </button>
+                <button
+                  type="button"
+                  className={`seg-btn ${fulfillment === "delivery" ? "on" : ""}`}
+                  aria-pressed={fulfillment === "delivery"}
+                  onClick={() => setFulfillment("delivery")}
+                >
+                  {deliveryFee > 0
+                    ? t("fulfillment.deliveryFee", { fee: deliveryFee })
+                    : t("fulfillment.deliveryFree")}
+                </button>
+              </div>
+              {fulfillment === "delivery" && deliveryFee > 0 && (
+                <p className="sub" style={{ marginTop: 8 }}>
+                  {t("fulfillment.feeNote", { fee: deliveryFee })}
+                </p>
+              )}
             </div>
 
             {/* Payment preference — cash at pickup or bank transfer. */}

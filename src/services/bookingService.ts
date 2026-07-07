@@ -9,6 +9,9 @@ import { API_BASE } from "./api";
  *
  * - `contactMethod`: how rentaro should reach the customer ("email" | "phone").
  * - `paymentMethod`: preferred payment route ("cash" | "transfer"); optional.
+ * - `fulfillment`: how the bike reaches the customer ("pickup" = free | "delivery"
+ *   = paid). Defaults to "pickup" on the backend when absent. "delivery" adds the
+ *   flat one-time delivery fee to the first payment.
  * - `locale`: the site language at booking time ("en"|"et"|"lv"|"fi"|"ru"); the
  *   backend uses it to pick the right-language contract template (ru→RU/EN,
  *   everything else→EE/EN).
@@ -17,6 +20,7 @@ export type SubmitBookingInput = BookingRequest & {
   referralCode?: string;
   contactMethod?: "email" | "phone";
   paymentMethod?: "cash" | "transfer";
+  fulfillment?: "pickup" | "delivery";
   locale?: string;
 };
 

@@ -1444,6 +1444,7 @@ function BookingDetails({
       <Detail label="Language" value={localeLabel(b.locale)} />
       <Detail label="Contact via" value={b.contactMethod || "—"} />
       <Detail label="Payment" value={b.paymentMethod ?? "—"} />
+      <Detail label="Fulfillment" value={b.fulfillment === "delivery" ? "Delivery" : "Pickup"} />
       <Detail label="City" value={b.cityId} mono />
       <Detail label="Model" value={b.modelId} mono />
       <Detail label="Plan" value={b.planId} mono />

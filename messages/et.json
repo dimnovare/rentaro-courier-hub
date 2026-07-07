@@ -333,6 +333,15 @@
       "transfer": "Pangaülekanne",
       "transferNote": "Saadame oma pangaandmed pärast broneeringu kinnitamist."
     },
+    "fulfillment": {
+      "title": "Kuidas soovid ratta kätte saada?",
+      "pickup": "Tulen ise järele (tasuta)",
+      "deliveryFee": "Kohaletoimetamine (€{fee})",
+      "deliveryFree": "Kohaletoimetamine (tasuta)",
+      "feeNote": "Toome ratta sinuni ühekordse €{fee} tasu eest, mis lisatakse esimesele maksele.",
+      "summaryLabel": "Kohaletoimetamine",
+      "summaryNote": "ühekordne, lisatakse esimesele maksele"
+    },
     "details": {
       "heading": "Sinu andmed",
       "sub": "Et saaksime saadavuse kinnitada ja lepingu saata.",

@@ -333,6 +333,15 @@
       "transfer": "Bankas pārskaitījums",
       "transferNote": "Mēs nosūtīsim mūsu bankas rekvizītus pēc tavas rezervācijas apstiprināšanas."
     },
+    "fulfillment": {
+      "title": "Kā vēlies saņemt velosipēdu?",
+      "pickup": "Paņemšu pats (bez maksas)",
+      "deliveryFee": "Piegāde (€{fee})",
+      "deliveryFree": "Piegāde (bez maksas)",
+      "feeNote": "Atvedīsim velosipēdu pie tevis par vienreizēju €{fee} maksu, kas tiek pievienota pirmajam maksājumam.",
+      "summaryLabel": "Piegāde",
+      "summaryNote": "vienreizēja, pievienota pirmajam maksājumam"
+    },
     "referral": {
       "label": "Vai tev ir ieteikuma kods?",
       "placeholder": "Ieteikuma kods (pēc izvēles)"

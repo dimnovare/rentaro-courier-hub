@@ -72,6 +72,7 @@ function sameSettings(a: SiteSettings, b: SiteSettings): boolean {
     if (a[k] !== b[k]) return false;
   }
   if (a.autoSendReturnReminders !== b.autoSendReturnReminders) return false;
+  if ((a.deliveryFee ?? 0) !== (b.deliveryFee ?? 0)) return false;
   for (const k of BANK_KEYS) {
     if ((a[k] ?? "") !== (b[k] ?? "")) return false;
   }
@@ -196,6 +197,14 @@ export default function AdminSettingsPage() {
             first
             onChange={(v) => setField("autoSendReturnReminders", v)}
           />
+          <div style={{ borderTop: "1px solid var(--border)", padding: "16px 0 4px" }}>
+            <EuroField
+              label="Delivery fee (€)"
+              value={data.deliveryFee}
+              help="Flat one-time fee when a customer picks delivery instead of free pickup. €0 = free."
+              onChange={(v) => setField("deliveryFee", v)}
+            />
+          </div>
         </div>
       </SettingsCard>
 
@@ -339,6 +348,54 @@ function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean
         }}
       />
     </span>
+  );
+}
+
+/**
+ * A euro number input for the flat delivery fee. Money, so it parses to a plain
+ * number (2-decimal step); a blank / unparseable value reads as 0. Kept as a
+ * controlled string so the operator can clear the box mid-edit without it snapping
+ * to 0 on every keystroke.
+ */
+function EuroField({
+  label,
+  value,
+  help,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  help: string;
+  onChange: (v: number) => void;
+}) {
+  const [text, setText] = useState<string>(() => String(value ?? 0));
+
+  // Re-sync when the saved value changes underneath us (load / save / refresh).
+  useEffect(() => {
+    setText(String(value ?? 0));
+  }, [value]);
+
+  return (
+    <div className="field" style={{ marginBottom: 4 }}>
+      <label>{label}</label>
+      <input
+        type="number"
+        inputMode="decimal"
+        min={0}
+        step={0.5}
+        value={text}
+        aria-label={label}
+        onChange={(e) => {
+          const raw = e.target.value;
+          setText(raw);
+          const n = Number.parseFloat(raw);
+          onChange(Number.isFinite(n) && n >= 0 ? n : 0);
+        }}
+        className="mono"
+        style={{ fontFamily: "var(--font-mono)", maxWidth: 160 }}
+      />
+      <p className="admin-set-field-help">{help}</p>
+    </div>
   );
 }
 
