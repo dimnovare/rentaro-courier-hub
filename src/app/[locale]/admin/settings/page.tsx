@@ -19,6 +19,7 @@ import {
   SettingsConfigError,
   type SiteSettings,
 } from "@/services/adminSettingsService";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -45,6 +46,43 @@ const BANK_PLACEHOLDER: Record<BankKey, string> = {
   bankReference: "RENTARO-0000",
 };
 
+/**
+ * Plain-language help under each bank field, so a non-technical operator knows
+ * exactly what to type and never clears the wrong box. Hardcoded English to
+ * match the rest of the admin console (admin strings are not translated).
+ */
+const BANK_HELP: Record<BankKey, string> = {
+  bankIban: "The account number couriers transfer to. Copy it exactly from your bank.",
+  bankAccountName: "The account holder's name, as it appears at the bank (e.g. rentaro OÜ).",
+  bankName: "Your bank's name (e.g. LHV Pank). Shown to couriers for reference.",
+  bankReference: "The reference / explanation couriers should add to their transfer.",
+};
+
+/** Short one-line help under each grouped card's heading. */
+const FEATURES_HELP =
+  "Switches for what couriers see on the public site. Everything is hidden by default — turn a section on only when it is ready to ship.";
+const OPS_HELP = "Internal automation. These do not change what couriers see on the site.";
+const BANK_SECTION_HELP =
+  "Bank details shown to couriers who pay by manual transfer. Double-check before saving — these appear on their payment instructions.";
+
+/** True when two settings records are field-for-field identical (used for the
+ *  unsaved-changes indicator). Compares only the keys we edit on this page. */
+function sameSettings(a: SiteSettings, b: SiteSettings): boolean {
+  for (const k of TOGGLE_KEYS) {
+    if (a[k] !== b[k]) return false;
+  }
+  if (a.autoSendReturnReminders !== b.autoSendReturnReminders) return false;
+  for (const k of BANK_KEYS) {
+    if ((a[k] ?? "") !== (b[k] ?? "")) return false;
+  }
+  return true;
+}
+
+/** Format a timestamp as HH:MM for the "Saved ✓" confirmation. */
+function hhmm(ms: number): string {
+  return new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
 type LoadState =
   | { phase: "loading" }
   | { phase: "ready"; data: SiteSettings }
@@ -57,6 +95,10 @@ export default function AdminSettingsPage() {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  // The last-saved snapshot. Everything on screen is compared against this to
+  // decide whether there are unsaved changes; it is refreshed on load and after
+  // a successful save. State (not a ref) so the comparison runs during render.
+  const [baseline, setBaseline] = useState<SiteSettings | null>(null);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
@@ -64,6 +106,7 @@ export default function AdminSettingsPage() {
     setSavedAt(null);
     try {
       const data = await getSettings();
+      setBaseline(data);
       setState({ phase: "ready", data });
     } catch (err) {
       if (err instanceof SettingsApiError && err.unauthorized) {
@@ -81,6 +124,9 @@ export default function AdminSettingsPage() {
   useAdminRefresh(load);
 
   const setField = useCallback(<K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
+    // Editing anything clears the previous "Saved" confirmation and any error,
+    // so the dirty indicator can take over. Values are NOT reset to defaults —
+    // whatever is on screen is exactly what a Save will write.
     setSavedAt(null);
     setActionError(null);
     setState((s) => (s.phase === "ready" ? { ...s, data: { ...s.data, [key]: value } } : s));
@@ -91,7 +137,11 @@ export default function AdminSettingsPage() {
     setBusy(true);
     setActionError(null);
     try {
+      // The backend PUT is all-or-nothing: it writes every field, so we send the
+      // full current record. Whatever is on screen is saved verbatim — nothing is
+      // blanked behind the operator's back.
       const saved = await updateSettings(state.data);
+      setBaseline(saved);
       setState({ phase: "ready", data: saved });
       setSavedAt(Date.now());
     } catch (err) {
@@ -113,23 +163,18 @@ export default function AdminSettingsPage() {
   }
 
   const data = state.data;
+  // Unsaved-changes flag: the on-screen record differs from the last save.
+  const dirty = baseline ? !sameSettings(data, baseline) : false;
 
   return (
     <div style={{ maxWidth: 720 }}>
-      <header style={{ marginBottom: 36 }}>
-        <h1 style={{ fontSize: 26, letterSpacing: "-0.02em", margin: "0 0 8px" }}>{t("title")}</h1>
-        <p className="mono" style={{ fontSize: 12, color: "var(--text-dim)", margin: 0, lineHeight: 1.6 }}>
-          These switches control what couriers see on the public site. Everything is hidden by default — turn
-          a section on only when it is ready to ship.
-        </p>
-      </header>
+      <PageHeader title={t("title")} subtitle="What couriers see on the site, plus bank details for transfers." />
 
       {actionError && <ActionErrorBar message={actionError} onDismiss={() => setActionError(null)} />}
 
-      {/* ── Feature visibility ──────────────────────────────────────────── */}
-      <section style={{ marginBottom: 44 }}>
-        <SectionHeading>{t("sections")}</SectionHeading>
-        <div className="card" style={{ padding: "6px 20px" }}>
+      {/* ── Features ────────────────────────────────────────────────────── */}
+      <SettingsCard title={t("sections")} help={FEATURES_HELP}>
+        <div className="admin-set-card-body">
           {TOGGLE_KEYS.map((key, i) => (
             <ToggleRow
               key={key}
@@ -140,12 +185,11 @@ export default function AdminSettingsPage() {
             />
           ))}
         </div>
-      </section>
+      </SettingsCard>
 
       {/* ── Operations ──────────────────────────────────────────────────── */}
-      <section style={{ marginBottom: 44 }}>
-        <SectionHeading>{t("opsHeading")}</SectionHeading>
-        <div className="card" style={{ padding: "6px 20px" }}>
+      <SettingsCard title={t("opsHeading")} help={OPS_HELP}>
+        <div className="admin-set-card-body">
           <ToggleRow
             label={t("autoSendReturnReminders")}
             checked={data.autoSendReturnReminders}
@@ -153,63 +197,77 @@ export default function AdminSettingsPage() {
             onChange={(v) => setField("autoSendReturnReminders", v)}
           />
         </div>
-      </section>
+      </SettingsCard>
 
-      {/* ── Bank requisites ─────────────────────────────────────────────── */}
-      <section style={{ marginBottom: 44 }}>
-        <SectionHeading>{t("bankHeading")}</SectionHeading>
-        <div className="card" style={{ padding: "24px 20px" }}>
+      {/* ── Bank details / requisites ───────────────────────────────────── */}
+      <SettingsCard title={t("bankHeading")} help={BANK_SECTION_HELP}>
+        <div className="admin-set-card-body pad">
           {BANK_KEYS.map((key) => (
             <BankField
               key={key}
               label={t(key)}
               value={data[key]}
               placeholder={BANK_PLACEHOLDER[key]}
+              help={BANK_HELP[key]}
               onChange={(v) => setField(key, v)}
             />
           ))}
         </div>
-      </section>
+      </SettingsCard>
 
-      {/* ── Save ────────────────────────────────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      {/* ── Save + unsaved-changes / saved cues ─────────────────────────── */}
+      <div className="admin-set-savebar">
         <button
           type="button"
           className="btn btn-primary"
           onClick={() => void save()}
-          disabled={busy}
-          style={{ padding: "12px 26px", fontSize: 14, opacity: busy ? 0.6 : 1 }}
+          disabled={busy || !dirty}
+          style={{ padding: "12px 26px", fontSize: 14, opacity: busy || !dirty ? 0.55 : 1 }}
         >
-          {busy ? "…" : t("save")}
+          {busy ? "Saving…" : t("save")}
         </button>
-        {savedAt !== null && (
-          <span className="mono" style={{ fontSize: 12, color: "var(--lime)" }} role="status">
-            {t("saved")}
+
+        {dirty ? (
+          <span className="admin-set-dirty" role="status">
+            <span className="admin-set-dirty-dot" aria-hidden />
+            Unsaved changes
           </span>
+        ) : savedAt !== null ? (
+          <span className="admin-set-saved" role="status">
+            Saved ✓ {hhmm(savedAt)}
+          </span>
+        ) : (
+          <span className="admin-set-clean">All changes saved.</span>
         )}
       </div>
     </div>
   );
 }
 
-/* ── Pieces ────────────────────────────────────────────────────────────── */
-
-function SectionHeading({ children }: { children: React.ReactNode }) {
+/** A grouped settings card: heading + one-line help, then its body. */
+function SettingsCard({
+  title,
+  help,
+  children,
+}: {
+  title: string;
+  help: string;
+  children: React.ReactNode;
+}) {
   return (
-    <h2
-      className="mono"
-      style={{
-        fontSize: 11,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        color: "var(--text-dim)",
-        margin: "0 0 14px",
-      }}
-    >
-      {children}
-    </h2>
+    <section style={{ marginBottom: 28 }}>
+      <div className="card admin-set-card">
+        <div className="admin-set-card-head">
+          <h2 className="admin-set-card-title">{title}</h2>
+          <p className="admin-set-card-help">{help}</p>
+        </div>
+        {children}
+      </div>
+    </section>
   );
 }
+
+/* ── Pieces ────────────────────────────────────────────────────────────── */
 
 /** A labelled switch row. Help text is the label itself (describes the public effect). */
 function ToggleRow({
@@ -288,15 +346,17 @@ function BankField({
   label,
   value,
   placeholder,
+  help,
   onChange,
 }: {
   label: string;
   value: string;
   placeholder: string;
+  help: string;
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="field" style={{ marginBottom: 18 }}>
+    <div className="field" style={{ marginBottom: 20 }}>
       <label>{label}</label>
       <input
         type="text"
@@ -307,6 +367,7 @@ function BankField({
         className="mono"
         style={{ fontFamily: "var(--font-mono)" }}
       />
+      <p className="admin-set-field-help">{help}</p>
     </div>
   );
 }

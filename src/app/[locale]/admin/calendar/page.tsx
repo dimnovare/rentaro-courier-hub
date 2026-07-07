@@ -11,6 +11,7 @@ import {
 } from "@/services/adminRentalService";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -93,6 +94,11 @@ export default function AdminCalendarPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load(from, to)} />
       ) : (
         <>
+          <PageHeader
+            title="Calendar"
+            subtitle="Fleet availability, rentals and maintenance across a date range."
+          />
+
           <RangeControls
             from={from}
             to={to}

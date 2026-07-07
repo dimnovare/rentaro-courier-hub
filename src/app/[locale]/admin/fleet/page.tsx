@@ -19,6 +19,7 @@ import {
 import { AdminTable, Th, Td, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { Drawer } from "@/components/admin/Drawer";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { modelService } from "@/services/modelService";
@@ -263,13 +264,9 @@ export default function AdminFleetPage() {
             </div>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              marginBottom: 20,
-            }}
+          <PageHeader
+            title="Fleet"
+            subtitle="Physical bike units and their rental timeline."
           >
             <button
               type="button"
@@ -279,7 +276,7 @@ export default function AdminFleetPage() {
             >
               + New unit
             </button>
-          </div>
+          </PageHeader>
 
           <UnitsByCity
             units={state.data.units}

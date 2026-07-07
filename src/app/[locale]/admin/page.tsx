@@ -17,6 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { MetricsCards } from "@/components/admin/MetricsCards";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { fmtDate } from "@/components/admin/Table";
 import {
@@ -112,11 +113,10 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <header className="admin-dash-head">
-        <div>
-          <h1 className="admin-dash-greeting">{greeting()}, operator</h1>
-          <p className="admin-dash-sub">{today()} · live fleet &amp; bookings overview</p>
-        </div>
+      <PageHeader
+        title={`${greeting()}, operator`}
+        subtitle={`${today()} · live fleet & bookings overview`}
+      >
         <div className="admin-quick">
           <Link href="/admin/bookings" className="primary">
             Review bookings
@@ -131,7 +131,7 @@ export default function AdminDashboardPage() {
             New ticket
           </Link>
         </div>
-      </header>
+      </PageHeader>
 
       {state.phase === "error" && state.config ? (
         <ConfigNotice message={state.message} />

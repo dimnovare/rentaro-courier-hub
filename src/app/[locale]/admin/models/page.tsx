@@ -25,6 +25,7 @@ import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { ColorListEditor } from "@/components/admin/ColorListEditor";
 import { Drawer } from "@/components/admin/Drawer";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -265,6 +266,14 @@ export default function AdminModelsPage() {
 
   /** Remove a model's uploaded photo and reset it to the static default. */
   async function removeImage(code: string) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `Remove the uploaded photo for "${code}"? It will fall back to the default catalogue image. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
     setActionError(null);
     setBusy(code, true);
     try {
@@ -295,6 +304,12 @@ export default function AdminModelsPage() {
 
   /** Remove one gallery image (by its url) from a model. */
   async function removeGalleryImage(code: string, url: string) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Remove this gallery image from "${code}"? This cannot be undone.`)
+    ) {
+      return;
+    }
     setActionError(null);
     setBusy(code, true);
     try {
@@ -329,12 +344,9 @@ export default function AdminModelsPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 18,
-            }}
+          <PageHeader
+            title="Models"
+            subtitle={`${state.models.length} ${state.models.length === 1 ? "model" : "models"} in the catalogue`}
           >
             <button
               type="button"
@@ -344,12 +356,11 @@ export default function AdminModelsPage() {
             >
               + New model
             </button>
-          </div>
+          </PageHeader>
 
           {actionError && <InlineError message={actionError} />}
 
           <section style={{ marginBottom: 24 }}>
-            <SectionHead title="Models" count={state.models.length} />
             <AdminTable>
               <thead>
                 <tr>
@@ -1522,19 +1533,6 @@ function pillButtonStyle(on: boolean, busy: boolean): React.CSSProperties {
 }
 
 /* ── Shared scaffold (mirrors the fleet / maintenance pages) ───────────── */
-
-function SectionHead({ title, count }: { title: string; count?: number }) {
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-      <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>{title}</h2>
-      {typeof count === "number" && (
-        <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
-          {count} {count === 1 ? "model" : "models"}
-        </span>
-      )}
-    </div>
-  );
-}
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (

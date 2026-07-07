@@ -38,6 +38,7 @@ import {
 } from "@/services/adminContractService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate, fmtDay } from "@/components/admin/Table";
 import { StatusPill, type PillTone } from "@/components/admin/StatusPill";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -294,6 +295,14 @@ export default function AdminBookingsPage() {
   // out of "paid" and re-gates assignment) and refreshes the list.
   const onRevokePayment = useCallback(
     async (bookingId: string) => {
+      if (
+        typeof window !== "undefined" &&
+        !window.confirm(
+          "Mark this payment as unpaid? This reverts the confirmed payment and re-blocks bike assignment until it is confirmed again.",
+        )
+      ) {
+        return;
+      }
       setBanner(null);
       setRowError(null);
       try {
@@ -493,13 +502,9 @@ export default function AdminBookingsPage() {
             </div>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              marginBottom: 18,
-            }}
+          <PageHeader
+            title="Bookings"
+            subtitle="Review requests, take payment, generate contracts and assign bikes."
           >
             <button
               type="button"
@@ -509,7 +514,7 @@ export default function AdminBookingsPage() {
             >
               + New booking
             </button>
-          </div>
+          </PageHeader>
 
           <AdminSection title="Bookings" count={state.data.bookings.length}>
             <BookingsManageTable

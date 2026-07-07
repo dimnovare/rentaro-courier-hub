@@ -44,6 +44,7 @@ import {
   toLocalizedStrings,
 } from "@/components/admin/LocalizedListEditor";
 import { Drawer } from "@/components/admin/Drawer";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -132,6 +133,11 @@ export default function AdminContentPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
+          <PageHeader
+            title="Content"
+            subtitle="Accessories, cities, pricing plans, hero marquee and FAQ shown on the public site."
+          />
+
           {actionError && <ActionErrorBar message={actionError} onDismiss={() => setActionError(null)} />}
 
           <AccessoriesSection

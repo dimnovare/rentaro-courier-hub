@@ -20,6 +20,7 @@ import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
 import { DateField } from "@/components/admin/DateField";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 /** Today as YYYY-MM-DD (local), used to seed the date inputs. */
 function todayISO(): string {
@@ -139,6 +140,11 @@ export default function AdminRentalsPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
+          <PageHeader
+            title="Rentals"
+            subtitle="Active and past rentals. Schedule returns, inspect and extend."
+          />
+
           {banner && <Banner tone={banner.tone} text={banner.text} />}
 
           <AdminSection title="Rentals" count={state.rentals.length}>
@@ -423,7 +429,17 @@ function ManageRentalBody({
             className="btn btn-ghost"
             style={miniBtn}
             disabled={busy}
-            onClick={() => onReturn(id)}
+            onClick={() => {
+              if (
+                typeof window !== "undefined" &&
+                !window.confirm(
+                  "Mark this rental as returned? This ends the active rental and frees the bike for inspection.",
+                )
+              ) {
+                return;
+              }
+              onReturn(id);
+            }}
           >
             Mark returned
           </button>

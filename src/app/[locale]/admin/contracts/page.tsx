@@ -12,6 +12,7 @@ import {
 } from "@/services/adminContractService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -88,6 +89,11 @@ export default function AdminContractsPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
+          <PageHeader
+            title="Contracts"
+            subtitle="Upload rental-agreement templates and choose which one new contracts use."
+          />
+
           {banner && <Banner tone={banner.tone} text={banner.text} />}
 
           <UploadCard

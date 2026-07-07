@@ -12,6 +12,7 @@ import {
 import { AdminTable, Th, Td, EmptyRow, fmtDate } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { Drawer } from "@/components/admin/Drawer";
+import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -70,6 +71,12 @@ export default function AdminSupportPage() {
   );
 
   async function resolve(id: number) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Mark support ticket #${id} as resolved? It moves out of the open queue.`)
+    ) {
+      return;
+    }
     setActionError(null);
     setPending((p) => ({ ...p, [id]: true }));
     try {
@@ -99,6 +106,11 @@ export default function AdminSupportPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
+          <PageHeader
+            title="Support"
+            subtitle="Messages couriers send from the site. Resolve once handled."
+          />
+
           {actionError && <InlineError message={actionError} />}
 
           <TicketsTable

@@ -16,6 +16,7 @@ import { StatusPill } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
+import { PageHeader } from "@/components/admin/PageHeader";
 
 /**
  * Valid MaintenanceStatus values — wire values must match what the backend emits
@@ -155,15 +156,9 @@ export default function AdminMaintenancePage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
-          {actionError && <InlineError message={actionError} />}
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              marginBottom: 24,
-            }}
+          <PageHeader
+            title="Maintenance"
+            subtitle="Log and track repairs and service for bike units."
           >
             <button
               type="button"
@@ -173,7 +168,9 @@ export default function AdminMaintenancePage() {
             >
               + New ticket
             </button>
-          </div>
+          </PageHeader>
+
+          {actionError && <InlineError message={actionError} />}
 
           <TicketsTable
             tickets={state.tickets}
