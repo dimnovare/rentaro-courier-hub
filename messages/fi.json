@@ -251,7 +251,7 @@
       },
       "extraBattery": {
         "q": "Voinko vuokrata lisäakun?",
-        "a": "Kyllä. Lisäakku on saatavilla lisävarusteena pitkiä lähettipäiviä varten. Engine Pro 2.0:ssa on 832 Wh:n akku ja Air One Pro tukee kaksoisakkutilaa lisätehoa vaativina päivinä."
+        "a": "Kyllä. Lisäakku on saatavilla lisävarusteena pitkiä lähettipäiviä varten. Engine Pro 2.0:ssa on 832 Wh:n akku lisätehoa vaativina päivinä."
       },
       "deposit": {
         "q": "Mikä vakuus vaaditaan?",
@@ -874,26 +874,6 @@
       "tagline": "Lähettityön työjuhta",
       "blurb": "750W (1200W huipputeho) takanapamoottori, vääntöanturi ja täysjousitus 20×4.0 läskirenkailla. Rakennettu kantamaan kuormaa läpi täysien lähettipäivien, millä tahansa pinnalla."
     },
-    "air-one-pro": {
-      "tagline": "Perheen ja tavaran kuljettaja",
-      "blurb": "Integroitu alumiininen tavarateline, kaksoisakkutila ja 150 kg kantavuus. Valinta raskaisiin monitilausreitteihin."
-    },
-    "air-28pro": {
-      "tagline": "Pitkät kaupunkimatkat",
-      "blurb": "28-tuumainen trekkinggeometria, automaattinen Bafang-vaihteisto ja 3.5\" IPX7-näyttö. Pehmeä, vähähuoltoinen hiilikuituhihnaveto pitkiä kaupunkikilometrejä varten."
-    },
-    "air-20pro": {
-      "tagline": "Älykäs automaattivaihteinen työmatkapyörä",
-      "blurb": "Taittuva työmatkapyörä automaattisella Bafang-vaihteistolla, vähähuoltoisella hiilikuituhihnalla ja 21 kg rungolla, jota on helppo kantaa ja säilyttää."
-    },
-    "air-20s": {
-      "tagline": "Kevyin ja yksinkertaisin",
-      "blurb": "Kaluston kevyin ja yksinkertaisin pyörä: 18 kg yksivaihteinen taittopyörä hiljaisella hiilikuituhihnalla — helppo käsitellä lyhyempiin kaupunkivuoroihin."
-    },
-    "air-30pro": {
-      "tagline": "Urbaani, suuntavilkuilla",
-      "blurb": "Urbaani 700C-pyörä GPS-varkaussuojalla, integroiduilla suuntavilkuilla ja Eco / Sport -tiloilla — kaluston liikennetietoisin pyörä."
-    },
     "engwe-ep-2-boost": {
       "tagline": "Taittuva leveärenkainen e-pyörä, jolla on helppo aloittaa",
       "blurb": "Taittuva leveärenkainen e-pyörä, jolla on helppo aloittaa lähettityö — yksinkertainen, vakaa ja nopea säilöä vuorojen välissä. 250 W:n moottori, Shimano 7-vaihteinen ja mekaaniset levyjarrut."
@@ -1128,7 +1108,7 @@
           },
           "accessories": {
             "q": "Voinko lisätä akun ja lähetyslaukun?",
-            "a": "Kyllä. Lisäakku, lähetyslaukku, puhelinteline ja järeä lukko ovat kaikki saatavilla lisävarusteina, ja voit muuttaa niitä rutiinisi muuttuessa. Engine Pro 2.0 kantaa 832 Wh:n akun ja Air One Pro tukee kaksoisakkutilaa vaativille päiville."
+            "a": "Kyllä. Lisäakku, lähetyslaukku, puhelinteline ja järeä lukko ovat kaikki saatavilla lisävarusteina, ja voit muuttaa niitä rutiinisi muuttuessa. Engine Pro 2.0 kantaa 832 Wh:n akun vaativille päiville."
           },
           "weather": {
             "q": "Ovatko pyörät valmiita sateeseen ja talveen?",

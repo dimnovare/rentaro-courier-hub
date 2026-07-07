@@ -20,7 +20,7 @@ export const faqs: Faq[] = [
   },
   {
     q: "Can I rent an extra battery?",
-    a: "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack and the Air One Pro supports a dual-battery mode for extra range on demanding days.",
+    a: "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack for extra range on demanding days.",
   },
   {
     q: "What deposit is required?",

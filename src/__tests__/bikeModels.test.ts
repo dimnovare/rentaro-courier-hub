@@ -3,14 +3,14 @@ import { bikeModels } from "@/data/bikeModels";
 
 /**
  * Catalogue invariants (see CLAUDE.md):
- *  - six active models;
+ *  - four active models (matches the production fleet: engine-pro + 3 engwe-*);
  *  - uniform term pricing — every bike starts at €5.90 / day;
  *  - NO fixed-km range promise in marketing pills (the range rule). Range may
  *    only live in the detailed spec block / spec tables, never a card pill.
  */
 describe("bikeModels", () => {
-  it("has six models", () => {
-    expect(bikeModels).toHaveLength(6);
+  it("has four models", () => {
+    expect(bikeModels).toHaveLength(4);
   });
 
   it("starts every model at €5.90 / day", () => {

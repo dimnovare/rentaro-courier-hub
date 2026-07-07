@@ -251,7 +251,7 @@
       },
       "extraBattery": {
         "q": "Can I rent an extra battery?",
-        "a": "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack and the Air One Pro supports a dual-battery mode for extra range on demanding days."
+        "a": "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack for extra range on demanding days."
       },
       "deposit": {
         "q": "What deposit is required?",
@@ -874,26 +874,6 @@
       "tagline": "The delivery workhorse",
       "blurb": "750W (1200W peak) rear hub motor, torque sensor and full suspension on 20×4.0 fat tires. Built to carry loads through full delivery days, on any surface."
     },
-    "air-one-pro": {
-      "tagline": "Family & cargo hauler",
-      "blurb": "Integrated aluminum cargo rack, dual-battery mode and a 150 kg payload. The pick for heavy multi-order runs."
-    },
-    "air-28pro": {
-      "tagline": "Long city distances",
-      "blurb": "28-inch trekking geometry, automatic Bafang shifting and a 3.5\" IPX7 display. Smooth, low-maintenance carbon belt drive for long city kilometres."
-    },
-    "air-20pro": {
-      "tagline": "Smart auto-shift commuter",
-      "blurb": "A folding commuter with automatic Bafang shifting, a maintenance-light carbon belt and a 21 kg frame that's easy to carry and store."
-    },
-    "air-20s": {
-      "tagline": "Lightest & simplest",
-      "blurb": "The lightest, simplest bike in the fleet: an 18 kg single-speed folder with a quiet carbon belt — easy to handle for shorter city shifts."
-    },
-    "air-30pro": {
-      "tagline": "Urban, with turn signals",
-      "blurb": "An urban 700C bike with GPS anti-theft, integrated turn signals and Eco / Sport modes — the most road-aware bike in the fleet."
-    },
     "engwe-ep-2-boost": {
       "tagline": "Folding fat-tyre e-bike, easy to start on",
       "blurb": "A folding fat-tyre e-bike that's easy to start delivery work on — simple, stable and quick to store between shifts. 250 W motor, Shimano 7-speed and mechanical disc brakes."
@@ -1128,7 +1108,7 @@
           },
           "accessories": {
             "q": "Can I add a battery and a delivery bag?",
-            "a": "Yes. An extra battery, delivery bag, phone holder and heavy-duty lock are all available as add-ons, and you can change them as your routine changes. The Engine Pro 2.0 carries an 832 Wh pack and the Air One Pro supports a dual-battery mode for demanding days."
+            "a": "Yes. An extra battery, delivery bag, phone holder and heavy-duty lock are all available as add-ons, and you can change them as your routine changes. The Engine Pro 2.0 carries an 832 Wh pack for demanding days."
           },
           "weather": {
             "q": "Are the bikes ready for rain and winter?",

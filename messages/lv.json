@@ -251,7 +251,7 @@
       },
       "extraBattery": {
         "q": "Vai varu nomāt papildu akumulatoru?",
-        "a": "Jā. Papildu akumulators ir pieejams kā papildinājums garām piegādes dienām. Engine Pro 2.0 nes 832 Wh akumulatoru, un Air One Pro atbalsta divu akumulatoru režīmu lielākam nobraukumam smagās dienās."
+        "a": "Jā. Papildu akumulators ir pieejams kā papildinājums garām piegādes dienām. Engine Pro 2.0 nes 832 Wh akumulatoru lielākam nobraukumam smagās dienās."
       },
       "deposit": {
         "q": "Kāds depozīts ir nepieciešams?",
@@ -874,26 +874,6 @@
       "tagline": "Piegāžu darbarūķis",
       "blurb": "750W (1200W maksimālais) aizmugurējā rumbas motors, griezes momenta sensors un pilna balstiekārta uz 20×4.0 platajām riepām. Būvēts, lai vestu kravas cauri pilnām piegādes dienām pa jebkuru segumu."
     },
-    "air-one-pro": {
-      "tagline": "Ģimenes un kravu vedējs",
-      "blurb": "Integrēts alumīnija kravas plaukts, divu akumulatoru režīms un 150 kg kravnesība. Izvēle smagiem vairāku pasūtījumu maršrutiem."
-    },
-    "air-28pro": {
-      "tagline": "Gariem pilsētas attālumiem",
-      "blurb": "28 collu trekinga ģeometrija, automātiska Bafang pārnesumu pārslēgšana un 3.5\" IPX7 displejs. Gluda, mazas apkopes oglekļa siksnas piedziņa gariem pilsētas kilometriem."
-    },
-    "air-20pro": {
-      "tagline": "Gudrs auto-pārslēgšanās braucējs",
-      "blurb": "Salokāms ikdienas velosipēds ar automātisku Bafang pārnesumu pārslēgšanu, mazas apkopes oglekļa siksnu un 21 kg rāmi, ko viegli nest un uzglabāt."
-    },
-    "air-20s": {
-      "tagline": "Vieglākais un vienkāršākais",
-      "blurb": "Vieglākais, vienkāršākais velosipēds parkā: 18 kg viena pārnesuma salokāmais ar klusu oglekļa siksnu — viegli vadāms īsākām pilsētas maiņām."
-    },
-    "air-30pro": {
-      "tagline": "Pilsētai, ar pagrieziena rādītājiem",
-      "blurb": "Pilsētas 700C velosipēds ar GPS pretaizdzīšanas sistēmu, integrētiem pagrieziena rādītājiem un Eco / Sport režīmiem — visapzinīgākais velosipēds parkā attiecībā uz ceļu."
-    },
     "engwe-ep-2-boost": {
       "tagline": "Salokāms platriepu e-velosipēds, ar ko viegli sākt",
       "blurb": "Salokāms platriepu e-velosipēds, ar ko viegli sākt kurjera darbu — vienkāršs, stabils un ātri noglabājams starp maiņām. 250 W motors, Shimano 7 ātrumi un mehāniskās disku bremzes."
@@ -1128,7 +1108,7 @@
           },
           "accessories": {
             "q": "Vai varu pievienot akumulatoru un piegādes somu?",
-            "a": "Jā. Papildu akumulators, piegādes soma, telefona turētājs un izturīga slēdzene ir pieejami kā papildinājumi, un tu vari tos mainīt, kad mainās tavs ritms. Engine Pro 2.0 nes 832 Wh akumulatoru, un Air One Pro atbalsta divu akumulatoru režīmu prasīgām dienām."
+            "a": "Jā. Papildu akumulators, piegādes soma, telefona turētājs un izturīga slēdzene ir pieejami kā papildinājumi, un tu vari tos mainīt, kad mainās tavs ritms. Engine Pro 2.0 nes 832 Wh akumulatoru prasīgām dienām."
           },
           "weather": {
             "q": "Vai velosipēdi ir gatavi lietum un ziemai?",

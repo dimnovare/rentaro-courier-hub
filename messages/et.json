@@ -251,7 +251,7 @@
       },
       "extraBattery": {
         "q": "Kas saan rentida lisaaku?",
-        "a": "Jah. Lisaaku on saadaval lisana pikkadeks tarnepäevadeks. Engine Pro 2.0 kannab 832 Wh akut ning Air One Pro toetab kaheakurežiimi, mis annab nõudlikel päevadel lisasõiduulatust."
+        "a": "Jah. Lisaaku on saadaval lisana pikkadeks tarnepäevadeks. Engine Pro 2.0 kannab 832 Wh akut, mis annab nõudlikel päevadel lisasõiduulatust."
       },
       "deposit": {
         "q": "Kui suur tagatisraha on nõutav?",
@@ -874,26 +874,6 @@
       "tagline": "Tarnetöö tööhobune",
       "blurb": "750W (1200W tipp) tagumine rummumootor, jõumomendiandur ja täisvedrustus 20×4.0 jämedatel rehvidel. Ehitatud koormaid kandma läbi tervete tarnepäevade, igasugusel pinnal."
     },
-    "air-one-pro": {
-      "tagline": "Pere- ja kaubavedaja",
-      "blurb": "Integreeritud alumiiniumist pakiraam, kaheakurežiim ja 150 kg kandevõime. Valik rasketeks mitme tellimuse sõitudeks."
-    },
-    "air-28pro": {
-      "tagline": "Pikad linnavahemaad",
-      "blurb": "28-tolline trekkinggeomeetria, automaatne Bafang käiguvahetus ja 3.5\" IPX7 ekraan. Sujuv ja vähehooldav süsinikrihmülekanne pikkadeks linnakilomeetriteks."
-    },
-    "air-20pro": {
-      "tagline": "Nutikas automaatkäiguga linnaratas",
-      "blurb": "Kokkupandav linnaratas automaatse Bafang käiguvahetuse, vähehooldava süsinikrihma ja 21 kg raamiga, mida on lihtne kaasas kanda ja hoiustada."
-    },
-    "air-20s": {
-      "tagline": "Kõige kergem ja lihtsam",
-      "blurb": "Pargi kõige kergem ja lihtsam ratas: 18 kg ühekäiguline kokkupandav ratas vaikse süsinikrihmaga — lihtne käsitseda lühemateks linnavahetusteks."
-    },
-    "air-30pro": {
-      "tagline": "Linnaratas suunatuledega",
-      "blurb": "700C linnaratas GPS-vargakaitse, integreeritud suunatulede ning Eco / Sport režiimidega — pargi kõige liiklusteadlikum ratas."
-    },
     "engwe-ep-2-boost": {
       "tagline": "Kokkupandav laia rehviga e-ratas, millega on lihtne alustada",
       "blurb": "Kokkupandav laia rehviga e-ratas, millega on lihtne kulleritööd alustada — lihtne, stabiilne ja vahetuste vahel kiiresti hoiule pandav. 250 W mootor, Shimano 7-käiguline ja mehaanilised ketaspidurid."
@@ -1128,7 +1108,7 @@
           },
           "accessories": {
             "q": "Kas saan lisada aku ja tarnekoti?",
-            "a": "Jah. Lisaaku, tarnekott, telefonihoidik ja tugev lukk on kõik saadaval lisadena, ja saad neid muuta, kui rutiin muutub. Engine Pro 2.0 kannab 832 Wh akut ja Air One Pro toetab kaheaku-režiimi nõudlikeks päevadeks."
+            "a": "Jah. Lisaaku, tarnekott, telefonihoidik ja tugev lukk on kõik saadaval lisadena, ja saad neid muuta, kui rutiin muutub. Engine Pro 2.0 kannab 832 Wh akut nõudlikeks päevadeks."
           },
           "weather": {
             "q": "Kas rattad on valmis vihmaks ja talveks?",
