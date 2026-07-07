@@ -46,8 +46,53 @@ const BADGE_VARIANTS = [
   { value: "light", label: "light" },
 ] as const;
 
-function statusLabel(value: string): string {
-  return MODEL_STATUSES.find((s) => s.value === value.toLowerCase())?.label ?? value;
+/** Common ready-to-use badge texts, offered as one-click presets in the editor. */
+const BADGE_TEXT_PRESETS = [
+  "Most popular",
+  "Best price",
+  "Easy start",
+  "High demand",
+  "Cargo",
+  "Folding",
+  "Lightweight",
+  "New",
+] as const;
+
+/** One-click badge combos (text + colour variant) for the list quick-picker. */
+const BADGE_PRESETS: ReadonlyArray<{ text: string; variant: string }> = [
+  { text: "Most popular", variant: "popular" },
+  { text: "Best price", variant: "popular" },
+  { text: "High demand", variant: "popular" },
+  { text: "Cargo", variant: "cargo" },
+  { text: "Easy start", variant: "light" },
+  { text: "Lightweight", variant: "light" },
+  { text: "Folding", variant: "light" },
+  { text: "New", variant: "light" },
+];
+
+/** Encodes a badge as a single select value; "" means no badge. */
+const badgeKey = (text: string, variant: string) => (text ? `${variant}::${text}` : "");
+
+/**
+ * Global per-30-day tier prices (business constants, mirror the pricing plans).
+ * Used to compute a model's "from / day" when a tier price isn't overridden.
+ */
+const GLOBAL_TIER = { p30: 177, p6mo: 147, p12mo: 117 } as const;
+
+/**
+ * Lowest daily rate across the three tiers (override € when set, else the global
+ * tier), i.e. the model's headline "from / day". Matches how the public site
+ * derives it (pricingService.modelFromDaily), so admin and site never diverge.
+ */
+function fromDailyOf(m: {
+  price30?: number | null;
+  price6mo?: number | null;
+  price12mo?: number | null;
+}): number {
+  const e30 = m.price30 ?? GLOBAL_TIER.p30;
+  const e6 = m.price6mo ?? GLOBAL_TIER.p6mo;
+  const e12 = m.price12mo ?? GLOBAL_TIER.p12mo;
+  return Math.round((Math.min(e30, e6, e12) / 30) * 100) / 100;
 }
 
 /* ── Load-state machine (mirrors the fleet / maintenance pages) ─────────── */
@@ -166,6 +211,22 @@ export default function AdminModelsPage() {
     setBusy(model.code, true);
     try {
       const updated = await patchModel(model.code, { popular: !model.popular });
+      replaceModel(updated);
+    } catch (err) {
+      handleActionError(err, `Could not update ${model.code}.`);
+    } finally {
+      setBusy(model.code, false);
+    }
+  }
+
+  /** Quick-set (or clear) a model's badge straight from the list row. */
+  async function setBadge(model: AdminModel, text: string, variant: string) {
+    setActionError(null);
+    setBusy(model.code, true);
+    try {
+      const updated = await patchModel(model.code, {
+        badge: text ? { text, variant } : null,
+      });
       replaceModel(updated);
     } catch (err) {
       handleActionError(err, `Could not update ${model.code}.`);
@@ -328,6 +389,7 @@ export default function AdminModelsPage() {
                   <Th>Name</Th>
                   <Th>Status</Th>
                   <Th>Popular</Th>
+                  <Th>Badge</Th>
                   <Th>From / day</Th>
                   <Th>Order</Th>
                   <Th>Actions</Th>
@@ -335,7 +397,7 @@ export default function AdminModelsPage() {
               </thead>
               <tbody>
                 {state.models.length === 0 ? (
-                  <EmptyRow colSpan={8} label="No models yet. Create one to get started." />
+                  <EmptyRow colSpan={9} label="No models yet. Create one to get started." />
                 ) : (
                   state.models.map((m, idx) => (
                     <ModelRow
@@ -349,6 +411,7 @@ export default function AdminModelsPage() {
                       onEdit={() => setEditing(m.code)}
                       onDelete={() => void removeModel(m.code)}
                       onTogglePopular={() => void togglePopular(m)}
+                      onSetBadge={(text, variant) => void setBadge(m, text, variant)}
                       onReorder={(dir) => void reorder(m.code, dir)}
                     />
                   ))
@@ -415,6 +478,7 @@ function ModelRow({
   onEdit,
   onDelete,
   onTogglePopular,
+  onSetBadge,
   onReorder,
 }: {
   model: AdminModel;
@@ -426,6 +490,7 @@ function ModelRow({
   onEdit: () => void;
   onDelete: () => void;
   onTogglePopular: () => void;
+  onSetBadge: (text: string, variant: string) => void;
   onReorder: (dir: "up" | "down") => void;
 }) {
   return (
@@ -460,8 +525,11 @@ function ModelRow({
             {model.popular ? "popular" : "—"}
           </button>
         </Td>
+        <Td nowrap>
+          <BadgeCell model={model} busy={busy} onSet={onSetBadge} />
+        </Td>
         <Td mono nowrap>
-          {formatEur(model.fromDay)}
+          {formatEur(fromDailyOf(model))}
         </Td>
         <Td nowrap>
           <div style={{ display: "inline-flex", gap: 4 }}>
@@ -553,7 +621,6 @@ interface EditorFields {
   name: string;
   tagline: string;
   blurb: string;
-  fromDay: string;
   price30: string;
   price6mo: string;
   price12mo: string;
@@ -657,7 +724,8 @@ function ModelEditor({
       name: f.name.trim(),
       tagline: f.tagline.trim(),
       blurb: f.blurb.trim(),
-      fromDay: parseNum(f.fromDay),
+      // fromDay/from30 are derived server-side from the tier prices below (the
+      // lowest tier's daily rate) — never entered by hand, so they can't drift.
       // Per-model overrides: blank → null (inherit the global tier), never 0.
       price30: optNum(f.price30),
       price6mo: optNum(f.price6mo),
@@ -828,18 +896,8 @@ function ModelEditor({
         </Field>
       </div>
 
-      {/* Numbers + status row */}
+      {/* Availability + status + order row */}
       <div style={{ ...gridStyle, marginTop: 16 }}>
-        <Field label="From / day (€)">
-          <input
-            value={f.fromDay}
-            onChange={(e) => set("fromDay", e.target.value)}
-            inputMode="decimal"
-            placeholder="5.90"
-            aria-label="From price per day"
-            style={inputStyle}
-          />
-        </Field>
         <Field label="Availability">
           <FieldNote text="Availability is calculated automatically from the bike units for this model. Manage stock under Fleet → bike units." />
         </Field>
@@ -858,9 +916,36 @@ function ModelEditor({
         </Field>
       </div>
 
-      {/* Per-model price overrides — the per-30-day € for each tier.
-          Blank = use the global tier (177 / 147 / 117). */}
-      <div style={{ ...gridStyle, marginTop: 16 }}>
+      {/* Plan pricing — the per-30-day € for each tier. Blank = the global tier
+          (177 / 147 / 112). The public "from / day" is the lowest tier's daily
+          rate, computed live here so admin + site never diverge. */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          marginTop: 20,
+          marginBottom: 8,
+        }}
+      >
+        <span style={{ fontSize: 13, color: "var(--muted)" }}>
+          Plan pricing (per 30 days) — blank = global tier
+        </span>
+        <span style={{ fontSize: 13 }}>
+          From{" "}
+          <strong className="mono">
+            {formatEur(
+              fromDailyOf({
+                price30: optNum(f.price30),
+                price6mo: optNum(f.price6mo),
+                price12mo: optNum(f.price12mo),
+              }),
+            )}
+          </strong>{" "}
+          / day
+        </span>
+      </div>
+      <div style={gridStyle}>
         <Field label="30-day price (€)" hint="Blank = global tier (177)">
           <input
             value={f.price30}
@@ -895,7 +980,7 @@ function ModelEditor({
 
       {/* Badge + popular row */}
       <div style={{ ...gridStyle, marginTop: 16 }}>
-        <Field label="Badge text" hint="blank = no badge">
+        <Field label="Badge" hint="blank text = no badge">
           <input
             value={f.badgeText}
             onChange={(e) => set("badgeText", e.target.value)}
@@ -903,14 +988,58 @@ function ModelEditor({
             aria-label="Badge text"
             style={inputStyle}
           />
-        </Field>
-        <Field label="Badge variant">
-          <Select
-            value={f.badgeVariant}
-            onChange={(v) => set("badgeVariant", v)}
-            options={BADGE_VARIANTS}
-            ariaLabel="Badge variant"
-          />
+          {/* Colour variant as live, on-site-accurate chips — click to pick. */}
+          <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+            {BADGE_VARIANTS.map((v) => {
+              const selected = f.badgeVariant === v.value;
+              return (
+                <button
+                  key={v.value}
+                  type="button"
+                  onClick={() => set("badgeVariant", v.value)}
+                  aria-pressed={selected}
+                  title={`${v.label} badge colour`}
+                  style={{
+                    padding: 2,
+                    border: `2px solid ${selected ? "var(--lime)" : "transparent"}`,
+                    borderRadius: "var(--r-full)",
+                    background: "none",
+                    cursor: "pointer",
+                    lineHeight: 0,
+                  }}
+                >
+                  <span
+                    className={`model-badge ${v.value}`}
+                    style={{ position: "static", top: "auto", left: "auto", display: "inline-block" }}
+                  >
+                    {f.badgeText.trim() || v.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {/* One-click common badge texts. */}
+          <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+            {BADGE_TEXT_PRESETS.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => set("badgeText", t)}
+                style={{
+                  padding: "3px 9px",
+                  borderRadius: "var(--r-full)",
+                  border: "1px solid var(--border-strong)",
+                  background: "rgba(255,255,255,0.04)",
+                  color: "var(--text-2)",
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  cursor: "pointer",
+                }}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         </Field>
         <Field label="Popular">
           <label
@@ -1184,7 +1313,6 @@ function initialFields(model?: AdminModel): EditorFields {
     name: model?.name ?? "",
     tagline: model?.tagline ?? "",
     blurb: model?.blurb ?? "",
-    fromDay: model?.fromDay != null ? String(model.fromDay) : "5.90",
     price30: model?.price30 != null ? String(model.price30) : "",
     price6mo: model?.price6mo != null ? String(model.price6mo) : "",
     price12mo: model?.price12mo != null ? String(model.price12mo) : "",
@@ -1310,46 +1438,73 @@ function FieldNote({ text }: { text: string }) {
   );
 }
 
-function Select({
-  value,
-  onChange,
-  options,
-  ariaLabel,
+/** Inline badge quick-picker for a list row: shows the current badge and a
+ *  compact select of common combos, persisted immediately via PATCH. Custom
+ *  (non-preset) text is preserved and edited via the full editor. */
+function BadgeCell({
+  model,
+  busy,
+  onSet,
 }: {
-  value: string;
-  onChange: (next: string) => void;
-  options: ReadonlyArray<{ value: string; label: string }>;
-  ariaLabel: string;
+  model: AdminModel;
+  busy: boolean;
+  onSet: (text: string, variant: string) => void;
 }) {
-  // Include the current value even if it isn't a known option.
-  const known = options.some((o) => o.value === value);
-  const opts = known ? options : [{ value, label: statusLabel(value) }, ...options];
+  const cur = model.badge;
+  const curKey = badgeKey(cur?.text ?? "", cur?.variant ?? "popular");
+  const isPreset = curKey !== "" && BADGE_PRESETS.some((p) => badgeKey(p.text, p.variant) === curKey);
+  const selectValue = curKey === "" ? "" : isPreset ? curKey : "__custom";
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      aria-label={ariaLabel}
-      style={{
-        appearance: "none",
-        WebkitAppearance: "none",
-        width: "100%",
-        padding: "10px 12px",
-        borderRadius: "var(--r-sm)",
-        background: "var(--bg-2)",
-        border: "1px solid var(--border)",
-        color: "var(--text-2)",
-        fontFamily: "var(--font-mono)",
-        fontSize: 12.5,
-        letterSpacing: "0.02em",
-        cursor: "pointer",
-      }}
-    >
-      {opts.map((o) => (
-        <option key={o.value} value={o.value} style={{ background: "var(--panel)", color: "var(--text)" }}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <div style={{ display: "inline-flex", flexDirection: "column", gap: 6, minWidth: 132 }}>
+      {cur?.text ? (
+        <span
+          className={`model-badge ${cur.variant}`}
+          style={{ position: "static", top: "auto", left: "auto", display: "inline-block", alignSelf: "flex-start" }}
+        >
+          {cur.text}
+        </span>
+      ) : (
+        <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
+      )}
+      <select
+        value={selectValue}
+        disabled={busy}
+        aria-label={`Badge for ${model.code}`}
+        onChange={(e) => {
+          const val = e.target.value;
+          if (val === "__custom") return; // custom text is edited in the full editor
+          if (val === "") {
+            onSet("", "popular");
+            return;
+          }
+          const sep = val.indexOf("::");
+          onSet(val.slice(sep + 2), val.slice(0, sep));
+        }}
+        style={{
+          appearance: "none",
+          WebkitAppearance: "none",
+          padding: "6px 8px",
+          borderRadius: "var(--r-sm)",
+          background: "var(--bg-2)",
+          border: "1px solid var(--border)",
+          color: "var(--text-2)",
+          fontFamily: "var(--font-mono)",
+          fontSize: 11.5,
+          cursor: busy ? "not-allowed" : "pointer",
+        }}
+      >
+        <option value="">— none —</option>
+        {selectValue === "__custom" && <option value="__custom">{cur?.text} (custom)</option>}
+        {BADGE_PRESETS.map((p) => {
+          const k = badgeKey(p.text, p.variant);
+          return (
+            <option key={k} value={k} style={{ background: "var(--panel)", color: "var(--text)" }}>
+              {p.text}
+            </option>
+          );
+        })}
+      </select>
+    </div>
   );
 }
 
