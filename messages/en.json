@@ -56,7 +56,7 @@
     "headingLine2": "e-bikes by",
     "headingLine3Pre": "the ",
     "headingLine3Accent": "month.",
-    "lead": "Rent a delivery-built e-bike for city work — 30-day, 6 or 12-month plans with service, lock, charger and extra-battery options included. Pay daily, billed monthly.",
+    "lead": "Rent a delivery-built e-bike for city work — 30-day, 6 or 12-month plans with service, charger and extra-battery options included. Pay daily, billed monthly.",
     "ctaReserve": "Reserve a bike",
     "ctaExplore": "Explore the fleet",
     "stats": {
@@ -84,7 +84,7 @@
   "marquee": {
     "minDays": "Minimum 30 days",
     "serviceSupport": "Service support included",
-    "lockCharger": "Lock + charger in every plan",
+    "lockCharger": "Charger in every plan",
     "extraBattery": "Extra battery available",
     "digitalContract": "Clear rental contract",
     "builtForShifts": "Built for delivery shifts",
@@ -127,7 +127,7 @@
     },
     "perks": {
       "serviceSupport": "Service support included",
-      "lockCharger": "Lock + charger included",
+      "lockCharger": "Charger included",
       "extendSwitch": "Extend or switch anytime",
       "everythingIn30": "Everything in 30 days",
       "lowerDailyRate": "Lower daily rate",
@@ -644,7 +644,7 @@
       "titleSoon": "E-bike rental in {city} — coming soon · rentaro",
       "titleLive": "Monthly e-bike rental in {city} — rentaro",
       "descriptionSoon": "rentaro is bringing delivery-ready monthly e-bike rental to {city}, {country}. Join the waitlist for launch dates and pickup details.",
-      "descriptionLive": "Rent a delivery-built e-bike by the month in {city}, {country}. 30-day, 6 and 12-month plans with service support, lock, charger and extra-battery options."
+      "descriptionLive": "Rent a delivery-built e-bike by the month in {city}, {country}. 30-day, 6 and 12-month plans with service support, charger and extra-battery options."
     },
     "hero": {
       "joinWaitlist": "Join the waitlist",
@@ -675,7 +675,7 @@
   "cityContent": {
     "tallinn": {
       "headline": "Monthly e-bike rental in Tallinn.",
-      "intro": "Tallinn is where rentaro started, and it's still where most of our fleet lives. If you deliver for Bolt or Wolt around Kesklinn, weave through Telliskivi and Kalamaja, climb up into Põhja-Tallinn or run the long blocks out to Lasnamäe, you already know the city rewards a fast, dependable bike. We rent delivery-built e-bikes by the month — lock, charger and service support included — so you can pick one up this week and start earning without sinking a thousand euros into a bike of your own.",
+      "intro": "Tallinn is where rentaro started, and it's still where most of our fleet lives. If you deliver for Bolt or Wolt around Kesklinn, weave through Telliskivi and Kalamaja, climb up into Põhja-Tallinn or run the long blocks out to Lasnamäe, you already know the city rewards a fast, dependable bike. We rent delivery-built e-bikes by the month — charger and service support included — so you can pick one up this week and start earning without sinking a thousand euros into a bike of your own.",
       "whyHere": [
         "Kesklinn lunch and dinner rushes pay best when you can cut between drops — an e-bike turns short, dense routes into back-to-back orders.",
         "Telliskivi, Kalamaja and Põhja-Tallinn mix cobbles, tram tracks and quiet side streets; our bikes are picked to stay sure-footed on all of it.",
@@ -684,7 +684,7 @@
         "Same-week pickup in the centre means a newly-arrived courier can land in Tallinn and be delivering within days, not weeks.",
         "One monthly price covers the bike, maintenance and a replacement when something breaks — far less risk than buying a used bike off the classifieds."
       ],
-      "pickupNote": "Collect your bike at our Telliskivi or Kesklinn pickup point — both a short ride from the busiest delivery zones — or ask about local handover. We walk you through the bike, the lock, charging and winter setup before your first shift, so nothing slows down day one.",
+      "pickupNote": "Collect your bike at our Telliskivi or Kesklinn pickup point — both a short ride from the busiest delivery zones — or ask about local handover. We walk you through the bike, charging and winter setup before your first shift, so nothing slows down day one.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
@@ -747,7 +747,7 @@
             },
             {
               "title": "Collect in Telliskivi or Kesklinn",
-              "copy": "Come to our central pickup point — minutes from the busiest delivery zones — or ask about local handover. We set up the bike, lock and charger with you."
+              "copy": "Come to our central pickup point — minutes from the busiest delivery zones — or ask about local handover. We set up the bike and charger with you."
             },
             {
               "title": "Start your first shift",
@@ -788,7 +788,7 @@
         "Extra batteries available for couriers stitching together full days across the city.",
         "Local service support so small issues get fixed fast and you stay on the road."
       ],
-      "pickupNote": "Pick up in Centrs or Āgenskalns, or arrange local handover. We set the bike up with you, check the lock and show you how charging works before you ride.",
+      "pickupNote": "Pick up in Centrs or Āgenskalns, or arrange local handover. We set the bike up with you, check the bike and show you how charging works before you ride.",
       "neighbourhoods": [
         "Centrs",
         "Vecrīga",
@@ -938,7 +938,7 @@
       "hero": {
         "kicker": "Monthly e-bike rental",
         "heading": "Rent the bike. Skip the price tag.",
-        "lead": "A monthly e-bike rental is the simplest way onto a quality bike without buying one. You pay a clear daily rate, billed every 30 days, and the bike, service support, lock and charger come together as one package. When your needs change, so does your plan — no resale, no depreciation, no workshop bills.",
+        "lead": "A monthly e-bike rental is the simplest way onto a quality bike without buying one. You pay a clear daily rate, billed every 30 days, and the bike, service support and charger come together as one package. When your needs change, so does your plan — no resale, no depreciation, no workshop bills.",
         "ctaReserve": "Reserve a bike",
         "ctaExplore": "Explore the fleet"
       },
@@ -972,7 +972,7 @@
       },
       "meta": {
         "title": "Monthly e-bike rental — rentaro",
-        "description": "Rent a delivery-built e-bike by the month instead of buying one. €177 for your first 30 days covers the bike, service support, lock and charger — no €1,000+ up front, cancel after 30 days. Tallinn, Riga and Helsinki."
+        "description": "Rent a delivery-built e-bike by the month instead of buying one. €177 for your first 30 days covers the bike, service support and charger — no €1,000+ up front, cancel after 30 days. Tallinn, Riga and Helsinki."
       },
       "compare": {
         "kicker": "Rent vs buy",
@@ -982,7 +982,7 @@
           "title": "Renting monthly",
           "items": [
             "€177 for your first 30 days — no €1,000+ purchase before you can earn.",
-            "Service, lock and charger included in the price.",
+            "Service and charger included in the price.",
             "Repairs handled for you; a replacement bike where stock allows.",
             "Cancel after 30 days, or move to a longer plan for a lower daily rate.",
             "Hand the bike back when you're done — no resale, no depreciation."
@@ -1018,8 +1018,8 @@
             "copy": "Brake adjustments, punctures and general maintenance are part of the plan. Off the road longer? We replace the bike where stock allows."
           },
           "lockCharger": {
-            "title": "Lock and charger",
-            "copy": "A proper lock and a charger come with every plan, so you can secure the bike between drops and top it up at home."
+            "title": "Charger",
+            "copy": "A charger comes with every plan, so you can top it up at home between shifts."
           },
           "swap": {
             "title": "Flexibility to change",

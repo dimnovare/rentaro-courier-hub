@@ -56,7 +56,7 @@
     "headingLine2": "e-velosipēdi uz",
     "headingLine3Pre": "katru ",
     "headingLine3Accent": "mēnesi.",
-    "lead": "Nomā piegādēm būvētu e-velosipēdu pilsētas darbam — 30 dienu, 6 vai 12 mēnešu plāni ar servisu, slēdzeni, lādētāju un papildu akumulatora iespējām. Maksā par dienu, rēķins reizi mēnesī.",
+    "lead": "Nomā piegādēm būvētu e-velosipēdu pilsētas darbam — 30 dienu, 6 vai 12 mēnešu plāni ar servisu, lādētāju un papildu akumulatora iespējām. Maksā par dienu, rēķins reizi mēnesī.",
     "ctaReserve": "Rezervēt velosipēdu",
     "ctaExplore": "Apskatīt parku",
     "stats": {
@@ -84,7 +84,7 @@
   "marquee": {
     "minDays": "Minimums 30 dienas",
     "serviceSupport": "Servisa atbalsts iekļauts",
-    "lockCharger": "Slēdzene + lādētājs katrā plānā",
+    "lockCharger": "Lādētājs katrā plānā",
     "extraBattery": "Pieejams papildu akumulators",
     "digitalContract": "Skaidrs nomas līgums",
     "builtForShifts": "Būvēti piegādes maiņām",
@@ -127,7 +127,7 @@
     },
     "perks": {
       "serviceSupport": "Servisa atbalsts iekļauts",
-      "lockCharger": "Slēdzene + lādētājs iekļauts",
+      "lockCharger": "Lādētājs iekļauts",
       "extendSwitch": "Pagarini vai maini jebkurā brīdī",
       "everythingIn30": "Viss, kas 30 dienu plānā",
       "lowerDailyRate": "Zemāka dienas likme",
@@ -644,7 +644,7 @@
       "titleSoon": "E-velosipēdu noma {city} — drīzumā · rentaro",
       "titleLive": "E-velosipēdu noma uz mēnesi {city} — rentaro",
       "descriptionSoon": "rentaro ievieš piegādēm gatavu e-velosipēdu nomu uz mēnesi pilsētā {city}, {country}. Pievienojies gaidīšanas sarakstam, lai uzzinātu palaišanas datumus un saņemšanas informāciju.",
-      "descriptionLive": "Nomā piegādēm būvētu e-velosipēdu uz mēnesi pilsētā {city}, {country}. 30 dienu, 6 un 12 mēnešu plāni ar servisa atbalstu, slēdzeni, lādētāju un papildu akumulatora iespējām."
+      "descriptionLive": "Nomā piegādēm būvētu e-velosipēdu uz mēnesi pilsētā {city}, {country}. 30 dienu, 6 un 12 mēnešu plāni ar servisa atbalstu, lādētāju un papildu akumulatora iespējām."
     },
     "hero": {
       "joinWaitlist": "Pievienoties gaidīšanas sarakstam",
@@ -675,7 +675,7 @@
   "cityContent": {
     "tallinn": {
       "headline": "E-velosipēdu noma uz mēnesi Tallinā.",
-      "intro": "Tallina ir vieta, kur rentaro sākās, un tur joprojām atrodas lielākā daļa mūsu parka. Ja tu piegādā Bolt vai Wolt ap Kesklinn, līkumo cauri Telliskivi un Kalamaja, kāp augšā Põhja-Tallinn vai brauc garos kvartālos uz Lasnamäe, tu jau zini, ka pilsēta atalgo ātru, uzticamu velosipēdu. Mēs nomājam piegādēm būvētus e-velosipēdus uz mēnesi — slēdzene, lādētājs un servisa atbalsts iekļauti —, lai tu varētu paņemt velosipēdu jau šonedēļ un sākt pelnīt, neieliekot tūkstoš eiro savā velosipēdā.",
+      "intro": "Tallina ir vieta, kur rentaro sākās, un tur joprojām atrodas lielākā daļa mūsu parka. Ja tu piegādā Bolt vai Wolt ap Kesklinn, līkumo cauri Telliskivi un Kalamaja, kāp augšā Põhja-Tallinn vai brauc garos kvartālos uz Lasnamäe, tu jau zini, ka pilsēta atalgo ātru, uzticamu velosipēdu. Mēs nomājam piegādēm būvētus e-velosipēdus uz mēnesi — lādētājs un servisa atbalsts iekļauti —, lai tu varētu paņemt velosipēdu jau šonedēļ un sākt pelnīt, neieliekot tūkstoš eiro savā velosipēdā.",
       "whyHere": [
         "Kesklinn pusdienu un vakara skrējieni atmaksājas vislabāk, kad vari izlauzties starp piegādēm — e-velosipēds pārvērš īsus, blīvus maršrutus secīgos pasūtījumos.",
         "Telliskivi, Kalamaja un Põhja-Tallinn jauc bruģi, tramvaja sliedes un klusas sānielas; mūsu velosipēdi ir izvēlēti, lai paliktu droši uz visa tā.",
@@ -684,7 +684,7 @@
         "Saņemšana tās pašas nedēļas laikā centrā nozīmē, ka tikko ieradies kurjers var nokļūt Tallinā un piegādāt jau dienu, nevis nedēļu laikā.",
         "Viena mēneša cena sedz velosipēdu, apkopi un nomaiņu, kad kaut kas salūst — daudz mazāks risks nekā lietota velosipēda pirkšana no sludinājumiem."
       ],
-      "pickupNote": "Saņem savu velosipēdu mūsu Telliskivi vai Kesklinn saņemšanas punktā — abi īsa brauciena attālumā no visnoslogotākajām piegādes zonām — vai pajautā par nodošanu uz vietas. Pirms tavas pirmās maiņas izstāstīsim par velosipēdu, slēdzeni, uzlādi un ziemas iestatīšanu, lai pirmajā dienā nekas nekavē.",
+      "pickupNote": "Saņem savu velosipēdu mūsu Telliskivi vai Kesklinn saņemšanas punktā — abi īsa brauciena attālumā no visnoslogotākajām piegādes zonām — vai pajautā par nodošanu uz vietas. Pirms tavas pirmās maiņas izstāstīsim par velosipēdu, uzlādi un ziemas iestatīšanu, lai pirmajā dienā nekas nekavē.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
@@ -747,7 +747,7 @@
             },
             {
               "title": "Saņem Telliskivi vai Kesklinn",
-              "copy": "Atnāc uz mūsu centrālo saņemšanas punktu — dažu minūšu attālumā no visnoslogotākajām piegādes zonām — vai pajautā par nodošanu uz vietas. Mēs iestatām velosipēdu, slēdzeni un lādētāju kopā ar tevi."
+              "copy": "Atnāc uz mūsu centrālo saņemšanas punktu — dažu minūšu attālumā no visnoslogotākajām piegādes zonām — vai pajautā par nodošanu uz vietas. Mēs iestatām velosipēdu un lādētāju kopā ar tevi."
             },
             {
               "title": "Sāc savu pirmo maiņu",
@@ -788,7 +788,7 @@
         "Papildu akumulatori pieejami kurjeriem, kas savieno pilnas dienas visā pilsētā.",
         "Vietējais servisa atbalsts, lai mazas problēmas tiek ātri atrisinātas un tu paliec ceļā."
       ],
-      "pickupNote": "Saņem Centrā vai Āgenskalnā vai vienojies par nodošanu uz vietas. Mēs sagatavojam velosipēdu kopā ar tevi, pārbaudām slēdzeni un parādām, kā darbojas uzlāde, pirms tu sāc braukt.",
+      "pickupNote": "Saņem Centrā vai Āgenskalnā vai vienojies par nodošanu uz vietas. Mēs sagatavojam velosipēdu kopā ar tevi, pārbaudām velosipēdu un parādām, kā darbojas uzlāde, pirms tu sāc braukt.",
       "neighbourhoods": [
         "Centrs",
         "Vecrīga",
@@ -938,7 +938,7 @@
       "hero": {
         "kicker": "E-velosipēdu noma uz mēnesi",
         "heading": "Nomā velosipēdu. Aizmirsti par cenas zīmi.",
-        "lead": "E-velosipēda noma uz mēnesi ir vienkāršākais ceļš pie kvalitatīva velosipēda, to nepērkot. Tu maksā skaidru dienas cenu ar rēķinu ik pēc 30 dienām, un velosipēds, servisa atbalsts, slēdzene un lādētājs nāk kopā kā viena pakete. Kad mainās tavas vajadzības, mainās arī tavs plāns — bez tālākpārdošanas, bez vērtības krituma, bez darbnīcas rēķiniem.",
+        "lead": "E-velosipēda noma uz mēnesi ir vienkāršākais ceļš pie kvalitatīva velosipēda, to nepērkot. Tu maksā skaidru dienas cenu ar rēķinu ik pēc 30 dienām, un velosipēds, servisa atbalsts un lādētājs nāk kopā kā viena pakete. Kad mainās tavas vajadzības, mainās arī tavs plāns — bez tālākpārdošanas, bez vērtības krituma, bez darbnīcas rēķiniem.",
         "ctaReserve": "Rezervēt velosipēdu",
         "ctaExplore": "Izpētīt parku"
       },
@@ -972,7 +972,7 @@
       },
       "meta": {
         "title": "E-velosipēdu noma uz mēnesi — rentaro",
-        "description": "Nomā piegādēm būvētu e-velosipēdu uz mēnesi, nevis pērc to. 177 € par pirmajām 30 dienām sedz velosipēdu, servisa atbalstu, slēdzeni un lādētāju — bez 1000 €+ avansa, vari pārtraukt pēc 30 dienām. Tallina, Rīga un Helsinki."
+        "description": "Nomā piegādēm būvētu e-velosipēdu uz mēnesi, nevis pērc to. 177 € par pirmajām 30 dienām sedz velosipēdu, servisa atbalstu un lādētāju — bez 1000 €+ avansa, vari pārtraukt pēc 30 dienām. Tallina, Rīga un Helsinki."
       },
       "compare": {
         "kicker": "Nomāt vai pirkt",
@@ -982,7 +982,7 @@
           "title": "Noma uz mēnesi",
           "items": [
             "177 € par pirmajām 30 dienām — bez 1000 €+ pirkuma, pirms vari sākt pelnīt.",
-            "Serviss, slēdzene un lādētājs iekļauti cenā.",
+            "Serviss un lādētājs iekļauti cenā.",
             "Par remontu parūpējamies mēs; rezerves velosipēds, ja krājumi to ļauj.",
             "Pārtrauc pēc 30 dienām vai pārej uz garāku plānu ar zemāku dienas cenu.",
             "Atdod velosipēdu, kad esi beidzis — bez tālākpārdošanas un vērtības krituma."
@@ -1018,8 +1018,8 @@
             "copy": "Bremžu regulēšana, pārdurtas riepas un vispārējā apkope ir daļa no plāna. Ilgāk no ceļa? Mēs nomainām velosipēdu, ja krājumi to ļauj."
           },
           "lockCharger": {
-            "title": "Slēdzene un lādētājs",
-            "copy": "Kārtīga slēdzene un lādētājs nāk līdzi katram plānam, lai tu varētu nodrošināt velosipēdu starp piegādēm un uzlādēt mājās."
+            "title": "Lādētājs",
+            "copy": "Lādētājs nāk līdzi katram plānam, lai tu varētu uzlādēt velosipēdu mājās starp maiņām."
           },
           "swap": {
             "title": "Elastība mainīt",

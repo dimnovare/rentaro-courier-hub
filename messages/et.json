@@ -56,7 +56,7 @@
     "headingLine2": "e-rattad",
     "headingLine3Pre": "kuu ",
     "headingLine3Accent": "kaupa.",
-    "lead": "Rendi linnatööks ehitatud e-ratas — 30 päeva, 6 või 12 kuu paketid, milles on teenindus, lukk, laadija ja lisaaku valikud. Maksa päevatasu, arve kord kuus.",
+    "lead": "Rendi linnatööks ehitatud e-ratas — 30 päeva, 6 või 12 kuu paketid, milles on teenindus, laadija ja lisaaku valikud. Maksa päevatasu, arve kord kuus.",
     "ctaReserve": "Broneeri ratas",
     "ctaExplore": "Tutvu pargiga",
     "stats": {
@@ -84,7 +84,7 @@
   "marquee": {
     "minDays": "Minimaalselt 30 päeva",
     "serviceSupport": "Teenindustugi sees",
-    "lockCharger": "Lukk + laadija igas paketis",
+    "lockCharger": "Laadija igas paketis",
     "extraBattery": "Lisaaku saadaval",
     "digitalContract": "Selge üürileping",
     "builtForShifts": "Ehitatud tarnevahetusteks",
@@ -127,7 +127,7 @@
     },
     "perks": {
       "serviceSupport": "Teenindustugi sees",
-      "lockCharger": "Lukk + laadija sees",
+      "lockCharger": "Laadija sees",
       "extendSwitch": "Pikenda või vaheta igal ajal",
       "everythingIn30": "Kõik, mis 30 päeva paketis",
       "lowerDailyRate": "Madalam päevatasu",
@@ -644,7 +644,7 @@
       "titleSoon": "E-jalgrataste rent linnas {city} — tulekul · rentaro",
       "titleLive": "Igakuine e-jalgrataste rent linnas {city} — rentaro",
       "descriptionSoon": "rentaro toob tarnevalmis igakuise e-jalgrataste rendi linna {city}, {country}. Liitu ootenimekirjaga, et saada teada käivituskuupäevad ja kättesaamise üksikasjad.",
-      "descriptionLive": "Rendi tarnevalmis e-jalgratas kuupõhiselt linnas {city}, {country}. 30-päevased, 6- ja 12-kuised paketid teenindustoe, luku, laadija ja lisaaku valikuga."
+      "descriptionLive": "Rendi tarnevalmis e-jalgratas kuupõhiselt linnas {city}, {country}. 30-päevased, 6- ja 12-kuised paketid teenindustoe, laadija ja lisaaku valikuga."
     },
     "hero": {
       "joinWaitlist": "Liitu ootenimekirjaga",
@@ -675,7 +675,7 @@
   "cityContent": {
     "tallinn": {
       "headline": "Igakuine e-jalgrataste rent Tallinnas.",
-      "intro": "Tallinnast sai rentaro alguse ja siin elab siiani suurem osa meie pargist. Kui tarnid Boltile või Woltile Kesklinnas, looklemas Telliskivil ja Kalamajas, ronid üles Põhja-Tallinna või sõidad pikki kvartaleid välja Lasnamäele, tead juba, et linn tasub kiire ja usaldusväärse ratta ära. Rendime tarnevalmis e-jalgrattaid kuu kaupa — lukk, laadija ja teenindustugi sisalduvad —, nii et saad ratta sel nädalal kätte ja hakkad teenima, ilma et paneksid tuhat eurot enda rattasse.",
+      "intro": "Tallinnast sai rentaro alguse ja siin elab siiani suurem osa meie pargist. Kui tarnid Boltile või Woltile Kesklinnas, looklemas Telliskivil ja Kalamajas, ronid üles Põhja-Tallinna või sõidad pikki kvartaleid välja Lasnamäele, tead juba, et linn tasub kiire ja usaldusväärse ratta ära. Rendime tarnevalmis e-jalgrattaid kuu kaupa — laadija ja teenindustugi sisalduvad —, nii et saad ratta sel nädalal kätte ja hakkad teenima, ilma et paneksid tuhat eurot enda rattasse.",
       "whyHere": [
         "Kesklinna lõuna- ja õhtutipptunnid tasuvad kõige paremini, kui saad tarnete vahel läbi lõigata — e-jalgratas muudab lühikesed tihedad marsruudid järjestikusteks tellimusteks.",
         "Telliskivi, Kalamaja ja Põhja-Tallinn segavad munakive, trammirööpaid ja vaikseid kõrvaltänavaid; meie rattad on valitud, et püsida kindlalt kõigil neist.",
@@ -684,7 +684,7 @@
         "Sama nädala kättesaamine kesklinnas tähendab, et äsja saabunud kuller võib Tallinna jõuda ja tarnida juba päevade, mitte nädalate jooksul.",
         "Üks kuuhind katab ratta, hoolduse ja asenduse, kui midagi puruneb — palju väiksem risk kui kasutatud ratta ostmine kuulutustest."
       ],
-      "pickupNote": "Saa oma ratas kätte meie Telliskivi või Kesklinna kättesaamispunktist — mõlemad lühikese sõidu kaugusel kõige tihedamatest tarnealadest — või küsi kohaliku üleandmise kohta. Tutvustame sulle ratast, lukku, laadimist ja talveseadistust enne esimest vahetust, nii et esimesel päeval ei aeglusta miski.",
+      "pickupNote": "Saa oma ratas kätte meie Telliskivi või Kesklinna kättesaamispunktist — mõlemad lühikese sõidu kaugusel kõige tihedamatest tarnealadest — või küsi kohaliku üleandmise kohta. Tutvustame sulle ratast, laadimist ja talveseadistust enne esimest vahetust, nii et esimesel päeval ei aeglusta miski.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
@@ -747,7 +747,7 @@
             },
             {
               "title": "Võta kätte Telliskivil või Kesklinnas",
-              "copy": "Tule meie kesksesse kättesaamispunkti — minutite kaugusel kõige tihedamatest tarnealadest — või küsi kohaliku üleandmise kohta. Seadistame ratta, luku ja laadija koos sinuga."
+              "copy": "Tule meie kesksesse kättesaamispunkti — minutite kaugusel kõige tihedamatest tarnealadest — või küsi kohaliku üleandmise kohta. Seadistame ratta ja laadija koos sinuga."
             },
             {
               "title": "Alusta esimest vahetust",
@@ -788,7 +788,7 @@
         "Lisaakud saadaval kulleritele, kes panevad terveid päevi üle linna kokku.",
         "Kohalik teenindustugi, et väikesed probleemid saaksid kiiresti lahendatud ja sa püsiksid teel."
       ],
-      "pickupNote": "Saa ratas kätte Centrsis või Āgenskalnsis või lepi kokku kohalik üleandmine. Seadistame ratta koos sinuga, kontrollime luku ja näitame, kuidas laadimine toimib, enne kui sõitma lähed.",
+      "pickupNote": "Saa ratas kätte Centrsis või Āgenskalnsis või lepi kokku kohalik üleandmine. Seadistame ratta koos sinuga, kontrollime ratast ja näitame, kuidas laadimine toimib, enne kui sõitma lähed.",
       "neighbourhoods": [
         "Centrs",
         "Vecrīga",
@@ -938,7 +938,7 @@
       "hero": {
         "kicker": "Igakuine e-jalgrataste rent",
         "heading": "Rendi ratas. Jäta hinnasilt vahele.",
-        "lead": "Igakuine e-jalgrataste rent on lihtsaim viis saada kvaliteetne ratas ilma seda ostmata. Maksad selget päevahinda, mille arve esitatakse iga 30 päeva tagant, ning ratas, teenindustugi, lukk ja laadija tulevad ühe paketina. Kui sinu vajadused muutuvad, muutub ka pakett — ei mingit edasimüüki, väärtuse langust ega töökojaarveid.",
+        "lead": "Igakuine e-jalgrataste rent on lihtsaim viis saada kvaliteetne ratas ilma seda ostmata. Maksad selget päevahinda, mille arve esitatakse iga 30 päeva tagant, ning ratas, teenindustugi ja laadija tulevad ühe paketina. Kui sinu vajadused muutuvad, muutub ka pakett — ei mingit edasimüüki, väärtuse langust ega töökojaarveid.",
         "ctaReserve": "Broneeri ratas",
         "ctaExplore": "Uuri parki"
       },
@@ -972,7 +972,7 @@
       },
       "meta": {
         "title": "E-jalgrataste igakuine rent — rentaro",
-        "description": "Rendi tarnevalmis e-jalgratas kuu kaupa, selle asemel et seda osta. 177 € esimese 30 päeva eest katab ratta, teenindustoe, luku ja laadija — ei mingit 1000 €+ ettemaksu, võid 30 päeva järel lõpetada. Tallinn, Riia ja Helsingi."
+        "description": "Rendi tarnevalmis e-jalgratas kuu kaupa, selle asemel et seda osta. 177 € esimese 30 päeva eest katab ratta, teenindustoe ja laadija — ei mingit 1000 €+ ettemaksu, võid 30 päeva järel lõpetada. Tallinn, Riia ja Helsingi."
       },
       "compare": {
         "kicker": "Rentida või osta",
@@ -982,7 +982,7 @@
           "title": "Igakuine rent",
           "items": [
             "177 € esimese 30 päeva eest — ei mingit 1000 €+ ostu enne, kui saad teenima hakata.",
-            "Teenindus, lukk ja laadija sisalduvad hinnas.",
+            "Teenindus ja laadija sisalduvad hinnas.",
             "Remondi eest hoolitseme meie; asendusratas, kui laoseis lubab.",
             "Lõpeta 30 päeva järel või liigu pikemale paketile madalama päevahinnaga.",
             "Anna ratas tagasi, kui lõpetad — ei mingit edasimüüki ega väärtuse langust."
@@ -1018,8 +1018,8 @@
             "copy": "Pidurite reguleerimine, tühjad rehvid ja üldhooldus kuuluvad paketti. Kauem seisma jäänud? Asendame ratta, kui laoseis lubab."
           },
           "lockCharger": {
-            "title": "Lukk ja laadija",
-            "copy": "Korralik lukk ja laadija käivad iga paketiga kaasas, nii et saad ratta tarnete vahel kindlustada ja kodus täis laadida."
+            "title": "Laadija",
+            "copy": "Laadija käib iga paketiga kaasas, nii et saad ratta vahetuste vahel kodus täis laadida."
           },
           "swap": {
             "title": "Paindlikkus muuta",

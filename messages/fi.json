@@ -56,7 +56,7 @@
     "headingLine2": "sähköpyörät",
     "headingLine3Pre": "",
     "headingLine3Accent": "kuukaudessa.",
-    "lead": "Vuokraa kaupunkityöhön rakennettu sähköpyörä — 30 päivän, 6 tai 12 kuukauden suunnitelmat, joihin kuuluu huolto, lukko, laturi ja lisäakkuvaihtoehdot. Maksat päivähinnan, laskutus kuukausittain.",
+    "lead": "Vuokraa kaupunkityöhön rakennettu sähköpyörä — 30 päivän, 6 tai 12 kuukauden suunnitelmat, joihin kuuluu huolto, laturi ja lisäakkuvaihtoehdot. Maksat päivähinnan, laskutus kuukausittain.",
     "ctaReserve": "Varaa pyörä",
     "ctaExplore": "Tutustu kalustoon",
     "stats": {
@@ -84,7 +84,7 @@
   "marquee": {
     "minDays": "Vähintään 30 päivää",
     "serviceSupport": "Huoltotuki sisältyy",
-    "lockCharger": "Lukko + laturi joka suunnitelmassa",
+    "lockCharger": "Laturi joka suunnitelmassa",
     "extraBattery": "Lisäakku saatavilla",
     "digitalContract": "Selkeä vuokrasopimus",
     "builtForShifts": "Rakennettu lähettivuoroihin",
@@ -127,7 +127,7 @@
     },
     "perks": {
       "serviceSupport": "Huoltotuki sisältyy",
-      "lockCharger": "Lukko + laturi sisältyvät",
+      "lockCharger": "Laturi sisältyy",
       "extendSwitch": "Jatka tai vaihda milloin tahansa",
       "everythingIn30": "Kaikki 30 päivän suunnitelmasta",
       "lowerDailyRate": "Edullisempi päivähinta",
@@ -644,7 +644,7 @@
       "titleSoon": "Sähköpyörän vuokraus — {city}, tulossa pian · rentaro",
       "titleLive": "Sähköpyörän kuukausivuokraus — {city} · rentaro",
       "descriptionSoon": "rentaro tuo lähettivalmiit kuukausittaiset sähköpyörävuokraukset kaupunkiin {city}, {country}. Liity jonotuslistalle ja saat tiedon lanseerauspäivistä ja noudosta.",
-      "descriptionLive": "Vuokraa lähettityöhön rakennettu sähköpyörä kuukaudeksi — {city}, {country}. 30 päivän, 6 ja 12 kuukauden suunnitelmat, joihin kuuluu huoltotuki, lukko, laturi ja lisäakkuvaihtoehdot."
+      "descriptionLive": "Vuokraa lähettityöhön rakennettu sähköpyörä kuukaudeksi — {city}, {country}. 30 päivän, 6 ja 12 kuukauden suunnitelmat, joihin kuuluu huoltotuki, laturi ja lisäakkuvaihtoehdot."
     },
     "hero": {
       "joinWaitlist": "Liity jonotuslistalle",
@@ -675,7 +675,7 @@
   "cityContent": {
     "tallinn": {
       "headline": "Sähköpyörän kuukausivuokraus Tallinnassa.",
-      "intro": "Tallinnasta rentaro sai alkunsa, ja siellä on yhä suurin osa kalustostamme. Jos toimitat Boltille tai Woltille Kesklinnin ympärillä, pujottelet Telliskivin ja Kalamajan läpi, kiipeät ylös Põhja-Tallinnaan tai ajat pitkiä korttelivälejä Lasnamäelle, tiedät jo, että kaupunki palkitsee nopean ja luotettavan pyörän. Vuokraamme lähetystyöhön rakennettuja sähköpyöriä kuukaudeksi — lukko, laturi ja huoltotuki mukana —, joten voit noutaa pyörän jo tällä viikolla ja alkaa ansaita ilman, että upotat tuhat euroa omaan pyörään.",
+      "intro": "Tallinnasta rentaro sai alkunsa, ja siellä on yhä suurin osa kalustostamme. Jos toimitat Boltille tai Woltille Kesklinnin ympärillä, pujottelet Telliskivin ja Kalamajan läpi, kiipeät ylös Põhja-Tallinnaan tai ajat pitkiä korttelivälejä Lasnamäelle, tiedät jo, että kaupunki palkitsee nopean ja luotettavan pyörän. Vuokraamme lähetystyöhön rakennettuja sähköpyöriä kuukaudeksi — laturi ja huoltotuki mukana —, joten voit noutaa pyörän jo tällä viikolla ja alkaa ansaita ilman, että upotat tuhat euroa omaan pyörään.",
       "whyHere": [
         "Kesklinnin lounas- ja illallisruuhkat tuottavat parhaiten, kun voit oikaista toimitusten välissä — sähköpyörä muuttaa lyhyet, tiheät reitit peräkkäisiksi tilauksiksi.",
         "Telliskivi, Kalamaja ja Põhja-Tallinna sekoittavat mukulakiviä, raitiovaunukiskoja ja hiljaisia sivukatuja; pyörämme on valittu pysymään varmoina niillä kaikilla.",
@@ -684,7 +684,7 @@
         "Nouto keskustasta saman viikon aikana tarkoittaa, että vasta saapunut lähetti voi laskeutua Tallinnaan ja toimittaa jo päivien, ei viikkojen kuluttua.",
         "Yksi kuukausihinta kattaa pyörän, huollon ja vaihdon kun jokin hajoaa — paljon pienempi riski kuin käytetyn pyörän ostaminen ilmoituksista."
       ],
-      "pickupNote": "Nouda pyöräsi Telliskivin tai Kesklinnin noutopisteeltä — molemmat lyhyen ajomatkan päässä vilkkaimmilta lähetysalueilta — tai kysy paikallisesta luovutuksesta. Käymme kanssasi läpi pyörän, lukon, lataamisen ja talvivarustuksen ennen ensimmäistä vuoroasi, jottei mikään hidasta ensimmäistä päivää.",
+      "pickupNote": "Nouda pyöräsi Telliskivin tai Kesklinnin noutopisteeltä — molemmat lyhyen ajomatkan päässä vilkkaimmilta lähetysalueilta — tai kysy paikallisesta luovutuksesta. Käymme kanssasi läpi pyörän, lataamisen ja talvivarustuksen ennen ensimmäistä vuoroasi, jottei mikään hidasta ensimmäistä päivää.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
@@ -747,7 +747,7 @@
             },
             {
               "title": "Nouda Telliskivistä tai Kesklinnistä",
-              "copy": "Tule keskeiselle noutopisteellemme — minuuttien päässä vilkkaimmilta lähetysalueilta — tai kysy paikallisesta luovutuksesta. Asetamme pyörän, lukon ja laturin kanssasi."
+              "copy": "Tule keskeiselle noutopisteellemme — minuuttien päässä vilkkaimmilta lähetysalueilta — tai kysy paikallisesta luovutuksesta. Asetamme pyörän ja laturin kanssasi."
             },
             {
               "title": "Aloita ensimmäinen vuorosi",
@@ -788,7 +788,7 @@
         "Lisäakut saatavilla läheteille, jotka kokoavat täydet työpäivät ympäri kaupunkia.",
         "Paikallinen huoltotuki, joten pienet viat korjataan nopeasti ja pysyt tien päällä."
       ],
-      "pickupNote": "Nouda Centrsistä tai Āgenskalnsista, tai sovi paikallinen luovutus. Säädämme pyörän yhdessä kanssasi, tarkistamme lukon ja näytämme miten lataaminen toimii ennen kuin lähdet ajamaan.",
+      "pickupNote": "Nouda Centrsistä tai Āgenskalnsista, tai sovi paikallinen luovutus. Säädämme pyörän yhdessä kanssasi, tarkistamme pyörän ja näytämme miten lataaminen toimii ennen kuin lähdet ajamaan.",
       "neighbourhoods": [
         "Centrs",
         "Vecrīga",
@@ -938,7 +938,7 @@
       "hero": {
         "kicker": "Sähköpyörän kuukausivuokraus",
         "heading": "Vuokraa pyörä. Unohda hintalappu.",
-        "lead": "Sähköpyörän kuukausivuokraus on yksinkertaisin tapa päästä laadukkaan pyörän selkään ilman ostamista. Maksat selkeän päivähinnan, laskutus joka 30. päivä, ja pyörä, huoltotuki, lukko ja laturi tulevat yhtenä pakettina. Kun tarpeesi muuttuvat, niin muuttuu suunnitelmasikin — ei jälleenmyyntiä, ei arvonalennusta, ei korjaamolaskuja.",
+        "lead": "Sähköpyörän kuukausivuokraus on yksinkertaisin tapa päästä laadukkaan pyörän selkään ilman ostamista. Maksat selkeän päivähinnan, laskutus joka 30. päivä, ja pyörä, huoltotuki ja laturi tulevat yhtenä pakettina. Kun tarpeesi muuttuvat, niin muuttuu suunnitelmasikin — ei jälleenmyyntiä, ei arvonalennusta, ei korjaamolaskuja.",
         "ctaReserve": "Varaa pyörä",
         "ctaExplore": "Tutustu kalustoon"
       },
@@ -972,7 +972,7 @@
       },
       "meta": {
         "title": "Sähköpyörän kuukausivuokraus — rentaro",
-        "description": "Vuokraa lähetystyöhön rakennettu sähköpyörä kuukaudeksi sen ostamisen sijaan. 177 € ensimmäisistä 30 päivästä kattaa pyörän, huoltotuen, lukon ja laturin — ei yli 1000 € etumaksua, voit lopettaa 30 päivän jälkeen. Tallinna, Riika ja Helsinki."
+        "description": "Vuokraa lähetystyöhön rakennettu sähköpyörä kuukaudeksi sen ostamisen sijaan. 177 € ensimmäisistä 30 päivästä kattaa pyörän, huoltotuen ja laturin — ei yli 1000 € etumaksua, voit lopettaa 30 päivän jälkeen. Tallinna, Riika ja Helsinki."
       },
       "compare": {
         "kicker": "Vuokrata vai ostaa",
@@ -982,7 +982,7 @@
           "title": "Kuukausivuokraus",
           "items": [
             "177 € ensimmäisistä 30 päivästä — ei yli 1000 € ostosta ennen kuin voit ansaita.",
-            "Huolto, lukko ja laturi sisältyvät hintaan.",
+            "Huolto ja laturi sisältyvät hintaan.",
             "Korjaukset hoidetaan puolestasi; vaihtopyörä varaston salliessa.",
             "Lopeta 30 päivän jälkeen tai siirry pidempään suunnitelmaan alemmalla päivähinnalla.",
             "Palauta pyörä kun olet valmis — ei jälleenmyyntiä, ei arvonalennusta."
@@ -1018,8 +1018,8 @@
             "copy": "Jarrujen säätö, rengasrikot ja yleishuolto kuuluvat suunnitelmaan. Pidempään pois tieltä? Vaihdamme pyörän varaston salliessa."
           },
           "lockCharger": {
-            "title": "Lukko ja laturi",
-            "copy": "Kunnon lukko ja laturi tulevat jokaisen suunnitelman mukana, joten voit lukita pyörän toimitusten välillä ja ladata sen kotona."
+            "title": "Laturi",
+            "copy": "Laturi tulee jokaisen suunnitelman mukana, joten voit ladata pyörän kotona vuorojen välillä."
           },
           "swap": {
             "title": "Joustavuus muuttaa",
