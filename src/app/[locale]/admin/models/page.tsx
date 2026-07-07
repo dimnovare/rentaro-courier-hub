@@ -58,21 +58,6 @@ const BADGE_TEXT_PRESETS = [
   "New",
 ] as const;
 
-/** One-click badge combos (text + colour variant) for the list quick-picker. */
-const BADGE_PRESETS: ReadonlyArray<{ text: string; variant: string }> = [
-  { text: "Most popular", variant: "popular" },
-  { text: "Best price", variant: "popular" },
-  { text: "High demand", variant: "popular" },
-  { text: "Cargo", variant: "cargo" },
-  { text: "Easy start", variant: "light" },
-  { text: "Lightweight", variant: "light" },
-  { text: "Folding", variant: "light" },
-  { text: "New", variant: "light" },
-];
-
-/** Encodes a badge as a single select value; "" means no badge. */
-const badgeKey = (text: string, variant: string) => (text ? `${variant}::${text}` : "");
-
 /**
  * Global per-30-day tier prices (business constants, mirror the pricing plans).
  * Used to compute a model's "from / day" when a tier price isn't overridden.
@@ -211,22 +196,6 @@ export default function AdminModelsPage() {
     setBusy(model.code, true);
     try {
       const updated = await patchModel(model.code, { popular: !model.popular });
-      replaceModel(updated);
-    } catch (err) {
-      handleActionError(err, `Could not update ${model.code}.`);
-    } finally {
-      setBusy(model.code, false);
-    }
-  }
-
-  /** Quick-set (or clear) a model's badge straight from the list row. */
-  async function setBadge(model: AdminModel, text: string, variant: string) {
-    setActionError(null);
-    setBusy(model.code, true);
-    try {
-      const updated = await patchModel(model.code, {
-        badge: text ? { text, variant } : null,
-      });
       replaceModel(updated);
     } catch (err) {
       handleActionError(err, `Could not update ${model.code}.`);
@@ -411,7 +380,6 @@ export default function AdminModelsPage() {
                       onEdit={() => setEditing(m.code)}
                       onDelete={() => void removeModel(m.code)}
                       onTogglePopular={() => void togglePopular(m)}
-                      onSetBadge={(text, variant) => void setBadge(m, text, variant)}
                       onReorder={(dir) => void reorder(m.code, dir)}
                     />
                   ))
@@ -478,7 +446,6 @@ function ModelRow({
   onEdit,
   onDelete,
   onTogglePopular,
-  onSetBadge,
   onReorder,
 }: {
   model: AdminModel;
@@ -490,7 +457,6 @@ function ModelRow({
   onEdit: () => void;
   onDelete: () => void;
   onTogglePopular: () => void;
-  onSetBadge: (text: string, variant: string) => void;
   onReorder: (dir: "up" | "down") => void;
 }) {
   return (
@@ -526,7 +492,7 @@ function ModelRow({
           </button>
         </Td>
         <Td nowrap>
-          <BadgeCell model={model} busy={busy} onSet={onSetBadge} />
+          <BadgeCell model={model} />
         </Td>
         <Td mono nowrap>
           {formatEur(fromDailyOf(model))}
@@ -1439,73 +1405,21 @@ function FieldNote({ text }: { text: string }) {
   );
 }
 
-/** Inline badge quick-picker for a list row: shows the current badge and a
- *  compact select of common combos, persisted immediately via PATCH. Custom
- *  (non-preset) text is preserved and edited via the full editor. */
-function BadgeCell({
-  model,
-  busy,
-  onSet,
-}: {
-  model: AdminModel;
-  busy: boolean;
-  onSet: (text: string, variant: string) => void;
-}) {
+/** Read-only badge preview for a list row — shows how the model's badge looks on
+ *  the site, or a dash when none. Editing lives in the model drawer (one place),
+ *  so the list stays scannable and nothing is changed by an accidental click. */
+function BadgeCell({ model }: { model: AdminModel }) {
   const cur = model.badge;
-  const curKey = badgeKey(cur?.text ?? "", cur?.variant ?? "popular");
-  const isPreset = curKey !== "" && BADGE_PRESETS.some((p) => badgeKey(p.text, p.variant) === curKey);
-  const selectValue = curKey === "" ? "" : isPreset ? curKey : "__custom";
+  if (!cur?.text) {
+    return <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>;
+  }
   return (
-    <div style={{ display: "inline-flex", flexDirection: "column", gap: 6, minWidth: 132 }}>
-      {cur?.text ? (
-        <span
-          className={`model-badge ${cur.variant}`}
-          style={{ position: "static", top: "auto", left: "auto", display: "inline-block", alignSelf: "flex-start" }}
-        >
-          {cur.text}
-        </span>
-      ) : (
-        <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
-      )}
-      <select
-        value={selectValue}
-        disabled={busy}
-        aria-label={`Badge for ${model.code}`}
-        onChange={(e) => {
-          const val = e.target.value;
-          if (val === "__custom") return; // custom text is edited in the full editor
-          if (val === "") {
-            onSet("", "popular");
-            return;
-          }
-          const sep = val.indexOf("::");
-          onSet(val.slice(sep + 2), val.slice(0, sep));
-        }}
-        style={{
-          appearance: "none",
-          WebkitAppearance: "none",
-          padding: "6px 8px",
-          borderRadius: "var(--r-sm)",
-          background: "var(--bg-2)",
-          border: "1px solid var(--border)",
-          color: "var(--text-2)",
-          fontFamily: "var(--font-mono)",
-          fontSize: 11.5,
-          cursor: busy ? "not-allowed" : "pointer",
-        }}
-      >
-        <option value="">— none —</option>
-        {selectValue === "__custom" && <option value="__custom">{cur?.text} (custom)</option>}
-        {BADGE_PRESETS.map((p) => {
-          const k = badgeKey(p.text, p.variant);
-          return (
-            <option key={k} value={k} style={{ background: "var(--panel)", color: "var(--text)" }}>
-              {p.text}
-            </option>
-          );
-        })}
-      </select>
-    </div>
+    <span
+      className={`model-badge ${cur.variant}`}
+      style={{ position: "static", top: "auto", left: "auto", display: "inline-block" }}
+    >
+      {cur.text}
+    </span>
   );
 }
 
