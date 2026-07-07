@@ -571,6 +571,15 @@
       "Declined": "Noraidīts",
       "Expired": "Beidzies derīgums",
       "Failed": "Neizdevās"
+    },
+    "selfSign": {
+      "title": "Vēlies parakstīt pats?",
+      "lead": "Lejupielādē rediģējamo Word failu — vēl aizpildāmie lauki ir sarkanā krāsā. Paraksti to un augšupielādē kopiju atpakaļ.",
+      "download": "Lejupielādēt rediģējamo Word (.docx)",
+      "upload": "Augšupielādēt parakstīto kopiju",
+      "uploading": "Augšupielādē…",
+      "uploaded": "Parakstītā kopija augšupielādēta {date} — mēs to pārbaudīsim.",
+      "uploadFailed": "Augšupielāde neizdevās. Lūdzu, mēģini vēlreiz."
     }
   },
   "pay": {

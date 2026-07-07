@@ -34,6 +34,18 @@ export interface PortalContract {
   signedAt: string | null;
   /** False when no e-signature provider is wired up yet (signing disabled). */
   providerConfigured: boolean;
+  /** True when an editable Word (.docx) copy can be downloaded (docx template). */
+  hasEditableDocx: boolean;
+  /** True once the customer has uploaded a signed copy back. */
+  hasUploadedDoc: boolean;
+  /** When the customer uploaded a signed copy (ISO), or null. */
+  uploadedAt: string | null;
+}
+
+/** Result of uploading a signed contract copy back through the portal. */
+export interface ContractUploadResult {
+  uploadedAt: string;
+  fileName: string;
 }
 
 /** Result of asking the backend to start signing. */
@@ -130,4 +142,38 @@ export function contractDocumentUrl(
   return `${API_BASE}/api/portal/contract/document?token=${encodeURIComponent(
     token,
   )}&kind=${kind}`;
+}
+
+/**
+ * URL of the EDITABLE Word (.docx) copy: filled fields written in, still-missing
+ * fields shown in red. Token-gated via the query param, so it's safe as an <a>
+ * href. Only meaningful when `hasEditableDocx` is true.
+ */
+export function contractEditableUrl(token: string): string {
+  return `${API_BASE}/api/portal/contract/editable?token=${encodeURIComponent(token)}`;
+}
+
+/** Upload the customer's signed contract copy (.docx or .pdf) back for review. */
+export async function uploadSignedContract(
+  token: string,
+  file: File,
+): Promise<ContractResult<ContractUploadResult>> {
+  if (!API_BASE) return { kind: "no_api" };
+  if (!token.trim()) return { kind: "invalid" };
+
+  try {
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch(
+      `${API_BASE}/api/portal/contract/upload?token=${encodeURIComponent(token)}`,
+      { method: "POST", body, cache: "no-store" },
+    );
+    if (res.status === 401) return { kind: "invalid" };
+    if (res.status === 404) return { kind: "none" };
+    if (!res.ok) throw new Error(`portal contract upload → ${res.status}`);
+    return { kind: "ok", data: (await res.json()) as ContractUploadResult };
+  } catch (err) {
+    console.error("[rentaro] portal uploadSignedContract failed.", err);
+    return { kind: "error" };
+  }
 }

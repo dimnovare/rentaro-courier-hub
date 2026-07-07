@@ -20,8 +20,11 @@ import {
   getContract,
   startSigning,
   contractDocumentUrl,
+  contractEditableUrl,
+  uploadSignedContract,
   type PortalContract,
   type ContractResult,
+  type ContractUploadResult,
 } from "@/services/contractService";
 import { createBookingPayment } from "@/services/paymentService";
 import {
@@ -1091,9 +1094,131 @@ function ContractCard({
               {t("notAvailableNote")}
             </p>
           )}
+
+          {/* Self-service: download an editable Word copy (missing fields in red),
+              sign it offline, and upload it back. Offered whenever the contract has
+              an editable version and isn't signed yet — an alternative to online
+              signing / paper handover. */}
+          {!isSigned && contract.hasEditableDocx && (
+            <div style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid var(--border)" }}>
+              <p
+                className="mono"
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-dim)",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  marginBottom: 8,
+                }}
+              >
+                {t("selfSign.title")}
+              </p>
+              <p className="lead" style={{ fontSize: 13, marginBottom: 12 }}>
+                {t("selfSign.lead")}
+              </p>
+              <a
+                href={contractEditableUrl(token)}
+                className="btn btn-ghost btn-block"
+                style={{ textDecoration: "none", marginBottom: 10 }}
+              >
+                {t("selfSign.download")}
+                <span className="arrow">
+                  <Ic.arrow />
+                </span>
+              </a>
+              {contract.hasUploadedDoc ? (
+                <p className="manual-agree">
+                  <span>
+                    {t("selfSign.uploaded", {
+                      date: formatUploadedDate(contract.uploadedAt),
+                    })}
+                  </span>
+                </p>
+              ) : (
+                <UploadSignedControl
+                  token={token}
+                  onUploaded={(r) =>
+                    setState({
+                      kind: "ok",
+                      data: { ...contract, hasUploadedDoc: true, uploadedAt: r.uploadedAt },
+                    })
+                  }
+                />
+              )}
+            </div>
+          )}
         </div>
       </article>
     </Reveal>
+  );
+}
+
+/** Short local date for the "uploaded on …" confirmation (falls back to blank). */
+function formatUploadedDate(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+/**
+ * Hidden file input + button to upload the customer's signed contract copy
+ * (.docx or .pdf) back through the portal. On success it lifts the new state up
+ * so the card switches to the "uploaded" confirmation.
+ */
+function UploadSignedControl({
+  token,
+  onUploaded,
+}: {
+  token: string;
+  onUploaded: (result: ContractUploadResult) => void;
+}) {
+  const t = useTranslations("contract");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    setErr(null);
+    const res = await uploadSignedContract(token, file);
+    if (res.kind === "ok") {
+      onUploaded(res.data);
+    } else {
+      setErr(t("selfSign.uploadFailed"));
+    }
+    setBusy(false);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  return (
+    <>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        style={{ display: "none" }}
+        onChange={onFile}
+        disabled={busy}
+      />
+      <button
+        type="button"
+        className="btn btn-ghost btn-block"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+        style={busy ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+      >
+        {busy ? t("selfSign.uploading") : t("selfSign.upload")}
+      </button>
+      {err && (
+        <p className="wizard-err" role="status">
+          {err}
+        </p>
+      )}
+    </>
   );
 }
 

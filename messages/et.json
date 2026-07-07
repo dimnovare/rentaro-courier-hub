@@ -571,6 +571,15 @@
       "Declined": "Tagasi lükatud",
       "Expired": "Aegunud",
       "Failed": "Ebaõnnestus"
+    },
+    "selfSign": {
+      "title": "Soovid ise allkirjastada?",
+      "lead": "Laadi alla redigeeritav Wordi fail — veel täitmata väljad on punasega. Allkirjasta see ja lae koopia meile tagasi.",
+      "download": "Laadi alla redigeeritav Word (.docx)",
+      "upload": "Lae üles allkirjastatud koopia",
+      "uploading": "Üleslaadimine…",
+      "uploaded": "Allkirjastatud koopia üles laaditud {date} — vaatame selle üle.",
+      "uploadFailed": "Üleslaadimine ebaõnnestus. Palun proovi uuesti."
     }
   },
   "pay": {

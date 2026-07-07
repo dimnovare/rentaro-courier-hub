@@ -32,6 +32,7 @@ import {
   ContractApiError,
   ContractConfigError,
   type Contract,
+  type ContractDocumentKind,
 } from "@/services/adminContractService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate, fmtDay } from "@/components/admin/Table";
 import { StatusPill, type PillTone } from "@/components/admin/StatusPill";
@@ -399,7 +400,7 @@ export default function AdminBookingsPage() {
 
   // Open a contract PDF (generated or signed) in a new tab.
   const onDownloadContract = useCallback(
-    async (bookingId: string, contractId: string, kind: "generated" | "signed") => {
+    async (bookingId: string, contractId: string, kind: ContractDocumentKind) => {
       setBanner(null);
       setRowError(null);
       setBusy(bookingId, true);
@@ -936,7 +937,7 @@ function BookingsManageTable({
   onSetStatus: (id: string, status: string, label: string) => void;
   onGenerateContract: (id: string, notify: boolean) => void;
   onMarkSigned: (id: string, notify: boolean, signedAt?: string) => void;
-  onDownloadContract: (id: string, contractId: string, kind: "generated" | "signed") => void;
+  onDownloadContract: (id: string, contractId: string, kind: ContractDocumentKind) => void;
   onDelete: (id: string) => void;
 }) {
   return (
@@ -1031,7 +1032,7 @@ function BookingRow({
   onSetStatus: (status: string, label: string) => void;
   onGenerateContract: (notify: boolean) => void;
   onMarkSigned: (notify: boolean, signedAt?: string) => void;
-  onDownloadContract: (kind: "generated" | "signed") => void;
+  onDownloadContract: (kind: ContractDocumentKind) => void;
   onDelete: () => void;
 }) {
   return (
@@ -1142,7 +1143,7 @@ function ManagePanel({
   onSetStatus: (status: string, label: string) => void;
   onGenerateContract: (notify: boolean) => void;
   onMarkSigned: (notify: boolean, signedAt?: string) => void;
-  onDownloadContract: (kind: "generated" | "signed") => void;
+  onDownloadContract: (kind: ContractDocumentKind) => void;
   onDelete: () => void;
 }) {
   return (
@@ -1563,6 +1564,14 @@ function paymentStatusTone(status: string): PillTone {
  * list-by-booking endpoint), so a page refresh resets these back to the generate
  * button — generation is idempotent on the backend, so re-running it is safe.
  */
+/** Short local date for the "uploaded on …" admin note. */
+function formatUploadedDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
 function ContractControl({
   contract,
   busy,
@@ -1574,7 +1583,7 @@ function ContractControl({
   busy: boolean;
   onGenerate: (notify: boolean) => void;
   onMarkSigned: (notify: boolean, signedAt?: string) => void;
-  onDownload: (kind: "generated" | "signed") => void;
+  onDownload: (kind: ContractDocumentKind) => void;
 }) {
   // Email the customer a copy when generating — defaults on (the prior behaviour).
   const [emailOnGenerate, setEmailOnGenerate] = useState(true);
@@ -1675,6 +1684,18 @@ function ContractControl({
             Signed PDF
           </button>
         )}
+        {contract.hasUploadedDoc && (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ padding: "6px 11px", fontSize: 11.5 }}
+            disabled={busy}
+            onClick={() => onDownload("uploaded")}
+            title={contract.uploadedDocFileName ?? undefined}
+          >
+            Customer copy ↓
+          </button>
+        )}
         <button
           type="button"
           className="btn btn-ghost"
@@ -1685,6 +1706,19 @@ function ContractControl({
           {busy ? "Working…" : "Regenerate"}
         </button>
       </div>
+      {contract.hasUploadedDoc && !signed && (
+        <p
+          style={{
+            ...hintStyle,
+            color: "var(--lime)",
+            marginTop: 2,
+          }}
+        >
+          The customer uploaded a signed copy
+          {contract.uploadedAt ? ` on ${formatUploadedDate(contract.uploadedAt)}` : ""} — review
+          it (Customer copy ↓), then mark the contract signed below.
+        </p>
+      )}
       {!signed && (
         <>
           <label className="mono" style={{ ...hintStyle, display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>

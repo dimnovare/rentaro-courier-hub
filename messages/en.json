@@ -571,6 +571,15 @@
       "Declined": "Declined",
       "Expired": "Expired",
       "Failed": "Failed"
+    },
+    "selfSign": {
+      "title": "Prefer to sign it yourself?",
+      "lead": "Download the editable Word file — fields still to complete are shown in red. Sign it, then upload the copy back to us.",
+      "download": "Download editable Word (.docx)",
+      "upload": "Upload your signed copy",
+      "uploading": "Uploading…",
+      "uploaded": "Signed copy uploaded on {date} — we'll review it.",
+      "uploadFailed": "Upload failed. Please try again."
     }
   },
   "pay": {

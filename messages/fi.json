@@ -571,6 +571,15 @@
       "Declined": "Hylätty",
       "Expired": "Vanhentunut",
       "Failed": "Epäonnistui"
+    },
+    "selfSign": {
+      "title": "Allekirjoitatko mieluummin itse?",
+      "lead": "Lataa muokattava Word-tiedosto — vielä täytettävät kentät näkyvät punaisella. Allekirjoita se ja lataa kopio takaisin meille.",
+      "download": "Lataa muokattava Word (.docx)",
+      "upload": "Lataa allekirjoitettu kopio",
+      "uploading": "Ladataan…",
+      "uploaded": "Allekirjoitettu kopio ladattu {date} — tarkistamme sen.",
+      "uploadFailed": "Lataus epäonnistui. Yritä uudelleen."
     }
   },
   "pay": {

@@ -61,10 +61,17 @@ export interface Contract {
    *  renter. Distinct from signerName, which is the intended/booked signer. */
   signedByName: string | null;
   signedByCountry: string | null;
+  /** True once the customer has uploaded a signed copy back (self-service path). */
+  hasUploadedDoc: boolean;
+  /** Original file name of the customer-uploaded copy, or null. */
+  uploadedDocFileName: string | null;
+  /** When the customer uploaded a signed copy (ISO), or null. */
+  uploadedAt: string | null;
 }
 
-/** Which rendition of the contract PDF to fetch. */
-export type ContractDocumentKind = "generated" | "signed";
+/** Which rendition of the contract document to fetch. "uploaded" is the
+ *  customer's self-signed copy (may be a .docx, not just a PDF). */
+export type ContractDocumentKind = "generated" | "signed" | "uploaded";
 
 /* ── Typed errors ──────────────────────────────────────────────────────── */
 
