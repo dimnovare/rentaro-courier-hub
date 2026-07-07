@@ -231,6 +231,29 @@ export function updateModel(code: string, patch: ModelInput): Promise<AdminModel
   }).then(withCode);
 }
 
+/** Quick-editable list fields that {@link patchModel} can change on their own. */
+export interface ModelPatch {
+  popular?: boolean;
+  showcase?: boolean;
+  isActive?: boolean;
+  sortOrder?: number;
+  status?: string;
+  badge?: AdminModelBadge | null;
+}
+
+/**
+ * Partial update of a model's quick-editable list fields (popular, order, status,
+ * badge). Unlike {@link updateModel} — a full replace that requires the whole
+ * editable shape — this changes ONLY the fields supplied, so a one-flag toggle
+ * from the list can never blank the name / prices / specs.
+ */
+export function patchModel(code: string, patch: ModelPatch): Promise<AdminModel> {
+  return request<RawModel>(`/api/admin/models/${encodeURIComponent(code)}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  }).then(withCode);
+}
+
 /** Delete a model by code. */
 export function deleteModel(code: string): Promise<void> {
   return request<void>(`/api/admin/models/${encodeURIComponent(code)}`, {

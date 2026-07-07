@@ -5,6 +5,7 @@ import {
   listModels,
   createModel,
   updateModel,
+  patchModel,
   deleteModel,
   uploadModelImage,
   deleteModelImage,
@@ -164,7 +165,7 @@ export default function AdminModelsPage() {
     setActionError(null);
     setBusy(model.code, true);
     try {
-      const updated = await updateModel(model.code, { popular: !model.popular });
+      const updated = await patchModel(model.code, { popular: !model.popular });
       replaceModel(updated);
     } catch (err) {
       handleActionError(err, `Could not update ${model.code}.`);
@@ -199,7 +200,7 @@ export default function AdminModelsPage() {
     try {
       // Persist the new positions, then reflect them in state.
       const updated = await Promise.all(
-        targets.map((m) => updateModel(m.code, { sortOrder: m.sortOrder })),
+        targets.map((m) => patchModel(m.code, { sortOrder: m.sortOrder })),
       );
       const byCode = new Map(updated.map((m) => [m.code, m]));
       setState((s) =>
