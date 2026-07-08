@@ -54,7 +54,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Mitä vuokraan sisältyy",
       body: [
-        "Jokaiseen sopimukseen sisältyy sähköpyörä, akku, laturi ja lukko sekä säännöllinen huoltotuki — jarrujen ja vaihteiden säädöt, renkaanpuhkeamisten hoito, yleishuolto ja kulumiseen liittyvät korjaukset, jotka eivät johdu väärinkäytöstä.",
+        "Jokaiseen sopimukseen sisältyy sähköpyörä, akku ja laturi sekä säännöllinen huoltotuki — jarrujen ja vaihteiden säädöt, renkaanpuhkeamisten hoito, yleishuolto ja kulumiseen liittyvät korjaukset, jotka eivät johdu väärinkäytöstä.",
         "Valinnaiset lisävarusteet, kuten lisäakku, kuljetuslaukku, puhelinteline, kypärä, järeä lukko tai talvirenkaat, voidaan lisätä vuokraan lisämaksusta ja ne vahvistetaan varauksen yhteydessä. Kaikki lisävarusteet ovat osa vuokrausta ja ne on palautettava pyörän mukana.",
       ],
     },

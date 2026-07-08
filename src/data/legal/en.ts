@@ -54,7 +54,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "What is included",
       body: [
-        "Every plan includes the e-bike, a battery, a charger and a lock, together with routine service support — brake and gear adjustments, puncture handling, general maintenance and wear-related repairs that are not caused by misuse.",
+        "Every plan includes the e-bike, a battery and a charger, together with routine service support — brake and gear adjustments, puncture handling, general maintenance and wear-related repairs that are not caused by misuse.",
         "Optional accessories such as an extra battery, delivery bag, phone holder, helmet, heavy-duty lock or winter tyres can be added to your rental for an additional charge and are confirmed at booking. Any add-on equipment is part of the rental and must be returned with the bike.",
       ],
     },

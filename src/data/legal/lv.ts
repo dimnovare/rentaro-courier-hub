@@ -55,7 +55,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Kas ir iekļauts",
       body: [
-        "Katrs plāns ietver elektrovelosipēdu, akumulatoru, lādētāju un slēdzeni kopā ar regulāru servisa atbalstu — bremžu un pārnesumu regulēšanu, riepu caurumu novēršanu, vispārēju apkopi un ar nolietojumu saistītus remontus, kas nav radušies nepareizas lietošanas dēļ.",
+        "Katrs plāns ietver elektrovelosipēdu, akumulatoru un lādētāju kopā ar regulāru servisa atbalstu — bremžu un pārnesumu regulēšanu, riepu caurumu novēršanu, vispārēju apkopi un ar nolietojumu saistītus remontus, kas nav radušies nepareizas lietošanas dēļ.",
         "Papildu piederumus, piemēram, papildu akumulatoru, piegādes somu, telefona turētāju, ķiveri, izturīgu slēdzeni vai ziemas riepas, var pievienot jūsu īrei par papildu maksu, un tie tiek apstiprināti rezervēšanas laikā. Jebkurš papildu aprīkojums ir daļa no īres un jāatgriež kopā ar velosipēdu.",
       ],
     },

@@ -55,7 +55,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Mis on hinna sees",
       body: [
-        "Iga pakett sisaldab e-ratast, akut, laadijat ja lukku koos tavapärase hooldustoega — pidurite ja käikude reguleerimine, rehvirikete käsitlemine, üldhooldus ja kulumisega seotud remont, mis ei ole põhjustatud väärkasutusest.",
+        "Iga pakett sisaldab e-ratast, akut ja laadijat koos tavapärase hooldustoega — pidurite ja käikude reguleerimine, rehvirikete käsitlemine, üldhooldus ja kulumisega seotud remont, mis ei ole põhjustatud väärkasutusest.",
         "Valikulisi lisatarvikuid, nagu lisaaku, kohaletoimetamise kott, telefonihoidik, kiiver, tugevdatud lukk või talverehvid, saab rendile lisada täiendava tasu eest ning need kinnitatakse broneerimisel. Iga lisavarustus on osa rendist ja tuleb tagastada koos rattaga.",
       ],
     },
