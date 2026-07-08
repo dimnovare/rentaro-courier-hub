@@ -8,14 +8,13 @@ import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
 import { resolvePlanPrice } from "@/services/pricingService";
-import { accessories } from "@/data/accessories";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
 import { resolveImg, handleModelImgError } from "@/services/modelService";
 import { operatingCityNames } from "@/lib/cities";
 import type { SiteSettings } from "@/services/settingsService";
-import type { BikeModel, City, PlanId } from "@/types";
+import type { Accessory, BikeModel, City, PlanId } from "@/types";
 
 /** Contact preference captured on the review step. */
 type ContactMethod = "email" | "phone";
@@ -68,10 +67,13 @@ export function BookingWizard({
   settings,
   models,
   cities,
+  accessories,
 }: {
   settings: SiteSettings;
   models: BikeModel[];
   cities: City[];
+  /** Admin-managed accessories (name + price) from /api/public/accessories. */
+  accessories: Accessory[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
