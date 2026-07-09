@@ -59,7 +59,7 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           </Link>
         </h3>
         <div className="model-tagline">
-          {m.brand} · {tm(`${m.id}.tagline`)}
+          {m.brand} · {tm.has(`${m.id}.tagline`) ? tm(`${m.id}.tagline`) : m.tagline}
         </div>
 
         {/* Read-only colour swatches — a hex dot per available colour. */}

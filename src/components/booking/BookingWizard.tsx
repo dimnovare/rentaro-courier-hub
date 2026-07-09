@@ -555,7 +555,7 @@ export function BookingWizard({
                       <span className="bike-opt-text">
                         <span className="opt-t">{m.name}</span>
                         <span className="opt-m">
-                          {m.brand} · {tm(`${m.id}.tagline`)}
+                          {m.brand} · {tm.has(`${m.id}.tagline`) ? tm(`${m.id}.tagline`) : m.tagline}
                         </span>
                         <span className={`bike-stat ${stat}`}>
                           <span className="bike-stat-dot" aria-hidden />
@@ -603,8 +603,8 @@ export function BookingWizard({
                       <img src={resolveImg(thumb)} alt="" loading="lazy" onError={handleModelImgError} />
                       <span className="bike-hovercard-body">
                         <strong>{m.name}</strong>
-                        <em>{tm(`${m.id}.tagline`)}</em>
-                        <p>{tm(`${m.id}.blurb`)}</p>
+                        <em>{tm.has(`${m.id}.tagline`) ? tm(`${m.id}.tagline`) : m.tagline}</em>
+                        <p>{tm.has(`${m.id}.blurb`) ? tm(`${m.id}.blurb`) : m.blurb}</p>
                       </span>
                     </span>
                   </div>
@@ -1107,7 +1107,7 @@ export function BookingWizard({
             <div className="bike-modal-body">
               <h3>{infoModel.name}</h3>
               <div className="model-tagline">
-                {infoModel.brand} · {tm(`${infoModel.id}.tagline`)}
+                {infoModel.brand} · {tm.has(`${infoModel.id}.tagline`) ? tm(`${infoModel.id}.tagline`) : infoModel.tagline}
               </div>
               <p className="lead" style={{ fontSize: 14.5, marginTop: 10 }}>
                 {infoModel.blurb}

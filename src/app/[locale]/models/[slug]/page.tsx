@@ -92,7 +92,7 @@ export default async function ModelDetail({ params }: Params) {
             <Reveal delay={80}>
               <div>
                 <div className="detail-brand">
-                  {m.brand} · {tm(`${m.id}.tagline`)}
+                  {m.brand} · {tm.has(`${m.id}.tagline`) ? tm(`${m.id}.tagline`) : m.tagline}
                 </div>
                 <h1>{m.name}</h1>
                 <span className="detail-avail">
@@ -118,7 +118,7 @@ export default async function ModelDetail({ params }: Params) {
 
                 {m.blurb && (
                   <p className="lead" style={{ marginTop: 18 }}>
-                    {tm(`${m.id}.blurb`)}
+                    {tm.has(`${m.id}.blurb`) ? tm(`${m.id}.blurb`) : m.blurb}
                   </p>
                 )}
                 <div className="spec-row" style={{ margin: "20px 0 0" }}>
