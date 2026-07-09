@@ -113,7 +113,7 @@
     "depositLine": "+€{amount} palautettava vakuus",
     "depositLabel": "Palautettava vakuus",
     "depositReassure": "Palautetaan kokonaan lopussa, mahdolliset vahingot vähennettynä.",
-    "dueAtPickup": "€{amount} maksetaan portaalissa — kun olet hyväksytty ja olet hyväksynyt sopimuksen",
+    "dueAtPickup": "{amount} € aloitukseen (ensimmäiset 30 päivää + palautettava vakuus) — erääntyy hyväksynnän ja sopimuksen hyväksymisen jälkeen",
     "choose": "Valitse {term}",
     "terms": {
       "p30": "30 päivää",
@@ -142,7 +142,8 @@
       "showingFor": "Hinnat pyörälle {name}",
       "waitlistTag": "jonotus",
       "joinWaitlist": "Liity jonotuslistalle"
-    }
+    },
+    "recurringNote": "Sen jälkeen {amount} € joka 30. päivä — lasku ennen jokaista jaksoa."
   },
   "fleet": {
     "kicker": "Koko kalusto",
@@ -243,7 +244,7 @@
       },
       "pricing": {
         "q": "Miten hinnoittelu toimii?",
-        "a": "Hinnoittelu perustuu 30 päivän jaksoon. 30 päivän suunnitelma on €5.90/pv, 6 kuukauden suunnitelma €4.90/pv ja 12 kuukauden suunnitelma €3.90/pv. Sama suunnitelmahinnoittelu koskee jokaista mallia."
+        "a": "Hinnoittelu on 30 päivän jaksoissa, ja jokainen pyörä näyttää omat sopimushintansa — 30 päivän sopimuksen 5,90 €/päivä -hinnasta sen 12 kuukauden hintaan. Ensimmäinen maksu kattaa ensimmäiset 30 päivää (sekä lisävarusteet ja toimituksen valinneilla kertaluonteisen toimitusmaksun); palautettava vakuus maksetaan sen yhteydessä. 6 ja 12 kuukauden sopimuksissa lähetämme sitten laskun ennen jokaista uutta 30 päivän jaksoa."
       },
       "maintenance": {
         "q": "Sisältyykö huolto?",
@@ -263,7 +264,7 @@
       },
       "contract": {
         "q": "Miten allekirjoitan sopimuksen?",
-        "a": "Lähetämme vuokrasopimuksen sähköpostitse, jotta voit tutustua siihen etukäteen. Allekirjoitat sen paikan päällä, kun noudat pyörän."
+        "a": "Allekirjoitat vuokrasopimuksen paikan päällä noudon yhteydessä. Hyväksynnän jälkeen lähetämme sopimuksen myös sähköpostitse, joten voit allekirjoittaa sen itse etukäteen — paperilla tai digitaalisesti (esim. DigiDoc / Smart-ID) — ja ladata allekirjoitetun kopion vuokrausportaaliisi."
       }
     }
   },
@@ -394,7 +395,10 @@
       "paymentNoteCash": "Ei maksua nyt — varaaminen on ilmaista. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen paikan päällä ja maksat ensimmäisen 30 päivän jakson sekä palautettavan vakuuden käteisellä pyörää noutaessasi.",
       "paymentNoteTransfer": "Ei maksua nyt — varaaminen on ilmaista. Kun hyväksymme varauksesi, allekirjoitat vuokrasopimuksen paikan päällä ja maksat ensimmäisen 30 päivän jakson sekä palautettavan vakuuden pankkisiirrolla ennen noutoa.",
       "payStripCash": "Maksa noudettaessa",
-      "payStripTransfer": "Maksa ennen noutoa"
+      "payStripTransfer": "Maksa ennen noutoa",
+      "firstPayment": "Ensimmäinen maksu",
+      "firstPaymentNote": "Erääntyy, kun varauksesi on hyväksytty ja olet hyväksynyt sopimuksen — lisäksi {deposit} € palautettava vakuus maksetaan sen yhteydessä.",
+      "thenPer30": "Sen jälkeen {amount} € joka 30. päivä (pyörä + lisävarusteet) — lähetämme laskun ennen jokaista uutta jaksoa."
     },
     "buttons": {
       "cancel": "Peruuta",
@@ -561,7 +565,7 @@
     },
     "signing": {
       "manualTitle": "Allekirjoitus noudettaessa",
-      "manualAgree": "Allekirjoitat vuokrasopimuksen henkilökohtaisesti pyörää noutaessasi."
+      "manualAgree": "Oletuksena allekirjoitat vuokrasopimuksen henkilökohtaisesti pyörää noutaessasi."
     },
     "contract": {
       "readInAdvance": "Lue vuokrasopimuksesi etukäteen"
@@ -570,9 +574,9 @@
   "contract": {
     "heading": "Vuokrasopimus",
     "signedLead": "Vuokrasopimuksesi on allekirjoitettu. Voit ladata kopion itsellesi.",
-    "unsignedLead": "Tutustu vuokrasopimukseesi etukäteen. Allekirjoitat sen paikan päällä, kun noudat pyörän.",
-    "notAvailableLead": "Vuokrasopimuksesi on pian valmis allekirjoitettavaksi täällä.",
-    "notAvailableNote": "Allekirjoitus ei ole vielä käytettävissä — lähetämme sähköpostia, kun sopimuksesi on valmis.",
+    "unsignedLead": "Tarkista vuokrasopimuksesi ja allekirjoita se verkossa — se vie vain pari minuuttia.",
+    "notAvailableLead": "Verkkoallekirjoitus ei ole vielä käytettävissä.",
+    "notAvailableNote": "Allekirjoitat vuokrasopimuksen paikan päällä, kun noudat pyörän.",
     "sign": "Allekirjoita sopimus",
     "opening": "Avataan…",
     "downloadSigned": "Lataa allekirjoitettu sopimus",
@@ -588,8 +592,8 @@
       "Failed": "Epäonnistui"
     },
     "selfSign": {
-      "title": "Allekirjoitatko mieluummin itse?",
-      "lead": "Lataa muokattava Word-tiedosto — vielä täytettävät kentät näkyvät punaisella. Allekirjoita se ja lataa kopio takaisin meille.",
+      "title": "Haluatko allekirjoittaa jo etukäteen?",
+      "lead": "Lataa muokattava Word-tiedosto — vielä täytettävät kentät näkyvät punaisella. Tulosta ja allekirjoita, tai allekirjoita digitaalisesti (esim. DigiDoc / Smart-ID), ja lataa allekirjoitettu kopio takaisin meille — PDF, Word tai .asice-kontti käyvät kaikki. Muussa tapauksessa allekirjoitat sopimuksen paikan päällä noudon yhteydessä.",
       "download": "Lataa muokattava Word (.docx)",
       "upload": "Lataa allekirjoitettu kopio",
       "uploading": "Ladataan…",

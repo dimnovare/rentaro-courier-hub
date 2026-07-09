@@ -1106,8 +1106,9 @@ function formatUploadedDate(iso: string | null): string {
 
 /**
  * Hidden file input + button to upload the customer's signed contract copy
- * (.docx or .pdf) back through the portal. On success it lifts the new state up
- * so the card switches to the "uploaded" confirmation.
+ * (.docx, .pdf, or a DigiDoc/Smart-ID signature container: .asice/.sce/.bdoc)
+ * back through the portal. On success it lifts the new state up so the card
+ * switches to the "uploaded" confirmation.
  */
 function UploadSignedControl({
   token,
@@ -1141,7 +1142,7 @@ function UploadSignedControl({
       <input
         ref={inputRef}
         type="file"
-        accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        accept=".docx,.pdf,.asice,.sce,.bdoc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.etsi.asic-e+zip"
         style={{ display: "none" }}
         onChange={onFile}
         disabled={busy}

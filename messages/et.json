@@ -113,7 +113,7 @@
     "depositLine": "+€{amount} tagastatav tagatisraha",
     "depositLabel": "Tagastatav tagatisraha",
     "depositReassure": "Lõpus täielikult tagastatav, miinus võimalikud kahjustused.",
-    "dueAtPickup": "€{amount} makstud portaalis — pärast kinnitamist ja lepingu vastuvõtmist",
+    "dueAtPickup": "{amount} € alustamiseks (esimesed 30 päeva + tagastatav tagatisraha) — tasumisele pärast kinnitamist ja lepinguga nõustumist",
     "choose": "Vali {term}",
     "terms": {
       "p30": "30 päeva",
@@ -142,7 +142,8 @@
       "showingFor": "Hinnad rattale {name}",
       "waitlistTag": "ootejärjekord",
       "joinWaitlist": "Liitu ootejärjekorraga"
-    }
+    },
+    "recurringNote": "Seejärel {amount} € iga 30 päeva järel — arve enne iga perioodi."
   },
   "fleet": {
     "kicker": "Kogu park",
@@ -243,7 +244,7 @@
       },
       "pricing": {
         "q": "Kuidas hinnastamine toimib?",
-        "a": "Hind on 30-päevase perioodi kohta. 30 päeva pakett on €5.90/päev, 6 kuu pakett €4.90/päev ja 12 kuu pakett €3.90/päev. Sama paketihind kehtib kõigile mudelitele."
+        "a": "Hind arvestatakse 30-päevaste perioodide kaupa ja igal rattal on oma paketihinnad — alates 5,90 €/päev 30-päevasel paketil kuni tema 12 kuu määrani. Esimene makse katab esimesed 30 päeva (pluss lisad ja kohaletoimetamise valikul ühekordne kohaletoimetamise tasu); tagastatav tagatisraha tasutakse koos sellega. 6 ja 12 kuu paketil saadame seejärel arve enne iga uut 30-päevast perioodi."
       },
       "maintenance": {
         "q": "Kas hooldus on sees?",
@@ -263,7 +264,7 @@
       },
       "contract": {
         "q": "Kuidas ma lepingu allkirjastan?",
-        "a": "Saadame su rendilepingu e-postiga, et saaksid sellega eelnevalt tutvuda. Allkirjastad selle kohapeal, kui ratta järele tuled."
+        "a": "Allkirjastad rendilepingu kohapeal ratta kättesaamisel. Pärast kinnitamist saadame lepingu ka e-postiga, nii et võid selle juba ette ise allkirjastada — paberil või digitaalselt (nt DigiDoc / Smart-ID) — ja laadida allkirjastatud koopia üles oma rendiportaalis."
       }
     }
   },
@@ -390,7 +391,10 @@
       "paymentNoteCash": "Praegu makset pole — broneerimine on tasuta. Pärast broneeringu kinnitamist allkirjastad rendilepingu kohapeal ning maksad esimese 30-päevase perioodi ja tagastatava tagatise sularahas ratta üleandmisel.",
       "paymentNoteTransfer": "Praegu makset pole — broneerimine on tasuta. Pärast broneeringu kinnitamist allkirjastad rendilepingu kohapeal ning maksad esimese 30-päevase perioodi ja tagastatava tagatise pangaülekandega enne üleandmist.",
       "payStripCash": "Maksa kohapeal",
-      "payStripTransfer": "Maksa enne üleandmist"
+      "payStripTransfer": "Maksa enne üleandmist",
+      "firstPayment": "Esimene makse",
+      "firstPaymentNote": "Tasumisele pärast broneeringu kinnitamist, kui oled lepinguga nõustunud — lisaks {deposit} € tagastatav tagatisraha, mis tasutakse koos sellega.",
+      "thenPer30": "Seejärel {amount} € iga 30 päeva järel (ratas + lisad) — saadame arve enne iga uut perioodi."
     },
     "buttons": {
       "cancel": "Tühista",
@@ -561,7 +565,7 @@
     },
     "signing": {
       "manualTitle": "Allkirjastamine kättesaamisel",
-      "manualAgree": "Allkirjastad rendilepingu kohapeal ratta kättesaamisel."
+      "manualAgree": "Vaikimisi allkirjastad rendilepingu kohapeal ratta kättesaamisel."
     },
     "contract": {
       "readInAdvance": "Loe oma rendileping ette läbi"
@@ -570,9 +574,9 @@
   "contract": {
     "heading": "Rendileping",
     "signedLead": "Sinu rendileping on allkirjastatud. Saad oma tarvis koopia alla laadida.",
-    "unsignedLead": "Tutvu oma rendilepinguga eelnevalt. Allkirjastad selle kohapeal, kui ratta järele tuled.",
-    "notAvailableLead": "Sinu rendileping on siin peagi allkirjastamiseks valmis.",
-    "notAvailableNote": "Allkirjastamine pole veel saadaval — saadame sulle e-kirja, kui leping on valmis.",
+    "unsignedLead": "Vaata oma rendileping üle ja allkirjasta see veebis — see võtab vaid paar minutit.",
+    "notAvailableLead": "Veebis allkirjastamine pole veel saadaval.",
+    "notAvailableNote": "Allkirjastad rendilepingu kohapeal, kui ratta järele tuled.",
     "sign": "Allkirjasta leping",
     "opening": "Avan…",
     "downloadSigned": "Laadi allkirjastatud leping alla",
@@ -588,8 +592,8 @@
       "Failed": "Ebaõnnestus"
     },
     "selfSign": {
-      "title": "Soovid ise allkirjastada?",
-      "lead": "Laadi alla redigeeritav Wordi fail — veel täitmata väljad on punasega. Allkirjasta see ja lae koopia meile tagasi.",
+      "title": "Soovid allkirjastada juba ette?",
+      "lead": "Laadi alla redigeeritav Wordi fail — veel täitmata väljad on punasega. Prindi ja allkirjasta, või allkirjasta digitaalselt (nt DigiDoc / Smart-ID), ja lae allkirjastatud koopia meile tagasi — sobib PDF, Word või .asice konteiner. Muul juhul allkirjastad lihtsalt kohapeal ratta kättesaamisel.",
       "download": "Laadi alla redigeeritav Word (.docx)",
       "upload": "Lae üles allkirjastatud koopia",
       "uploading": "Üleslaadimine…",

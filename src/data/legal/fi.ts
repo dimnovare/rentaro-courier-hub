@@ -40,6 +40,7 @@ export const rentalRules: LegalDoc = {
       body: [
         "Vähimmäisvuokra-aika on 30 päivää. Valitset sopimuksesi varauksen yhteydessä: joustava 30 päivän sopimus, 6 kuukauden sopimus tai 12 kuukauden sopimus. Pidemmissä sopimuksissa on alempi päivähinta pidempää sitoutumista vastaan.",
         "Hinta veloitetaan 30 päivän jaksoittain valitsemasi sopimuksen päivähinnan mukaan: 5,90 € päivässä 30 päivän sopimuksessa (177 € / 30 päivää), 4,90 € päivässä 6 kuukauden sopimuksessa (147 € / 30 päivää) ja 3,90 € päivässä 12 kuukauden sopimuksessa (117 € / 30 päivää). 6 kuukauden ja 12 kuukauden hinnat ovat toistuva 30 päivän hinta valitsemasi sitoutumisajan keston ajan — ne eivät ole yksittäinen kertamaksu koko jaksolta.",
+        "Maksut kulkevat 30 päivän jaksoissa. Ensimmäinen maksu — joka erääntyy hyväksynnän jälkeen, kun olet hyväksynyt vuokrasopimuksen — kattaa ensimmäiset 30 päivää, valitsemasi lisävarusteet ja toimituksen valinneilla kertaluonteisen toimitusmaksun; palautettava vakuus maksetaan sen yhteydessä. Ennen jokaista seuraavaa 30 päivän jaksoa lähetämme laskun kyseisestä jaksosta (pyörä ja lisävarusteesi), maksettavaksi pankkisiirrolla. Toimitusmaksua ei koskaan veloiteta uudelleen.",
         "Ensimmäisten 30 päivän jälkeen voit jatkaa kuukausi kerrallaan, vaihtaa pidempään sopimukseen tai järjestää palautuksen. Jatkaaksesi, muuttaaksesi tai päättääksesi vuokrauksen ilmoita meille noudon yhteydessä vahvistettujen yhteyskanavien kautta hyvissä ajoin ennen nykyisen jaksosi päättymistä. Pidemmän sitoumuksen ennenaikainen päättäminen voi vaikuttaa vakuuteen ja vuokrasopimuksessasi sovittuihin ennenaikaisen päättämisen ehtoihin.",
       ],
     },
@@ -160,15 +161,15 @@ export const termsOfService: LegalDoc = {
       heading: "Henkilöllisyyden todentaminen ja allekirjoittaminen",
       body: [
         "Ennen vuokrauksen alkamista todennamme henkilöllisyytesi ja annamme sinun allekirjoittaa vuokrasopimuksen. Henkilöllisyystodistukset ja kaikki vaaditut henkilötiedot kerätään ja käsitellään turvallisesti tietosuojakäytäntömme kuvaamalla tavalla.",
-        "Vuokrasopimus allekirjoitetaan sähköisesti sähköisen allekirjoituksen palveluntarjoajamme Dokobitin kautta. Vuokraus ei voi alkaa eikä pyörää luovuteta ennen kuin todentaminen on valmis ja sopimus on allekirjoitettu.",
+        "Vuokrasopimus allekirjoitetaan paikan päällä noudon yhteydessä, tai — jos lähetämme sopimuksen sinulle etukäteen — voit allekirjoittaa sen itse ja palauttaa allekirjoitetun kopion vuokrausportaalisi kautta, joko paperilla tai digitaalisesti (esim. DigiDoc / Smart-ID). Vuokraus ei voi alkaa eikä pyörää luovuteta ennen kuin todentaminen on valmis ja sopimus on allekirjoitettu.",
       ],
     },
     {
       heading: "Maksut, laskutus ja maksaminen",
       body: [
         "Hinta on 30 päivän jaksoittain valitsemasi sopimuksen päivähinnan mukaan, laskettuna päivähintana kerrottuna 30:llä: 5,90 €/päivä = 177 € / 30 päivää (30 päivän sopimus), 4,90 €/päivä = 147 € / 30 päivää (6 kuukauden sopimus) ja 3,90 €/päivä = 117 € / 30 päivää (12 kuukauden sopimus). Vähimmäisvuokra-aika on 30 päivää. Hinnat sisältävät arvonlisäveron soveltuvin osin.",
-        "Ensimmäinen 30 päivän jakso ja vakuus veloitetaan ennen noutoa. Jokainen seuraava 30 päivän jakso veloitetaan etukäteen kyseisen jakson alussa sopimuksesi keston ajan. Valinnaiset lisävarusteet veloitetaan varauksen yhteydessä vahvistetulla tavalla.",
-        "Maksut ja vakuus käsitellään maksupalveluntarjoajamme Montonion kautta. Valtuutat meidät veloittamaan valitsemaltasi maksutavalta sopimuksesi mukaiset summat, mukaan lukien uusinnat, lisävarusteet sekä mahdolliset vaurioista, puuttuvista varusteista tai myöhästyneestä tai palauttamatta jättämisestä aiheutuvat maksut vuokrausehdoissa esitetyllä tavalla. Jos maksu epäonnistuu, voimme keskeyttää vuokrauksen, kunnes asia on selvitetty. Hinnat voivat muuttua tulevien varausten osalta tai uusinnoissa sitoutumisaikasi jälkeen kohtuullisella ennakkoilmoituksella.",
+        "Ensimmäinen maksu erääntyy, kun varauksesi on hyväksytty ja olet hyväksynyt vuokrasopimuksen. Se kattaa ensimmäisen 30 päivän jakson, valitsemasi lisävarusteet ja — jos valitsit toimituksen maksuttoman noudon sijaan — kertaluonteisen toimitusmaksun; palautettava vakuus maksetaan sen yhteydessä. Jokaisesta seuraavasta sopimuksesi 30 päivän jaksosta lähetämme laskun ennen jakson alkua — pyörästä ja lisävarusteistasi kyseiseltä jaksolta — maksettavaksi pankkisiirrolla. Toimitusmaksu veloitetaan vain kerran, eikä se koskaan ole osa toistuvaa 30 päivän hintaa.",
+        "Maksut suoritetaan pankkisiirrolla laskussa ilmoitetulle tilille tai käteisellä, jos siitä on sovittu luovutuksen yhteydessä. Vaurioista, puuttuvista varusteista tai myöhästyneestä tai palauttamatta jättämisestä aiheutuvat maksut laskutetaan vuokrausehdoissa esitetyllä tavalla. Jos maksua ei suoriteta eräpäivään mennessä, voimme keskeyttää vuokrauksen, kunnes asia on selvitetty. Hinnat voivat muuttua tulevien varausten osalta tai uusinnoissa sitoutumisaikasi jälkeen kohtuullisella ennakkoilmoituksella.",
       ],
     },
     {

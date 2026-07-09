@@ -41,6 +41,7 @@ export const rentalRules: LegalDoc = {
       body: [
         "Minimālais īres periods ir 30 dienas. Rezervējot izvēlaties savu plānu: elastīgu 30 dienu plānu, 6 mēnešu plānu vai 12 mēnešu plānu. Garākiem plāniem ir zemāka dienas likme apmaiņā pret ilgāku saistību periodu.",
         "Cena tiek aprēķināta par katru 30 dienu periodu pēc izvēlētā plāna dienas likmes: €5,90 dienā 30 dienu plānā (€177 par 30 dienām), €4,90 dienā 6 mēnešu plānā (€147 par 30 dienām) un €3,90 dienā 12 mēnešu plānā (€117 par 30 dienām). 6 mēnešu un 12 mēnešu likmes ir atkārtota 30 dienu cena par visu jūsu izvēlēto saistību periodu — tās nav vienreizējs maksājums par visu periodu.",
+        "Maksājumi notiek pa 30 dienu periodiem. Pirmais maksājums — jāveic pēc apstiprināšanas, kad esat pieņēmis īres līgumu — sedz pirmās 30 dienas, izvēlētos papildu piederumus un, ja izvēlējāties piegādi, vienreizēju piegādes maksu; atmaksājamā drošības nauda tiek iekasēta kopā ar to. Pirms katra nākamā 30 dienu perioda mēs nosūtām rēķinu par šo periodu (velosipēds plus jūsu piederumi), kas apmaksājams ar bankas pārskaitījumu. Piegādes maksa nekad netiek iekasēta atkārtoti.",
         "Pēc pirmajām 30 dienām varat pagarināt no mēneša uz mēnesi, pāriet uz garāku plānu vai organizēt atgriešanu. Lai pagarinātu, mainītu vai izbeigtu īri, paziņojiet mums pa saziņas kanāliem, kas apstiprināti saņemšanas brīdī, savlaicīgi pirms jūsu pašreizējā perioda beigām. Garāku saistību izbeigšana priekšlaicīgi var ietekmēt drošības naudu un jebkurus saskaņotos priekšlaicīgas izbeigšanas nosacījumus, kas noteikti jūsu īres līgumā.",
       ],
     },
@@ -161,15 +162,15 @@ export const termsOfService: LegalDoc = {
       heading: "Identitātes pārbaude un parakstīšana",
       body: [
         "Pirms īres sākuma mēs pārbaudām jūsu identitāti un lūdzam jums parakstīt īres līgumu. Personu apliecinošie dokumenti un jebkuri nepieciešamie personas dati tiek vākti un apstrādāti droši, kā aprakstīts mūsu privātuma politikā.",
-        "Īres līgums tiek parakstīts elektroniski caur mūsu e-parakstīšanas pakalpojumu sniedzēju Dokobit. Īre nevar sākties, un velosipēds netiks nodots, kamēr nav pabeigta pārbaude un parakstīts līgums.",
+        "Īres līgums tiek parakstīts klātienē saņemšanas brīdī vai — ja nosūtām līgumu jums iepriekš — jūs varat to parakstīt pats un atgriezt parakstīto kopiju caur savu īres portālu, uz papīra vai digitāli (piemēram, ar DigiDoc / Smart-ID). Īre nevar sākties, un velosipēds netiks nodots, kamēr nav pabeigta pārbaude un parakstīts līgums.",
       ],
     },
     {
       heading: "Maksas, rēķini un maksājumi",
       body: [
         "Cena tiek aprēķināta par katru 30 dienu periodu pēc izvēlētā plāna dienas likmes, ko aprēķina kā dienas likmi, reizinātu ar 30: €5,90/dienā = €177 par 30 dienām (30 dienu plāns), €4,90/dienā = €147 par 30 dienām (6 mēnešu plāns) un €3,90/dienā = €117 par 30 dienām (12 mēnešu plāns). Minimālais īres periods ir 30 dienas. Cenas ietver PVN, kur tas piemērojams.",
-        "Pirmais 30 dienu periods un drošības nauda tiek iekasēti pirms saņemšanas. Katrs nākamais 30 dienu periods tiek iekasēts iepriekš attiecīgā perioda sākumā jūsu plāna darbības laikā. Papildu piederumi tiek iekasēti, kā apstiprināts rezervēšanas laikā.",
-        "Maksājumi un drošības nauda tiek apstrādāti caur mūsu maksājumu pakalpojumu sniedzēju Montonio. Jūs pilnvarojat mūs iekasēt no jūsu izvēlētā maksāšanas veida summas, kas pienākas saskaņā ar jūsu plānu, tostarp atjaunojumus, piederumus un jebkuras maksas par bojājumiem, trūkstošu aprīkojumu vai novēlotu vai neatgriešanu, kā noteikts īres noteikumos. Ja maksājums neizdodas, mēs varam apturēt īri, līdz tas tiek atrisināts. Cenas var mainīties turpmākajām rezervācijām vai atjaunojumiem pēc jūsu saistību perioda, ar saprātīgu paziņojumu.",
+        "Pirmais maksājums jāveic pēc rezervācijas apstiprināšanas un īres līguma pieņemšanas. Tas sedz pirmo 30 dienu periodu, izvēlētos papildu piederumus un — ja izvēlējāties piegādi bezmaksas saņemšanas vietā — vienreizēju piegādes maksu; atmaksājamā drošības nauda tiek iekasēta kopā ar to. Par katru nākamo jūsu plāna 30 dienu periodu mēs izrakstām rēķinu pirms perioda sākuma — par velosipēdu un jūsu papildu piederumiem šim periodam —, kas apmaksājams ar bankas pārskaitījumu. Piegādes maksa tiek iekasēta tikai vienu reizi un nekad nav daļa no atkārtotās 30 dienu cenas.",
+        "Maksājumi tiek veikti ar bankas pārskaitījumu uz rēķinā norādīto kontu vai skaidrā naudā, ja tas saskaņots nodošanas brīdī. Maksas par bojājumiem, trūkstošu aprīkojumu vai novēlotu vai neatgriešanu tiek izrakstītas rēķinā, kā noteikts īres noteikumos. Ja maksājums netiek veikts laikā, mēs varam apturēt īri, līdz tas tiek atrisināts. Cenas var mainīties turpmākajām rezervācijām vai atjaunojumiem pēc jūsu saistību perioda, ar saprātīgu paziņojumu.",
       ],
     },
     {

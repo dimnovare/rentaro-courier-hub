@@ -120,6 +120,13 @@ export function PricingView({
                     <span style={{ display: "block" }}>
                       {t("dueAtPickup", { amount: monthly * 2 })}
                     </span>
+                    {plan.months > 1 && (
+                      // Longer plans bill per 30-day period after the first payment:
+                      // an invoice before each period, paid by bank transfer.
+                      <span style={{ display: "block", marginTop: 4 }}>
+                        {t("recurringNote", { amount: monthly })}
+                      </span>
+                    )}
                   </div>
                   <ul>
                     {perks.map((perk) => (

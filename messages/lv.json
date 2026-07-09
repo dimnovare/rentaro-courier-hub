@@ -113,7 +113,7 @@
     "depositLine": "+€{amount} atmaksājams depozīts",
     "depositLabel": "Atmaksājama drošības nauda",
     "depositReassure": "Termiņa beigās tiek pilnībā atmaksāta, atskaitot bojājumus.",
-    "dueAtPickup": "€{amount} samaksā portālā — pēc apstiprināšanas un līguma pieņemšanas",
+    "dueAtPickup": "€{amount} sākumam (pirmās 30 dienas + atmaksājamā drošības nauda) — jāapmaksā pēc apstiprināšanas un līguma pieņemšanas",
     "choose": "Izvēlēties {term}",
     "terms": {
       "p30": "30 dienas",
@@ -142,7 +142,8 @@
       "showingFor": "Cenas velosipēdam {name}",
       "waitlistTag": "gaidīšanas saraksts",
       "joinWaitlist": "Pievienoties gaidīšanas sarakstam"
-    }
+    },
+    "recurringNote": "Pēc tam €{amount} ik pēc 30 dienām — rēķins pirms katra perioda."
   },
   "fleet": {
     "kicker": "Viss parks",
@@ -243,7 +244,7 @@
       },
       "pricing": {
         "q": "Kā darbojas cenas?",
-        "a": "Cena tiek aprēķināta par 30 dienu periodu. 30 dienu plāns ir €5.90/dienā, 6 mēnešu plāns €4.90/dienā un 12 mēnešu plāns €3.90/dienā. Visiem modeļiem tiek piemērotas tādas pašas plānu cenas."
+        "a": "Cena tiek aprēķināta pa 30 dienu periodiem, un katram velosipēdam ir savas plānu cenas — no €5,90 dienā 30 dienu plānā līdz tā 12 mēnešu likmei. Pirmais maksājums sedz pirmās 30 dienas (plus piederumus un piegādes izvēles gadījumā vienreizēju piegādes maksu); atmaksājamā drošības nauda tiek maksāta kopā ar to. 6 un 12 mēnešu plānos pēc tam nosūtām rēķinu pirms katra jaunā 30 dienu perioda."
       },
       "maintenance": {
         "q": "Vai apkope ir iekļauta?",
@@ -263,7 +264,7 @@
       },
       "contract": {
         "q": "Kā es parakstu līgumu?",
-        "a": "Nosūtām tev nomas līgumu e-pastā, lai vari ar to iepazīties iepriekš. Tu to paraksti klātienē, kad saņem velosipēdu."
+        "a": "Nomas līgumu tu paraksti klātienē saņemšanas brīdī. Pēc apstiprināšanas mēs līgumu nosūtām arī e-pastā, tāpēc vari to parakstīt pats jau iepriekš — uz papīra vai digitāli (piem., DigiDoc / Smart-ID) — un augšupielādēt parakstīto kopiju savā nomas portālā."
       }
     }
   },
@@ -394,7 +395,10 @@
       "paymentNoteCash": "Šobrīd nav jāmaksā — rezervēšana ir bez maksas. Pēc rezervācijas apstiprināšanas tu parakstīsi nomas līgumu klātienē un samaksāsi pirmo 30 dienu periodu un atmaksājamo drošības naudu skaidrā naudā, saņemot velosipēdu.",
       "paymentNoteTransfer": "Šobrīd nav jāmaksā — rezervēšana ir bez maksas. Pēc rezervācijas apstiprināšanas tu parakstīsi nomas līgumu klātienē un samaksāsi pirmo 30 dienu periodu un atmaksājamo drošības naudu ar bankas pārskaitījumu pirms saņemšanas.",
       "payStripCash": "Maksā saņemot",
-      "payStripTransfer": "Maksā pirms saņemšanas"
+      "payStripTransfer": "Maksā pirms saņemšanas",
+      "firstPayment": "Pirmais maksājums",
+      "firstPaymentNote": "Jāapmaksā pēc rezervācijas apstiprināšanas, kad esat pieņēmis līgumu — papildus €{deposit} atmaksājamā drošības nauda, ko maksā kopā ar to.",
+      "thenPer30": "Pēc tam €{amount} ik pēc 30 dienām (velosipēds + piederumi) — rēķinu nosūtām pirms katra jaunā perioda."
     },
     "buttons": {
       "cancel": "Atcelt",
@@ -561,7 +565,7 @@
     },
     "signing": {
       "manualTitle": "Parakstīšana saņemšanas brīdī",
-      "manualAgree": "Nomas līgumu parakstīsi klātienē, kad saņemsi velosipēdu."
+      "manualAgree": "Pēc noklusējuma nomas līgumu paraksti klātienē, kad saņem velosipēdu."
     },
     "contract": {
       "readInAdvance": "Izlasi savu nomas līgumu jau iepriekš"
@@ -570,9 +574,9 @@
   "contract": {
     "heading": "Nomas līgums",
     "signedLead": "Tavs nomas līgums ir parakstīts. Vari lejupielādēt kopiju savai uzskaitei.",
-    "unsignedLead": "Iepazīsties ar savu nomas līgumu iepriekš. Tu to paraksti klātienē, kad saņem velosipēdu.",
-    "notAvailableLead": "Tavs nomas līgums drīz būs šeit gatavs parakstīšanai.",
-    "notAvailableNote": "Parakstīšana vēl nav pieejama — nosūtīsim tev e-pastu, kad līgums būs gatavs.",
+    "unsignedLead": "Pārskati savu nomas līgumu un paraksti to tiešsaistē — tas aizņem tikai pāris minūtes.",
+    "notAvailableLead": "Parakstīšana tiešsaistē vēl nav pieejama.",
+    "notAvailableNote": "Nomas līgumu parakstīsi klātienē, kad saņemsi velosipēdu.",
     "sign": "Parakstīt līgumu",
     "opening": "Atver…",
     "downloadSigned": "Lejupielādēt parakstīto līgumu",
@@ -588,8 +592,8 @@
       "Failed": "Neizdevās"
     },
     "selfSign": {
-      "title": "Vēlies parakstīt pats?",
-      "lead": "Lejupielādē rediģējamo Word failu — vēl aizpildāmie lauki ir sarkanā krāsā. Paraksti to un augšupielādē kopiju atpakaļ.",
+      "title": "Vēlies parakstīt jau iepriekš?",
+      "lead": "Lejupielādē rediģējamo Word failu — vēl aizpildāmie lauki ir sarkanā krāsā. Izdrukā un paraksti, vai paraksti digitāli (piem., DigiDoc / Smart-ID), un augšupielādē parakstīto kopiju atpakaļ — der PDF, Word vai .asice konteiners. Citādi līgumu vienkārši parakstīsi klātienē saņemšanas brīdī.",
       "download": "Lejupielādēt rediģējamo Word (.docx)",
       "upload": "Augšupielādēt parakstīto kopiju",
       "uploading": "Augšupielādē…",

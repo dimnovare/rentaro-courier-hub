@@ -41,6 +41,7 @@ export const rentalRules: LegalDoc = {
       body: [
         "Minimaalne renditähtaeg on 30 päeva. Paketi valid broneerimisel: paindlik 30-päevane pakett, 6-kuune pakett või 12-kuune pakett. Pikematel pakettidel on madalam päevahind vastutasuks pikemale kohustusele.",
         "Hinda arvestatakse 30-päevase perioodi kaupa vastavalt valitud paketi päevahinnale: 5,90 € päevas 30-päevasel paketil (177 € 30 päeva eest), 4,90 € päevas 6-kuusel paketil (147 € 30 päeva eest) ja 3,90 € päevas 12-kuusel paketil (117 € 30 päeva eest). 6-kuune ja 12-kuune määr on korduv 30-päevane hind valitud kohustuse kestuse jooksul — see ei ole ühekordne makse kogu perioodi eest.",
+        "Maksed toimuvad 30-päevaste perioodide kaupa. Esimene makse — mis kuulub tasumisele pärast kinnitamist, kui oled rendilepinguga nõustunud — katab esimesed 30 päeva, valitud lisatarvikud ja kohaletoimetamise valiku korral ühekordse kohaletoimetamise tasu; tagastatav tagatisraha tasutakse koos sellega. Enne iga järgmist 30-päevast perioodi saadame selle perioodi kohta arve (ratas pluss sinu lisatarvikud), mis tasutakse pangaülekandega. Kohaletoimetamise tasu ei võeta kunagi uuesti.",
         "Pärast esimest 30 päeva võid pikendada kuu kaupa, vahetada pikema paketi vastu või leppida kokku tagastamise. Rendi pikendamiseks, muutmiseks või lõpetamiseks teata meile ratta kättesaamisel kinnitatud kontaktkanalite kaudu aegsasti enne jooksva perioodi lõppu. Pikema kohustuse ennetähtaegne lõpetamine võib mõjutada tagatisraha ja rendilepingus sätestatud kokkulepitud ennetähtaegse lõpetamise tingimusi.",
       ],
     },
@@ -161,15 +162,15 @@ export const termsOfService: LegalDoc = {
       heading: "Isikusamasuse kontroll ja allkirjastamine",
       body: [
         "Enne rendi algust kontrollime sinu isikusamasust ja palume sul allkirjastada rendilepingu. Isikut tõendavad dokumendid ja kõik nõutavad isikuandmed kogutakse ja töödeldakse turvaliselt, nagu on kirjeldatud meie privaatsuspoliitikas.",
-        "Rendileping allkirjastatakse elektrooniliselt meie e-allkirjastamise teenusepakkuja Dokobit kaudu. Rent ei saa alata ja ratast ei anta üle enne, kui kontroll on lõpetatud ja leping allkirjastatud.",
+        "Rendileping allkirjastatakse kohapeal ratta kättesaamisel või — kui saadame lepingu sulle ette — võid selle ise allkirjastada ja tagastada allkirjastatud koopia oma rendiportaali kaudu, kas paberil või digitaalselt (nt DigiDoc / Smart-ID abil). Rent ei saa alata ja ratast ei anta üle enne, kui kontroll on lõpetatud ja leping allkirjastatud.",
       ],
     },
     {
       heading: "Tasud, arveldus ja maksmine",
       body: [
         "Hinda arvestatakse 30-päevase perioodi kaupa vastavalt valitud paketi päevahinnale, mis arvutatakse päevahinna korrutamisel 30-ga: 5,90 €/päevas = 177 € 30 päeva eest (30-päevane pakett), 4,90 €/päevas = 147 € 30 päeva eest (6-kuune pakett) ja 3,90 €/päevas = 117 € 30 päeva eest (12-kuune pakett). Minimaalne renditähtaeg on 30 päeva. Hinnad sisaldavad käibemaksu, kui see on kohaldatav.",
-        "Esimene 30-päevane periood ja tagatisraha võetakse enne ratta kättesaamist. Iga järgnev 30-päevane periood võetakse ette selle perioodi alguses sinu paketi kestuse jooksul. Valikulised lisatarvikud võetakse vastavalt broneerimisel kinnitatule.",
-        "Makseid ja tagatisraha töötleb meie makseteenuse pakkuja Montonio. Sa volitad meid võtma sinu valitud makseviisilt paketi alusel tasumisele kuuluvad summad, sealhulgas pikendused, lisatarvikud ja kõik tasud kahjustuste, puuduva varustuse või hilise või tagastamata jätmise eest, nagu on sätestatud renditingimustes. Kui makse ebaõnnestub, võime rendi peatada, kuni see on lahendatud. Hinnad võivad muutuda tulevaste broneeringute või pikenduste osas pärast sinu kohustusperioodi, mõistliku etteteatamisega.",
+        "Esimene makse kuulub tasumisele pärast broneeringu kinnitamist ja rendilepinguga nõustumist. See katab esimese 30-päevase perioodi, valitud lisatarvikud ja — kui valisid tasuta kättesaamise asemel kohaletoimetamise — ühekordse kohaletoimetamise tasu; tagastatav tagatisraha tasutakse koos sellega. Iga järgneva 30-päevase perioodi kohta väljastame enne perioodi algust arve — ratta ja sinu lisatarvikute eest selleks perioodiks —, mis tasutakse pangaülekandega. Kohaletoimetamise tasu võetakse ainult üks kord ega ole kunagi osa korduvast 30 päeva hinnast.",
+        "Maksed tehakse pangaülekandega arvel märgitud kontole või sularahas, kui see on üleandmisel kokku lepitud. Tasud kahjustuste, puuduva varustuse või hilise või tagastamata jätmise eest esitatakse arvega, nagu on sätestatud renditingimustes. Kui makset ei tasuta tähtajaks, võime rendi peatada, kuni see on lahendatud. Hinnad võivad muutuda tulevaste broneeringute või pikenduste osas pärast sinu kohustusperioodi, mõistliku etteteatamisega.",
       ],
     },
     {

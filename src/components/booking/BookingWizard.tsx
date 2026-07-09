@@ -880,18 +880,26 @@ export function BookingWizard({
                 </div>
               )}
               <div className="summary-total">
-                <span className="l">{planId ? tp(`terms.${planId}`) : plan?.term}</span>
+                {/* The headline figure is the FIRST payment: first 30 days + add-ons
+                    + the one-time delivery fee (when chosen). Labelling it by plan
+                    term with "/ 30 days" would wrongly imply the one-time fee
+                    recurs, so it's named for what it is. */}
+                <span className="l">{t("review.firstPayment")}</span>
                 <span className="big">
-                  {/* Selected add-ons are now PRICED INTO the total (they rent per
-                      30 days like the bike), so the label never implies extras. */}
                   €{plan ? priceFor(plan).monthly + gearMonthly + feeApplied : ""}
-                  <span className="per"> {t("review.per30Only")}</span>
                 </span>
               </div>
             </div>
             {plan && (
               <p className="sub" style={{ marginTop: 12 }}>
-                {t("review.billedMonthly", { monthly: priceFor(plan).monthly + gearMonthly })}
+                {t("review.firstPaymentNote", { deposit: priceFor(plan).monthly })}
+              </p>
+            )}
+            {plan && plan.months > 1 && (
+              <p className="sub" style={{ marginTop: 4 }}>
+                {/* Longer plans bill per 30-day period: invoice before each one.
+                    The recurring amount excludes the one-time delivery fee. */}
+                {t("review.thenPer30", { amount: priceFor(plan).monthly + gearMonthly })}
               </p>
             )}
             {plan && endDate && (

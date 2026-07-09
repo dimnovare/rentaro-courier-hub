@@ -113,7 +113,7 @@
     "depositLine": "+€{amount} refundable deposit",
     "depositLabel": "Refundable deposit",
     "depositReassure": "Fully returned at the end, minus any damage.",
-    "dueAtPickup": "€{amount} paid in your portal — after you're approved & have accepted the contract",
+    "dueAtPickup": "€{amount} to start (first 30 days + refundable deposit) — due after you're approved & have accepted the contract",
     "choose": "Choose {term}",
     "terms": {
       "p30": "30 days",
@@ -142,7 +142,8 @@
       "showingFor": "Showing prices for {name}",
       "waitlistTag": "waitlist",
       "joinWaitlist": "Join waitlist"
-    }
+    },
+    "recurringNote": "Then €{amount} every 30 days — invoiced before each period."
   },
   "fleet": {
     "kicker": "The full fleet",
@@ -243,7 +244,7 @@
       },
       "pricing": {
         "q": "How does the pricing work?",
-        "a": "Pricing is per 30-day period. The 30-day plan is €5.90/day, the 6-month plan €4.90/day, and the 12-month plan €3.90/day. The same plan pricing applies across every model."
+        "a": "Pricing is per 30-day period, and each bike shows its own plan prices — from €5.90/day on the 30-day plan down to its 12-month rate. Your first payment covers the first 30 days (plus any add-ons and, if you chose delivery, a one-time delivery fee); the refundable deposit is paid alongside it. On 6- and 12-month plans we then send an invoice before each new 30-day period."
       },
       "maintenance": {
         "q": "Is maintenance included?",
@@ -263,7 +264,7 @@
       },
       "contract": {
         "q": "How do I sign the contract?",
-        "a": "We send your rental agreement by email so you can read it in advance. You sign it in person when you collect the bike."
+        "a": "You sign the rental agreement in person at pickup. After approval we also email you the contract, so you can sign it yourself in advance — on paper, or digitally with DigiDoc / Smart-ID — and upload the signed copy in your rental portal."
       }
     }
   },
@@ -390,7 +391,10 @@
       "paymentNoteCash": "No payment now — reserving is free. After we approve your booking you'll sign the rental agreement in person and pay your first 30-day period plus the refundable deposit in cash at pickup.",
       "paymentNoteTransfer": "No payment now — reserving is free. After we approve your booking you'll sign the rental agreement in person and pay your first 30-day period plus the refundable deposit by bank transfer before pickup.",
       "payStripCash": "Pay at pickup",
-      "payStripTransfer": "Pay before pickup"
+      "payStripTransfer": "Pay before pickup",
+      "firstPayment": "First payment",
+      "firstPaymentNote": "Due after your booking is approved and you've accepted the contract — plus a €{deposit} refundable deposit paid alongside it.",
+      "thenPer30": "Then €{amount} every 30 days (bike + add-ons) — we send an invoice before each new period."
     },
     "buttons": {
       "cancel": "Cancel",
@@ -561,7 +565,7 @@
     },
     "signing": {
       "manualTitle": "Signing on handover",
-      "manualAgree": "You'll sign the rental agreement in person when you collect the bike."
+      "manualAgree": "By default you sign the rental agreement in person when you collect the bike."
     },
     "contract": {
       "readInAdvance": "Read your rental agreement in advance"
@@ -570,9 +574,9 @@
   "contract": {
     "heading": "Rental contract",
     "signedLead": "Your rental agreement is signed. You can download a copy for your records.",
-    "unsignedLead": "Read your rental agreement in advance. You sign it in person when you collect the bike.",
-    "notAvailableLead": "Your rental agreement will be ready to sign here shortly.",
-    "notAvailableNote": "Signing isn't available just yet — we'll email you when your contract is ready.",
+    "unsignedLead": "Review your rental agreement and sign it online — it only takes a couple of minutes.",
+    "notAvailableLead": "Online signing isn't available just yet.",
+    "notAvailableNote": "You'll sign your rental agreement in person when you collect your bike.",
     "sign": "Sign your contract",
     "opening": "Opening…",
     "downloadSigned": "Download signed contract",
@@ -588,8 +592,8 @@
       "Failed": "Failed"
     },
     "selfSign": {
-      "title": "Prefer to sign it yourself?",
-      "lead": "Download the editable Word file — fields still to complete are shown in red. Sign it, then upload the copy back to us.",
+      "title": "Prefer to sign in advance?",
+      "lead": "Download the editable Word file — any fields still to complete are shown in red. Print and sign it, or sign it digitally (e.g. DigiDoc / Smart-ID), then upload the signed copy back — PDF, Word or .asice all work. Otherwise you'll simply sign in person at pickup.",
       "download": "Download editable Word (.docx)",
       "upload": "Upload your signed copy",
       "uploading": "Uploading…",

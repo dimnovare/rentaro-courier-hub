@@ -40,6 +40,7 @@ export const rentalRules: LegalDoc = {
       body: [
         "The minimum rental period is 30 days. You choose your plan at booking: a flexible 30-day plan, a 6-month plan or a 12-month plan. The longer plans carry a lower daily rate in exchange for a longer commitment.",
         "Pricing is charged per 30-day period at the daily rate of the plan you choose: €5.90 per day on the 30-day plan (€177 per 30 days), €4.90 per day on the 6-month plan (€147 per 30 days) and €3.90 per day on the 12-month plan (€117 per 30 days). The 6-month and 12-month rates are the recurring 30-day price for the duration of the commitment you select — they are not a single one-off payment for the whole period.",
+        "Payments run per 30-day period. Your first payment — due after approval, once you have accepted the rental agreement — covers the first 30 days, any add-on accessories and, if you chose delivery, a one-time delivery fee; the refundable deposit is collected alongside it. Before each following 30-day period we send an invoice for that period (bike plus your add-ons), payable by bank transfer. The delivery fee is never charged again.",
         "After your first 30 days you can extend month to month, switch to a longer plan, or arrange a return. To extend, change or end your rental, give us notice through the contact channels confirmed at pickup, in good time before your current period ends. Ending a longer commitment early may affect the deposit and any agreed early-termination terms set out in your rental agreement.",
       ],
     },
@@ -160,15 +161,15 @@ export const termsOfService: LegalDoc = {
       heading: "Identity verification and signing",
       body: [
         "Before a rental starts we verify your identity and have you sign the rental agreement. Identity documents and any required personal details are collected and handled securely as described in our privacy policy.",
-        "The rental agreement is signed electronically through our e-signing provider, Dokobit. A rental cannot start, and a bike will not be handed over, until verification is complete and the agreement is signed.",
+        "The rental agreement is signed in person at pickup, or — where we send you the agreement in advance — you may sign it yourself and return the signed copy through your rental portal, on paper or digitally (for example with DigiDoc / Smart-ID). A rental cannot start, and a bike will not be handed over, until verification is complete and the agreement is signed.",
       ],
     },
     {
       heading: "Fees, billing and payment",
       body: [
         "Pricing is per 30-day period at the daily rate of the plan you choose, calculated as the daily rate multiplied by 30: €5.90/day = €177 per 30 days (30-day plan), €4.90/day = €147 per 30 days (6-month plan) and €3.90/day = €117 per 30 days (12-month plan). The minimum rental period is 30 days. Prices include VAT where applicable.",
-        "The first 30-day period and the deposit are charged before pickup. Each subsequent 30-day period is charged in advance at the start of that period for the duration of your plan. Optional accessories are charged as confirmed at booking.",
-        "Payments and the deposit are processed through our payment provider, Montonio. You authorise us to charge your selected payment method for the amounts due under your plan, including renewals, accessories and any charges for damage, missing equipment or late or non-return as set out in the rental rules. If a payment fails, we may pause the rental until it is resolved. Prices may change for future bookings or for renewals after your committed period, with reasonable notice.",
+        "Your first payment is due after your booking is approved and you have accepted the rental agreement. It covers the first 30-day period, any add-on accessories you selected and, where you chose delivery instead of free pickup, a one-time delivery fee; the refundable deposit is collected alongside it. For each subsequent 30-day period of your plan we issue an invoice before the period begins — covering the bike and your add-on accessories for that period — payable by bank transfer. The delivery fee is charged only once and is never part of the recurring 30-day price.",
+        "Payments are made by bank transfer to the account stated on the invoice, or in cash where agreed at handover. Charges for damage, missing equipment or late or non-return are invoiced as set out in the rental rules. If a payment is not made when due, we may pause the rental until it is resolved. Prices may change for future bookings or for renewals after your committed period, with reasonable notice.",
       ],
     },
     {
