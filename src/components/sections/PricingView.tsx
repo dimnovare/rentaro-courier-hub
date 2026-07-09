@@ -24,15 +24,20 @@ export function PricingView({
   const t = useTranslations("pricing");
   const locale = useLocale();
 
-  // null = "Standard pricing" (the global tiers). The section first paints in
-  // this state, so SSR/no-JS shows real standard prices; picking a bike only
-  // re-derives the four numbers on each card through resolvePlanPrice.
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Once bikes carry their own pricing, an abstract "Standard pricing" entry is
+  // misleading — the picker only ever offers REAL bikes, defaulting to the first
+  // rentable one (in stock, else the first model). This initial pick is computed
+  // identically on server and client, so SSR paints a real bike's true prices.
   const showPicker = !!models && models.length > 0;
-  const selected = (showPicker && models!.find((m) => m.id === selectedId)) || null;
+  const defaultModel = showPicker
+    ? (models!.find((m) => m.status !== "wait") ?? models![0])
+    : null;
+  const [selectedId, setSelectedId] = useState<string | null>(defaultModel?.id ?? null);
+  const selected =
+    (showPicker && (models!.find((m) => m.id === selectedId) ?? defaultModel)) || null;
   const isWaitlist = selected?.status === "wait";
   // Stable key so the price numbers re-animate only when the chosen bike changes.
-  const flashKey = selectedId ?? "standard";
+  const flashKey = selected?.id ?? "standard";
 
   return (
     <section className="section-pad" id="pricing">
@@ -52,10 +57,9 @@ export function PricingView({
               <div className="pricing-picker-control">
                 <select
                   id="pricing-bike"
-                  value={selectedId ?? ""}
-                  onChange={(e) => setSelectedId(e.target.value || null)}
+                  value={selected?.id ?? ""}
+                  onChange={(e) => setSelectedId(e.target.value)}
                 >
-                  <option value="">{t("picker.standard")}</option>
                   {models!.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.name}

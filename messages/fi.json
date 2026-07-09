@@ -290,7 +290,7 @@
       "heading": "Missä ajat?",
       "sub": "Valitse kaupunkisi. Käytössä tällä hetkellä: {live}.",
       "soon": "Tulossa pian",
-      "limited": "Rajoitetusti",
+      "limited": "Vain {count} jäljellä",
       "available": "{count} saatavilla",
       "waitlist": "Liity jonotuslistalle"
     },
@@ -299,8 +299,8 @@
       "sub": "Jokainen malli vuokrataan samoilla suunnitelmilla — valitse vuoroihisi sopiva.",
       "fromDay": "€{price}/pv",
       "waitlistSuffix": " · jonotuslista",
-      "statAvailable": "Saatavilla",
-      "statLow": "Vähän jäljellä",
+      "statAvailable": "{count} varastossa",
+      "statLow": "Vain {count} jäljellä",
       "statWait": "Jonotuslista",
       "colors": "Saatavilla olevat värit"
     },
@@ -865,7 +865,7 @@
     "galleryThumbAria": "Näytä kuva {index} / {total}",
     "avail": {
       "inStock": "{count} varastossa",
-      "left": "{count} jäljellä",
+      "left": "Vain {count} jäljellä",
       "waitlist": "Jonotuslista"
     },
     "status": {

@@ -382,15 +382,20 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .card { background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)); border: 1px solid var(--border); border-radius: var(--r-lg); position: relative; overflow: hidden; transition: border-color .25s, transform .3s var(--ease-out), box-shadow .3s; }
 
 /* ─── Model cards ───────────────────────────────────────── */
-.models-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.models-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
 @media (max-width: 900px) { .models-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) { .models-grid { grid-template-columns: 1fr; } }
+/* Grid children are Reveal wrapper divs — flex them so every card fills the
+   full row height and the price+CTA footer (margin-top: auto) pins to the
+   card bottom, keeping card bottoms aligned across differing pill counts. */
+.models-grid > * { display: flex; flex-direction: column; }
+.models-grid .model-card { flex: 1; }
 .model-card { display: flex; flex-direction: column; }
 .model-card:hover { transform: translateY(-5px); border-color: var(--border-strong); box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7); }
 .model-card.feat { border-color: rgba(216, 255, 54, 0.3); background: linear-gradient(180deg, rgba(216, 255, 54, 0.07), rgba(255, 255, 255, 0.02)); }
-.model-pic { position: relative; aspect-ratio: 1 / 0.92; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 92%, var(--lime-glow-soft), transparent 55%), linear-gradient(180deg, #161a23 0%, #0c0f15 100%); border-bottom: 1px solid var(--border); }
+.model-pic { position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 92%, var(--lime-glow-soft), transparent 55%), linear-gradient(180deg, #161a23 0%, #0c0f15 100%); border-bottom: 1px solid var(--border); }
 .model-pic::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(circle at center, #000, transparent 78%); -webkit-mask-image: radial-gradient(circle at center, #000, transparent 78%); }
-.model-pic img { position: relative; z-index: 2; width: 84%; height: 84%; object-fit: contain; filter: drop-shadow(0 22px 26px rgba(0, 0, 0, 0.55)); transition: transform .5s var(--ease-out); }
+.model-pic img { position: relative; z-index: 2; width: 90%; height: 90%; object-fit: contain; filter: drop-shadow(0 22px 26px rgba(0, 0, 0, 0.55)); transition: transform .5s var(--ease-out); }
 .model-card:hover .model-pic img { transform: scale(1.05) rotate(-1deg); }
 .model-badge { position: absolute; top: 14px; left: 14px; z-index: 4; padding: 6px 12px; border-radius: var(--r-full); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px); border: 1px solid var(--border-strong); color: var(--text); }
 .model-badge.popular { background: var(--lime); color: var(--lime-ink); border-color: var(--lime); }
@@ -407,7 +412,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .spec-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 16px 0 18px; }
 .spec-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; padding: 5px 10px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); color: var(--text-2); }
 .spec-pill svg { color: var(--lime); }
-.model-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; border-top: 1px dashed var(--border); }
+.model-foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; border-top: 1px dashed var(--border); }
+/* Long localized CTA labels (e.g. et "Liitu ootenimekirjaga") must never break
+   mid-label: keep the pill on one line; if it can't share the row with the
+   price it wraps to its own row, staying right-aligned via margin-left auto. */
+.model-foot .reserve-btn { white-space: nowrap; margin-left: auto; }
 .model-foot .from { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
 .model-foot .from strong { display: block; color: var(--text); font-size: 17px; margin-top: 3px; font-family: var(--font-display); letter-spacing: -0.02em; }
 .model-foot .from strong .per { font-size: 11px; color: var(--text-muted); font-weight: 400; }
@@ -932,3 +941,402 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
   .opt:active, .seg-btn:active { transform: none !important; }
   .cmdk-overlay, .cmdk, .drawer-overlay, .drawer { animation: none !important; }
 }
+
+/* ── APPENDED: admin consolidation pass (content quick-nav + form section
+      headings). Self-contained block — used by /admin/content (sticky anchor
+      chips under the page header) and the /admin/models editor drawer
+      (grouped field sections). Do not merge into the admin rules above. ── */
+
+/* Sticky chip row of same-page anchor links; sits just below the sticky
+   60px admin topbar so it stays reachable while scrolling a long page. */
+.admin-quicknav { position: sticky; top: 60px; z-index: 20; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -8px 0 24px; padding: 10px 0 12px; background: linear-gradient(180deg, var(--bg) 72%, rgba(10, 12, 17, 0)); }
+.admin-quicknav a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 6px 13px; border-radius: var(--r-full); border: 1px solid var(--border-strong); background: var(--surface); white-space: nowrap; transition: color .18s, background .18s, border-color .18s; }
+.admin-quicknav a:hover { color: var(--lime); background: var(--surface-2); }
+.admin-quicknav a:active { transform: scale(0.97); }
+/* Anchor targets scroll clear of the sticky topbar + quick-nav. */
+.admin-anchor-sect { scroll-margin-top: 118px; }
+
+/* Grouped-form section heading: small mono uppercase label + hairline rule. */
+.admin-form-sect { display: flex; align-items: center; gap: 12px; margin: 28px 0 16px; }
+.admin-form-sect:first-child { margin-top: 0; }
+.admin-form-sect-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); white-space: nowrap; }
+.admin-form-sect-rule { flex: 1; height: 1px; background: var(--border); }
+
+/* ─── Booking wizard: model picker, add-ons, review, details modal ───────
+   Migrated VERBATIM from a <style jsx> block in BookingWizard.tsx: styled-jsx
+   has no registry under the App Router, so that block was silently dropped
+   and none of these rules ever reached the browser. Plain global CSS works. */
+/* ---- Model picker option row ---- */
+.bike-opt-wrap {
+  position: relative;
+}
+/* :global() because these classes sit on elements rendered outside this
+   styled-jsx scope boundary (className on mapped buttons/spans). */
+.bike-opt {
+  /* Fill the grid cell. Without this the flexed button (base .opt uses
+     all:unset) shrinks to its content width, so cards with longer names
+     render wider than others and the right edge no longer lines up with the
+     absolutely-positioned info rail — making every tile a different width. */
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: row;
+  align-items: center;
+  gap: 13px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  padding-right: 60px; /* clear the full-height info rail on the right */
+}
+.bike-thumb {
+  /* Big enough to actually SEE the bike, not just a hint of one. */
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  /* Lighter surface + lift so a dark bike shot stays recognizable. */
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+@media (max-width: 560px) {
+  .bike-thumb {
+    width: 72px;
+    height: 72px;
+  }
+}
+.bike-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bike-opt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding-right: 4px; /* small gap before the info button column */
+}
+.bike-opt-text .opt-t,
+.bike-opt-text .opt-m {
+  overflow-wrap: anywhere;
+}
+/* Availability status pill (Available / Few left / Waitlist). The price
+   is intentionally NOT shown per card — it's identical for every model
+   (pricing varies only by plan, picked on the next step), so repeating it
+   on six cards was redundant noise. A coloured dot carries the state. */
+.bike-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-top: 1px;
+}
+.bike-stat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-dim);
+}
+.bike-stat.in .bike-stat-dot {
+  background: var(--lime);
+  box-shadow: 0 0 7px -1px var(--lime-glow);
+}
+.bike-stat.low .bike-stat-dot {
+  background: #ffd24a;
+  box-shadow: 0 0 7px -1px rgba(255, 210, 74, 0.5);
+}
+/* Clearer selected affordance for the model cards (the base .opt.selected
+   is just a faint border): a brighter lime ring + a lime check badge.
+   The badge sits in the gutter above the info button. */
+.bike-opt.selected {
+  border-color: var(--lime);
+  box-shadow: inset 0 0 0 1px var(--lime), 0 0 0 1px var(--lime-glow-soft);
+}
+.bike-opt.selected::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 56px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lime)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230a0c11' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 L10 17.5 L19 7'/%3E%3C/svg%3E")
+    center / 12px no-repeat;
+  box-shadow: 0 0 10px -2px var(--lime-glow);
+  pointer-events: none;
+  z-index: 1;
+}
+/* Info trigger as a full-height rail on the card's right edge, split off by
+   a divider — reads as a deliberate "details" zone instead of a small
+   button floating in empty space. Sits inside the 1px card border and
+   matches the card's rounded right corners. */
+.bike-info-btn {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 48px;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 0;
+  z-index: 2;
+  transition: background 0.2s, color 0.2s;
+}
+.bike-info-btn:hover {
+  background: var(--bg-2);
+  color: var(--text);
+}
+
+/* ---- Desktop hover preview ----
+   Mouse users get the model's tagline + blurb + a larger photo just by
+   hovering the card — no click needed. The info rail (click → full modal)
+   stays for touch users and for the full spec sheet. Hover-only media
+   query keeps this OFF touch devices; a short delay stops it flickering
+   while the pointer sweeps the list. Purely decorative: aria-hidden and
+   pointer-events none, so it never traps focus or blocks clicks. */
+.bike-hovercard {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .bike-hovercard {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: calc(100% + 8px);
+    z-index: 30;
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+    background: var(--panel);
+    border: 1px solid var(--border-strong);
+    box-shadow:
+      0 22px 48px -18px rgba(0, 0, 0, 0.85),
+      0 0 0 1px var(--lime-glow-soft);
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition:
+      opacity 0.16s ease-out 0.18s,
+      transform 0.16s ease-out 0.18s;
+  }
+  .bike-opt-wrap:hover .bike-hovercard,
+  .bike-opt-wrap:focus-within .bike-hovercard {
+    opacity: 1;
+    transform: none;
+  }
+  .bike-hovercard img {
+    width: 108px;
+    height: 108px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .bike-hovercard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .bike-hovercard-body strong {
+    font-size: 14.5px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .bike-hovercard-body em {
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+  .bike-hovercard-body p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bike-hovercard {
+    transition: none;
+  }
+}
+
+/* ---- Read-only colour dots inside a model option ----
+   Sibling of .bike-opt inside .bike-opt-wrap (NOT nested in the card
+   button). Reuses the shared read-only .model-swatch dot; this only
+   positions the row to align under the text and clear the info rail. */
+.bike-colors {
+  margin: -4px 0 4px;
+  padding: 0 50px 0 9px; /* clear the info rail (right) + align with thumb */
+}
+
+/* ---- Segmented contact / payment choices ---- */
+.seg-block {
+  margin-top: 20px;
+}
+.seg-head {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 10px;
+}
+.seg-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.seg-btn {
+  flex: 1 1 140px;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: center;
+  padding: 13px 14px;
+  min-height: 46px;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.seg-btn.on {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 255, 54, 0.08),
+    rgba(255, 255, 255, 0.02)
+  );
+  border-color: var(--lime);
+  color: var(--text);
+}
+
+/* ---- Phone field: country-code select + number input ---- */
+.phone-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.phone-row .phone-dial {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 42%;
+  /* Inherit the same dark-field look as the text inputs. */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  padding: 0 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.phone-row .phone-dial:focus {
+  outline: none;
+  border-color: var(--lime);
+}
+/* The native option popup ignores translucent --surface and renders on a
+   light system background, which made the light option text invisible.
+   Force a solid dark row so every country code is readable. */
+.phone-row .phone-dial option {
+  background: #0e1118;
+  color: #ffffff;
+}
+.phone-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---- Small inline hint under a field (e.g. earliest pickup) ---- */
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+/* ---- Long review values (e.g. email) must not overflow ---- */
+.summary-v-wrap {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ---- Model details modal ---- */
+.bike-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(6, 8, 12, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.bike-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden; /* clip rounded corners; body scrolls internally */
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px -16px var(--lime-glow);
+}
+.bike-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: rgba(6, 8, 12, 0.55);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0;
+}
+.bike-modal-img {
+  flex-shrink: 0;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-2);
+}
+.bike-modal-body {
+  padding: 20px 22px 22px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 600px) {
+  .bike-modal-img {
+    aspect-ratio: 16 / 9;
+  }
+  .bike-modal-body {
+    padding: 18px 18px 20px;
+  }
+}
+      

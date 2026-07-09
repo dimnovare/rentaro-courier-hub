@@ -290,7 +290,7 @@
       "heading": "Where do you ride?",
       "sub": "Choose your city. We operate in {live} today.",
       "soon": "Coming soon",
-      "limited": "Limited stock",
+      "limited": "{count, plural, one {Only 1 left} other {Only # left}}",
       "available": "{count} available",
       "waitlist": "Join waitlist"
     },
@@ -299,8 +299,8 @@
       "sub": "Every model rents on the same plans — choose the one that fits your shifts.",
       "fromDay": "€{price}/day",
       "waitlistSuffix": " · waitlist",
-      "statAvailable": "Available",
-      "statLow": "Few left",
+      "statAvailable": "{count} in stock",
+      "statLow": "{count, plural, one {Only 1 left} other {Only # left}}",
       "statWait": "Waitlist",
       "colors": "Available colours"
     },
@@ -865,7 +865,7 @@
     "galleryThumbAria": "View image {index} of {total}",
     "avail": {
       "inStock": "{count} in stock",
-      "left": "{count} left",
+      "left": "{count, plural, one {Only 1 left} other {Only # left}}",
       "waitlist": "Waitlist"
     },
     "status": {

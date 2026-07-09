@@ -169,8 +169,9 @@ export function BookingWizard({
   const markAllTouched = () =>
     setTouched({ first: true, last: true, email: true, phone: true, start: true });
 
-  // Add-ons are collapsed by default to keep the Details step short.
-  const [addonsOpen, setAddonsOpen] = useState(false);
+  // Add-ons start OPEN so the optional gear (and its prices) is immediately
+  // visible — a collapsed section hid a real upsell surface.
+  const [addonsOpen, setAddonsOpen] = useState(true);
 
   // Required-fields consent gate on the Review step.
   const [consent, setConsent] = useState(false);
@@ -187,6 +188,17 @@ export function BookingWizard({
   // free). Only added to the amounts when the customer chose delivery.
   const deliveryFee = Math.max(0, settings.deliveryFee ?? 0);
   const feeApplied = fulfillment === "delivery" ? deliveryFee : 0;
+
+  // Selected add-ons' per-30-day total. Accessory prices are admin-managed
+  // display strings ("€15 / 30d"), so parse the leading number defensively —
+  // an unparseable price simply contributes 0 rather than breaking the wizard.
+  // The backend applies the same parse when charging, so shown = billed.
+  const accessoryPriceOf = (id: string): number => {
+    const raw = accessories.find((a) => a.id === id)?.price ?? "";
+    const m = raw.match(/(\d+(?:[.,]\d+)?)/);
+    return m ? parseFloat(m[1].replace(",", ".")) : 0;
+  };
+  const gearMonthly = accessoryIds.reduce((sum, id) => sum + accessoryPriceOf(id), 0);
 
   // Model the visitor is previewing in the info popup (null = closed). The popup
   // is informational only and never changes the selection.
@@ -381,7 +393,8 @@ export function BookingWizard({
         id: result.id,
         model: model?.name ?? "",
         plan: plan?.term ?? "",
-        monthly: plan ? priceFor(plan).monthly : 0,
+        // Includes selected add-ons — they bill per 30 days alongside the bike.
+        monthly: plan ? priceFor(plan).monthly + gearMonthly : 0,
         daily: plan ? priceFor(plan).daily : 0,
         city: city?.name ?? "",
         startDate,
@@ -411,293 +424,9 @@ export function BookingWizard({
 
   return (
     <div className="wizard">
-      {/* Component-scoped responsive styles for elements that previously relied
-          on inline styles (which can't express @media). Reuses brand tokens; no
-          edits to globals.css. */}
-      <style jsx>{`
-        /* ---- Model picker option row ---- */
-        .bike-opt-wrap {
-          position: relative;
-        }
-        /* :global() because these classes sit on elements rendered outside this
-           styled-jsx scope boundary (className on mapped buttons/spans). */
-        :global(.bike-opt) {
-          /* Fill the grid cell. Without this the flexed button (base .opt uses
-             all:unset) shrinks to its content width, so cards with longer names
-             render wider than others and the right edge no longer lines up with the
-             absolutely-positioned info rail — making every tile a different width. */
-          width: 100%;
-          box-sizing: border-box;
-          flex-direction: row;
-          align-items: center;
-          gap: 13px;
-          padding-top: 14px;
-          padding-bottom: 14px;
-          padding-right: 60px; /* clear the full-height info rail on the right */
-        }
-        :global(.bike-thumb) {
-          width: 58px;
-          height: 58px;
-          flex-shrink: 0;
-          border-radius: var(--r-sm);
-          overflow: hidden;
-          /* Lighter surface + lift so a dark bike shot stays recognizable. */
-          background: var(--surface);
-          border: 1px solid var(--border-strong);
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-        }
-        :global(.bike-thumb img) {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        :global(.bike-opt-text) {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-          min-width: 0;
-          padding-right: 4px; /* small gap before the info button column */
-        }
-        :global(.bike-opt-text .opt-t),
-        :global(.bike-opt-text .opt-m) {
-          overflow-wrap: anywhere;
-        }
-        /* Availability status pill (Available / Few left / Waitlist). The price
-           is intentionally NOT shown per card — it's identical for every model
-           (pricing varies only by plan, picked on the next step), so repeating it
-           on six cards was redundant noise. A coloured dot carries the state. */
-        :global(.bike-stat) {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          color: var(--text-2);
-          margin-top: 1px;
-        }
-        :global(.bike-stat-dot) {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          flex-shrink: 0;
-          background: var(--text-dim);
-        }
-        :global(.bike-stat.in .bike-stat-dot) {
-          background: var(--lime);
-          box-shadow: 0 0 7px -1px var(--lime-glow);
-        }
-        :global(.bike-stat.low .bike-stat-dot) {
-          background: #ffd24a;
-          box-shadow: 0 0 7px -1px rgba(255, 210, 74, 0.5);
-        }
-        /* Clearer selected affordance for the model cards (the base .opt.selected
-           is just a faint border): a brighter lime ring + a lime check badge.
-           The badge sits in the gutter above the info button. */
-        :global(.bike-opt.selected) {
-          border-color: var(--lime);
-          box-shadow: inset 0 0 0 1px var(--lime), 0 0 0 1px var(--lime-glow-soft);
-        }
-        :global(.bike-opt.selected)::after {
-          content: "";
-          position: absolute;
-          top: 10px;
-          right: 56px;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          background: var(--lime)
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230a0c11' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 L10 17.5 L19 7'/%3E%3C/svg%3E")
-            center / 12px no-repeat;
-          box-shadow: 0 0 10px -2px var(--lime-glow);
-          pointer-events: none;
-          z-index: 1;
-        }
-        /* Info trigger as a full-height rail on the card's right edge, split off by
-           a divider — reads as a deliberate "details" zone instead of a small
-           button floating in empty space. Sits inside the 1px card border and
-           matches the card's rounded right corners. */
-        :global(.bike-info-btn) {
-          position: absolute;
-          top: 1px;
-          right: 1px;
-          bottom: 1px;
-          width: 48px;
-          border: 0;
-          border-left: 1px solid var(--border);
-          border-radius: 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0;
-          display: grid;
-          place-items: center;
-          cursor: pointer;
-          background: transparent;
-          color: var(--text-dim);
-          padding: 0;
-          z-index: 2;
-          transition: background 0.2s, color 0.2s;
-        }
-        :global(.bike-info-btn:hover) {
-          background: var(--bg-2);
-          color: var(--text);
-        }
-
-        /* ---- Read-only colour dots inside a model option ----
-           Sibling of .bike-opt inside .bike-opt-wrap (NOT nested in the card
-           button). Reuses the shared read-only .model-swatch dot; this only
-           positions the row to align under the text and clear the info rail. */
-        :global(.bike-colors) {
-          margin: -4px 0 4px;
-          padding: 0 50px 0 9px; /* clear the info rail (right) + align with thumb */
-        }
-
-        /* ---- Segmented contact / payment choices ---- */
-        :global(.seg-block) {
-          margin-top: 20px;
-        }
-        :global(.seg-head) {
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: -0.01em;
-          margin: 0 0 10px;
-        }
-        :global(.seg-row) {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        :global(.seg-btn) {
-          flex: 1 1 140px;
-          box-sizing: border-box;
-          cursor: pointer;
-          text-align: center;
-          padding: 13px 14px;
-          min-height: 46px;
-          border-radius: var(--r-sm);
-          font-size: 14px;
-          font-weight: 600;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          color: var(--text-2);
-          transition: border-color 0.2s, background 0.2s, color 0.2s;
-        }
-        :global(.seg-btn.on) {
-          background: linear-gradient(
-            180deg,
-            rgba(216, 255, 54, 0.08),
-            rgba(255, 255, 255, 0.02)
-          );
-          border-color: var(--lime);
-          color: var(--text);
-        }
-
-        /* ---- Phone field: country-code select + number input ---- */
-        :global(.phone-row) {
-          display: flex;
-          gap: 8px;
-          align-items: stretch;
-        }
-        :global(.phone-row .phone-dial) {
-          flex: 0 0 auto;
-          width: auto;
-          max-width: 42%;
-          /* Inherit the same dark-field look as the text inputs. */
-          background: var(--surface);
-          border: 1px solid var(--border);
-          color: var(--text);
-          border-radius: var(--r-sm);
-          padding: 0 10px;
-          font-size: 15px;
-          cursor: pointer;
-          transition: border-color 0.2s;
-        }
-        :global(.phone-row .phone-dial:focus) {
-          outline: none;
-          border-color: var(--lime);
-        }
-        /* The native option popup ignores translucent --surface and renders on a
-           light system background, which made the light option text invisible.
-           Force a solid dark row so every country code is readable. */
-        :global(.phone-row .phone-dial option) {
-          background: #0e1118;
-          color: #ffffff;
-        }
-        :global(.phone-row input) {
-          flex: 1 1 auto;
-          min-width: 0;
-        }
-
-        /* ---- Small inline hint under a field (e.g. earliest pickup) ---- */
-        :global(.field-hint) {
-          margin: 6px 0 0;
-          font-size: 12.5px;
-          color: var(--text-2);
-        }
-        /* ---- Long review values (e.g. email) must not overflow ---- */
-        :global(.summary-v-wrap) {
-          overflow-wrap: anywhere;
-          word-break: break-word;
-        }
-
-        /* ---- Model details modal ---- */
-        :global(.bike-modal-backdrop) {
-          position: fixed;
-          inset: 0;
-          z-index: 300;
-          display: grid;
-          place-items: center;
-          padding: 16px;
-          background: rgba(6, 8, 12, 0.72);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-        }
-        :global(.bike-modal) {
-          position: relative;
-          width: 100%;
-          max-width: 460px;
-          max-height: calc(100dvh - 32px);
-          display: flex;
-          flex-direction: column;
-          padding: 0;
-          overflow: hidden; /* clip rounded corners; body scrolls internally */
-          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
-            0 0 60px -16px var(--lime-glow);
-        }
-        :global(.bike-modal-close) {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          z-index: 2;
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          display: grid;
-          place-items: center;
-          cursor: pointer;
-          background: rgba(6, 8, 12, 0.55);
-          border: 1px solid var(--border);
-          color: var(--text);
-          padding: 0;
-        }
-        :global(.bike-modal-img) {
-          flex-shrink: 0;
-          aspect-ratio: 16 / 10;
-          background: var(--bg-2);
-        }
-        :global(.bike-modal-body) {
-          padding: 20px 22px 22px;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-        @media (max-width: 600px) {
-          :global(.bike-modal-img) {
-            aspect-ratio: 16 / 9;
-          }
-          :global(.bike-modal-body) {
-            padding: 18px 18px 20px;
-          }
-        }
-      `}</style>
+      {/* Wizard styles live in globals.css ("Booking wizard" section). A former
+          <style jsx> block here was silently dropped — styled-jsx has no registry
+          under the App Router — so component styles must go in globals.css. */}
       <div className="wizard-head">
         <h1>{t("title")}</h1>
         <p className="lead" style={{ marginTop: 8 }}>
@@ -761,7 +490,7 @@ export function BookingWizard({
                               ? (availMap[`city:${c.id}`] ?? 0)
                               : c.available;
                             if (count === 0) return t("city.waitlist");
-                            if (count <= 3) return t("city.limited");
+                            if (count <= 3) return t("city.limited", { count });
                             return t("city.available", { count });
                           })()}
                     </span>
@@ -782,20 +511,15 @@ export function BookingWizard({
                 // Once the live fetch has resolved, trust it: 0 units → waitlist,
                 // 1–3 → few left, more → available. Before the fetch resolves we
                 // fall back to the model's static status (mirrors the City step).
-                const count = availLoaded ? (availMap[`model:${m.id}`] ?? 0) : null;
-                const stat =
-                  count === null
-                    ? m.status
-                    : count === 0
-                      ? "wait"
-                      : count <= 3
-                        ? "low"
-                        : "in";
+                // Real numbers, not vague words: fall back to the model's static
+                // count until the live fetch resolves, so a count always exists.
+                const count = availLoaded ? (availMap[`model:${m.id}`] ?? 0) : m.availability;
+                const stat = count === 0 ? "wait" : count <= 3 ? "low" : "in";
                 const statLabel =
                   stat === "in"
-                    ? t("model.statAvailable")
+                    ? t("model.statAvailable", { count })
                     : stat === "low"
-                      ? t("model.statLow")
+                      ? t("model.statLow", { count })
                       : t("model.statWait");
                 // Prefer a brighter gallery/lifestyle shot for the small thumbnail
                 // (the catalogue `img` is a dark studio cut-out that reads as
@@ -873,6 +597,16 @@ export function BookingWizard({
                         <path d="M12 7.5 V7.6" />
                       </svg>
                     </button>
+                    {/* Desktop-only hover preview (see styles above). The info
+                        button remains the click path to the full spec modal. */}
+                    <span className="bike-hovercard" aria-hidden>
+                      <img src={resolveImg(thumb)} alt="" loading="lazy" onError={handleModelImgError} />
+                      <span className="bike-hovercard-body">
+                        <strong>{m.name}</strong>
+                        <em>{tm(`${m.id}.tagline`)}</em>
+                        <p>{tm(`${m.id}.blurb`)}</p>
+                      </span>
+                    </span>
                   </div>
                 );
               })}
@@ -1099,9 +833,15 @@ export function BookingWizard({
               {settings.showAddGear && (
                 <div className="summary-row">
                   <span className="l">{t("review.addons")}</span>
-                  <span className="v">
+                  <span className="v summary-v-wrap">
                     {accessoryIds.length
-                      ? accessoryIds.map((id) => ta(`names.${id}`)).join(", ")
+                      ? accessoryIds
+                          .map((id) => {
+                            const price = accessoryPriceOf(id);
+                            const name = ta(`names.${id}`);
+                            return price > 0 ? `${name} · €${price}` : name;
+                          })
+                          .join(", ")
                       : t("review.none")}
                   </span>
                 </div>
@@ -1142,14 +882,16 @@ export function BookingWizard({
               <div className="summary-total">
                 <span className="l">{planId ? tp(`terms.${planId}`) : plan?.term}</span>
                 <span className="big">
-                  €{plan ? priceFor(plan).monthly + feeApplied : ""}
-                  <span className="per"> {t(settings.showAddGear ? "review.per30Addons" : "review.per30Only")}</span>
+                  {/* Selected add-ons are now PRICED INTO the total (they rent per
+                      30 days like the bike), so the label never implies extras. */}
+                  €{plan ? priceFor(plan).monthly + gearMonthly + feeApplied : ""}
+                  <span className="per"> {t("review.per30Only")}</span>
                 </span>
               </div>
             </div>
             {plan && (
               <p className="sub" style={{ marginTop: 12 }}>
-                {t("review.billedMonthly", { monthly: priceFor(plan).monthly })}
+                {t("review.billedMonthly", { monthly: priceFor(plan).monthly + gearMonthly })}
               </p>
             )}
             {plan && endDate && (

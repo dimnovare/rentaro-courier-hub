@@ -290,7 +290,7 @@
       "heading": "Kur tu brauc?",
       "sub": "Izvēlies savu pilsētu. Šobrīd darbojamies: {live}.",
       "soon": "Drīzumā",
-      "limited": "Ierobežots skaits",
+      "limited": "{count, plural, zero {Tikai # atlikuši} one {Tikai # atlicis} other {Tikai # atlikuši}}",
       "available": "Pieejami {count}",
       "waitlist": "Pievienoties gaidīšanas sarakstam"
     },
@@ -299,8 +299,8 @@
       "sub": "Visi modeļi pieejami uz vieniem un tiem pašiem plāniem — izvēlies to, kas der tavām maiņām.",
       "fromDay": "€{price}/dienā",
       "waitlistSuffix": " · gaidīšanas saraksts",
-      "statAvailable": "Pieejams",
-      "statLow": "Maz atlicis",
+      "statAvailable": "{count} noliktavā",
+      "statLow": "{count, plural, zero {Tikai # atlikuši} one {Tikai # atlicis} other {Tikai # atlikuši}}",
       "statWait": "Gaidīšanas saraksts",
       "colors": "Pieejamās krāsas"
     },
@@ -865,7 +865,7 @@
     "galleryThumbAria": "Skatīt attēlu {index} no {total}",
     "avail": {
       "inStock": "{count} noliktavā",
-      "left": "Atlikuši {count}",
+      "left": "{count, plural, zero {Tikai # atlikuši} one {Tikai # atlicis} other {Tikai # atlikuši}}",
       "waitlist": "Gaidīšanas saraksts"
     },
     "status": {

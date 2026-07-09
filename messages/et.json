@@ -290,7 +290,7 @@
       "heading": "Kus sa sõidad?",
       "sub": "Vali oma linn. Praegu töös linnades: {live}.",
       "soon": "Tulekul",
-      "limited": "Piiratud kogus",
+      "limited": "Ainult {count} alles",
       "available": "{count} saadaval",
       "waitlist": "Liitu ootejärjekorraga"
     },
@@ -299,8 +299,8 @@
       "sub": "Kõiki mudeleid renditakse samade pakettidega — vali see, mis sinu vahetustele sobib.",
       "fromDay": "€{price}/päev",
       "waitlistSuffix": " · ootenimekiri",
-      "statAvailable": "Saadaval",
-      "statLow": "Vähe jäänud",
+      "statAvailable": "{count} laos",
+      "statLow": "Ainult {count} alles",
       "statWait": "Ootenimekiri",
       "colors": "Saadaolevad värvid"
     },
@@ -865,7 +865,7 @@
     "galleryThumbAria": "Vaata pilti {index}/{total}",
     "avail": {
       "inStock": "{count} laos",
-      "left": "{count} alles",
+      "left": "Ainult {count} alles",
       "waitlist": "Ootenimekiri"
     },
     "status": {
