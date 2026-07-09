@@ -15,6 +15,10 @@
  *   POST   /api/admin/expenses/{id}/invoice   (multipart upload, field `file`)
  *   GET    /api/admin/expenses/{id}/invoice   (stream the stored invoice)
  *   GET    /api/admin/billing/summary         (this-month vs all-time totals)
+ *   GET    /api/admin/invoices                (list — newest first, no PDF bytes)
+ *   POST   /api/admin/invoices                (create + issue; bookingId or free-form)
+ *   GET    /api/admin/invoices/{id}/pdf       (stream the generated PDF)
+ *   PATCH  /api/admin/invoices/{id}/status    (mark paid / back to issued)
  */
 
 /* ── Contract types (must match the backend exactly) ───────────────────── */
@@ -44,6 +48,60 @@ export interface CreateExpenseInput {
   description: string;
   amountGross: number;
   currency?: string;
+  notes?: string;
+}
+
+/** One generated-invoice line. Totals are gross (VAT included). */
+export interface InvoiceLine {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+/**
+ * A generated customer invoice. `number` is the per-year sequence ("R-2026-0001");
+ * `status` is "draft" | "issued" | "paid"; VAT is INCLUDED in prices, so
+ * `subtotal + vatAmount === total`. The PDF bytes are never in this DTO — stream
+ * them via `invoicePdfPath(id)`.
+ */
+export interface Invoice {
+  id: string;
+  number: string;
+  bookingId?: string | null;
+  customerName: string;
+  customerEmail: string;
+  /** ISO date `yyyy-MM-dd`. */
+  issueDate: string;
+  lines: InvoiceLine[];
+  subtotal: number;
+  vatRatePercent: number;
+  vatAmount: number;
+  total: number;
+  currency: string;
+  status: string;
+  notes?: string | null;
+  hasPdf: boolean;
+  createdAt: string;
+}
+
+/** Free-form line-item input for manual invoice creation. */
+export interface InvoiceLineInput {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+/**
+ * Create-invoice request: EITHER `bookingId` (the backend prefills the customer
+ * and line items mirroring the booking's first payment) OR the free-form
+ * `customerName` / `customerEmail` / `lineItems`.
+ */
+export interface CreateInvoiceInput {
+  bookingId?: string;
+  customerName?: string;
+  customerEmail?: string;
+  lineItems?: InvoiceLineInput[];
   notes?: string;
 }
 
@@ -178,3 +236,34 @@ export const expenseInvoicePath = (id: string) =>
 
 /** Fetches the billing summary (this-month vs all-time totals). */
 export const getSummary = () => request<BillingSummary>("/api/admin/billing/summary");
+
+/* ── Invoices ──────────────────────────────────────────────────────────── */
+
+/** Lists all generated invoices, newest first (no PDF bytes). */
+export const listInvoices = () => request<Invoice[]>("/api/admin/invoices");
+
+/**
+ * Creates + issues an invoice (numbered and with its PDF generated immediately).
+ * Pass `{ bookingId }` for a booking-prefilled invoice, or the free-form
+ * customer + line items for a manual one.
+ */
+export const createInvoice = (input: CreateInvoiceInput) =>
+  request<Invoice>("/api/admin/invoices", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+
+/**
+ * Same-origin proxy path for the invoice's generated PDF. The proxy attaches the
+ * admin JWT, so this is safe to use directly as an <a href> / to open in a new
+ * tab. Only meaningful when the invoice's `hasPdf` is true.
+ */
+export const invoicePdfPath = (id: string) =>
+  `/api/admin/invoices/${encodeURIComponent(id)}/pdf`;
+
+/** Marks an invoice as paid; returns the updated invoice. */
+export const markInvoicePaid = (id: string) =>
+  request<Invoice>(`/api/admin/invoices/${encodeURIComponent(id)}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "paid" }),
+  });

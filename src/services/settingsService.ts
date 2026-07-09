@@ -21,6 +21,14 @@ export const SAFE_DEFAULT_SETTINGS: SiteSettings = {
   bankAccountName: "",
   bankName: "",
   bankReference: "",
+  // Company requisites + invoicing are admin-only on the wire (the public GET
+  // omits them) — these defaults simply keep the shared type total.
+  companyName: "",
+  companyRegCode: "",
+  companyVatNumber: "",
+  companyAddress: "",
+  vatRatePercent: 24,
+  autoCreateInvoices: false,
 };
 
 /**

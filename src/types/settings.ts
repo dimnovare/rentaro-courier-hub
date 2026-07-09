@@ -24,4 +24,16 @@ export interface SiteSettings {
   bankAccountName: string;
   bankName: string;
   bankReference: string;
+  /**
+   * Company requisites printed on generated invoices. ADMIN-ONLY on the wire: the
+   * public GET omits them, so the public client falls back to the safe defaults.
+   */
+  companyName: string;
+  companyRegCode: string;
+  companyVatNumber: string;
+  companyAddress: string;
+  /** VAT rate (%) applied to invoices. Prices are gross — VAT is included. */
+  vatRatePercent: number;
+  /** Auto-create + issue an invoice when a payment is confirmed (default OFF). */
+  autoCreateInvoices: boolean;
 }

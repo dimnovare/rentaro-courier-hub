@@ -58,12 +58,41 @@ const BANK_HELP: Record<BankKey, string> = {
   bankReference: "The reference / explanation couriers should add to their transfer.",
 };
 
+/* ── The four company-requisite fields, in display order ───────────────── */
+
+const COMPANY_KEYS = ["companyName", "companyRegCode", "companyVatNumber", "companyAddress"] as const;
+type CompanyKey = (typeof COMPANY_KEYS)[number];
+
+/** Hardcoded English labels — admin console strings are not translated. */
+const COMPANY_LABEL: Record<CompanyKey, string> = {
+  companyName: "Company name",
+  companyRegCode: "Registry code",
+  companyVatNumber: "VAT number",
+  companyAddress: "Address",
+};
+
+const COMPANY_PLACEHOLDER: Record<CompanyKey, string> = {
+  companyName: "rentaro OÜ",
+  companyRegCode: "12345678",
+  companyVatNumber: "EE123456789",
+  companyAddress: "Telliskivi 60, 10412 Tallinn",
+};
+
+const COMPANY_HELP: Record<CompanyKey, string> = {
+  companyName: "The legal company name printed in the header of every generated invoice.",
+  companyRegCode: "Your commercial-registry code, printed on invoices.",
+  companyVatNumber: "Your VAT number (e.g. EE123456789), printed on invoices.",
+  companyAddress: "The company's postal address, printed on invoices.",
+};
+
 /** Short one-line help under each grouped card's heading. */
 const FEATURES_HELP =
   "Switches for what couriers see on the public site. Everything is hidden by default — turn a section on only when it is ready to ship.";
 const OPS_HELP = "Internal automation. These do not change what couriers see on the site.";
 const BANK_SECTION_HELP =
   "Bank details shown to couriers who pay by manual transfer. Double-check before saving — these appear on their payment instructions.";
+const COMPANY_SECTION_HELP =
+  "Company requisites printed on generated invoices (Billing → Create invoice). Prices are gross — the VAT rate only splits the total into net + VAT on the invoice.";
 
 /** True when two settings records are field-for-field identical (used for the
  *  unsaved-changes indicator). Compares only the keys we edit on this page. */
@@ -72,8 +101,13 @@ function sameSettings(a: SiteSettings, b: SiteSettings): boolean {
     if (a[k] !== b[k]) return false;
   }
   if (a.autoSendReturnReminders !== b.autoSendReturnReminders) return false;
+  if (a.autoCreateInvoices !== b.autoCreateInvoices) return false;
   if ((a.deliveryFee ?? 0) !== (b.deliveryFee ?? 0)) return false;
+  if ((a.vatRatePercent ?? 0) !== (b.vatRatePercent ?? 0)) return false;
   for (const k of BANK_KEYS) {
+    if ((a[k] ?? "") !== (b[k] ?? "")) return false;
+  }
+  for (const k of COMPANY_KEYS) {
     if ((a[k] ?? "") !== (b[k] ?? "")) return false;
   }
   return true;
@@ -197,6 +231,12 @@ export default function AdminSettingsPage() {
             first
             onChange={(v) => setField("autoSendReturnReminders", v)}
           />
+          <ToggleRow
+            label="Auto-create invoices when a payment is confirmed"
+            checked={data.autoCreateInvoices}
+            first={false}
+            onChange={(v) => setField("autoCreateInvoices", v)}
+          />
           <div style={{ borderTop: "1px solid var(--border)", padding: "16px 0 4px" }}>
             <EuroField
               label="Delivery fee (€)"
@@ -205,6 +245,28 @@ export default function AdminSettingsPage() {
               onChange={(v) => setField("deliveryFee", v)}
             />
           </div>
+        </div>
+      </SettingsCard>
+
+      {/* ── Company details (printed on generated invoices) ─────────────── */}
+      <SettingsCard title="Company details" help={COMPANY_SECTION_HELP}>
+        <div className="admin-set-card-body pad">
+          {COMPANY_KEYS.map((key) => (
+            <BankField
+              key={key}
+              label={COMPANY_LABEL[key]}
+              value={data[key]}
+              placeholder={COMPANY_PLACEHOLDER[key]}
+              help={COMPANY_HELP[key]}
+              onChange={(v) => setField(key, v)}
+            />
+          ))}
+          <EuroField
+            label="VAT rate (%)"
+            value={data.vatRatePercent}
+            help="Applied to generated invoices. Prices are gross (VAT included), so this only splits the total into net + VAT — it never changes what the customer pays."
+            onChange={(v) => setField("vatRatePercent", v)}
+          />
         </div>
       </SettingsCard>
 

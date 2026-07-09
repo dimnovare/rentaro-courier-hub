@@ -144,14 +144,14 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: "Finance",
-    items: [{ label: "Billing", href: "/admin/billing", icon: "billing" }],
+    items: [
+      { label: "Billing", href: "/admin/billing", icon: "billing" },
+      { label: "Pricelist", href: "/admin/pricelist", icon: "pricelist" },
+    ],
   },
   {
     label: "System",
-    items: [
-      { label: "Settings", href: "/admin/settings", icon: "settings" },
-      { label: "Pricelist", href: "/admin/pricelist", icon: "pricelist", comingSoon: true },
-    ],
+    items: [{ label: "Settings", href: "/admin/settings", icon: "settings" }],
   },
 ];
 

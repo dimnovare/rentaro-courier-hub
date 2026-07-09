@@ -487,7 +487,17 @@ function ModelRow({
           )}
         </Td>
         <Td nowrap>
-          <StatusPill value={model.status} />
+          {/* Pill + live stock count, so availability is visible without opening Fleet. */}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+            <StatusPill value={model.status} />
+            <span
+              className="mono"
+              title={`${model.availability} bike${model.availability === 1 ? "" : "s"} available — counted from the Fleet bike units`}
+              style={{ fontSize: 11, color: "var(--text-dim)", whiteSpace: "nowrap" }}
+            >
+              · {model.availability}
+            </span>
+          </span>
         </Td>
         <Td nowrap>
           <button
@@ -797,6 +807,8 @@ function ModelEditor({
       }
     >
       <form id={formId} onSubmit={handleSubmit}>
+        {/* ── Photos (edit only — uploads need a saved code) ─────────────── */}
+        {mode === "edit" && model && <FormSection label="Photos" />}
         {/* Photo (edit only — upload needs a saved code). Preview + replace. */}
         {mode === "edit" && model && onUpload && (
           <ImageUploadField
@@ -835,7 +847,8 @@ function ModelEditor({
           </p>
         )}
 
-        {/* Identity + pricing row */}
+        {/* ── Identity — what this model is called on the site ───────────── */}
+        <FormSection label="Identity" />
       <div style={gridStyle}>
         <Field label="Code" hint={mode === "edit" ? "read-only" : "unique id"}>
           <input
@@ -847,21 +860,21 @@ function ModelEditor({
             style={{ ...inputStyle, opacity: mode === "edit" ? 0.6 : 1 }}
           />
         </Field>
-        <Field label="Brand">
-          <input
-            value={f.brand}
-            onChange={(e) => set("brand", e.target.value)}
-            placeholder="e.g. ENGWE"
-            aria-label="Brand"
-            style={inputStyle}
-          />
-        </Field>
         <Field label="Name">
           <input
             value={f.name}
             onChange={(e) => set("name", e.target.value)}
             placeholder="e.g. rentaro Engine Pro 2.0"
             aria-label="Name"
+            style={inputStyle}
+          />
+        </Field>
+        <Field label="Brand">
+          <input
+            value={f.brand}
+            onChange={(e) => set("brand", e.target.value)}
+            placeholder="e.g. ENGWE"
+            aria-label="Brand"
             style={inputStyle}
           />
         </Field>
@@ -876,25 +889,22 @@ function ModelEditor({
         </Field>
       </div>
 
-      {/* Availability + status + order row */}
-      <div style={{ ...gridStyle, marginTop: 16 }}>
-        <Field label="Availability">
-          <FieldNote text="Availability is calculated automatically from the bike units for this model. Manage stock under Fleet → bike units." />
-        </Field>
-        <Field label="Status">
-          <FieldNote text="Set automatically from current stock (in / low / waitlist), derived from the bike units." />
-        </Field>
-        <Field label="Sort order">
-          <input
-            value={f.sortOrder}
-            onChange={(e) => set("sortOrder", e.target.value)}
-            inputMode="numeric"
-            placeholder="0"
-            aria-label="Sort order"
-            style={inputStyle}
+      {/* Blurb */}
+      <div style={{ marginTop: 16 }}>
+        <Field label="Blurb">
+          <textarea
+            value={f.blurb}
+            onChange={(e) => set("blurb", e.target.value)}
+            placeholder="Short paragraph shown on the card / detail page."
+            aria-label="Blurb"
+            rows={3}
+            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }}
           />
         </Field>
       </div>
+
+      {/* ── Pricing — per-tier overrides (unchanged block) ───────────────── */}
+      <FormSection label="Pricing" />
 
       {/* Plan pricing — the per-30-day € for each tier. Blank = the global tier
           (177 / 147 / 112). The public "from / day" is the lowest tier's daily
@@ -904,7 +914,6 @@ function ModelEditor({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
-          marginTop: 20,
           marginBottom: 8,
         }}
       >
@@ -958,8 +967,10 @@ function ModelEditor({
         </Field>
       </div>
 
+      {/* ── Marketing — badge, homepage feature, pills ───────────────────── */}
+      <FormSection label="Marketing" />
       {/* Badge + popular row */}
-      <div style={{ ...gridStyle, marginTop: 16 }}>
+      <div style={gridStyle}>
         <Field label="Badge" hint="blank text = no badge">
           <input
             value={f.badgeText}
@@ -1057,29 +1068,10 @@ function ModelEditor({
         </Field>
       </div>
 
-      {/* Available colours — shown as read-only swatches on the public site. */}
-      <div style={{ marginTop: 16 }}>
-        <Field label="Colours" hint="name + swatch — shown on the public site">
-          <ColorListEditor value={f.colors} onChange={(next) => set("colors", next)} />
-        </Field>
-      </div>
-
-      {/* Blurb */}
-      <div style={{ marginTop: 16 }}>
-        <Field label="Blurb">
-          <textarea
-            value={f.blurb}
-            onChange={(e) => set("blurb", e.target.value)}
-            placeholder="Short paragraph shown on the card / detail page."
-            aria-label="Blurb"
-            rows={3}
-            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }}
-          />
-        </Field>
-      </div>
-
+      {/* ── Specs & colours — technical sheet + list housekeeping ────────── */}
+      <FormSection label="Specs & colours" />
       {/* Spec (raw JSON object) */}
-      <div style={{ marginTop: 16 }}>
+      <div>
         <Field label="Spec (JSON object)" hint="manufacturer sheet — blank for none">
           <textarea
             value={f.spec}
@@ -1097,6 +1089,33 @@ function ModelEditor({
               overflowWrap: "normal",
               overflowX: "auto",
             }}
+          />
+        </Field>
+      </div>
+
+      {/* Available colours — shown as read-only swatches on the public site. */}
+      <div style={{ marginTop: 16 }}>
+        <Field label="Colours" hint="name + swatch — shown on the public site">
+          <ColorListEditor value={f.colors} onChange={(next) => set("colors", next)} />
+        </Field>
+      </div>
+
+      {/* Availability + status + order row */}
+      <div style={{ ...gridStyle, marginTop: 16 }}>
+        <Field label="Availability">
+          <FieldNote text="Availability is calculated automatically from the bike units for this model. Manage stock under Fleet → bike units." />
+        </Field>
+        <Field label="Status">
+          <FieldNote text="Set automatically from current stock (in / low / waitlist), derived from the bike units." />
+        </Field>
+        <Field label="Sort order">
+          <input
+            value={f.sortOrder}
+            onChange={(e) => set("sortOrder", e.target.value)}
+            inputMode="numeric"
+            placeholder="0"
+            aria-label="Sort order"
+            style={inputStyle}
           />
         </Field>
       </div>
@@ -1359,6 +1378,21 @@ const inputStyle: React.CSSProperties = {
   fontSize: 12.5,
   letterSpacing: "0.02em",
 };
+
+/**
+ * Small mono uppercase section heading + divider used to group the editor's
+ * fields (Photos / Identity / Pricing / Marketing / Specs & colours). Purely
+ * presentational — styling lives in globals.css (.admin-form-sect, appended
+ * near the other admin styles).
+ */
+function FormSection({ label }: { label: string }) {
+  return (
+    <div className="admin-form-sect">
+      <span className="admin-form-sect-label">{label}</span>
+      <span className="admin-form-sect-rule" aria-hidden />
+    </div>
+  );
+}
 
 function Field({
   label,

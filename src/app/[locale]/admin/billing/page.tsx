@@ -1,10 +1,12 @@
 "use client";
 
 /**
- * /admin/billing — Money view (Phase 1 bookkeeping core). Shows a this-month vs
- * all-time summary (incomings from Paid payments, outgoings from expenses, net),
- * an editable Expenses table with per-row invoice download + an "Add expense"
- * drawer (with an optional invoice upload), and an incomings totals panel.
+ * /admin/billing — Money view. Shows a this-month vs all-time summary (incomings
+ * from Paid payments, outgoings from expenses, net), an editable Expenses table
+ * with per-row invoice download + an "Add expense" drawer (with an optional
+ * invoice upload), a generated-Invoices table with per-row PDF download / mark
+ * paid + a "Create invoice" drawer (booking-prefilled or manual line items), and
+ * an incomings totals panel.
  *
  * Mirrors the maintenance page's phase machine (loading / ready / error),
  * useAdminAuth signOut-on-401 and useAdminRefresh wiring. Dark admin style via
@@ -19,13 +21,20 @@ import {
   uploadExpenseInvoice,
   expenseInvoicePath,
   getSummary,
+  listInvoices,
+  createInvoice,
+  invoicePdfPath,
+  markInvoicePaid,
   BillingApiError,
   BillingConfigError,
   BillingAuthError,
   type Expense,
   type BillingSummary,
   type CreateExpenseInput,
+  type Invoice,
+  type CreateInvoiceInput,
 } from "@/services/adminBillingService";
+import { listBookings, type AdminBooking } from "@/services/adminBookingService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDay } from "@/components/admin/Table";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
@@ -51,7 +60,7 @@ function todayISO(): string {
 
 type LoadState =
   | { phase: "loading" }
-  | { phase: "ready"; expenses: Expense[]; summary: BillingSummary }
+  | { phase: "ready"; expenses: Expense[]; invoices: Invoice[]; summary: BillingSummary }
   | { phase: "error"; message: string; config: boolean };
 
 export default function AdminBillingPage() {
@@ -60,13 +69,18 @@ export default function AdminBillingPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
     setActionError(null);
     try {
-      const [expenses, summary] = await Promise.all([listExpenses(), getSummary()]);
-      setState({ phase: "ready", expenses, summary });
+      const [expenses, invoices, summary] = await Promise.all([
+        listExpenses(),
+        listInvoices(),
+        getSummary(),
+      ]);
+      setState({ phase: "ready", expenses, invoices, summary });
     } catch (err) {
       if (err instanceof BillingAuthError || (err instanceof BillingApiError && err.unauthorized)) {
         signOut();
@@ -135,6 +149,47 @@ export default function AdminBillingPage() {
     }
   }
 
+  // Returns null on success, or an error message for the invoice drawer to show inline.
+  async function submitInvoice(input: CreateInvoiceInput): Promise<string | null> {
+    setActionError(null);
+    try {
+      await createInvoice(input);
+      // Reload so the invoices list (and its numbering) reflects the new invoice.
+      await load();
+      setInvoiceDrawerOpen(false);
+      return null;
+    } catch (err) {
+      if (err instanceof BillingAuthError || (err instanceof BillingApiError && err.unauthorized)) {
+        signOut();
+        return null;
+      }
+      return err instanceof BillingApiError ? err.message : "Could not create the invoice.";
+    }
+  }
+
+  async function markPaid(id: string) {
+    if (state.phase !== "ready") return;
+    setActionError(null);
+    setPending((p) => ({ ...p, [id]: true }));
+    try {
+      const updated = await markInvoicePaid(id);
+      // Patch the row in place — nothing else on the page depends on it.
+      setState((s) =>
+        s.phase === "ready"
+          ? { ...s, invoices: s.invoices.map((i) => (i.id === updated.id ? updated : i)) }
+          : s,
+      );
+    } catch (err) {
+      handleActionError(err, "Could not mark the invoice paid.");
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[id];
+        return next;
+      });
+    }
+  }
+
   /** Drops to the shell sign-in on 401, otherwise shows an inline action error. */
   function handleActionError(err: unknown, fallback: string) {
     if (err instanceof BillingAuthError || (err instanceof BillingApiError && err.unauthorized)) {
@@ -152,7 +207,15 @@ export default function AdminBillingPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
-          <PageHeader title="Billing" subtitle="Money in, money out — incomings, expenses and net.">
+          <PageHeader title="Billing" subtitle="Money in, money out — incomings, expenses, invoices and net.">
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => setInvoiceDrawerOpen(true)}
+              style={{ padding: "11px 20px", fontSize: 14 }}
+            >
+              + Create invoice
+            </button>
             <button
               type="button"
               className="btn btn-primary"
@@ -173,12 +236,24 @@ export default function AdminBillingPage() {
             onDelete={removeExpense}
           />
 
+          <InvoicesTable
+            invoices={state.invoices}
+            pending={pending}
+            onMarkPaid={markPaid}
+          />
+
           <IncomingsPanel summary={state.summary} />
 
           <AddExpenseDrawer
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             onSubmit={submitExpense}
+          />
+
+          <CreateInvoiceDrawer
+            open={invoiceDrawerOpen}
+            onClose={() => setInvoiceDrawerOpen(false)}
+            onSubmit={submitInvoice}
           />
         </>
       )}
@@ -385,6 +460,437 @@ function ExpensesTable({
         </tbody>
       </AdminTable>
     </AdminSection>
+  );
+}
+
+/* ── Invoices table ────────────────────────────────────────────────────── */
+
+function InvoicesTable({
+  invoices,
+  pending,
+  onMarkPaid,
+}: {
+  invoices: Invoice[];
+  pending: Record<string, boolean>;
+  onMarkPaid: (id: string) => void;
+}) {
+  return (
+    <AdminSection title="Invoices" count={invoices.length}>
+      <AdminTable>
+        <thead>
+          <tr>
+            <Th>Number</Th>
+            <Th>Date</Th>
+            <Th>Customer</Th>
+            <Th>Total</Th>
+            <Th>Status</Th>
+            <Th>PDF</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {invoices.length === 0 ? (
+            <EmptyRow colSpan={6} label="No invoices generated yet." />
+          ) : (
+            invoices.map((inv) => {
+              const paid = inv.status === "paid";
+              return (
+                <tr key={inv.id}>
+                  <Td mono nowrap>
+                    {inv.number}
+                  </Td>
+                  <Td mono nowrap>
+                    {fmtDay(inv.issueDate)}
+                  </Td>
+                  <Td>
+                    {inv.customerName?.trim() ? inv.customerName : "—"}
+                    {inv.customerEmail?.trim() ? (
+                      <span className="mono" style={{ color: "var(--text-dim)", fontSize: 11, marginLeft: 8 }}>
+                        {inv.customerEmail}
+                      </span>
+                    ) : null}
+                  </Td>
+                  <Td mono nowrap>
+                    {formatEur(inv.total)}
+                  </Td>
+                  <Td nowrap>
+                    <span
+                      className="mono"
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: paid ? "var(--lime)" : "var(--text-muted)",
+                      }}
+                    >
+                      {inv.status}
+                    </span>
+                    {!paid && (
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        disabled={Boolean(pending[inv.id])}
+                        onClick={() => onMarkPaid(inv.id)}
+                        style={{
+                          marginLeft: 10,
+                          padding: "5px 10px",
+                          fontSize: 11.5,
+                          opacity: pending[inv.id] ? 0.55 : 1,
+                          cursor: pending[inv.id] ? "wait" : "pointer",
+                        }}
+                      >
+                        {pending[inv.id] ? "Saving…" : "Mark paid"}
+                      </button>
+                    )}
+                  </Td>
+                  <Td nowrap>
+                    {inv.hasPdf ? (
+                      <a
+                        href={invoicePdfPath(inv.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mono"
+                        style={{ color: "var(--lime)", fontSize: 12, textDecoration: "none" }}
+                        title={`${inv.number}.pdf`}
+                      >
+                        download
+                      </a>
+                    ) : (
+                      <span className="mono" style={{ color: "var(--text-dim)", fontSize: 12 }}>
+                        —
+                      </span>
+                    )}
+                  </Td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </AdminTable>
+    </AdminSection>
+  );
+}
+
+/* ── Create invoice drawer ─────────────────────────────────────────────── */
+
+/** One editable manual line row (all strings — controlled inputs). */
+interface ManualLineRow {
+  description: string;
+  quantity: string;
+  unitPrice: string;
+}
+
+const EMPTY_LINE: ManualLineRow = { description: "", quantity: "1", unitPrice: "" };
+
+function CreateInvoiceDrawer({
+  open,
+  onClose,
+  onSubmit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (input: CreateInvoiceInput) => Promise<string | null>;
+}) {
+  const [mode, setMode] = useState<"booking" | "manual">("booking");
+  const [bookings, setBookings] = useState<AdminBooking[] | null>(null);
+  const [bookingsError, setBookingsError] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [rows, setRows] = useState<ManualLineRow[]>([{ ...EMPTY_LINE }]);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // Fetch the bookings for the dropdown when the drawer first opens.
+  useEffect(() => {
+    if (!open || bookings !== null) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await listBookings();
+        if (!cancelled) {
+          // Newest first, matching the bookings page.
+          setBookings([...list].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)));
+          setBookingsError(null);
+        }
+      } catch {
+        if (!cancelled) {
+          setBookingsError("Could not load bookings — switch to manual mode or reopen to retry.");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, bookings]);
+
+  const validRows = rows.filter((r) => r.description.trim().length > 0);
+  const canSubmit =
+    !submitting &&
+    (mode === "booking"
+      ? bookingId.length > 0
+      : customerName.trim().length > 0 && validRows.length > 0);
+
+  function toNum(raw: string, fallback: number): number {
+    const n = Number.parseFloat(raw);
+    return Number.isFinite(n) && n >= 0 ? n : fallback;
+  }
+
+  function resetFields() {
+    setBookingId("");
+    setCustomerName("");
+    setCustomerEmail("");
+    setRows([{ ...EMPTY_LINE }]);
+    // Keep the chosen mode for fast repeat entry.
+  }
+
+  async function handleSubmit() {
+    if (!canSubmit) return;
+    setSubmitting(true);
+    setFormError(null);
+    const input: CreateInvoiceInput =
+      mode === "booking"
+        ? { bookingId }
+        : {
+            customerName: customerName.trim(),
+            customerEmail: customerEmail.trim(),
+            lineItems: validRows.map((r) => ({
+              description: r.description.trim(),
+              quantity: toNum(r.quantity, 1),
+              unitPrice: toNum(r.unitPrice, 0),
+            })),
+          };
+    const err = await onSubmit(input);
+    setSubmitting(false);
+    if (err) {
+      setFormError(err);
+    } else {
+      resetFields();
+    }
+  }
+
+  function setRow(index: number, patch: Partial<ManualLineRow>) {
+    setRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  }
+
+  // Closing clears any submit error so it never lingers on the next open.
+  function close() {
+    setFormError(null);
+    onClose();
+  }
+
+  const modeButton = (value: "booking" | "manual", label: string) => (
+    <button
+      type="button"
+      className={mode === value ? "btn btn-primary" : "btn btn-ghost"}
+      onClick={() => setMode(value)}
+      aria-pressed={mode === value}
+      style={{ padding: "8px 14px", fontSize: 12.5 }}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <Drawer
+      open={open}
+      onClose={close}
+      title="Create invoice"
+      footer={
+        <>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={close}
+            style={{ padding: "11px 20px", fontSize: 14 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void handleSubmit()}
+            disabled={!canSubmit}
+            style={{
+              padding: "11px 20px",
+              fontSize: 14,
+              opacity: canSubmit ? 1 : 0.55,
+              cursor: canSubmit ? "pointer" : "not-allowed",
+            }}
+          >
+            {submitting ? "Creating…" : "Create invoice"}
+          </button>
+        </>
+      }
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSubmit();
+        }}
+      >
+        {formError && (
+          <div
+            className="mono"
+            role="alert"
+            style={{
+              color: "var(--danger)",
+              fontSize: 12,
+              marginBottom: 16,
+              padding: "10px 13px",
+              borderRadius: "var(--r-sm)",
+              border: "1px solid rgba(255, 138, 120, 0.32)",
+              background: "rgba(255, 138, 120, 0.06)",
+            }}
+          >
+            {formError}
+          </div>
+        )}
+
+        {/* Booking-prefilled vs manual line items. */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+          {modeButton("booking", "From booking")}
+          {modeButton("manual", "Manual line items")}
+        </div>
+
+        {mode === "booking" ? (
+          <div className="field">
+            <label htmlFor="inv-booking">Booking</label>
+            <select
+              id="inv-booking"
+              value={bookingId}
+              onChange={(e) => setBookingId(e.target.value)}
+              aria-label="Booking"
+              disabled={submitting || bookings === null}
+            >
+              <option value="">
+                {bookings === null && !bookingsError ? "Loading bookings…" : "Choose a booking…"}
+              </option>
+              {(bookings ?? []).map((b) => (
+                <option key={b.id} value={b.id}>
+                  {`${b.customerFirstName} ${b.customerLastName}`.trim() || b.customerEmail} — {b.modelId} —{" "}
+                  {fmtDay(b.createdAt.slice(0, 10))}
+                </option>
+              ))}
+            </select>
+            {bookingsError && (
+              <p className="mono" style={{ fontSize: 11, color: "var(--danger)", margin: "6px 0 0" }}>
+                {bookingsError}
+              </p>
+            )}
+            <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", margin: "6px 0 0" }}>
+              Prefills the customer and line items from the booking&apos;s first payment: rental (first
+              30 days), delivery fee when applicable, and the selected accessories.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="field-row">
+              <div className="field">
+                <label htmlFor="inv-customer">Customer name</label>
+                <input
+                  id="inv-customer"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Who is billed"
+                  aria-label="Customer name"
+                  disabled={submitting}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="inv-email">Customer email</label>
+                <input
+                  id="inv-email"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  aria-label="Customer email"
+                  disabled={submitting}
+                />
+              </div>
+            </div>
+
+            <div className="field">
+              <label>Line items</label>
+              {rows.map((row, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                  <input
+                    value={row.description}
+                    onChange={(e) => setRow(i, { description: e.target.value })}
+                    placeholder="Description"
+                    aria-label={`Line ${i + 1} description`}
+                    disabled={submitting}
+                    style={{ flex: 3, minWidth: 0 }}
+                  />
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="1"
+                    value={row.quantity}
+                    onChange={(e) => setRow(i, { quantity: e.target.value })}
+                    placeholder="Qty"
+                    aria-label={`Line ${i + 1} quantity`}
+                    disabled={submitting}
+                    style={{ width: 64, flexShrink: 0 }}
+                  />
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="0.01"
+                    value={row.unitPrice}
+                    onChange={(e) => setRow(i, { unitPrice: e.target.value })}
+                    placeholder="€ / unit"
+                    aria-label={`Line ${i + 1} unit price`}
+                    disabled={submitting}
+                    style={{ width: 90, flexShrink: 0 }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => setRows((prev) => prev.filter((_, j) => j !== i))}
+                    disabled={submitting || rows.length === 1}
+                    aria-label={`Remove line ${i + 1}`}
+                    style={{
+                      padding: "6px 10px",
+                      fontSize: 12,
+                      flexShrink: 0,
+                      opacity: rows.length === 1 ? 0.45 : 1,
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setRows((prev) => [...prev, { ...EMPTY_LINE }])}
+                disabled={submitting}
+                style={{ padding: "7px 12px", fontSize: 12 }}
+              >
+                + Add line
+              </button>
+              <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", margin: "8px 0 0" }}>
+                Prices are gross (VAT included) — the VAT split uses the rate from Settings.
+              </p>
+            </div>
+          </>
+        )}
+
+        {!canSubmit && !submitting && (
+          <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: 0 }}>
+            {mode === "booking"
+              ? "Pick a booking to invoice."
+              : "A customer name and at least one line with a description are required."}
+          </p>
+        )}
+
+        {/* Hidden submit keeps Enter-to-save working. */}
+        <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
+      </form>
+    </Drawer>
   );
 }
 

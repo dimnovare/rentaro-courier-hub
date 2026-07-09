@@ -10,10 +10,6 @@ import {
   createCity,
   updateCity,
   deleteCity,
-  getPlans,
-  createPlan,
-  updatePlan,
-  deletePlan,
   getFaqs,
   createFaq,
   updateFaq,
@@ -25,14 +21,13 @@ import {
   CatalogAuthError,
   type AdminAccessory,
   type AdminCity,
-  type AdminPlan,
   type AdminFaq,
   type AccessoryInput,
   type CityInput,
-  type PlanInput,
   type FaqInput,
   type CityStatusValue,
 } from "@/services/adminCatalogService";
+import { Link } from "@/i18n/navigation";
 import type { ColorOption } from "@/types/bike";
 import type { LocalizedStrings } from "@/types/pricing";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
@@ -56,7 +51,6 @@ const CITY_STATUSES: readonly CityStatusValue[] = ["available", "limited", "soon
 interface ContentData {
   accessories: AdminAccessory[];
   cities: AdminCity[];
-  plans: AdminPlan[];
   faqs: AdminFaq[];
   /** Hero marquee items per language (locale → string[]). */
   marquee: LocalizedStrings;
@@ -77,14 +71,13 @@ export default function AdminContentPage() {
     setState({ phase: "loading" });
     setActionError(null);
     try {
-      const [accessories, cities, plans, faqs, marquee] = await Promise.all([
+      const [accessories, cities, faqs, marquee] = await Promise.all([
         getAccessories(),
         getCities(),
-        getPlans(),
         getFaqs(),
         getMarquee(),
       ]);
-      setState({ phase: "ready", data: { accessories, cities, plans, faqs, marquee } });
+      setState({ phase: "ready", data: { accessories, cities, faqs, marquee } });
     } catch (err) {
       // Auth failure → drop to the shell's sign-in; otherwise show an error.
       if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
@@ -135,8 +128,16 @@ export default function AdminContentPage() {
         <>
           <PageHeader
             title="Content"
-            subtitle="Accessories, cities, pricing plans, hero marquee and FAQ shown on the public site."
+            subtitle="Accessories, cities, hero marquee and FAQ shown on the public site."
           />
+
+          {/* Sticky quick-nav: every section is one click away on this long page. */}
+          <nav className="admin-quicknav" aria-label="Jump to a content section">
+            <a href="#accessories">Accessories</a>
+            <a href="#cities">Cities</a>
+            <a href="#marquee">Marquee</a>
+            <a href="#faq">FAQ</a>
+          </nav>
 
           {actionError && <ActionErrorBar message={actionError} onDismiss={() => setActionError(null)} />}
 
@@ -154,12 +155,8 @@ export default function AdminContentPage() {
             patch={patch}
           />
 
-          <PlansSection
-            rows={state.data.plans}
-            onError={handleActionError}
-            clearError={() => setActionError(null)}
-            patch={patch}
-          />
+          {/* Pricing plans used to be edited here; they now live ONLY in Pricelist. */}
+          <PlansMovedNote />
 
           <MarqueeSection
             marquee={state.data.marquee}
@@ -193,7 +190,7 @@ interface SectionProps<T> {
 /**
  * Per-section editor state. A discriminated union so the drawer knows whether
  * it is creating (no record id yet) or editing an existing row. `Id` is the
- * row-key type — string for accessories/cities/plans, number for FAQ.
+ * row-key type — string for accessories/cities, number for FAQ.
  */
 type Editor<Id> = { mode: "create" } | { mode: "edit"; id: Id };
 
@@ -275,7 +272,7 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
   const isEdit = editor?.mode === "edit";
 
   return (
-    <Section title="Accessories" count={rows.length}>
+    <Section id="accessories" title="Accessories" count={rows.length}>
       <AdminTable>
         <thead>
           <tr>
@@ -458,7 +455,7 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
   const isEdit = editor?.mode === "edit";
 
   return (
-    <Section title="Cities" count={rows.length}>
+    <Section id="cities" title="Cities" count={rows.length}>
       <AdminTable>
         <thead>
           <tr>
@@ -558,213 +555,32 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Pricing plans — id (code), term, months, daily, monthly, tag, featured,
-   perks (per-language list), sortOrder. Create + edit + delete. Pricing is
-   GLOBAL per plan (the same tier applies to every model). Perks are edited per
-   locale (EN / ET / LV / FI / RU) via the shared LocalizedListEditor.
+   Pricing plans — MOVED. Plans are edited only on the Pricelist page now
+   (sidebar: Finance → Pricelist). This slim note keeps the old spot
+   discoverable for operators who remember plans living here.
    ════════════════════════════════════════════════════════════════════════ */
 
-const EMPTY_PLAN: AdminPlan = {
-  id: "",
-  term: "",
-  months: 1,
-  daily: 0,
-  monthly: 0,
-  tag: "",
-  featured: false,
-  perks: {},
-  sortOrder: 0,
-};
-
-function PlansSection({ rows, onError, clearError, patch }: SectionProps<AdminPlan>) {
-  const [editor, setEditor] = useState<Editor<string> | null>(null);
-  const [draft, setDraft] = useState<AdminPlan>(EMPTY_PLAN);
-  // perks edited per language while the drawer is open (always all 5 locales).
-  const [perks, setPerks] = useState<LocalizedStrings>(() => toLocalizedStrings(undefined));
-  const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-
-  function openCreate() {
-    clearError();
-    setFormError(null);
-    setDraft(EMPTY_PLAN);
-    setPerks(toLocalizedStrings(undefined));
-    setEditor({ mode: "create" });
-  }
-
-  function openEdit(row: AdminPlan) {
-    clearError();
-    setFormError(null);
-    setDraft({ ...row });
-    setPerks(toLocalizedStrings(row.perks));
-    setEditor({ mode: "edit", id: row.id });
-  }
-
-  function close() {
-    setEditor(null);
-    setFormError(null);
-  }
-
-  async function submit() {
-    if (busy || !editor) return;
-    clearError();
-    setFormError(null);
-    setBusy(true);
-    try {
-      // Normalise to a full { en, et, lv, fi, ru } map (LocalizedListEditor already
-      // parses/trims/drops blanks on every keystroke).
-      const perksBody = toLocalizedStrings(perks);
-      if (editor.mode === "create") {
-        const saved = await createPlan({ ...draft, perks: perksBody });
-        patch((d) => ({ ...d, plans: [...d.plans, saved] }));
-      } else {
-        const { id: _id, ...rest } = draft;
-        void _id;
-        const body: PlanInput = { ...rest, perks: perksBody };
-        const saved = await updatePlan(editor.id, body);
-        patch((d) => ({ ...d, plans: d.plans.map((p) => (p.id === editor.id ? saved : p)) }));
-      }
-      close();
-    } catch (err) {
-      setFormError(
-        onError(err, editor.mode === "create" ? "Could not create the plan." : "Could not save the plan."),
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function remove() {
-    if (busy || !editor || editor.mode !== "edit") return;
-    const id = editor.id;
-    if (!window.confirm(`Delete pricing plan "${id}"? This cannot be undone.`)) return;
-    clearError();
-    setFormError(null);
-    setBusy(true);
-    try {
-      await deletePlan(id);
-      patch((d) => ({ ...d, plans: d.plans.filter((p) => p.id !== id) }));
-      close();
-    } catch (err) {
-      setFormError(onError(err, "Could not delete the plan."));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const isEdit = editor?.mode === "edit";
-
+function PlansMovedNote() {
   return (
-    <Section title="Pricing plans" count={rows.length}>
-      <AdminTable>
-        <thead>
-          <tr>
-            <Th>Id</Th>
-            <Th>Term</Th>
-            <Th>Months</Th>
-            <Th>Daily €</Th>
-            <Th>Monthly €</Th>
-            <Th>Tag</Th>
-            <Th>Featured</Th>
-            <Th>Perks (EN)</Th>
-            <Th>Sort</Th>
-            <Th>Actions</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 && <EmptyRow colSpan={10} label="No pricing plans." />}
-
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <Td mono nowrap>{row.id}</Td>
-              <Td>{row.term}</Td>
-              <Td mono dim>{row.months}</Td>
-              <Td mono dim>{row.daily}</Td>
-              <Td mono dim>{row.monthly}</Td>
-              <Td dim>{row.tag}</Td>
-              <Td nowrap><BoolPill value={row.featured} /></Td>
-              <Td dim>{(row.perks?.en ?? []).length ? (row.perks.en as string[]).join(", ") : "—"}</Td>
-              <Td mono dim>{row.sortOrder}</Td>
-              <Td nowrap><RowEdit busy={busy} onEdit={() => openEdit(row)} /></Td>
-            </tr>
-          ))}
-        </tbody>
-      </AdminTable>
-
-      <AddButton label="New plan" onClick={openCreate} />
-
-      <Drawer
-        open={editor !== null}
-        onClose={close}
-        title={isEdit ? "Edit plan" : "New plan"}
-        subtitle={isEdit && editor ? editor.id : undefined}
-        footer={
-          <DrawerFooter
-            busy={busy}
-            onSave={submit}
-            onCancel={close}
-            saveLabel={isEdit ? "Save" : "Create"}
-            onDelete={isEdit ? remove : undefined}
-          />
-        }
+    <section style={{ marginBottom: 52 }}>
+      <div
+        className="card mono"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          flexWrap: "wrap",
+          padding: "14px 18px",
+          fontSize: 12,
+          color: "var(--text-dim)",
+        }}
       >
-        <FieldText
-          label="Id"
-          value={draft.id}
-          onChange={(v) => setDraft({ ...draft, id: v })}
-          mono
-          placeholder="p39"
-          readOnly={isEdit}
-          hint={isEdit ? "Id is fixed once created." : "Lowercase code, unique across plans (max 64 chars)."}
-        />
-        <FieldText label="Term" value={draft.term} onChange={(v) => setDraft({ ...draft, term: v })} placeholder="12 months" />
-        <div className="field-row">
-          <FieldNumber
-            label="Months"
-            value={draft.months}
-            onChange={(v) => setDraft({ ...draft, months: v })}
-          />
-          <FieldText label="Tag" value={draft.tag} onChange={(v) => setDraft({ ...draft, tag: v })} placeholder="Best price" />
-        </div>
-        <div className="field-row">
-          <FieldNumber
-            label="Daily €"
-            value={draft.daily}
-            step="0.01"
-            onChange={(v) => setDraft({ ...draft, daily: v })}
-          />
-          <FieldNumber
-            label="Monthly €"
-            value={draft.monthly}
-            step="0.01"
-            onChange={(v) => setDraft({ ...draft, monthly: v })}
-          />
-        </div>
-        <FieldSelect
-          label="Featured"
-          value={draft.featured ? "true" : "false"}
-          onChange={(v) => setDraft({ ...draft, featured: v === "true" })}
-          options={BOOL_OPTIONS}
-        />
-        <div className="field">
-          <label>
-            Perks per language
-            <FieldHint text="Comma-separated. EN is the fallback when a locale is empty." />
-          </label>
-          <LocalizedListEditor
-            value={perks}
-            onChange={setPerks}
-            placeholder="Free service, Priority support, Free helmet"
-          />
-        </div>
-        <FieldNumber
-          label="Sort order"
-          value={draft.sortOrder}
-          onChange={(v) => setDraft({ ...draft, sortOrder: v })}
-        />
-        <FormError message={formError} />
-      </Drawer>
-    </Section>
+        <span>Pricing plans moved to</span>
+        <Link href="/admin/pricelist" style={{ color: "var(--lime)" }}>
+          Pricelist
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -822,7 +638,7 @@ function MarqueeSection({
   const enItems = marquee.en ?? [];
 
   return (
-    <Section title="Hero marquee" note="Scrolling hero strip. Items are set per language; EN is the fallback.">
+    <Section id="marquee" title="Hero marquee" note="Scrolling hero strip. Items are set per language; EN is the fallback.">
       <AdminTable>
         <thead>
           <tr>
@@ -957,7 +773,7 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
   const isEdit = editor?.mode === "edit";
 
   return (
-    <Section title="FAQ" count={rows.length}>
+    <Section id="faq" title="FAQ" count={rows.length}>
       <AdminTable>
         <thead>
           <tr>
@@ -1358,18 +1174,21 @@ function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
 /* ── Section wrapper + page chrome (mirrors the fleet page) ────────────── */
 
 function Section({
+  id,
   title,
   count,
   note,
   children,
 }: {
+  /** Anchor id targeted by the sticky quick-nav chips under the page header. */
+  id?: string;
   title: string;
   count?: number;
   note?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section style={{ marginBottom: 52 }}>
+    <section id={id} className="admin-anchor-sect" style={{ marginBottom: 52 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6, flexWrap: "wrap" }}>
         <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>{title}</h2>
         {typeof count === "number" && (
