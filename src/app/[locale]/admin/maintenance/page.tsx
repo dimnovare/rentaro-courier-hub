@@ -94,6 +94,16 @@ export default function AdminMaintenancePage() {
     const current = state.tickets.find((t) => t.id === id);
     if (!current || current.status === nextStatus) return;
 
+    // Resolving stamps resolvedAt and takes the ticket out of the open queue —
+    // worth a pause, since the select fires on a single (mis)click.
+    if (
+      nextStatus === "resolved" &&
+      typeof window !== "undefined" &&
+      !window.confirm(`Mark ticket #${id} as resolved? It leaves the open queue and gets a resolved date.`)
+    ) {
+      return;
+    }
+
     setActionError(null);
     setPending((p) => ({ ...p, [id]: true }));
     try {

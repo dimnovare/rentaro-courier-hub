@@ -466,7 +466,7 @@ function ManageRentalBody({
               disabled={busy}
               onClick={() => onInspect(id, true, notes)}
             >
-              Inspect: pass
+              Pass inspection
             </button>
             <button
               type="button"
@@ -475,7 +475,7 @@ function ManageRentalBody({
               disabled={busy}
               onClick={() => onInspect(id, false, notes)}
             >
-              Fail
+              Fail inspection
             </button>
           </div>
         </div>

@@ -268,6 +268,16 @@ export default function AdminBookingsPage() {
   // unblocks immediately) and refresh the list. Errors surface inline.
   const onConfirmPayment = useCallback(
     async (bookingId: string) => {
+      // Money action: creates a settled payment record (and an invoice when
+      // auto-create is on) — confirm before recording.
+      if (
+        typeof window !== "undefined" &&
+        !window.confirm(
+          "Mark this payment as received? This records a settled payment (and creates an invoice if auto-create is enabled).",
+        )
+      ) {
+        return;
+      }
       setBanner(null);
       setRowError(null);
       try {
@@ -1980,6 +1990,22 @@ function AssignControl({
       ).length,
     [units, b.modelId, b.cityId],
   );
+
+  // Once a bike is assigned (or the rental is running/finished) this panel's
+  // job is done — the previously-eligible unit is now rented, so without this
+  // guard the empty `eligible` list would show the "No assignable unit" warning
+  // on every successfully assigned booking.
+  const normalizedStatus = (b.status ?? "").toLowerCase().replace(/[_\s-]/g, "");
+  if (normalizedStatus === "bikeassigned" || normalizedStatus === "active" || normalizedStatus === "completed") {
+    return (
+      <p style={hintStyle}>
+        A bike is already assigned to this booking
+        {normalizedStatus === "active" ? " and the rental is active" : ""}
+        {normalizedStatus === "completed" ? " and the rental is completed" : ""}. Manage the
+        unit from the Rentals or Fleet view.
+      </p>
+    );
+  }
 
   if (eligible.length === 0) {
     return (

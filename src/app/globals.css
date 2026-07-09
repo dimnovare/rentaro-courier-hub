@@ -1142,6 +1142,13 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
       opacity 0.16s ease-out 0.18s,
       transform 0.16s ease-out 0.18s;
   }
+  /* Lower rows have no room to open downward inside the wizard card/viewport.
+     Open them upward so the preview image stays fully visible. */
+  .bike-opt-wrap:nth-child(n + 3) .bike-hovercard {
+    top: auto;
+    bottom: calc(100% + 8px);
+    transform: translateY(4px);
+  }
   .bike-opt-wrap:hover .bike-hovercard,
   .bike-opt-wrap:focus-within .bike-hovercard {
     opacity: 1;

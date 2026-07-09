@@ -303,6 +303,7 @@
       "statAvailable": "{count} laos",
       "statLow": "Ainult {count} alles",
       "statWait": "Ootenimekiri",
+      "waitSelectedNote": "{name} on hetkel otsas. Võid taotluse siiski saata — see läheb ootejärjekorda ja kinnitame alguskuupäeva niipea, kui ratas vabaneb.",
       "colors": "Saadaolevad värvid"
     },
     "plan": {
@@ -360,7 +361,8 @@
         "email": "Sisesta oma e-posti aadress.",
         "emailInvalid": "Sisesta korrektne e-posti aadress.",
         "phone": "Sisesta oma telefoninumber.",
-        "startDate": "Vali soovitud alguskuupäev."
+        "startDate": "Vali soovitud alguskuupäev.",
+        "startDateMin": "Varaseim kättesaamine on {date} — ratta ettevalmistuseks kulub 3 tööpäeva."
       },
       "dialCode": "Riigi kood",
       "phonePlaceholder": "5649 7933",
@@ -394,7 +396,7 @@
       "payStripTransfer": "Maksa enne üleandmist",
       "firstPayment": "Esimene makse",
       "firstPaymentNote": "Tasumisele pärast broneeringu kinnitamist, kui oled lepinguga nõustunud — lisaks {deposit} € tagastatav tagatisraha, mis tasutakse koos sellega.",
-      "thenPer30": "Seejärel {amount} € iga 30 päeva järel (ratas + lisad) — saadame arve enne iga uut perioodi."
+      "thenPer30": "Seejärel {amount} € iga 30 päeva järel — saadame arve enne iga uut perioodi."
     },
     "buttons": {
       "cancel": "Tühista",
@@ -864,7 +866,7 @@
     "joinWaitlist": "Liitu ootenimekirjaga",
     "reserveThisBike": "Broneeri see ratas",
     "joinWaitlistLong": "Liitu ootenimekirjaga",
-    "planNote": "Saadaval 30-päevase, 6- või 12-kuise paketiga — €3.90/päev 12-kuise paketiga.",
+    "planNote": "Saadaval 30-päevase, 6- või 12-kuise paketiga — €{daily}/päev 12-kuise paketiga.",
     "fullSpec": "Täielik spetsifikatsioon",
     "galleryThumbAria": "Vaata pilti {index}/{total}",
     "avail": {

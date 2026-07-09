@@ -267,3 +267,9 @@ export const markInvoicePaid = (id: string) =>
     method: "PATCH",
     body: JSON.stringify({ status: "paid" }),
   });
+
+/** Deletes an invoice (e.g. a mistake or one orphaned by a deleted booking). */
+export const deleteInvoice = (id: string) =>
+  request<void>(`/api/admin/invoices/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });

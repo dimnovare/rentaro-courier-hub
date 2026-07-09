@@ -9,8 +9,9 @@ import { Gallery } from "@/components/models/Gallery";
 import { SpecTable } from "@/components/models/SpecTable";
 import { ReserveButton } from "@/components/models/ReserveButton";
 import { bikeModels, getModelBySlug } from "@/data/bikeModels";
+import { pricingPlans } from "@/data/pricingPlans";
 import { modelService, resolveImg } from "@/services/modelService";
-import { modelFromDaily } from "@/services/pricingService";
+import { modelFromDaily, resolvePlanPrice } from "@/services/pricingService";
 import { JsonLd, buildProductSchema } from "@/components/seo/JsonLd";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
@@ -71,6 +72,11 @@ export default async function ModelDetail({ params }: Params) {
         : { label: t("avail.waitlist"), color: "var(--danger)" };
   const isWait = m.status === "wait";
   const images = [m.img, ...(m.gallery ?? [])].map(resolveImg);
+
+  // The 12-month daily rate for THIS model (honours per-model overrides), so
+  // the plan note below never contradicts the override-aware headline price.
+  const plan12 = pricingPlans.find((pl) => pl.id === "p365") ?? pricingPlans[pricingPlans.length - 1];
+  const daily12 = resolvePlanPrice(m, plan12).daily.toFixed(2);
 
   return (
     <main>
@@ -144,7 +150,7 @@ export default async function ModelDetail({ params }: Params) {
                   />
                 </div>
                 <p className="mono" style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 16 }}>
-                  {t("planNote")}
+                  {t("planNote", { daily: daily12 })}
                 </p>
               </div>
             </Reveal>

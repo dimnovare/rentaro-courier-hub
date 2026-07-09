@@ -365,17 +365,26 @@ function ToggleRow({
       }}
     >
       <span style={{ fontSize: 14.5, color: "var(--text-2)", lineHeight: 1.5 }}>{label}</span>
-      <Switch checked={checked} onChange={onChange} />
+      <Switch checked={checked} onChange={onChange} label={label} />
     </label>
   );
 }
 
 /** Lime pill switch built from a visually-hidden checkbox for accessibility. */
-function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
   return (
     <span
       role="switch"
       aria-checked={checked}
+      aria-label={label}
       tabIndex={0}
       onClick={() => onChange(!checked)}
       onKeyDown={(e) => {

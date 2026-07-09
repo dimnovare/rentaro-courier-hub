@@ -303,6 +303,7 @@
       "statAvailable": "{count} varastossa",
       "statLow": "Vain {count} jäljellä",
       "statWait": "Jonotuslista",
+      "waitSelectedNote": "{name} on tällä hetkellä loppu. Voit silti lähettää pyynnön — se siirtyy jonotuslistalle ja vahvistamme aloituspäivän heti, kun pyörä vapautuu.",
       "colors": "Saatavilla olevat värit"
     },
     "plan": {
@@ -364,7 +365,8 @@
         "email": "Anna sähköpostiosoitteesi.",
         "emailInvalid": "Anna kelvollinen sähköpostiosoite.",
         "phone": "Anna puhelinnumerosi.",
-        "startDate": "Valitse toivottu aloituspäivä."
+        "startDate": "Valitse toivottu aloituspäivä.",
+        "startDateMin": "Aikaisin nouto on {date} — pyörän valmisteluun tarvitaan 3 arkipäivää."
       },
       "dialCode": "Maakoodi",
       "phonePlaceholder": "5649 7933",
@@ -398,7 +400,7 @@
       "payStripTransfer": "Maksa ennen noutoa",
       "firstPayment": "Ensimmäinen maksu",
       "firstPaymentNote": "Erääntyy, kun varauksesi on hyväksytty ja olet hyväksynyt sopimuksen — lisäksi {deposit} € palautettava vakuus maksetaan sen yhteydessä.",
-      "thenPer30": "Sen jälkeen {amount} € joka 30. päivä (pyörä + lisävarusteet) — lähetämme laskun ennen jokaista uutta jaksoa."
+      "thenPer30": "Sen jälkeen {amount} € joka 30. päivä — lähetämme laskun ennen jokaista uutta jaksoa."
     },
     "buttons": {
       "cancel": "Peruuta",
@@ -864,7 +866,7 @@
     "joinWaitlist": "Liity jonotuslistalle",
     "reserveThisBike": "Varaa tämä pyörä",
     "joinWaitlistLong": "Liity jonotuslistalle",
-    "planNote": "Saatavilla 30 päivän, 6 tai 12 kuukauden suunnitelmilla — €3.90/pv 12 kuukauden suunnitelmalla.",
+    "planNote": "Saatavilla 30 päivän, 6 tai 12 kuukauden suunnitelmilla — €{daily}/pv 12 kuukauden suunnitelmalla.",
     "fullSpec": "Tekniset tiedot",
     "galleryThumbAria": "Näytä kuva {index} / {total}",
     "avail": {

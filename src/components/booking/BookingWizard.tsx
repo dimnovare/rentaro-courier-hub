@@ -278,6 +278,17 @@ export function BookingWizard({
 
   const model = models.find((m) => m.id === modelId);
   const plan = planId ? getPlanById(planId) : undefined;
+  // Whether the SELECTED model has zero units right now (mirrors the card
+  // badges: live count once fetched, static seed before). Everywhere else on
+  // the site a 0-stock model only offers "Join waitlist", but the wizard (and
+  // its ?model= deep link) books it like any other — so we say so explicitly
+  // instead of letting the request look like a confirmed reservation.
+  const selectedModelCount = model
+    ? availLoaded
+      ? (availMap[`model:${model.id}`] ?? 0)
+      : model.availability
+    : null;
+  const selectedIsWaitlist = model != null && selectedModelCount === 0;
   const city = cities.find((c) => c.id === cityId);
 
   // Resolve the price a plan bills for the *currently selected* model: a model
@@ -293,11 +304,11 @@ export function BookingWizard({
     toLocalISODate(addBusinessDays(new Date(), BUSINESS_DAYS_LEAD)),
   );
 
-  // Clamp/clear any pre-filled or stale start date that falls before the
-  // minimum (e.g. an older value or a hand-typed earlier date).
-  useEffect(() => {
-    if (startDate && startDate < minStartDate) setStartDate("");
-  }, [startDate, minStartDate]);
+  // EU-format readout of the earliest selectable date, for the too-early error.
+  const minStartDisplay = (() => {
+    const [y, m, d] = minStartDate.split("-");
+    return `${d}/${m}/${y}`;
+  })();
 
   // End date = preferred start date + plan.months * 30 days. The backend derives
   // PlannedEndDate the same way (30-day periods, matching the per-30-day pricing),
@@ -321,8 +332,9 @@ export function BookingWizard({
     return `${d}/${m}/${y}`;
   })();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const startDateOk = !!startDate && startDate >= minStartDate;
   const detailsValid =
-    !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && !!startDate;
+    !!first.trim() && !!last.trim() && emailOk && !!phone.trim() && startDateOk;
 
   // Per-field error messages — only surfaced once a field has been touched.
   // `email` distinguishes "required" from "invalid format" for clearer guidance.
@@ -335,7 +347,11 @@ export function BookingWizard({
         ? t("details.errors.emailInvalid")
         : "",
     phone: !phone.trim() ? t("details.errors.phone") : "",
-    start: !startDate ? t("details.errors.startDate") : "",
+    start: !startDate
+      ? t("details.errors.startDate")
+      : startDate < minStartDate
+        ? t("details.errors.startDateMin", { date: minStartDisplay })
+        : "",
   };
   const errFor = (f: DetailField) => (touched[f] ? fieldErrors[f] : "");
 
@@ -611,6 +627,11 @@ export function BookingWizard({
                 );
               })}
             </div>
+            {selectedIsWaitlist && model && (
+              <p className="sub" role="status" style={{ marginTop: 14, color: "var(--warn)" }}>
+                {t("model.waitSelectedNote", { name: model.name })}
+              </p>
+            )}
           </>
         )}
 
@@ -890,6 +911,11 @@ export function BookingWizard({
                 </span>
               </div>
             </div>
+            {selectedIsWaitlist && model && (
+              <p className="sub" role="status" style={{ marginTop: 12, color: "var(--warn)" }}>
+                {t("model.waitSelectedNote", { name: model.name })}
+              </p>
+            )}
             {plan && (
               <p className="sub" style={{ marginTop: 12 }}>
                 {t("review.firstPaymentNote", { deposit: priceFor(plan).monthly })}

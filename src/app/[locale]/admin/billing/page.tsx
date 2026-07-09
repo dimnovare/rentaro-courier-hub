@@ -25,6 +25,7 @@ import {
   createInvoice,
   invoicePdfPath,
   markInvoicePaid,
+  deleteInvoice,
   BillingApiError,
   BillingConfigError,
   BillingAuthError,
@@ -43,12 +44,21 @@ import { DateField } from "@/components/admin/DateField";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { formatEur } from "@/lib/money";
 
-/** Common expense categories (free text — the field also accepts anything typed). */
+/** Common expense categories for bookkeeping. Backend still stores free-text. */
 const CATEGORIES = [
-  { value: "bikes", label: "bikes" },
-  { value: "parts", label: "parts" },
-  { value: "rent", label: "rent" },
-  { value: "other", label: "other" },
+  { value: "Bike purchase", label: "Bike purchase" },
+  { value: "Bike parts", label: "Bike parts" },
+  { value: "Workshop / maintenance", label: "Workshop / maintenance" },
+  { value: "Accessories", label: "Accessories" },
+  { value: "Storage / rent", label: "Storage / rent" },
+  { value: "Tools", label: "Tools" },
+  { value: "Software", label: "Software" },
+  { value: "Marketing / ads", label: "Marketing / ads" },
+  { value: "Insurance", label: "Insurance" },
+  { value: "Legal / accounting", label: "Legal / accounting" },
+  { value: "Transport", label: "Transport" },
+  { value: "Bank fees", label: "Bank fees" },
+  { value: "Other", label: "Other" },
 ] as const;
 
 /** Today as YYYY-MM-DD (local), used to seed the date input. */
@@ -169,6 +179,12 @@ export default function AdminBillingPage() {
 
   async function markPaid(id: string) {
     if (state.phase !== "ready") return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("Mark this invoice as PAID? There is no un-mark — this is final.")
+    ) {
+      return;
+    }
     setActionError(null);
     setPending((p) => ({ ...p, [id]: true }));
     try {
@@ -185,6 +201,33 @@ export default function AdminBillingPage() {
       setPending((p) => {
         const next = { ...p };
         delete next[id];
+        return next;
+      });
+    }
+  }
+
+  async function removeInvoice(inv: Invoice) {
+    if (state.phase !== "ready") return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `Delete invoice ${inv.number}? Use this only for mistakes or orphaned invoices — ` +
+          `deleting issued invoices leaves a gap in the numbering. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setActionError(null);
+    setPending((p) => ({ ...p, [inv.id]: true }));
+    try {
+      await deleteInvoice(inv.id);
+      await load();
+    } catch (err) {
+      handleActionError(err, "Could not delete the invoice.");
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[inv.id];
         return next;
       });
     }
@@ -240,6 +283,7 @@ export default function AdminBillingPage() {
             invoices={state.invoices}
             pending={pending}
             onMarkPaid={markPaid}
+            onDelete={removeInvoice}
           />
 
           <IncomingsPanel summary={state.summary} />
@@ -469,10 +513,12 @@ function InvoicesTable({
   invoices,
   pending,
   onMarkPaid,
+  onDelete,
 }: {
   invoices: Invoice[];
   pending: Record<string, boolean>;
   onMarkPaid: (id: string) => void;
+  onDelete: (inv: Invoice) => void;
 }) {
   return (
     <AdminSection title="Invoices" count={invoices.length}>
@@ -485,11 +531,12 @@ function InvoicesTable({
             <Th>Total</Th>
             <Th>Status</Th>
             <Th>PDF</Th>
+            <Th>Actions</Th>
           </tr>
         </thead>
         <tbody>
           {invoices.length === 0 ? (
-            <EmptyRow colSpan={6} label="No invoices generated yet." />
+            <EmptyRow colSpan={7} label="No invoices generated yet." />
           ) : (
             invoices.map((inv) => {
               const paid = inv.status === "paid";
@@ -559,6 +606,23 @@ function InvoicesTable({
                         —
                       </span>
                     )}
+                  </Td>
+                  <Td nowrap>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      disabled={Boolean(pending[inv.id])}
+                      onClick={() => onDelete(inv)}
+                      style={{
+                        padding: "5px 10px",
+                        fontSize: 11.5,
+                        color: "var(--danger)",
+                        border: "1px solid rgba(255, 138, 120, 0.32)",
+                        opacity: pending[inv.id] ? 0.55 : 1,
+                      }}
+                    >
+                      Delete
+                    </button>
                   </Td>
                 </tr>
               );
@@ -1050,21 +1114,19 @@ function AddExpenseDrawer({
         <div className="field-row">
           <div className="field">
             <label htmlFor="ex-category">Category</label>
-            {/* Free text with a datalist of common values — accepts anything typed. */}
-            <input
+            <select
               id="ex-category"
-              list="ex-category-options"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="e.g. parts"
               aria-label="Category"
               disabled={submitting}
-            />
-            <datalist id="ex-category-options">
+            >
               {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value} />
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
               ))}
-            </datalist>
+            </select>
           </div>
 
           <div className="field">

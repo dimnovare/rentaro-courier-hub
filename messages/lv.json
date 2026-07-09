@@ -303,6 +303,7 @@
       "statAvailable": "{count} noliktavā",
       "statLow": "{count, plural, zero {Tikai # atlikuši} one {Tikai # atlicis} other {Tikai # atlikuši}}",
       "statWait": "Gaidīšanas saraksts",
+      "waitSelectedNote": "{name} pašlaik nav pieejams. Tu vari tomēr nosūtīt pieprasījumu — tas nonāk gaidīšanas sarakstā, un mēs apstiprināsim sākuma datumu, tiklīdz velosipēds atbrīvosies.",
       "colors": "Pieejamās krāsas"
     },
     "plan": {
@@ -364,7 +365,8 @@
         "email": "Ievadi savu e-pastu.",
         "emailInvalid": "Ievadi derīgu e-pasta adresi.",
         "phone": "Ievadi savu tālruņa numuru.",
-        "startDate": "Izvēlies vēlamo sākuma datumu."
+        "startDate": "Izvēlies vēlamo sākuma datumu.",
+        "startDateMin": "Agrākā saņemšana ir {date} — velosipēda sagatavošanai nepieciešamas 3 darba dienas."
       },
       "dialCode": "Valsts kods",
       "phonePlaceholder": "5649 7933",
@@ -398,7 +400,7 @@
       "payStripTransfer": "Maksā pirms saņemšanas",
       "firstPayment": "Pirmais maksājums",
       "firstPaymentNote": "Jāapmaksā pēc rezervācijas apstiprināšanas, kad esat pieņēmis līgumu — papildus €{deposit} atmaksājamā drošības nauda, ko maksā kopā ar to.",
-      "thenPer30": "Pēc tam €{amount} ik pēc 30 dienām (velosipēds + piederumi) — rēķinu nosūtām pirms katra jaunā perioda."
+      "thenPer30": "Pēc tam €{amount} ik pēc 30 dienām — rēķinu nosūtām pirms katra jaunā perioda."
     },
     "buttons": {
       "cancel": "Atcelt",
@@ -864,7 +866,7 @@
     "joinWaitlist": "Gaidīšanas sarakstā",
     "reserveThisBike": "Rezervēt šo velosipēdu",
     "joinWaitlistLong": "Pievienoties gaidīšanas sarakstam",
-    "planNote": "Pieejams uz 30 dienu, 6 vai 12 mēnešu plāniem — €3.90/dienā uz 12 mēnešu plāna.",
+    "planNote": "Pieejams uz 30 dienu, 6 vai 12 mēnešu plāniem — €{daily}/dienā uz 12 mēnešu plāna.",
     "fullSpec": "Pilna specifikācija",
     "galleryThumbAria": "Skatīt attēlu {index} no {total}",
     "avail": {

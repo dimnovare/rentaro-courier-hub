@@ -173,7 +173,10 @@ export default function AdminModelsPage() {
   async function removeModel(code: string) {
     if (
       typeof window !== "undefined" &&
-      !window.confirm(`Delete model "${code}"? This cannot be undone.`)
+      !window.confirm(
+        `Delete model "${code}"? Its catalogue entry, photos and price settings are removed permanently. ` +
+          `(Bookings or bike units still referencing it will block the delete.) This cannot be undone.`,
+      )
     ) {
       return;
     }
@@ -223,7 +226,12 @@ export default function AdminModelsPage() {
     reordered[i] = b;
     reordered[j] = a;
     const indexed = reordered.map((m, idx) => ({ ...m, sortOrder: idx }));
-    const targets = indexed.filter((m, idx) => m.sortOrder !== models[idx].sortOrder);
+    // Compare each model's NEW sortOrder against ITS OWN old one (by code) —
+    // comparing positionally broke after the first normalisation: an adjacent
+    // swap of consecutive values leaves the same numbers at the same positions,
+    // so nothing was detected as changed and the arrows silently did nothing.
+    const oldByCode = new Map(models.map((m) => [m.code, m.sortOrder]));
+    const targets = indexed.filter((m) => m.sortOrder !== oldByCode.get(m.code));
 
     setActionError(null);
     setBusy(a.code, true);
@@ -768,7 +776,7 @@ function ModelEditor({
                 padding: "11px 20px",
                 fontSize: 14,
                 color: "var(--danger)",
-                borderColor: "rgba(255, 138, 120, 0.32)",
+                border: "1px solid rgba(255, 138, 120, 0.32)",
               }}
             >
               Delete
@@ -1610,7 +1618,7 @@ function ErrorPanel({
       style={{
         padding: 28,
         maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
+        border: "1px solid rgba(255, 138, 120, 0.32)",
         background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
       }}
     >

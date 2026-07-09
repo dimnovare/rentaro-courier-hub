@@ -303,6 +303,7 @@
       "statAvailable": "{count} in stock",
       "statLow": "{count, plural, one {Only 1 left} other {Only # left}}",
       "statWait": "Waitlist",
+      "waitSelectedNote": "{name} is currently out of stock. You can still send this request — it joins the waitlist and we’ll confirm a start date with you as soon as a bike frees up.",
       "colors": "Available colours"
     },
     "plan": {
@@ -360,7 +361,8 @@
         "email": "Enter your email.",
         "emailInvalid": "Enter a valid email address.",
         "phone": "Enter your phone number.",
-        "startDate": "Choose a preferred start date."
+        "startDate": "Choose a preferred start date.",
+        "startDateMin": "Earliest pickup is {date} — we need 3 business days to prepare your bike."
       },
       "dialCode": "Country code",
       "phonePlaceholder": "5649 7933",
@@ -394,7 +396,7 @@
       "payStripTransfer": "Pay before pickup",
       "firstPayment": "First payment",
       "firstPaymentNote": "Due after your booking is approved and you've accepted the contract — plus a €{deposit} refundable deposit paid alongside it.",
-      "thenPer30": "Then €{amount} every 30 days (bike + add-ons) — we send an invoice before each new period."
+      "thenPer30": "Then €{amount} every 30 days — we send an invoice before each new period."
     },
     "buttons": {
       "cancel": "Cancel",
@@ -864,7 +866,7 @@
     "joinWaitlist": "Join waitlist",
     "reserveThisBike": "Reserve this bike",
     "joinWaitlistLong": "Join the waitlist",
-    "planNote": "Available on 30-day, 6 or 12-month plans — €3.90/day on the 12-month plan.",
+    "planNote": "Available on 30-day, 6 or 12-month plans — €{daily}/day on the 12-month plan.",
     "fullSpec": "Full specification",
     "galleryThumbAria": "View image {index} of {total}",
     "avail": {

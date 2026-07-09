@@ -5,6 +5,7 @@ import {
   listTemplates,
   uploadTemplate,
   activateTemplate,
+  deleteTemplate,
   ContractApiError,
   ContractConfigError,
   ContractAuthError,
@@ -81,6 +82,42 @@ export default function AdminContractsPage() {
     }
   }
 
+  async function remove(t: ContractTemplate) {
+    if (state.phase !== "ready") return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `Delete template "${t.name}" (v${t.version})? Contracts already generated from it keep ` +
+          `their PDFs, but the template file is removed permanently. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setBanner(null);
+    setPending((p) => ({ ...p, [t.id]: true }));
+    try {
+      await deleteTemplate(t.id);
+      setBanner({ tone: "ok", text: `Deleted "${t.name}".` });
+      await load();
+    } catch (err) {
+      if (err instanceof ContractApiError && err.unauthorized) {
+        signOut();
+      } else {
+        const text =
+          err instanceof ContractApiError || err instanceof ContractConfigError
+            ? err.message
+            : "Could not delete that template.";
+        setBanner({ tone: "bad", text });
+      }
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[t.id];
+        return next;
+      });
+    }
+  }
+
   return (
     <div>
       {state.phase === "loading" ? (
@@ -109,6 +146,7 @@ export default function AdminContractsPage() {
               templates={state.templates}
               pending={pending}
               onActivate={(id) => void activate(id)}
+              onDelete={(t) => void remove(t)}
             />
           </AdminSection>
         </>
@@ -360,10 +398,12 @@ function TemplatesTable({
   templates,
   pending,
   onActivate,
+  onDelete,
 }: {
   templates: ContractTemplate[];
   pending: Record<string, boolean>;
   onActivate: (id: string) => void;
+  onDelete: (t: ContractTemplate) => void;
 }) {
   return (
     <AdminTable>
@@ -411,15 +451,31 @@ function TemplatesTable({
                     in use
                   </span>
                 ) : (
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    style={{ padding: "8px 14px", fontSize: 12.5 }}
-                    disabled={Boolean(pending[t.id])}
-                    onClick={() => onActivate(t.id)}
-                  >
-                    {pending[t.id] ? "Activating…" : "Activate"}
-                  </button>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      style={{ padding: "8px 14px", fontSize: 12.5 }}
+                      disabled={Boolean(pending[t.id])}
+                      onClick={() => onActivate(t.id)}
+                    >
+                      {pending[t.id] ? "Working…" : "Activate"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      style={{
+                        padding: "8px 14px",
+                        fontSize: 12.5,
+                        color: "var(--danger)",
+                        border: "1px solid rgba(255, 138, 120, 0.32)",
+                      }}
+                      disabled={Boolean(pending[t.id])}
+                      onClick={() => onDelete(t)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 )}
               </Td>
             </tr>

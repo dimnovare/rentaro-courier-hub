@@ -214,6 +214,16 @@ export function activateTemplate(id: string): Promise<ContractTemplate> {
   );
 }
 
+/**
+ * Delete a template. The backend refuses to delete the ACTIVE template (409) —
+ * activate a replacement first.
+ */
+export function deleteTemplate(id: string): Promise<void> {
+  return request<void>(`/api/admin/contract-templates/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
 /* ── Contracts ─────────────────────────────────────────────────────────── */
 
 /**
