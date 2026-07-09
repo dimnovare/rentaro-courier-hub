@@ -330,8 +330,8 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "Kasutame usaldusväärseid teenusepakkujaid, kes töötlevad isikuandmeid meie nimel volitatud töötlejatena, andmetöötluslepingute alusel ja ainult meie juhiste järgi. Me ei müü sinu isikuandmeid.",
         "Resend — saadab tehingulisi ja teenusega seotud e-kirju sinu broneeringu ja rendi kohta.",
-        "Montonio — töötleb makseid ja tagatisraha.",
-        "Dokobit — käsitleb rendilepingu isikusamasusega toetatud elektroonilist allkirjastamist.",
+        "Montonio — töötleb kaardimakseid ja tagatisraha, kui veebis kaardimaksed on kasutusele võetud.",
+        "Dokobit — käsitleb rendilepingu isikusamasusega toetatud elektroonilist allkirjastamist, kui veebis allkirjastamine on kasutusele võetud.",
         "Vercel — majutab ja teenindab rentaro veebisaiti.",
         "Railway — majutab meie rakenduse taustasüsteemi ja andmebaasi ELis.",
         "Google Analytics ja PostHog — pakuvad veebisaidi ja toote analüütikat ning töötavad ainult seal, kus sa oled nõustunud; PostHog on majutatud ELis.",

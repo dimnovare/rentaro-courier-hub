@@ -329,8 +329,8 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "We use trusted service providers who process personal data on our behalf as processors, under data processing agreements and only on our instructions. We do not sell your personal data.",
         "Resend — sends transactional and service emails about your booking and rental.",
-        "Montonio — processes payments and the security deposit.",
-        "Dokobit — handles identity-supported electronic signing of the rental agreement.",
+        "Montonio — processes card payments and the security deposit, once online card payments are enabled.",
+        "Dokobit — handles identity-supported electronic signing of the rental agreement, once online e-signing is enabled.",
         "Vercel — hosts and serves the rentaro website.",
         "Railway — hosts our application backend and database, in the EU.",
         "Google Analytics and PostHog — provide website and product analytics, and run only where you have consented; PostHog is hosted in the EU.",

@@ -329,8 +329,8 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "Käytämme luotettuja palveluntarjoajia, jotka käsittelevät henkilötietoja puolestamme käsittelijöinä, tietojenkäsittelysopimusten nojalla ja vain ohjeidemme mukaisesti. Emme myy henkilötietojasi.",
         "Resend — lähettää tapahtuma- ja palvelusähköposteja varauksestasi ja vuokrauksestasi.",
-        "Montonio — käsittelee maksut ja vakuuden.",
-        "Dokobit — hoitaa vuokrasopimuksen henkilöllisyyteen perustuvan sähköisen allekirjoittamisen.",
+        "Montonio — käsittelee korttimaksut ja vakuuden, kun verkkokorttimaksut on otettu käyttöön.",
+        "Dokobit — hoitaa vuokrasopimuksen henkilöllisyyteen perustuvan sähköisen allekirjoittamisen, kun sähköinen allekirjoitus on otettu käyttöön.",
         "Vercel — isännöi ja tarjoaa rentaron verkkosivustoa.",
         "Railway — isännöi sovelluksemme taustajärjestelmää ja tietokantaa EU:ssa.",
         "Google Analytics ja PostHog — tarjoavat verkkosivusto- ja tuoteanalytiikkaa ja toimivat vain, kun olet antanut suostumuksesi; PostHog on isännöity EU:ssa.",

@@ -330,8 +330,8 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "Mēs izmantojam uzticamus pakalpojumu sniedzējus, kuri apstrādā personas datus mūsu vārdā kā apstrādātāji saskaņā ar datu apstrādes līgumiem un tikai pēc mūsu norādījumiem. Mēs nepārdodam jūsu personas datus.",
         "Resend — sūta darījumu un servisa e-pastus par jūsu rezervāciju un īri.",
-        "Montonio — apstrādā maksājumus un drošības naudu.",
-        "Dokobit — nodrošina ar identitāti pamatotu īres līguma elektronisku parakstīšanu.",
+        "Montonio — apstrādā karšu maksājumus un drošības naudu, tiklīdz tiešsaistes karšu maksājumi ir ieviesti.",
+        "Dokobit — nodrošina ar identitāti pamatotu īres līguma elektronisku parakstīšanu, tiklīdz tiešsaistes e-parakstīšana ir ieviesta.",
         "Vercel — mitina un apkalpo rentaro tīmekļa vietni.",
         "Railway — mitina mūsu lietojumprogrammas aizmuguri un datubāzi ES.",
         "Google Analytics un PostHog — nodrošina tīmekļa vietnes un produkta analītiku un darbojas tikai tad, kad esat piekritis; PostHog ir mitināts ES.",
