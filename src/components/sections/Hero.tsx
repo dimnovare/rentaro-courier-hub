@@ -142,23 +142,8 @@ export function Hero({
         </div>
       </div>
 
-      {/* Narrow-phone polish: keep the three hero stats on a single row instead
-          of wrapping 2 + 1, and let the CTA buttons stretch full-width so they
-          stack cleanly. Additive only — desktop layout is untouched. */}
-      <style jsx>{`
-        @media (max-width: 460px) {
-          .hero :global(.hero-stats) {
-            gap: 18px;
-            justify-content: space-between;
-          }
-          .hero :global(.cta-row) {
-            gap: 11px;
-          }
-          .hero :global(.cta-row .btn-lg) {
-            flex: 1 1 100%;
-          }
-        }
-      `}</style>
+      {/* Narrow-phone stat/CTA rules live in globals.css ("Hero, narrow
+          phones" section) — styled-jsx is not SSR'd under the App Router. */}
     </section>
   );
 }

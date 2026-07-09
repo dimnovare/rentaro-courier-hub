@@ -1339,4 +1339,117 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
     padding: 18px 18px 20px;
   }
 }
+
+/* ─── Migrated <style jsx> blocks (styled-jsx has no App Router registry) ───
+   Like the booking-wizard section above: these rules lived in per-component
+   <style jsx> blocks that never reach the SSR HTML — styled-jsx only injects
+   them client-side after hydration, so every page load flashed unstyled
+   first (and no-JS/bot renders never got them at all). Moved here verbatim;
+   selectors are scoped to match the original styled-jsx specificity so they
+   still win over the base rules they override. */
+
+/* ---- Booking success page (src/app/[locale]/booking/success/page.tsx) ----
+   Rebalance the success message: heading dialed down a touch, body bumped to
+   a near-matching size, brighter color and medium weight — a balanced pair
+   instead of big-then-tiny. Scoped under .final to out-rank the generic
+   `.final h2` / `.final p` rules above. */
+.final .success-heading {
+  font-size: clamp(26px, 3.6vw, 38px);
+  margin-bottom: 14px;
+}
+.final .success-body {
+  font-size: clamp(21px, 2.9vw, 32px);
+  line-height: 1.32;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  max-width: 30ch;
+}
+
+/* ---- Model card footer, narrow phones (src/components/models/ModelCard.tsx)
+   On the tightest widths a long localized CTA label + the price can overflow
+   the space-between footer: let the button take a full row, centred. The
+   original block also set flex-wrap/row-gap, but the base .model-foot rule
+   already has `flex-wrap: wrap; gap: 12px` — only this rule was missing. */
+@media (max-width: 360px) {
+  .model-card .model-foot .reserve-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}
+
+/* ---- Hero, narrow phones (src/components/sections/Hero.tsx) ----
+   Keep the three hero stats on a single row instead of wrapping 2 + 1, and
+   stretch the CTA buttons full-width so they stack cleanly. */
+@media (max-width: 460px) {
+  .hero .hero-stats {
+    gap: 18px;
+    justify-content: space-between;
+  }
+  .hero .cta-row {
+    gap: 11px;
+  }
+  .hero .cta-row .btn-lg {
+    flex: 1 1 100%;
+  }
+}
+
+/* ---- Customer portal (src/app/[locale]/my-rental/ManageRental.tsx) ---- */
+/* Every portal card is a centred, max-width block — guarantee no horizontal
+   overflow on a narrow phone regardless of inline widths. */
+.portal-rental .card {
+  max-width: 560px;
+  width: 100%;
+}
+/* Trust-badge rows (Smart-ID / Mobile-ID, Visa / Mastercard / Montonio).
+   A neat wrapping row of small logos that never crowds or overflows. */
+.portal-rental .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.portal-rental .trust-badges img {
+  flex: 0 0 auto;
+}
+/* "I'll sign the rental contract on handover" — comfortable tap target with
+   a label that wraps cleanly beside the checkbox. (The checkbox variant is
+   not currently rendered — the input rule is kept for when it returns.) */
+.portal-rental .manual-agree {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text);
+  padding: 6px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.portal-rental .manual-agree input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--lime);
+  cursor: pointer;
+}
+.portal-rental .manual-agree span {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+@media (max-width: 460px) {
+  /* Tighten the inner card padding so content keeps breathing room without
+     ever pushing past the viewport on small phones. */
+  .portal-rental .card > div,
+  .portal-rental .card > form {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  /* Trust badges read as a wrapping row even when space is tight. */
+  .portal-rental .trust-badges {
+    gap: 8px 12px;
+  }
+}
       

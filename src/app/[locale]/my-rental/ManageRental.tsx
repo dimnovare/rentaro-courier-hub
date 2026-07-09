@@ -326,67 +326,9 @@ function PortalView({
         .
       </p>
 
-      <style jsx>{`
-        /* Every portal card is a centred, max-width block — guarantee no
-           horizontal overflow on a narrow phone regardless of inline widths. */
-        .portal-rental :global(.card) {
-          max-width: 560px;
-          width: 100%;
-        }
-
-        /* Trust-badge rows (Smart-ID / Mobile-ID, Visa / Mastercard / Montonio).
-           A neat wrapping row of small logos that never crowds or overflows. */
-        .portal-rental :global(.trust-badges) {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 10px;
-          margin-top: 14px;
-        }
-        .portal-rental :global(.trust-badges img) {
-          flex: 0 0 auto;
-        }
-
-        /* "I'll sign the rental contract on handover" — comfortable tap target
-           with a label that wraps cleanly beside the checkbox. */
-        .portal-rental :global(.manual-agree) {
-          display: flex;
-          gap: 12px;
-          align-items: flex-start;
-          cursor: pointer;
-          font-size: 13.5px;
-          line-height: 1.5;
-          color: var(--text);
-          padding: 6px 0;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .portal-rental :global(.manual-agree input) {
-          flex: 0 0 auto;
-          width: 20px;
-          height: 20px;
-          margin-top: 1px;
-          accent-color: var(--lime);
-          cursor: pointer;
-        }
-        .portal-rental :global(.manual-agree span) {
-          min-width: 0;
-          flex: 1 1 auto;
-        }
-
-        @media (max-width: 460px) {
-          /* Tighten the inner card padding so content keeps breathing room
-             without ever pushing past the viewport on small phones. */
-          .portal-rental :global(.card) > :global(div),
-          .portal-rental :global(.card) > :global(form) {
-            padding-left: 18px;
-            padding-right: 18px;
-          }
-          /* Trust badges read as a wrapping row even when space is tight. */
-          .portal-rental :global(.trust-badges) {
-            gap: 8px 12px;
-          }
-        }
-      `}</style>
+      {/* .portal-rental card / trust-badges / manual-agree rules live in
+          globals.css ("Customer portal" section) — styled-jsx is not SSR'd
+          under the App Router. */}
     </div>
   );
 }
