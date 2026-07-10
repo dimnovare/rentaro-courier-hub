@@ -32,7 +32,7 @@ export const rentalRules: LegalDoc = {
       heading: "Kas drīkst īrēt",
       body: [
         "Lai īrētu rentaro elektrovelosipēdu, jums jābūt vismaz 18 gadus vecam, jābūt derīgam valsts izsniegtam personu apliecinošam dokumentam un jāpabeidz mūsu identitātes pārbaude. Jums jāsniedz precīza, aktuāla informācija un jābūt juridiski spējīgam slēgt īres līgumu Igaunijā vai Latvijā.",
-        "Īre ir personiska un attiecas uz jums, nosaukto īrnieku. Jūs esat atbildīgs par velosipēdu visu laiku, kamēr tas atrodas jūsu pārziņā. Jūs nedrīkstat aizdot, apakšīrēt, nodot vai pārvietot velosipēdu, akumulatoru, lādētāju, slēdzeni vai piederumus nevienam citam, un jūs nedrīkstat ļaut nevienam citam to vadīt, ja vien neesam to ar jums rakstiski saskaņojuši.",
+        "Īre ir personiska un attiecas uz jums, nosaukto īrnieku. Jūs esat atbildīgs par velosipēdu visu laiku, kamēr tas atrodas jūsu pārziņā. Jūs nedrīkstat aizdot, apakšīrēt, nodot vai pārvietot velosipēdu, akumulatoru, lādētāju vai izvēlētos piederumus nevienam citam, un jūs nedrīkstat ļaut nevienam citam to vadīt, ja vien neesam to ar jums rakstiski saskaņojuši.",
         "Mēs varam noraidīt rezervāciju vai apturēt vai izbeigt aktīvu īri, ja identitāti nevar pārbaudīt, ja sniegtā informācija izrādās neprecīza, ja maksājumu vai drošības naudu nevar saņemt vai ja šie noteikumi vai īres līgums netiek ievēroti.",
       ],
     },
@@ -49,7 +49,7 @@ export const rentalRules: LegalDoc = {
       heading: "Drošības nauda",
       body: [
         "Pirms saņemšanas ir nepieciešama atmaksājama drošības nauda. Drošības nauda ir vienāda ar izvēlētā plāna 30 dienu cenu: €177 30 dienu plānā, €147 6 mēnešu plānā un €117 12 mēnešu plānā. Precīza summa tiek apstiprināta rezervēšanas laikā pirms maksājuma veikšanas.",
-        "Drošības nauda nodrošina jūsu saistību izpildi saskaņā ar īri. Mēs varam to ieskaitīt vai no tās atskaitīt summas, ko esat mums parādā — piemēram, bojājumus, kas pārsniedz parasto nolietojumu, trūkstošu vai bojātu aprīkojumu (slēdzene, lādētājs, akumulators vai piederumi), nesamaksātas īres maksas, tīrīšanu, ja velosipēds tiek atgriezts pārmērīgi netīrs, vai maksas, kas rodas no novēlotas vai neatgriešanas.",
+        "Drošības nauda nodrošina jūsu saistību izpildi saskaņā ar īri. Mēs varam to ieskaitīt vai no tās atskaitīt summas, ko esat mums parādā — piemēram, bojājumus, kas pārsniedz parasto nolietojumu, trūkstošu vai bojātu aprīkojumu (lādētājs, akumulators vai izvēlētie piederumi, tostarp rentaro slēdzene, ja tā izvēlēta), nesamaksātas īres maksas, tīrīšanu, ja velosipēds tiek atgriezts pārmērīgi netīrs, vai maksas, kas rodas no novēlotas vai neatgriešanas.",
         "Pēc velosipēda atgriešanas un pārbaudes un kad jebkuras parādsummas ir nokārtotas, mēs atmaksājam atlikušo drošības naudu izmantotajā maksāšanas veidā, parasti 14 dienu laikā pēc atgriešanas. Ja mums no drošības naudas jāatskaita, mēs paskaidrosim iemeslu un summu pirms atmaksas pabeigšanas.",
       ],
     },
@@ -85,8 +85,8 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Slēgšana un drošība",
       body: [
-        "Kad vien velosipēds tiek atstāts bez uzraudzības, pat īsu brīdi, noslēdziet to ar nodrošināto slēdzeni pie nostiprināta, izturīga objekta un nostipriniet to, kā norādīts saņemšanas brīdī. Nekad neatstājiet velosipēdu neslēgtu, nekad neatstājiet akumulatoru vai lādētāju bez uzraudzības publiskā vietā un neatstājiet atslēgas pie velosipēda.",
-        "Velosipēda nepareiza slēgšana vai nenostiprināšana var padarīt jūs atbildīgu par nozaudēšanas, zādzības vai bojājumu izmaksām, kas no tā izriet. Ja jūsu modelim ir iekļauts papildu drošības aprīkojums, izmantojiet to, kā norādīts.",
+        "Kad vien velosipēds tiek atstāts bez uzraudzības, pat īsu brīdi, pieslēdziet to pie nostiprināta, izturīga objekta ar piemērotu slēdzeni vai rentaro slēdzeni, ja to izvēlējāties. Nostipriniet to, kā norādīts saņemšanas brīdī. Nekad neatstājiet velosipēdu neslēgtu, nekad neatstājiet akumulatoru vai lādētāju bez uzraudzības publiskā vietā un neatstājiet atslēgas pie velosipēda.",
+        "Velosipēda nepareiza slēgšana vai nenostiprināšana var padarīt jūs atbildīgu par nozaudēšanas, zādzības vai bojājumu izmaksām, kas no tā izriet. Ja izvēlējāties papildu drošības aprīkojumu, izmantojiet to, kā norādīts.",
       ],
     },
     {
@@ -114,7 +114,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Atgriešana un nodošana",
       body: [
-        "Īres beigās atgrieziet velosipēdu saskaņotajā laikā un vietā ar visu nodrošināto aprīkojumu — akumulatoru, lādētāju, slēdzeni, atslēgām un jebkuriem piederumiem — tīrā, darba kārtībā esošā stāvoklī, ņemot vērā parasto nolietojumu.",
+        "Īres beigās atgrieziet velosipēdu saskaņotajā laikā un vietā ar visu nodrošināto aprīkojumu — akumulatoru, lādētāju, atslēgām un izvēlētajiem piederumiem, tostarp rentaro slēdzeni, ja tā izvēlēta — tīrā, darba kārtībā esošā stāvoklī, ņemot vērā parasto nolietojumu.",
         "Mēs pārbaudām velosipēdu nodošanas brīdī un fiksējam tā stāvokli. Kad jebkuras nesamaksātās maksas ir nokārtotas, mēs atbrīvojam atlikušo drošības naudu, kā aprakstīts iepriekš. Par velosipēdiem, kas atgriezti novēloti, atgriezti nepilnīgi vai vispār netiek atgriezti, var tikt piemērotas papildu dienas maksas, nomaiņas izmaksas un atskaitījumi no drošības naudas, un mēs varam uzskatīt neatgrieztu velosipēdu par zaudējumu un atgūt tā vērtību.",
       ],
     },

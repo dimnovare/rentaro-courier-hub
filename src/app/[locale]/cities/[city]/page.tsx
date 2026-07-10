@@ -7,9 +7,10 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
 import { ModelCard } from "@/components/models/ModelCard";
-import { cities, getCityById } from "@/data/cities";
+import { cities } from "@/data/cities";
 import { getCityContent, hasExtendedContent } from "@/data/cityContent";
 import type { CityFaq, CityFeature } from "@/data/cityContent";
+import { cityService } from "@/services/cityService";
 import { modelService } from "@/services/modelService";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
@@ -26,7 +27,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { locale, city } = await params;
   const loc: Locale = isLocale(locale) ? locale : "en";
-  const c = getCityById(city);
+  const cityList = await cityService.getCities();
+  const c = cityList.find((item) => item.id === city);
   const t = await getTranslations("cityPage");
   const tc = await getTranslations("cities");
   if (!c) return { title: t("meta.notFoundTitle") };
@@ -64,7 +66,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function CityPage({ params }: Params) {
   const { city } = await params;
-  const c = getCityById(city);
+  const cityList = await cityService.getCities();
+  const c = cityList.find((item) => item.id === city);
   const content = getCityContent(city);
   if (!c || !content) notFound();
 

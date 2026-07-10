@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE_DESCRIPTION } from "@/lib/site";
 
 /**
  * PWA web app manifest (auto-served by Next at /manifest.webmanifest and
@@ -10,13 +11,12 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "rentaro — delivery e-bikes by the month",
     short_name: "rentaro",
-    description:
-      "Rent a delivery-built e-bike by the month in Tallinn, Riga and Helsinki — monthly plans with service support, lock, charger and extra-battery options.",
+    description: SITE_DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: "#0A0C11",
     theme_color: "#0A0C11",
-    categories: ["business", "travel", "utilities"],
+    categories: ["business", "productivity", "utilities"],
     icons: [
       {
         src: "/icon-192.png",

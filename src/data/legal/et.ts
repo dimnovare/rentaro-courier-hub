@@ -32,7 +32,7 @@ export const rentalRules: LegalDoc = {
       heading: "Kes saab rentida",
       body: [
         "rentaro e-ratta rentimiseks pead olema vähemalt 18-aastane, omama kehtivat riiklikult väljastatud isikut tõendavat dokumenti ja läbima meie isikusamasuse kontrolli. Pead esitama täpse ja ajakohase teabe ning olema õiguslikult võimeline sõlmima rendilepingu Eestis või Lätis.",
-        "Rent on isiklik sinule kui nimeliselt määratud rentijale. Sina vastutad ratta eest kogu aja, mil see on sinu hoole all. Sa ei tohi laenata, edasi rentida, üle anda ega võõrandada ratast, akut, laadijat, lukku ega lisavarustust kellelegi teisele ning ei tohi lubada kellelgi teisel sellega sõita, kui me ei ole seda sinuga kirjalikult kokku leppinud.",
+        "Rent on isiklik sinule kui nimeliselt määratud rentijale. Sina vastutad ratta eest kogu aja, mil see on sinu hoole all. Sa ei tohi laenata, edasi rentida, üle anda ega võõrandada ratast, akut, laadijat ega valitud lisavarustust kellelegi teisele ning ei tohi lubada kellelgi teisel sellega sõita, kui me ei ole seda sinuga kirjalikult kokku leppinud.",
         "Me võime broneeringust keelduda või aktiivse rendi peatada või lõpetada juhul, kui isikusamasust ei õnnestu kontrollida, kui esitatud teave osutub ebatäpseks, kui makset või tagatisraha ei õnnestu võtta või kui neid reegleid või rendilepingut ei järgita.",
       ],
     },
@@ -49,7 +49,7 @@ export const rentalRules: LegalDoc = {
       heading: "Tagatisraha",
       body: [
         "Enne ratta kättesaamist on nõutav tagastatav tagatisraha. Tagatisraha võrdub valitud paketi 30-päevase hinnaga: 177 € 30-päevasel paketil, 147 € 6-kuusel paketil ja 117 € 12-kuusel paketil. Täpne summa kinnitatakse broneerimise käigus enne maksmist.",
-        "Tagatisraha tagab sinu kohustuste täitmist rendi raames. Me võime selle arvelt katta või sellest maha arvata summad, mida sa meile võlgned — näiteks tavalist kulumist ületavate kahjustuste, puuduva või kahjustatud varustuse (luku, laadija, aku või lisavarustuse), tasumata renditasude, puhastuse eest, kui ratas tagastatakse ülemäära määrdununa, või hilise või tagastamata jätmisega seotud tasude eest.",
+        "Tagatisraha tagab sinu kohustuste täitmist rendi raames. Me võime selle arvelt katta või sellest maha arvata summad, mida sa meile võlgned — näiteks tavalist kulumist ületavate kahjustuste, puuduva või kahjustatud varustuse (laadija, aku või valitud lisavarustus, sealhulgas rentaro lukk, kui see on valitud), tasumata renditasude, puhastuse eest, kui ratas tagastatakse ülemäära määrdununa, või hilise või tagastamata jätmisega seotud tasude eest.",
         "Pärast ratta tagastamist ja ülevaatust ning kui kõik võlgnetavad summad on tasutud, tagastame ülejäänud tagatisraha kasutatud makseviisile, tavaliselt 14 päeva jooksul tagastamisest. Kui peame tagatisrahast maha arvama, selgitame enne tagastuse lõpuleviimist põhjust ja summat.",
       ],
     },
@@ -85,8 +85,8 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Lukustamine ja turvalisus",
       body: [
-        "Alati, kui ratas jääb järelevalveta, isegi korraks, lukusta see kaasasoleva lukuga kindla ja tugeva eseme külge ning kindlusta vastavalt ratta kättesaamisel antud juhistele. Ära kunagi jäta ratast lukustamata, ära kunagi jäta akut ega laadijat avalikus kohas järelevalveta ning ära jäta võtmeid ratta juurde.",
-        "Ratta nõuetekohaselt lukustamata või kindlustamata jätmine võib panna sind vastutama sellest tuleneva kaotsimineku, varguse või kahju eest. Kui sinu mudeliga on kaasas täiendav turvavarustus, kasuta seda vastavalt juhistele.",
+        "Alati, kui ratas jääb järelevalveta, isegi korraks, lukusta see sobiva lukuga kindla ja tugeva eseme külge või rentaro lukuga, kui valisid selle lisana. Kindlusta ratas vastavalt kättesaamisel antud juhistele. Ära kunagi jäta ratast lukustamata, ära kunagi jäta akut ega laadijat avalikus kohas järelevalveta ning ära jäta võtmeid ratta juurde.",
+        "Ratta nõuetekohaselt lukustamata või kindlustamata jätmine võib panna sind vastutama sellest tuleneva kaotsimineku, varguse või kahju eest. Kui valisid täiendava turvavarustuse, kasuta seda vastavalt juhistele.",
       ],
     },
     {
@@ -114,7 +114,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Tagastamine ja üleandmine",
       body: [
-        "Rendi lõpus tagasta ratas kokkulepitud ajal ja kohas koos kogu kaasasoleva varustusega — aku, laadija, lukk, võtmed ja kõik lisatarvikud — puhtas ja töökorras seisukorras, arvestades tavalist kulumist.",
+        "Rendi lõpus tagasta ratas kokkulepitud ajal ja kohas koos kogu kaasasoleva varustusega — aku, laadija, võtmed ja kõik valitud lisatarvikud, sealhulgas rentaro lukk, kui see on valitud — puhtas ja töökorras seisukorras, arvestades tavalist kulumist.",
         "Vaatame ratta üleandmisel üle ja märgime selle seisukorra. Kui kõik tasumata tasud on tasutud, vabastame ülejäänud tagatisraha ülalkirjeldatud viisil. Hilinenult tagastatud, puudulikult tagastatud või üldse tagastamata rataste eest võidakse rakendada täiendavaid päevatasusid, asenduskulusid ja mahaarvamisi tagatisrahast ning me võime käsitleda tagastamata ratast kaotsiminekuna ja nõuda sisse selle väärtuse.",
       ],
     },

@@ -31,7 +31,7 @@ export const rentalRules: LegalDoc = {
       heading: "Kuka voi vuokrata",
       body: [
         "Vuokrataksesi rentaron sähköpyörän sinun on oltava vähintään 18-vuotias, sinulla on oltava voimassa oleva viranomaisen myöntämä henkilöllisyystodistus ja sinun on suoritettava henkilöllisyyden todentamisemme. Sinun on annettava paikkansapitäviä ja ajantasaisia tietoja sekä oltava oikeustoimikelpoinen tekemään vuokrasopimus Virossa tai Latviassa.",
-        "Vuokraus on henkilökohtainen sinulle, nimetylle vuokraajalle. Olet vastuussa pyörästä koko sen ajan, kun se on hallussasi. Et saa lainata, alivuokrata, luovuttaa tai siirtää pyörää, akkua, laturia, lukkoa tai lisävarusteita kenellekään muulle, etkä saa antaa kenenkään muun ajaa sillä, ellemme ole sopineet tästä kanssasi kirjallisesti.",
+        "Vuokraus on henkilökohtainen sinulle, nimetylle vuokraajalle. Olet vastuussa pyörästä koko sen ajan, kun se on hallussasi. Et saa lainata, alivuokrata, luovuttaa tai siirtää pyörää, akkua, laturia tai valitsemiasi lisävarusteita kenellekään muulle, etkä saa antaa kenenkään muun ajaa sillä, ellemme ole sopineet tästä kanssasi kirjallisesti.",
         "Voimme hylätä varauksen tai keskeyttää tai päättää voimassa olevan vuokrauksen, jos henkilöllisyyttä ei voida todentaa, jos annetut tiedot osoittautuvat virheellisiksi, jos maksua tai vakuutta ei voida veloittaa tai jos näitä ehtoja tai vuokrasopimusta ei noudateta.",
       ],
     },
@@ -48,7 +48,7 @@ export const rentalRules: LegalDoc = {
       heading: "Vakuus",
       body: [
         "Palautettava vakuus vaaditaan ennen noutoa. Vakuus vastaa valitsemasi sopimuksen 30 päivän hintaa: 177 € 30 päivän sopimuksessa, 147 € 6 kuukauden sopimuksessa ja 117 € 12 kuukauden sopimuksessa. Tarkka summa vahvistetaan varauksen yhteydessä ennen maksamista.",
-        "Vakuus turvaa vuokrauksen mukaiset velvoitteesi. Voimme käyttää sitä tai vähentää siitä summia, jotka olet meille velkaa — esimerkiksi normaalin kulumisen ylittävät vauriot, puuttuvat tai vaurioituneet varusteet (lukko, laturi, akku tai lisävarusteet), maksamattomat vuokramaksut, puhdistuksen, jos pyörä palautetaan erittäin likaisena, tai myöhästyneestä tai palauttamatta jättämisestä aiheutuvat maksut.",
+        "Vakuus turvaa vuokrauksen mukaiset velvoitteesi. Voimme käyttää sitä tai vähentää siitä summia, jotka olet meille velkaa — esimerkiksi normaalin kulumisen ylittävät vauriot, puuttuvat tai vaurioituneet varusteet (laturi, akku tai valitsemasi lisävarusteet, mukaan lukien rentaro-lukko, jos valitsit sen), maksamattomat vuokramaksut, puhdistuksen, jos pyörä palautetaan erittäin likaisena, tai myöhästyneestä tai palauttamatta jättämisestä aiheutuvat maksut.",
         "Kun pyörä on palautettu ja tarkastettu ja kun mahdolliset velat on selvitetty, palautamme jäljellä olevan vakuuden käytettyyn maksutapaan, yleensä 14 päivän kuluessa palautuksesta. Jos meidän on vähennettävä vakuudesta, selitämme syyn ja summan ennen palautuksen suorittamista.",
       ],
     },
@@ -84,8 +84,8 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Lukitseminen ja turvallisuus",
       body: [
-        "Aina kun pyörä on ilman valvontaa, vaikka hetkenkin, lukitse se toimitetulla lukolla kiinteään, vankkaan esineeseen ja kiinnitä se noudon yhteydessä annettujen ohjeiden mukaisesti. Älä koskaan jätä pyörää lukitsematta, älä koskaan jätä akkua tai laturia valvomatta julkisille paikoille äläkä jätä avaimia pyörän luokse.",
-        "Pyörän lukitsematta tai kiinnittämättä jättäminen asianmukaisesti voi tehdä sinusta vastuullisen siitä aiheutuvan katoamisen, varkauden tai vaurion kustannuksista. Jos malliisi sisältyy ylimääräisiä turvavarusteita, käytä niitä ohjeiden mukaisesti.",
+        "Aina kun pyörä on ilman valvontaa, vaikka hetkenkin, lukitse se kiinteään, vankkaan esineeseen sopivalla lukolla tai rentaro-lukolla, jos valitsit sen. Kiinnitä se noudon yhteydessä annettujen ohjeiden mukaisesti. Älä koskaan jätä pyörää lukitsematta, älä koskaan jätä akkua tai laturia valvomatta julkisille paikoille äläkä jätä avaimia pyörän luokse.",
+        "Pyörän lukitsematta tai kiinnittämättä jättäminen asianmukaisesti voi tehdä sinusta vastuullisen siitä aiheutuvan katoamisen, varkauden tai vaurion kustannuksista. Jos valitsit ylimääräisiä turvavarusteita, käytä niitä ohjeiden mukaisesti.",
       ],
     },
     {
@@ -113,7 +113,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Palautukset ja luovutus",
       body: [
-        "Vuokrauksen päättyessä palauta pyörä sovittuna aikana ja paikassa kaikkien toimitettujen varusteiden kanssa — akku, laturi, lukko, avaimet ja mahdolliset lisävarusteet — puhtaassa, toimivassa kunnossa normaali kuluminen huomioiden.",
+        "Vuokrauksen päättyessä palauta pyörä sovittuna aikana ja paikassa kaikkien toimitettujen varusteiden kanssa — akku, laturi, avaimet ja valitsemasi lisävarusteet, mukaan lukien rentaro-lukko, jos valitsit sen — puhtaassa, toimivassa kunnossa normaali kuluminen huomioiden.",
         "Tarkastamme pyörän luovutuksen yhteydessä ja kirjaamme sen kunnon. Kun mahdolliset avoimet maksut on selvitetty, vapautamme jäljellä olevan vakuuden edellä kuvatulla tavalla. Myöhässä palautetuista, vajaina palautetuista tai kokonaan palauttamatta jätetyistä pyöristä voi aiheutua lisäpäivämaksuja, vaihtokustannuksia ja vähennyksiä vakuudesta, ja voimme käsitellä palauttamatta jätetyn pyörän menetyksenä ja periä sen arvon.",
       ],
     },

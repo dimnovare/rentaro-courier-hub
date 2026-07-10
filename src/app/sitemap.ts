@@ -1,15 +1,17 @@
 import type { MetadataRoute } from "next";
 import { bikeModels } from "@/data/bikeModels";
 import { cities } from "@/data/cities";
+import { getSiteUrl } from "@/lib/site";
 import { locales, defaultLocale, type Locale } from "@/i18n/config";
 import { localePath } from "@/i18n/alternates";
 
-const base = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app").replace(/\/$/, "");
+const base = getSiteUrl();
 
 function toSitemapEntry(href: string, now: Date): MetadataRoute.Sitemap[number] {
-  const languages = Object.fromEntries(
-    locales.map((loc: Locale) => [loc, `${base}${localePath(loc, href)}`])
-  );
+  const languages = Object.fromEntries([
+    ...locales.map((loc: Locale) => [loc, `${base}${localePath(loc, href)}`]),
+    ["x-default", `${base}${localePath(defaultLocale, href)}`],
+  ]);
   return {
     url: `${base}${localePath(defaultLocale, href)}`,
     lastModified: now,

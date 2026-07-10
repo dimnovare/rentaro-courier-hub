@@ -1,6 +1,6 @@
 import type { City } from "@/types";
 
-/** SOURCE: /api/public/cities */
+/** Local no-API fallback. Production city data comes from /api/public/cities. */
 export const cities: City[] = [
   { id: "tallinn", name: "Tallinn", country: "Estonia", available: 12, pickup: "Telliskivi · Kesklinn", status: "available" },
   { id: "riga", name: "Riga", country: "Latvia", available: 6, pickup: "Centrs · Āgenskalns", status: "limited" },

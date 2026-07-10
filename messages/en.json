@@ -56,7 +56,7 @@
     "headingLine2": "e-bikes by",
     "headingLine3Pre": "the ",
     "headingLine3Accent": "month.",
-    "lead": "Rent a delivery-built e-bike for city work — 30-day, 6 or 12-month plans with service, charger and extra-battery options included. Pay daily, billed monthly.",
+    "lead": "Rent a delivery-built e-bike for city work — 30-day, 6 or 12-month plans with service support and charger included. Extra batteries, bags, locks and other gear are optional paid add-ons. Pay daily, billed every 30 days.",
     "ctaReserve": "Reserve a bike",
     "ctaExplore": "Explore the fleet",
     "stats": {
@@ -168,7 +168,7 @@
       },
       "04": {
         "title": "Pick up and start delivering",
-        "copy": "Collect your bike at a city pickup point or request local delivery. Service support is included throughout your rental."
+        "copy": "Collect your bike at a city pickup point or request local delivery. Your bike and charger are ready at handover; optional paid add-ons are set up only if you selected them."
       }
     },
     "trust": {
@@ -244,15 +244,15 @@
       },
       "pricing": {
         "q": "How does the pricing work?",
-        "a": "Pricing is per 30-day period, and each bike shows its own plan prices — from €5.90/day on the 30-day plan down to its 12-month rate. Your first payment covers the first 30 days (plus any add-ons and, if you chose delivery, a one-time delivery fee); the refundable deposit is paid alongside it. On 6- and 12-month plans we then send an invoice before each new 30-day period."
+        "a": "Pricing is per 30-day period. Your first payment covers the first 30 days, the refundable deposit and any optional paid add-ons you selected. Charger and service support are included with the bike; extra batteries, bags, locks and other gear are separate add-ons."
       },
       "maintenance": {
         "q": "Is maintenance included?",
-        "a": "Yes. Brake adjustments, puncture handling and general service are included in every plan. If a bike needs longer repair we replace it where stock allows, so your shifts keep running."
+        "a": "Yes. Brake adjustments, puncture handling and routine service support are included in every plan. Damage, theft or misuse follows the rental rules; if a bike needs longer service, we replace it where stock allows."
       },
       "extraBattery": {
-        "q": "Can I rent an extra battery?",
-        "a": "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack for extra range on demanding days."
+        "q": "Is an extra battery included?",
+        "a": "No. The bike comes with its normal battery and charger. An extra battery is available as an optional paid add-on for long delivery days."
       },
       "deposit": {
         "q": "What deposit is required?",
@@ -660,7 +660,7 @@
       "titleSoon": "E-bike rental in {city} — coming soon · rentaro",
       "titleLive": "Monthly e-bike rental in {city} — rentaro",
       "descriptionSoon": "rentaro is bringing delivery-ready monthly e-bike rental to {city}, {country}. Join the waitlist for launch dates and pickup details.",
-      "descriptionLive": "Rent a delivery-built e-bike by the month in {city}, {country}. 30-day, 6 and 12-month plans with service support, charger and extra-battery options."
+      "descriptionLive": "Rent a delivery-built e-bike by the month in {city}, {country}. 30-day, 6 and 12-month plans with service support and charger included; accessories are optional paid add-ons."
     },
     "hero": {
       "joinWaitlist": "Join the waitlist",
@@ -674,7 +674,7 @@
     "popular": {
       "kicker": "Popular in {city}",
       "heading": "Bikes couriers reach for first.",
-      "leadBase": "Every rentaro e-bike rents on the same terms — 30-day, 6 or 12-month plans with service support included. ",
+      "leadBase": "Every rentaro e-bike rents on the same terms — 30-day, 6 or 12-month plans with service support and charger included. ",
       "leadSoon": "These bikes arrive in {city} at launch.",
       "leadLive": "Pick the one that fits your shifts."
     },
@@ -682,7 +682,7 @@
       "headingSoon": "Want a rentaro bike in {city}?",
       "headingLive": "Ready to ride in {city}?",
       "copySoon": "Join the waitlist and we'll let you know the moment delivery-ready e-bikes land in {city}.",
-      "copyLive": "Choose your model, pick a plan and start delivering in {city} this week — service support included from day one.",
+      "copyLive": "Choose your model, pick a plan and start delivering in {city} this week — charger and service support included from day one.",
       "joinWaitlist": "Join the waitlist",
       "reserveIn": "Reserve in {city}",
       "exploreFleet": "Explore the fleet"
@@ -691,16 +691,16 @@
   "cityContent": {
     "tallinn": {
       "headline": "Monthly e-bike rental in Tallinn.",
-      "intro": "Tallinn is where rentaro started, and it's still where most of our fleet lives. If you deliver for Bolt or Wolt around Kesklinn, weave through Telliskivi and Kalamaja, climb up into Põhja-Tallinn or run the long blocks out to Lasnamäe, you already know the city rewards a fast, dependable bike. We rent delivery-built e-bikes by the month — charger and service support included — so you can pick one up this week and start earning without sinking a thousand euros into a bike of your own.",
+      "intro": "Tallinn is where rentaro started, and it is still where most of our fleet lives. If you ride through Kesklinn, Telliskivi, Kalamaja, Põhja-Tallinn or Lasnamäe, you already know the city rewards a fast, dependable e-bike. We rent delivery-built e-bikes by the month — charger and service support included, accessories optional — so you can start earning without sinking a thousand euros into a bike of your own.",
       "whyHere": [
         "Kesklinn lunch and dinner rushes pay best when you can cut between drops — an e-bike turns short, dense routes into back-to-back orders.",
         "Telliskivi, Kalamaja and Põhja-Tallinn mix cobbles, tram tracks and quiet side streets; our bikes are picked to stay sure-footed on all of it.",
-        "Long runs out to Lasnamäe, Mustamäe and Kristiine stop being a problem when the motor does the climbing and an extra battery covers the distance.",
-        "Estonian winters are real — dark, wet and icy. Winter tyres and service support keep you on the road through the months that pay the most.",
+        "Long runs out to Lasnamäe, Mustamäe and Kristiine are easier when the motor does the climbing and an optional extra battery covers longer delivery days.",
+        "Estonian winters are real — dark, wet and icy. Winter tyres are available as a paid add-on, while service support is part of the plan.",
         "Same-week pickup in the centre means a newly-arrived courier can land in Tallinn and be delivering within days, not weeks.",
-        "One monthly price covers the bike, maintenance and a replacement when something breaks — far less risk than buying a used bike off the classifieds."
+        "One monthly price covers the bike, charger and service support — less cash risk than buying a used bike off the classifieds."
       ],
-      "pickupNote": "Collect your bike at our Telliskivi or Kesklinn pickup point — both a short ride from the busiest delivery zones — or ask about local handover. We walk you through the bike, charging and winter setup before your first shift, so nothing slows down day one.",
+      "pickupNote": "Collect your bike at the pickup point shown in the availability card, or ask about local handover. We walk you through the bike, charger and any optional add-ons you selected before your first shift.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
@@ -718,19 +718,19 @@
           "points": [
             {
               "title": "No big outlay to start",
-              "copy": "A delivery-capable e-bike costs well over a thousand euros to buy, plus a lock, charger and winter tyres. Renting starts at €177 for your first 30 days and you're on the road — cash stays in your pocket for rent and deposits."
+              "copy": "A delivery-capable e-bike can cost well over a thousand euros to buy before you add seasonal gear. Renting starts at €177 for your first 30 days and you are on the road with the bike, charger and service support included."
             },
             {
-              "title": "Repairs aren't your problem",
-              "copy": "Brakes, punctures and worn parts are part of the plan. A used bike off the classifieds becomes your workshop bill the moment something fails mid-shift — ours doesn't."
+              "title": "Service support is built in",
+              "copy": "Brake adjustments, puncture handling and wear-related service support are part of the plan. A used bike off the classifieds can turn into your workshop bill the moment something fails mid-shift."
             },
             {
               "title": "No resale headache when you leave",
               "copy": "Plenty of couriers ride Tallinn for a season. When you're done you hand the bike back — no listing it, no haggling, no selling at a loss in a soft second-hand market."
             },
             {
-              "title": "Breakdowns don't cost you a shift",
-              "copy": "If a bike needs a longer repair we swap it where stock allows, so a mechanical fault doesn't wipe out a day's orders. Owning one bike means owning its downtime too."
+              "title": "Long repairs do not have to stop a shift",
+              "copy": "If a bike needs longer service, we swap it where stock allows. Owning one bike means owning its downtime too."
             }
           ]
         },
@@ -745,7 +745,7 @@
             },
             {
               "title": "Battery care for the cold",
-              "copy": "Cold weather is hard on every e-bike battery. We show you how to store and charge it warm, and an extra battery keeps a long, cold shift from ending early."
+              "copy": "Cold weather is hard on every e-bike battery. We show you how to store and charge it warm, and an optional extra battery helps on long, cold shifts."
             },
             {
               "title": "Service support through the season",
@@ -762,12 +762,12 @@
               "copy": "Pick your model and plan and send the request. No payment up front — we confirm a bike is ready for you in Tallinn and send your rental agreement to read in advance."
             },
             {
-              "title": "Collect in Telliskivi or Kesklinn",
-              "copy": "Come to our central pickup point — minutes from the busiest delivery zones — or ask about local handover. We set up the bike and charger with you."
+              "title": "Collect at the current pickup point",
+              "copy": "Come to the current city pickup point shown above, or ask about local handover. We set up the bike, charger and any optional add-ons you selected."
             },
             {
               "title": "Start your first shift",
-              "copy": "Leave kitted out for the city: charged, locked and winter-ready if you need it. Most couriers are taking their first Bolt or Wolt orders the same week."
+              "copy": "Leave with the bike charged and ready. If you selected winter tyres, a delivery bag, phone holder, lock or extra battery, we set those up before handover."
             }
           ]
         },
@@ -781,11 +781,11 @@
             },
             {
               "q": "Where do I pick the bike up?",
-              "a": "From our Telliskivi or Kesklinn pickup point, both a short ride from the busiest delivery areas, or ask about local handover. We hand the bike over in person and set it up with you."
+              "a": "From the pickup point shown on this page, or ask about local handover. We hand the bike over in person and set it up with you."
             },
             {
               "q": "Is it ready for Tallinn winters?",
-              "a": "Yes. Winter tyres are available as an add-on and maintenance is included year-round. We'll also show you how to look after the battery in the cold so your range holds up."
+              "a": "Yes. Winter tyres are available as an optional paid add-on and service support is included year-round. We also show you how to look after the battery in the cold."
             },
             {
               "q": "I just moved to Tallinn — can I start quickly?",
@@ -797,14 +797,14 @@
     },
     "riga": {
       "headline": "Monthly e-bike rental in Riga.",
-      "intro": "Riga couriers cover serious ground — from Centrs and Vecrīga across the river to Āgenskalns and Pārdaugava. A monthly rentaro e-bike keeps that mileage cheap and predictable, with service support and extra-battery options built around long delivery days.",
+      "intro": "Riga couriers cover serious ground — from Centrs and Vecrīga across the river to Āgenskalns and Pārdaugava. A monthly rentaro e-bike keeps that cost predictable, with charger and service support included and paid add-ons available only when you need them.",
       "whyHere": [
         "Wide boulevards and long cross-river routes — an e-bike turns big distances into easy ones.",
         "One simple monthly price instead of fuel, parking and the cost of an unreliable bike.",
-        "Extra batteries available for couriers stitching together full days across the city.",
+        "Optional extra batteries are available for couriers stitching together full days across the city.",
         "Local service support so small issues get fixed fast and you stay on the road."
       ],
-      "pickupNote": "Pick up in Centrs or Āgenskalns, or arrange local handover. We set the bike up with you, check the bike and show you how charging works before you ride.",
+      "pickupNote": "Pick up at the current city pickup point, or arrange local handover. We set up the bike, charger and any optional add-ons you selected before you ride.",
       "neighbourhoods": [
         "Centrs",
         "Vecrīga",
@@ -816,14 +816,14 @@
     },
     "helsinki": {
       "headline": "Monthly e-bike rental in Helsinki — coming soon.",
-      "intro": "Helsinki is next on the rentaro map. We are lining up a delivery-ready fleet for couriers working Kallio, Punavuori and the wider city — same monthly plans, same service support, same focus on keeping your bike moving. Join the waitlist and we will let you know the moment bikes land.",
+      "intro": "Helsinki is next on the rentaro map. We are lining up a delivery-ready fleet for couriers working Kallio, Punavuori and the wider city — same monthly plans, charger included, service support included and optional paid add-ons for longer shifts.",
       "whyHere": [
         "Strong cycling infrastructure makes Helsinki a natural fit for delivery e-bikes.",
         "Year-round riders need bikes ready for cold, wet and dark winter shifts — that is what we build for.",
-        "Monthly plans give full-time couriers a predictable cost, with extra-battery options for long days.",
+        "Monthly plans give full-time couriers a predictable cost, with optional paid extra batteries for long days.",
         "Service support is part of the plan from the day we go live."
       ],
-      "pickupNote": "Helsinki pickup points around Kallio and Punavuori are being finalised. Join the waitlist and we will share collection details and a launch date as soon as the fleet is ready.",
+      "pickupNote": "Helsinki pickup points are being finalised. Join the waitlist and we will share collection details and a launch date as soon as the fleet is ready.",
       "neighbourhoods": [
         "Kallio",
         "Punavuori",
@@ -838,28 +838,28 @@
     "pricing": {
       "kicker": "Plans & pricing",
       "heading": "One daily rate. Billed every 30 days.",
-      "lead": "Every rentaro e-bike rents on the same simple terms — pick a 30-day, 6 or 12-month plan and pay the daily rate × 30. Commit to a longer term and your daily price drops. The minimum rental period is 30 days."
+      "lead": "Every rentaro e-bike rents on the same simple terms — pick a 30-day, 6 or 12-month plan and pay the daily rate × 30. Charger and service support are included; accessories are optional paid add-ons."
     },
     "howItWorks": {
       "kicker": "Getting started",
-      "heading": "Reserve, verify, accept, pay, ride.",
-      "lead": "Getting on a rentaro e-bike is built to be fast. Reserve free, and once we approve your booking you verify your identity, accept your contract and pay your first 30 days plus deposit in your portal — then pick up your bike, with service support included from day one."
+      "heading": "Reserve, sign, pay, ride.",
+      "lead": "Reserve free. Once approved, read and sign the rental agreement, pay your first 30 days plus deposit, then collect the bike with its charger. Add accessories only if you need them."
     },
     "faq": {
       "kicker": "FAQ",
       "heading": "Everything you need to know.",
-      "lead": "The most common questions about renting a rentaro e-bike for delivery work — plans, deposits, maintenance and pickup. Need something else? Reach out and we will help."
+      "lead": "The most common questions about monthly e-bike rental for delivery work — plans, deposits, service support, charger, optional add-ons and pickup."
     },
     "accessories": {
       "kicker": "Add-ons",
       "heading": "Gear that earns shifts.",
-      "lead": "Add the kit that fits your routine. From extra batteries for long delivery days to bags, holders and weatherproofing — every accessory is built for courier work and can be added to any rentaro plan."
+      "lead": "Add only the kit that fits your routine. Extra batteries, delivery bags, phone holders, locks, helmets, rain covers and winter tyres are optional paid add-ons; the charger is included with every bike."
     }
   },
   "modelsPage": {
     "kicker": "The full fleet",
     "heading": "All models.",
-    "lead": "Every rentaro e-bike rents on the same simple terms — 30-day, 6 or 12-month plans with service support included. Pick the bike that fits your shifts.",
+    "lead": "Every rentaro e-bike rents on the same simple terms — 30-day, 6 or 12-month plans with service support and charger included. Accessories stay optional, so you pick the bike and gear that fit your shifts.",
     "allModels": "All models",
     "from": "",
     "perDay": "/ day",
@@ -934,7 +934,7 @@
       "hero": {
         "kicker": "Monthly e-bike rental",
         "heading": "Rent the bike. Skip the price tag.",
-        "lead": "A monthly e-bike rental is the simplest way onto a quality bike without buying one. You pay a clear daily rate, billed every 30 days, and the bike, service support and charger come together as one package. When your needs change, so does your plan — no resale, no depreciation, no workshop bills.",
+        "lead": "Monthly e-bike rental is the simplest way onto a quality delivery bike without buying one. You pay a clear daily rate, billed every 30 days. The bike, charger and service support are included; extra batteries, locks, bags and other gear stay optional paid add-ons.",
         "ctaReserve": "Reserve a bike",
         "ctaExplore": "Explore the fleet"
       },
@@ -944,8 +944,8 @@
           "copy": "Pay a daily rate billed every 30 days. No big upfront purchase, no surprise repair bills — you know exactly what the bike costs each month."
         },
         "repairsOnUs": {
-          "title": "Repairs are on us",
-          "copy": "Service support is part of every plan. If something needs fixing, we sort it — so a worn brake pad or a flat tyre doesn't become your problem."
+          "title": "Service support is built in",
+          "copy": "Routine service support is part of every plan. Brake adjustments, puncture handling and wear-related fixes are handled by us, while damage or misuse follows the rental rules."
         },
         "commitFlexible": {
           "title": "Commit as little or as long as you like",
@@ -953,7 +953,7 @@
         },
         "nothingTiedUp": {
           "title": "Nothing tied up in a bike",
-          "copy": "Buying an e-bike means hundreds up front, plus batteries, locks and maintenance. Renting keeps your cash free and the bike someone else's responsibility to maintain."
+          "copy": "Buying an e-bike ties up cash in the bike, seasonal gear and future maintenance. Renting keeps your cash free and leaves service support with us."
         }
       },
       "models": {
@@ -968,7 +968,7 @@
       },
       "meta": {
         "title": "Monthly e-bike rental — rentaro",
-        "description": "Rent a delivery-built e-bike by the month instead of buying one. From €177 for your first 30 days covers the bike, service support and charger — no €1,000+ up front, cancel after 30 days. Tallinn, Riga and Helsinki."
+        "description": "Rent a delivery-built e-bike by the month instead of buying one. From €177 for your first 30 days covers the bike, charger and service support; accessories are optional paid add-ons. Tallinn, Riga and Helsinki."
       },
       "compare": {
         "kicker": "Rent vs buy",
@@ -978,8 +978,8 @@
           "title": "Renting monthly",
           "items": [
             "From €177 for your first 30 days — no €1,000+ purchase before you can earn.",
-            "Service and charger included in the price.",
-            "Repairs handled for you; a replacement bike where stock allows.",
+            "Bike, charger and service support included in the price.",
+            "Routine service support handled for you; a replacement bike where stock allows.",
             "Cancel after 30 days, or move to a longer plan for a lower daily rate.",
             "Hand the bike back when you're done — no resale, no depreciation."
           ]
@@ -1002,8 +1002,8 @@
       },
       "included": {
         "kicker": "In every plan",
-        "heading": "One price. Everything to ride.",
-        "lead": "Your monthly price isn't just the bike. It's the kit and the support that keep you earning, with no surprise extras.",
+        "heading": "Bike, charger and support included.",
+        "lead": "Your monthly price covers the bike, its charger and service support. Accessories stay optional, so you add only the gear your shifts actually need.",
         "items": {
           "bike": {
             "title": "A delivery-ready e-bike",
@@ -1011,15 +1011,15 @@
           },
           "service": {
             "title": "Service support",
-            "copy": "Brake adjustments, punctures and general maintenance are part of the plan. Off the road longer? We replace the bike where stock allows."
+            "copy": "Brake adjustments, puncture handling and wear-related maintenance are part of the plan. Off the road longer? We replace the bike where stock allows."
           },
           "lockCharger": {
-            "title": "Charger",
+            "title": "Charger included",
             "copy": "A charger comes with every plan, so you can top it up at home between shifts."
           },
           "swap": {
-            "title": "Flexibility to change",
-            "copy": "Extend month to month, switch to a longer plan for a lower daily rate, or add an extra battery and gear when your routine changes."
+            "title": "Optional add-ons when needed",
+            "copy": "Extend month to month, switch to a longer plan for a lower daily rate, or add paid gear such as an extra battery, delivery bag, phone holder or lock."
           }
         }
       },
@@ -1029,7 +1029,7 @@
         "items": {
           "firstPayment": {
             "q": "How much do I pay to start?",
-            "a": "Your first 30 days on the flexible plan start from €177 (€5.90/day × 30), plus a refundable deposit. No payment is taken when you reserve — you pay only once your rental is approved and you collect the bike."
+            "a": "Your first 30 days on the flexible plan start from €177 (€5.90/day × 30), plus a refundable deposit and any optional paid add-ons you selected. No payment is taken when you reserve."
           },
           "cancel": {
             "q": "Can I cancel after a month?",
@@ -1050,7 +1050,7 @@
       "hero": {
         "kicker": "Delivery e-bike rental",
         "heading": "An e-bike built for the job.",
-        "lead": "Delivery riding is hard on a bike: long hours, heavy loads and every kind of weather. rentaro rents delivery-built e-bikes by the month, with the motor, payload and service support to match — so you spend your shift earning, not pushing a bike with a flat battery. Pay daily, billed monthly, with repairs handled for you.",
+        "lead": "Delivery riding is hard on a bike: long hours, heavy loads and every kind of weather. rentaro rents delivery-built e-bikes by the month, with charger and service support included. Paid add-ons such as an extra battery, delivery bag, phone holder or lock are optional.",
         "ctaReserve": "Reserve a bike",
         "ctaExplore": "Explore the fleet"
       },
@@ -1061,7 +1061,7 @@
         },
         "downtimeCosts": {
           "title": "Downtime costs you money",
-          "copy": "Your bike is your income tool, so service support is built into every plan. We keep it moving with fast fixes and extra-battery options for back-to-back shifts."
+          "copy": "Your bike is your income tool, so service support is built into every plan. We keep it moving with fast fixes and optional extra batteries for back-to-back shifts."
         },
         "readyForWeather": {
           "title": "Ready for any weather",
@@ -1079,17 +1079,17 @@
       },
       "cta": {
         "heading": "Gear up for your next shift.",
-        "lead": "Choose a delivery-ready e-bike and a plan, and reserve in a few steps — service support and extra-battery options included.",
+        "lead": "Choose a delivery-ready e-bike and a plan, then reserve in a few steps — charger and service support included, paid add-ons optional.",
         "button": "Reserve your e-bike"
       },
       "meta": {
         "title": "Delivery e-bike rental — rentaro",
-        "description": "Delivery-built e-bikes you can rent by the month, with the motor, payload and service support to keep downtime low. Add an extra battery, delivery bag, phone holder and heavy lock — suitable for Bolt and Wolt-style work in Tallinn, Riga and Helsinki."
+        "description": "Delivery-built e-bikes you can rent by the month, with charger and service support included. Add optional paid gear such as an extra battery, delivery bag, phone holder or lock for courier work in Tallinn, Riga and Helsinki."
       },
       "gear": {
         "kicker": "Gear that earns shifts",
         "heading": "Kit the bike out for the work.",
-        "lead": "Delivery is won on the details. Add the accessories that turn a good bike into a proper delivery setup — each one available with your plan.",
+        "lead": "Delivery is won on the details. Add only the accessories you need — each one is an optional paid add-on available with your plan.",
         "items": {
           "battery": {
             "title": "Extra battery",
@@ -1097,7 +1097,7 @@
           },
           "bag": {
             "title": "Delivery bag",
-            "copy": "A sturdy, insulated bag sized for food and parcels — keeps orders secure and stable whether you ride for Bolt, Wolt or anyone else."
+            "copy": "A sturdy, insulated bag sized for food and parcels — keeps orders secure and stable during city delivery work."
           },
           "phone": {
             "title": "Phone holder",
@@ -1123,8 +1123,8 @@
             "a": "Service support is part of every plan. Brakes, punctures and general maintenance are covered, and if a bike needs a longer repair we replace it where stock allows — your bike is your income tool, so we keep your shifts running."
           },
           "accessories": {
-            "q": "Can I add a battery and a delivery bag?",
-            "a": "Yes. An extra battery, delivery bag, phone holder and heavy-duty lock are all available as add-ons, and you can change them as your routine changes. The Engine Pro 2.0 carries an 832 Wh pack for demanding days."
+            "q": "Which accessories are included?",
+            "a": "The charger is included with the bike. Extra battery, delivery bag, phone holder, heavy-duty lock and winter tyres are optional paid add-ons, and you can change them as your routine changes."
           },
           "weather": {
             "q": "Are the bikes ready for rain and winter?",
@@ -1141,7 +1141,7 @@
       "hero": {
         "kicker": "E-bike rental for couriers",
         "heading": "Made for couriers, not weekend riders.",
-        "lead": "rentaro exists for one job: keeping delivery couriers earning. You rent a delivery-built e-bike by the month, start quickly, and ride with service support behind you. No big purchase, no resale headache, no day lost to a bike you can’t fix. Choose your model, reserve online and start your next shift.",
+        "lead": "rentaro exists for one job: helping delivery couriers start quickly and keep moving. Rent a delivery-built e-bike by the month with charger and service support included. No big purchase, no resale headache, and paid add-ons only if you need extra gear.",
         "ctaBook": "Start booking",
         "ctaExplore": "Explore the fleet"
       },
@@ -1160,7 +1160,7 @@
         },
         "staminaLongShifts": {
           "title": "Stamina for long shifts",
-          "copy": "Bikes picked for delivery work, with extra-battery options for the days you stitch together back-to-back orders across the city."
+          "copy": "Bikes are picked for delivery work, with optional paid extra batteries for days when you stitch together back-to-back orders across the city."
         }
       },
       "howItWorks": {
@@ -1175,7 +1175,7 @@
       },
       "cta": {
         "heading": "Ready to start earning?",
-        "lead": "Choose your rentaro e-bike, pick a plan and reserve in a few steps — service support included from day one.",
+        "lead": "Choose your rentaro e-bike, pick a plan and reserve in a few steps — charger and service support included from day one.",
         "button": "Start booking"
       }
     }
@@ -1210,21 +1210,29 @@
     "learnMore": "Privacy policy"
   },
   "pageMeta": {
+    "home": {
+      "title": "rentaro — Delivery-ready e-bikes by the month",
+      "description": "Rent a delivery-built e-bike by the month in Tallinn, Riga and Helsinki. 30-day, 6 and 12-month plans with service support and charger included; paid add-ons for courier work."
+    },
+    "book": {
+      "title": "Reserve your e-bike — rentaro",
+      "description": "Pick your city, bike and plan, then send a free reservation request — no payment until approval."
+    },
     "accessories": {
       "title": "Accessories & add-ons for delivery couriers | rentaro",
-      "description": "Kit out your shift with rentaro add-ons — extra batteries, delivery bags, phone holders, heavy-duty locks and more. Built for couriers, available with any plan."
+      "description": "Kit out your shift with optional paid rentaro add-ons — extra batteries, delivery bags, phone holders, heavy-duty locks and more. Charger included with every bike."
     },
     "faq": {
       "title": "FAQ — monthly e-bike rental for couriers | rentaro",
-      "description": "Answers on rentaro plans, the 30-day minimum, deposits, maintenance, extra batteries, pickup locations and the digital contract for delivery couriers."
+      "description": "Answers on rentaro monthly e-bike plans, 30-day minimum, deposits, service support, included charger, optional paid add-ons, pickup and contracts for delivery couriers."
     },
     "models": {
       "title": "All e-bike models — rentaro",
-      "description": "Browse the full rentaro fleet — delivery-ready e-bikes available on 30-day, 6 or 12-month plans in Tallinn, Riga and Helsinki."
+      "description": "Browse the full rentaro fleet — delivery-ready e-bikes available on 30-day, 6 or 12-month plans with charger and service support included."
     },
     "pricing": {
       "title": "Pricing — monthly e-bike plans for couriers | rentaro",
-      "description": "Simple per-30-day pricing for delivery couriers: €5.90/day on the 30-day plan, €4.90/day on 6 months and €3.90/day on 12 months. Same plan pricing across every model."
+      "description": "Simple per-30-day pricing for delivery couriers: €5.90/day on 30 days, €4.90/day on 6 months and €3.90/day on 12 months. Charger and service support included; accessories optional."
     },
     "privacy": {
       "title": "Privacy policy — rentaro",
@@ -1236,7 +1244,7 @@
     },
     "rules": {
       "title": "Rental rules — rentaro",
-      "description": "How a rentaro e-bike rental works: the 30-day minimum, deposit, included maintenance, damage and theft handling, charging and returns for delivery couriers."
+      "description": "How a rentaro e-bike rental works: the 30-day minimum, deposit, included charger and service support, optional paid add-ons, damage, theft, charging and returns."
     },
     "bookingStatus": {
       "title": "Track your booking — rentaro",
@@ -1244,7 +1252,11 @@
     },
     "couriers": {
       "title": "E-bike rental for couriers — rentaro",
-      "description": "rentaro is e-bike rental built for delivery couriers. Start quickly on a monthly plan, ride with service support and keep your bike — your income tool — moving. Tallinn, Riga and Helsinki."
+      "description": "rentaro is monthly e-bike rental built for delivery couriers. Start quickly, ride with charger and service support included, and add paid gear only if needed. Tallinn, Riga and Helsinki."
+    },
+    "howItWorks": {
+      "title": "How it works — monthly e-bike rental | rentaro",
+      "description": "Reserve free, sign the rental agreement, pay your first 30 days plus deposit, then collect a delivery-ready e-bike with charger and service support included."
     }
   }
 }

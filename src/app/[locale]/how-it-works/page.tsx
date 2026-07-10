@@ -7,10 +7,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 
-const title = "How it works — start delivering on a rentaro e-bike | rentaro";
-const description =
-  "Reserve free, get approved, then verify your identity, accept your contract and pay your first 30 days plus deposit in your portal — before we assign your bike and you pick up. Start your first courier shift the same week.";
-
 export async function generateMetadata({
   params,
 }: {
@@ -18,6 +14,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isLocale(locale) ? locale : "en";
+  const t = await getTranslations({ locale: loc, namespace: "pageMeta.howItWorks" });
+  const title = t("title");
+  const description = t("description");
   return {
     title,
     description,
@@ -47,7 +46,7 @@ export default async function HowItWorksPage() {
         <div className="wrap">
           <Reveal className="section-head">
             <Kicker>{t("kicker")}</Kicker>
-            <h2 className="h-section">{t("heading")}</h2>
+            <h1 className="h-section">{t("heading")}</h1>
             <p className="lead">
               {t("lead")}
             </p>

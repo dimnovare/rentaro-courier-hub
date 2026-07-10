@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { defaultOgImages } from "@/lib/og";
+import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
 import { HeroServer } from "@/components/sections/HeroServer";
@@ -22,9 +23,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isLocale(locale) ? locale : "en";
+  // Localized <title>/<meta description> — ET/RU queries drive most traffic
+  // (GSC), and without this every locale inherited the English root title.
+  const t = await getTranslations({ locale: loc, namespace: "pageMeta.home" });
+  const title = t("title");
+  const description = t("description");
   return {
+    title,
+    description,
     alternates: buildAlternates(loc, "/"),
-    openGraph: { locale: loc, images: defaultOgImages },
+    openGraph: { locale: loc, title, description, images: defaultOgImages },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

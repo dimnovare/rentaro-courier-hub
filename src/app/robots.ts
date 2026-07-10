@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site";
 
-const base = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app").replace(/\/$/, "");
+const base = getSiteUrl();
 
 const privatePaths = ["/admin", "/my-rental", "/booking/success"];
 const localePrefixes = ["et", "lv", "fi", "ru"];

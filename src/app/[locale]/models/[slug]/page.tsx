@@ -12,7 +12,7 @@ import { bikeModels } from "@/data/bikeModels";
 import { pricingPlans } from "@/data/pricingPlans";
 import { modelService, resolveImg } from "@/services/modelService";
 import { modelFromDaily, resolvePlanPrice } from "@/services/pricingService";
-import { JsonLd, buildProductSchema } from "@/components/seo/JsonLd";
+import { JsonLd, buildProductSchema, buildBreadcrumbSchema } from "@/components/seo/JsonLd";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
 
@@ -32,8 +32,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const m = await modelService.getModel(slug);
   if (!m) return { title: "Model not found — rentaro" };
   const title = `${m.name} — rentaro`;
-  const description =
-    m.blurb ?? `${m.name} — available on 30-day, 6 or 12-month rentaro plans.`;
+  // Localized description when a translation exists (ET/RU drive most search
+  // traffic); the API blurb is English-only.
+  const tm = await getTranslations({ locale: loc, namespace: "modelItems" });
+  const description = tm.has(`${m.id}.blurb`)
+    ? tm(`${m.id}.blurb`)
+    : m.blurb ?? `${m.name} — available on 30-day, 6 or 12-month rentaro plans.`;
   const path = `/models/${m.slug}`;
   const ogImage = resolveImg(m.img);
   return {
@@ -85,6 +89,13 @@ export default async function ModelDetail({ params }: Params) {
   return (
     <main>
       <JsonLd data={buildProductSchema(m)} />
+      <JsonLd
+        data={buildBreadcrumbSchema([
+          { name: "rentaro", path: "/" },
+          { name: t("allModels"), path: "/models" },
+          { name: m.name, path: `/models/${m.slug}` },
+        ])}
+      />
       <section className="detail">
         <div className="wrap">
           <Link className="detail-back" href="/models">

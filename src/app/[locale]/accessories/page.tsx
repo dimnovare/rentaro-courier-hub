@@ -29,7 +29,7 @@ export default async function AccessoriesPage() {
         <div className="wrap">
           <Reveal className="section-head">
             <Kicker>{t("kicker")}</Kicker>
-            <h2 className="h-section">{t("heading")}</h2>
+            <h1 className="h-section">{t("heading")}</h1>
             <p className="lead">
               {t("lead")}
             </p>

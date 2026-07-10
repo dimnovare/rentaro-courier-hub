@@ -1,7 +1,7 @@
 /**
  * SOURCE: /api/public/cities/{id}/content — per-city marketing copy.
  *
- * Live availability, pickup areas and status come from `cities` (see data/cities.ts);
+ * Live availability, pickup areas and status come from cityService (/api/public/cities);
  * this module only holds the editorial copy for each city landing page.
  *
  * The user-facing strings here are the ENGLISH source-of-truth and document the
@@ -60,17 +60,17 @@ export const cityContent: Record<string, CityContent> = {
   tallinn: {
     headline: "Monthly e-bike rental in Tallinn.",
     intro:
-      "Tallinn is where rentaro started, and it's still where most of our fleet lives. If you deliver for Bolt or Wolt around Kesklinn, weave through Telliskivi and Kalamaja, climb up into Põhja-Tallinn or run the long blocks out to Lasnamäe, you already know the city rewards a fast, dependable bike. We rent delivery-built e-bikes by the month — lock, charger and service support included — so you can pick one up this week and start earning without sinking a thousand euros into a bike of your own.",
+      "Tallinn is where rentaro started, and it is still where most of our fleet lives. If you ride through Kesklinn, Telliskivi, Kalamaja, Põhja-Tallinn or Lasnamäe, you already know the city rewards a fast, dependable e-bike. We rent delivery-built e-bikes by the month — charger and service support included, accessories optional — so you can start earning without sinking a thousand euros into a bike of your own.",
     whyHere: [
       "Kesklinn lunch and dinner rushes pay best when you can cut between drops — an e-bike turns short, dense routes into back-to-back orders.",
       "Telliskivi, Kalamaja and Põhja-Tallinn mix cobbles, tram tracks and quiet side streets; our bikes are picked to stay sure-footed on all of it.",
-      "Long runs out to Lasnamäe, Mustamäe and Kristiine stop being a problem when the motor does the climbing and an extra battery covers the distance.",
-      "Estonian winters are real — dark, wet and icy. Winter tyres and service support keep you on the road through the months that pay the most.",
+      "Long runs out to Lasnamäe, Mustamäe and Kristiine are easier when the motor does the climbing and an optional extra battery covers longer delivery days.",
+      "Estonian winters are real — dark, wet and icy. Winter tyres are available as a paid add-on, while service support is part of the plan.",
       "Same-week pickup in the centre means a newly-arrived courier can land in Tallinn and be delivering within days, not weeks.",
-      "One monthly price covers the bike, maintenance and a replacement when something breaks — far less risk than buying a used bike off Okidoki.",
+      "One monthly price covers the bike, charger and service support — less cash risk than buying a used bike off the classifieds.",
     ],
     pickupNote:
-      "Collect your bike at our Telliskivi or Kesklinn pickup point — both a short ride from the busiest delivery zones — or ask about local handover. We walk you through the bike, the lock, charging and winter setup before your first shift, so nothing slows down day one.",
+      "Collect your bike at the pickup point shown in the availability card, or ask about local handover. We walk you through the bike, charger and any optional add-ons you selected before your first shift.",
     neighbourhoods: [
       "Kesklinn",
       "Telliskivi",
@@ -88,19 +88,19 @@ export const cityContent: Record<string, CityContent> = {
         points: [
           {
             title: "No big outlay to start",
-            copy: "A delivery-capable e-bike costs well over a thousand euros to buy, plus a lock, charger and winter tyres. Renting is €177 for your first 30 days and you're on the road — cash stays in your pocket for rent and deposits.",
+            copy: "A delivery-capable e-bike can cost well over a thousand euros to buy before you add seasonal gear. Renting is €177 for your first 30 days and you are on the road with the bike, charger and service support included.",
           },
           {
-            title: "Repairs aren't your problem",
-            copy: "Brakes, punctures and worn parts are part of the plan. A used bike off the classifieds becomes your workshop bill the moment something fails mid-shift — ours doesn't.",
+            title: "Service support is built in",
+            copy: "Brake adjustments, puncture handling and wear-related service support are part of the plan. A used bike off the classifieds can turn into your workshop bill the moment something fails mid-shift.",
           },
           {
             title: "No resale headache when you leave",
             copy: "Plenty of couriers ride Tallinn for a season. When you're done you hand the bike back — no listing it, no haggling, no selling at a loss in a soft second-hand market.",
           },
           {
-            title: "Breakdowns don't cost you a shift",
-            copy: "If a bike needs a longer repair we swap it where stock allows, so a mechanical fault doesn't wipe out a day's orders. Owning one bike means owning its downtime too.",
+            title: "Long repairs do not have to stop a shift",
+            copy: "If a bike needs longer service, we swap it where stock allows. Owning one bike means owning its downtime too.",
           },
         ],
       },
@@ -115,7 +115,7 @@ export const cityContent: Record<string, CityContent> = {
           },
           {
             title: "Battery care for the cold",
-            copy: "Cold weather is hard on every e-bike battery. We show you how to store and charge it warm, and an extra battery keeps a long, cold shift from ending early.",
+            copy: "Cold weather is hard on every e-bike battery. We show you how to store and charge it warm, and an optional extra battery helps on long, cold shifts.",
           },
           {
             title: "Service support through the season",
@@ -132,12 +132,12 @@ export const cityContent: Record<string, CityContent> = {
             copy: "Pick your model and plan and send the request. No payment up front — we confirm a bike is ready for you in Tallinn and send your digital contract to sign on your phone.",
           },
           {
-            title: "Collect in Telliskivi or Kesklinn",
-            copy: "Come to our central pickup point — minutes from the busiest delivery zones — or ask about local handover. We set up the bike, lock and charger with you.",
+            title: "Collect at the current pickup point",
+            copy: "Come to the current city pickup point shown above, or ask about local handover. We set up the bike, charger and any optional add-ons you selected.",
           },
           {
             title: "Start your first shift",
-            copy: "Leave kitted out for the city: charged, locked and winter-ready if you need it. Most couriers are taking their first Bolt or Wolt orders the same week.",
+            copy: "Leave with the bike charged and ready. If you selected winter tyres, a delivery bag, phone holder, lock or extra battery, we set those up before handover.",
           },
         ],
       },
@@ -151,11 +151,11 @@ export const cityContent: Record<string, CityContent> = {
           },
           {
             q: "Where do I pick the bike up?",
-            a: "From our Telliskivi or Kesklinn pickup point, both a short ride from the busiest delivery areas, or ask about local handover. We hand the bike over in person and set it up with you.",
+            a: "From the pickup point shown on this page, or ask about local handover. We hand the bike over in person and set it up with you.",
           },
           {
             q: "Is it ready for Tallinn winters?",
-            a: "Yes. Winter tyres are available as an add-on and maintenance is included year-round. We'll also show you how to look after the battery in the cold so your range holds up.",
+            a: "Yes. Winter tyres are available as an optional paid add-on and service support is included year-round. We also show you how to look after the battery in the cold.",
           },
           {
             q: "I just moved to Tallinn — can I start quickly?",
@@ -168,29 +168,29 @@ export const cityContent: Record<string, CityContent> = {
   riga: {
     headline: "Monthly e-bike rental in Riga.",
     intro:
-      "Riga couriers cover serious ground — from Centrs and Vecrīga across the river to Āgenskalns and Pārdaugava. A monthly rentaro e-bike keeps that mileage cheap and predictable, with service support and extra-battery options built around long delivery days.",
+      "Riga couriers cover serious ground — from Centrs and Vecrīga across the river to Āgenskalns and Pārdaugava. A monthly rentaro e-bike keeps that cost predictable, with charger and service support included and paid add-ons available only when you need them.",
     whyHere: [
       "Wide boulevards and long cross-river routes — an e-bike turns big distances into easy ones.",
       "One simple monthly price instead of fuel, parking and the cost of an unreliable bike.",
-      "Extra batteries available for couriers stitching together full days across the city.",
+      "Optional extra batteries are available for couriers stitching together full days across the city.",
       "Local service support so small issues get fixed fast and you stay on the road.",
     ],
     pickupNote:
-      "Pick up in Centrs or Āgenskalns, or arrange local handover. We set the bike up with you, check the lock and show you how charging works before you ride.",
+      "Pick up at the current city pickup point, or arrange local handover. We set up the bike, charger and any optional add-ons you selected before you ride.",
     neighbourhoods: ["Centrs", "Vecrīga", "Āgenskalns", "Pārdaugava", "Teika", "Purvciems"],
   },
   helsinki: {
     headline: "Monthly e-bike rental in Helsinki — coming soon.",
     intro:
-      "Helsinki is next on the rentaro map. We are lining up a delivery-ready fleet for couriers working Kallio, Punavuori and the wider city — same monthly plans, same service support, same focus on keeping your bike moving. Join the waitlist and we will let you know the moment bikes land.",
+      "Helsinki is next on the rentaro map. We are lining up a delivery-ready fleet for couriers working Kallio, Punavuori and the wider city — same monthly plans, charger included, service support included and optional paid add-ons for longer shifts.",
     whyHere: [
       "Strong cycling infrastructure makes Helsinki a natural fit for delivery e-bikes.",
       "Year-round riders need bikes ready for cold, wet and dark winter shifts — that is what we build for.",
-      "Monthly plans give full-time couriers a predictable cost, with extra-battery options for long days.",
+      "Monthly plans give full-time couriers a predictable cost, with optional paid extra batteries for long days.",
       "Service support is part of the plan from the day we go live.",
     ],
     pickupNote:
-      "Helsinki pickup points around Kallio and Punavuori are being finalised. Join the waitlist and we will share collection details and a launch date as soon as the fleet is ready.",
+      "Helsinki pickup points are being finalised. Join the waitlist and we will share collection details and a launch date as soon as the fleet is ready.",
     neighbourhoods: ["Kallio", "Punavuori", "Kamppi", "Töölö", "Sörnäinen", "Lauttasaari"],
   },
 };

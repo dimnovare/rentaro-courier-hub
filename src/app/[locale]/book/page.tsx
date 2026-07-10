@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
+import { getTranslations } from "next-intl/server";
 import { buildAlternates } from "@/i18n/alternates";
 import { isLocale, type Locale } from "@/i18n/config";
 import { Suspense } from "react";
@@ -9,10 +10,6 @@ import { modelService } from "@/services/modelService";
 import { cityService } from "@/services/cityService";
 import { accessoryService } from "@/services/accessoryService";
 
-const title = "Reserve your e-bike — rentaro";
-const description =
-  "Reserve a delivery-ready rentaro e-bike in Tallinn or Riga. Choose your model and plan in a few steps — no payment now.";
-
 export async function generateMetadata({
   params,
 }: {
@@ -20,6 +17,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const loc: Locale = isLocale(locale) ? locale : "en";
+  const t = await getTranslations({ locale: loc, namespace: "pageMeta.book" });
+  const title = t("title");
+  const description = t("description");
   return {
     title,
     description,

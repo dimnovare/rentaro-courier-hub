@@ -12,15 +12,15 @@ export const faqs: Faq[] = [
   },
   {
     q: "How does the pricing work?",
-    a: "Pricing is per 30-day period. The 30-day plan is €5.90/day, the 6-month plan €4.90/day, and the 12-month plan €3.90/day. The same plan pricing applies across every model.",
+    a: "Pricing is per 30-day period. Your first payment covers the first 30 days, the refundable deposit and any optional paid add-ons you selected. Charger and service support are included with the bike; extra batteries, bags, locks and other gear are separate add-ons.",
   },
   {
     q: "Is maintenance included?",
-    a: "Yes. Brake adjustments, puncture handling and general service are included in every plan. If a bike needs longer repair we replace it where stock allows, so your shifts keep running.",
+    a: "Yes. Brake adjustments, puncture handling and routine service support are included in every plan. Damage, theft or misuse follows the rental rules; if a bike needs longer service, we replace it where stock allows.",
   },
   {
-    q: "Can I rent an extra battery?",
-    a: "Yes. An extra battery is available as an add-on for long delivery days. The Engine Pro 2.0 carries an 832 Wh pack for extra range on demanding days.",
+    q: "Is an extra battery included?",
+    a: "No. The bike comes with its normal battery and charger. An extra battery is available as an optional paid add-on for long delivery days.",
   },
   {
     q: "What deposit is required?",

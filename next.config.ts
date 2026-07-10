@@ -5,6 +5,31 @@ import { withSentryConfig } from "@sentry/nextjs";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    // Model slugs removed in the 2026-07 catalogue prune. Google still ranks
+    // and sends clicks to these URLs (GSC), so 301 them (and their localized
+    // variants) to the live catalogue instead of a 404.
+    const removedModelSlugs = "(air-one-pro|air-20pro|air-28pro|air-20s|air-30pro)";
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.rentaro.ee" }],
+        destination: "https://rentaro.ee/:path*",
+        permanent: true,
+      },
+      {
+        source: `/models/:slug${removedModelSlugs}`,
+        destination: "/models",
+        permanent: true,
+      },
+      {
+        source: `/:locale(et|lv|fi|ru)/models/:slug${removedModelSlugs}`,
+        destination: "/:locale/models",
+        permanent: true,
+      },
+    ];
+  },
+
   // Static assets under /public/assets are content-stable (fingerprinted by the
   // build/CDN or replaced wholesale), so serve them with a long immutable cache.
   async headers() {

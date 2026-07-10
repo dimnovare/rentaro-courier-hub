@@ -4,7 +4,7 @@ import type { Step } from "@/types";
 export const trust: string[] = [
   "Minimum 30 days",
   "Service support included",
-  "Lock + charger in every plan",
+  "Charger in every plan",
   "Extra battery available",
   "Digital contract — sign on your phone",
   "Built for delivery shifts",

@@ -1,5 +1,6 @@
 import { resolveImg } from "@/services/modelService";
 import { modelFromDaily } from "@/services/pricingService";
+import { getSiteUrl } from "@/lib/site";
 import type { BikeModel } from "@/types";
 
 /**
@@ -10,10 +11,6 @@ import type { BikeModel } from "@/types";
  * never assert a fixed-km range (range depends on battery, weather, load,
  * rider — business rule), so Product schema describes the bike + offer only.
  */
-
-const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app"
-).replace(/\/$/, "");
 
 type JsonLdProps = {
   /** A schema.org object (already shaped). Serialised verbatim. */
@@ -46,12 +43,13 @@ export function JsonLd({ data }: JsonLdProps) {
 
 /** Organization schema for the brand (rendered once, in the root layout). */
 export function buildOrganizationSchema(): Record<string, unknown> {
+  const siteUrl = getSiteUrl();
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "rentaro",
-    url: SITE_URL,
-    logo: `${SITE_URL}/assets/logo-r.png`,
+    url: siteUrl,
+    logo: `${siteUrl}/assets/logo-r.png`,
     description:
       "Monthly e-bike rental for delivery couriers in Tallinn, Riga and Helsinki.",
     areaServed: [
@@ -84,9 +82,28 @@ function availabilityFor(status: BikeModel["status"]): string {
  * to the API host via resolveImg, while bundled `/assets/...` shots are
  * absolutised against the site URL.
  */
+/** BreadcrumbList for detail pages (Home → Models → <bike>) — helps Google
+ *  render the SERP path; Product snippets already convert well for us. */
+export function buildBreadcrumbSchema(
+  crumbs: Array<{ name: string; path: string }>,
+): Record<string, unknown> {
+  const base = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: `${base}${c.path}`,
+    })),
+  };
+}
+
 export function buildProductSchema(m: BikeModel): Record<string, unknown> {
+  const siteUrl = getSiteUrl();
   const resolved = resolveImg(m.img);
-  const image = resolved.startsWith("http") ? resolved : `${SITE_URL}${resolved}`;
+  const image = resolved.startsWith("http") ? resolved : `${siteUrl}${resolved}`;
   // Lowest daily across tiers, honouring any per-model overrides (single source).
   const fromDay = modelFromDaily(m);
   return {
@@ -99,7 +116,7 @@ export function buildProductSchema(m: BikeModel): Record<string, unknown> {
       m.blurb ??
       `${m.name} — available on 30-day, 6 or 12-month rentaro plans with service support.`,
     category: "Electric bike rental",
-    url: `${SITE_URL}/models/${m.slug}`,
+    url: `${siteUrl}/models/${m.slug}`,
     offers: {
       "@type": "Offer",
       price: fromDay.toFixed(2),
@@ -113,7 +130,7 @@ export function buildProductSchema(m: BikeModel): Record<string, unknown> {
         unitText: "DAY",
       },
       availability: availabilityFor(m.status),
-      url: `${SITE_URL}/models/${m.slug}`,
+      url: `${siteUrl}/models/${m.slug}`,
     },
   };
 }

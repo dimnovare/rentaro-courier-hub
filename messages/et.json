@@ -56,7 +56,7 @@
     "headingLine2": "e-rattad",
     "headingLine3Pre": "kuu ",
     "headingLine3Accent": "kaupa.",
-    "lead": "Rendi linnatööks ehitatud e-ratas — 30 päeva, 6 või 12 kuu paketid, milles on teenindus, laadija ja lisaaku valikud. Maksa päevatasu, arve kord kuus.",
+    "lead": "Rendi tarneks mõeldud e-jalgratas linnatööks — 30 päeva, 6 kuu või 12 kuu paketid teenindustoe ja laadijaga. Lisaaku, kott, lukk ja muu varustus on valikulised tasulised lisad. Päevahind, arveldus iga 30 päeva järel.",
     "ctaReserve": "Broneeri ratas",
     "ctaExplore": "Tutvu pargiga",
     "stats": {
@@ -168,7 +168,7 @@
       },
       "04": {
         "title": "Võta jalgratas ja alusta tarne",
-        "copy": "Tule järele linna väljastuspunkti või telli kohaletarne. Teenindustugi on kogu üüriperioodi jooksul kaasas."
+        "copy": "Tule rattale järele linna üleandmispunkti või küsi kohalikku üleandmist. Ratas ja laadija on üleandmisel valmis; valikulised tasulised lisad seadistame ainult siis, kui oled need valinud."
       }
     },
     "trust": {
@@ -244,15 +244,15 @@
       },
       "pricing": {
         "q": "Kuidas hinnastamine toimib?",
-        "a": "Hind arvestatakse 30-päevaste perioodide kaupa ja igal rattal on oma paketihinnad — alates 5,90 €/päev 30-päevasel paketil kuni tema 12 kuu määrani. Esimene makse katab esimesed 30 päeva (pluss lisad ja kohaletoimetamise valikul ühekordne kohaletoimetamise tasu); tagastatav tagatisraha tasutakse koos sellega. 6 ja 12 kuu paketil saadame seejärel arve enne iga uut 30-päevast perioodi."
+        "a": "Hind on iga 30-päevase perioodi kohta. Esimene makse katab esimese 30 päeva, tagastatava deposiidi ja sinu valitud valikulised tasulised lisad. Laadija ja teenindustugi on rattaga kaasas; lisaakud, kotid, lukud ja muu varustus on eraldi lisad."
       },
       "maintenance": {
         "q": "Kas hooldus on sees?",
-        "a": "Jah. Pidurite reguleerimine, rehviaukude parandus ja üldhooldus on sees igas paketis. Kui ratas vajab pikemat remonti, vahetame selle välja, kui laoseis lubab, et su vahetused jätkuksid."
+        "a": "Jah. Pidurite reguleerimine, torkeabi ja tavapärane teenindustugi sisalduvad igas plaanis. Kahju, vargus või väärkasutus käib rendireeglite järgi; kui ratas vajab pikemat hooldust, asendame selle laoseisu võimalusel."
       },
       "extraBattery": {
-        "q": "Kas saan rentida lisaaku?",
-        "a": "Jah. Lisaaku on saadaval lisana pikkadeks tarnepäevadeks. Engine Pro 2.0 kannab 832 Wh akut, mis annab nõudlikel päevadel lisasõiduulatust."
+        "q": "Kas lisaaku on hinnas?",
+        "a": "Ei. Rattal on oma aku ja laadija. Lisaaku on valikuline tasuline lisa pikkadeks tarnepäevadeks."
       },
       "deposit": {
         "q": "Kui suur tagatisraha on nõutav?",
@@ -658,9 +658,9 @@
     "meta": {
       "notFoundTitle": "Linna ei leitud — rentaro",
       "titleSoon": "E-jalgrataste rent linnas {city} — tulekul · rentaro",
-      "titleLive": "Igakuine e-jalgrataste rent linnas {city} — rentaro",
+      "titleLive": "Jalgratta ja elektriratta rent kuutasuga — {city} · rentaro",
       "descriptionSoon": "rentaro toob tarnevalmis igakuise e-jalgrataste rendi linna {city}, {country}. Liitu ootenimekirjaga, et saada teada käivituskuupäevad ja kättesaamise üksikasjad.",
-      "descriptionLive": "Rendi tarnevalmis e-jalgratas kuupõhiselt linnas {city}, {country}. 30-päevased, 6- ja 12-kuised paketid teenindustoe, laadija ja lisaaku valikuga."
+      "descriptionLive": "Rendi tarneks mõeldud e-jalgratas kuu kaupa linnas {city}, {country}. 30 päeva, 6 kuu ja 12 kuu plaanid teenindustoe ja laadijaga; lisavarustus on valikuline tasuline lisa."
     },
     "hero": {
       "joinWaitlist": "Liitu ootenimekirjaga",
@@ -674,7 +674,7 @@
     "popular": {
       "kicker": "Populaarne linnas {city}",
       "heading": "Rattad, mille kullerid esimesena haaravad.",
-      "leadBase": "Kõiki rentaro e-jalgrattaid renditakse samadel tingimustel — 30-päevased, 6- või 12-kuised paketid koos teenindustoega. ",
+      "leadBase": "Iga rentaro e-jalgratas renditakse samadel tingimustel — 30 päeva, 6 kuu või 12 kuu plaan teenindustoe ja laadijaga. ",
       "leadSoon": "Need rattad jõuavad linna {city} käivitamisel.",
       "leadLive": "Vali see, mis sinu vahetustele sobib."
     },
@@ -682,7 +682,7 @@
       "headingSoon": "Soovid rentaro ratast linnas {city}?",
       "headingLive": "Valmis sõitma linnas {city}?",
       "copySoon": "Liitu ootenimekirjaga ja anname teada hetkel, mil tarnevalmis e-jalgrattad linna {city} jõuavad.",
-      "copyLive": "Vali oma mudel, vali pakett ja alusta sel nädalal linnas {city} tarnetega — teenindustugi kohe esimesest päevast.",
+      "copyLive": "Vali mudel, vali plaan ja alusta {city} tarnetööga juba sel nädalal — laadija ja teenindustugi on esimesest päevast hinnas.",
       "joinWaitlist": "Liitu ootenimekirjaga",
       "reserveIn": "Broneeri linnas {city}",
       "exploreFleet": "Uuri parki"
@@ -691,16 +691,16 @@
   "cityContent": {
     "tallinn": {
       "headline": "Igakuine e-jalgrataste rent Tallinnas.",
-      "intro": "Tallinnast sai rentaro alguse ja siin elab siiani suurem osa meie pargist. Kui tarnid Boltile või Woltile Kesklinnas, looklemas Telliskivil ja Kalamajas, ronid üles Põhja-Tallinna või sõidad pikki kvartaleid välja Lasnamäele, tead juba, et linn tasub kiire ja usaldusväärse ratta ära. Rendime tarnevalmis e-jalgrattaid kuu kaupa — laadija ja teenindustugi sisalduvad —, nii et saad ratta sel nädalal kätte ja hakkad teenima, ilma et paneksid tuhat eurot enda rattasse.",
+      "intro": "Tallinnast sai rentaro alguse ja siin on endiselt suurem osa meie rattapargist. Kui sõidad Kesklinnas, Telliskivil, Kalamajas, Põhja-Tallinnas või Lasnamäel, tead juba, et linn tasub kiire ja töökindla e-jalgratta ära. Rendime tarneks mõeldud e-jalgrattaid kuu kaupa — laadija ja teenindustugi hinna sees, lisavarustus valikuline — et saaksid alustada ilma oma rattasse tuhat eurot panemata.",
       "whyHere": [
         "Kesklinna lõuna- ja õhtutipptunnid tasuvad kõige paremini, kui saad tarnete vahel läbi lõigata — e-jalgratas muudab lühikesed tihedad marsruudid järjestikusteks tellimusteks.",
         "Telliskivi, Kalamaja ja Põhja-Tallinn segavad munakive, trammirööpaid ja vaikseid kõrvaltänavaid; meie rattad on valitud, et püsida kindlalt kõigil neist.",
-        "Pikad sõidud välja Lasnamäele, Mustamäele ja Kristiinesse pole enam probleem, kui mootor teeb tõusud ära ja lisaaku katab vahemaa.",
-        "Eesti talved on päris — pimedad, märjad ja jäised. Talverehvid ja teenindustugi hoiavad sind teel kuudel, mis tasuvad kõige rohkem.",
+        "Pikad otsad Lasnamäele, Mustamäele ja Kristiinesse on lihtsamad, kui tõusud teeb mootor ja valikuline lisaaku aitab pikematel tarnepäevadel.",
+        "Eesti talv on päris — pime, märg ja jäine. Talverehvid on saadaval tasulise lisana, teenindustugi on plaani osa.",
         "Sama nädala kättesaamine kesklinnas tähendab, et äsja saabunud kuller võib Tallinna jõuda ja tarnida juba päevade, mitte nädalate jooksul.",
-        "Üks kuuhind katab ratta, hoolduse ja asenduse, kui midagi puruneb — palju väiksem risk kui kasutatud ratta ostmine kuulutustest."
+        "Üks kuuhind katab ratta, laadija ja teenindustoe — vähem rahalist riski kui kasutatud ratta ost kuulutustest."
       ],
-      "pickupNote": "Saa oma ratas kätte meie Telliskivi või Kesklinna kättesaamispunktist — mõlemad lühikese sõidu kaugusel kõige tihedamatest tarnealadest — või küsi kohaliku üleandmise kohta. Tutvustame sulle ratast, laadimist ja talveseadistust enne esimest vahetust, nii et esimesel päeval ei aeglusta miski.",
+      "pickupNote": "Võta ratas kättesaadavuse kaardil näidatud üleandmispunktist või küsi kohalikku üleandmist. Enne esimest vahetust näitame ratast, laadijat ja sinu valitud valikulisi lisasid.",
       "neighbourhoods": [
         "Kesklinn",
         "Telliskivi",
@@ -718,19 +718,19 @@
           "points": [
             {
               "title": "Alustamiseks pole suurt väljaminekut",
-              "copy": "Tarnevõimeline e-jalgratas maksab ostmisel kõvasti üle tuhande euro, lisaks lukk, laadija ja talverehvid. Rent on 177 € esimese 30 päeva eest ja oled teel — raha jääb taskusse üüri ja tagatisrahade jaoks."
+              "copy": "Tarneks sobiv e-jalgratas võib enne hooajavarustust maksta üle tuhande euro. Rentides maksad esimese 30 päeva eest alates €177 ja oled teel — ratas, laadija ja teenindustugi on hinnas."
             },
             {
-              "title": "Remont pole sinu mure",
-              "copy": "Pidurid, tühjad rehvid ja kulunud osad kuuluvad paketti. Kuulutustest ostetud kasutatud ratas muutub sinu töökojaarveks hetkel, mil miski keset vahetust üles ütleb — meie oma mitte."
+              "title": "Teenindustugi on sisse ehitatud",
+              "copy": "Pidurite reguleerimine, torkeabi ja kulumisega seotud teenindustugi on plaani osa. Kuulutustest ostetud kasutatud ratas võib keset vahetust muutuda sinu töökojaarveks."
             },
             {
               "title": "Lahkudes pole edasimüügi peavalu",
               "copy": "Paljud kullerid sõidavad Tallinnas ühe hooaja. Kui lõpetad, annad ratta tagasi — ei mingit kuulutuse panemist, kauplemist ega kahjumiga müümist nõrgal järelturul."
             },
             {
-              "title": "Rikked ei maksa sulle vahetust",
-              "copy": "Kui ratas vajab pikemat remonti, vahetame selle, kui laoseis lubab, nii et tehniline rike ei kustuta päeva tellimusi. Ühe ratta omamine tähendab ka selle seisaku omamist."
+              "title": "Pikem hooldus ei pea vahetust peatama",
+              "copy": "Kui ratas vajab pikemat teenindust, vahetame selle laoseisu võimalusel välja. Oma ratta puhul kuulub seisak samuti sulle."
             }
           ]
         },
@@ -745,7 +745,7 @@
             },
             {
               "title": "Aku hooldus külmaks",
-              "copy": "Külm ilm on raske igale e-jalgratta akule. Näitame, kuidas seda soojas hoida ja laadida, ja lisaaku hoiab pika külma vahetuse enneaegselt lõppemast."
+              "copy": "Külm ilm on iga e-jalgratta aku jaoks raske. Näitame, kuidas akut soojas hoida ja laadida; valikuline lisaaku aitab pikkadel külmadel vahetustel."
             },
             {
               "title": "Teenindustugi läbi hooaja",
@@ -762,12 +762,12 @@
               "copy": "Vali mudel ja pakett ning saada päring. Ettemakset pole — kinnitame, et ratas on Tallinnas sinu jaoks valmis, ja saadame rendilepingu eelnevaks tutvumiseks."
             },
             {
-              "title": "Võta kätte Telliskivil või Kesklinnas",
-              "copy": "Tule meie kesksesse kättesaamispunkti — minutite kaugusel kõige tihedamatest tarnealadest — või küsi kohaliku üleandmise kohta. Seadistame ratta ja laadija koos sinuga."
+              "title": "Võta kätte praegusest üleandmispunktist",
+              "copy": "Tule ülal näidatud praegusesse linna üleandmispunkti või küsi kohalikku üleandmist. Seadistame ratta, laadija ja sinu valitud valikulised lisad."
             },
             {
               "title": "Alusta esimest vahetust",
-              "copy": "Lahku linnaks varustatuna: laetud, lukustatud ja vajadusel talvevalmis. Enamik kullereid võtab oma esimesed Bolti või Wolti tellimused juba samal nädalal."
+              "copy": "Lahku laetud ja töövalmis rattaga. Kui valisid talverehvid, tarnekoti, telefonihoidiku, luku või lisaaku, seadistame need enne üleandmist."
             }
           ]
         },
@@ -781,11 +781,11 @@
             },
             {
               "q": "Kust ma ratta kätte saan?",
-              "a": "Meie Telliskivi või Kesklinna kättesaamispunktist, mõlemad lühikese sõidu kaugusel kõige tihedamatest tarnealadest, või küsi kohaliku üleandmise kohta. Anname ratta üle isiklikult ja seadistame selle koos sinuga."
+              "a": "Kättesaadavuse kaardil näidatud üleandmispunktist või küsi kohalikku üleandmist. Anname ratta üle isiklikult ja seadistame selle koos sinuga."
             },
             {
               "q": "Kas see on Tallinna talveks valmis?",
-              "a": "Jah. Talverehvid on saadaval lisana ja hooldus sisaldub aasta läbi. Näitame sulle ka, kuidas akut külmas hoida, et su sõiduulatus püsiks."
+              "a": "Jah. Talverehvid on valikuline tasuline lisa ja teenindustugi sisaldub aastaringselt. Näitame ka, kuidas akut külmas hoida."
             },
             {
               "q": "Kolisin just Tallinna — kas saan kiiresti alustada?",
@@ -797,14 +797,14 @@
     },
     "riga": {
       "headline": "Igakuine e-jalgrataste rent Riias.",
-      "intro": "Riia kullerid läbivad korralikult maad — Centrsist ja Vecrīgast üle jõe Āgenskalnsi ja Pārdaugavasse. Igakuine rentaro e-jalgratas hoiab selle läbisõidu odava ja etteaimatavana, koos teenindustoe ja pikkadeks tarnepäevadeks mõeldud lisaaku valikutega.",
+      "intro": "Riia kullerid läbivad tõsiseid vahemaid — Centrsist ja Vecrīgast üle jõe Āgenskalnsi ja Pārdaugavani. Kuu kaupa renditav rentaro e-jalgratas hoiab kulu etteaimatavana: laadija ja teenindustugi on hinnas ning tasulised lisad võtad ainult siis, kui neid vajad.",
       "whyHere": [
         "Laiad bulvarid ja pikad jõeületavad marsruudid — e-jalgratas teeb suured vahemaad kergeks.",
         "Üks lihtne kuuhind kütuse, parkimise ja ebausaldusväärse ratta kulu asemel.",
-        "Lisaakud saadaval kulleritele, kes panevad terveid päevi üle linna kokku.",
+        "Valikulised lisaakud on saadaval kulleritele, kes sõidavad pikki päevi üle linna.",
         "Kohalik teenindustugi, et väikesed probleemid saaksid kiiresti lahendatud ja sa püsiksid teel."
       ],
-      "pickupNote": "Saa ratas kätte Centrsis või Āgenskalnsis või lepi kokku kohalik üleandmine. Seadistame ratta koos sinuga, kontrollime ratast ja näitame, kuidas laadimine toimib, enne kui sõitma lähed.",
+      "pickupNote": "Saa ratas kätte praegusest linna üleandmispunktist või lepi kokku kohalik üleandmine. Seadistame ratta, laadija ja sinu valitud valikulised lisad enne sõitu.",
       "neighbourhoods": [
         "Centrs",
         "Vecrīga",
@@ -816,14 +816,14 @@
     },
     "helsinki": {
       "headline": "Igakuine e-jalgrataste rent Helsingis — tulekul.",
-      "intro": "Helsingi on rentaro kaardil järgmine. Paneme kokku tarnevalmis parki kulleritele, kes töötavad Kallios, Punavuoris ja laiemas linnas — samad kuupaketid, sama teenindustugi, sama fookus sellele, et sinu ratas püsiks liikvel. Liitu ootenimekirjaga ja anname teada hetkel, mil rattad kohale jõuavad.",
+      "intro": "Helsingi on rentaro kaardil järgmine. Valmistame ette tarneks mõeldud rattaparki kulleritele Kallios, Punavuoris ja laiemas linnas — samad kuupaketid, laadija hinnas, teenindustugi hinnas ja valikulised tasulised lisad pikemateks vahetusteks.",
       "whyHere": [
         "Tugev jalgrattataristu teeb Helsingist tarne-e-jalgratastele loomuliku valiku.",
         "Aastaringsed sõitjad vajavad rattaid, mis on valmis külmadeks, märgadeks ja pimedateks talvevahetusteks — just selleks me ehitamegi.",
-        "Kuupaketid annavad täiskohaga kulleritele etteaimatava kulu, koos lisaaku valikutega pikkadeks päevadeks.",
+        "Kuupaketid annavad täiskohaga kullerile etteaimatava kulu, valikulised tasulised lisaakud aitavad pikkadel päevadel.",
         "Teenindustugi on osa paketist alates päevast, mil käivitame."
       ],
-      "pickupNote": "Helsingi kättesaamispunktid Kallio ja Punavuori ümbruses on viimistlemisel. Liitu ootenimekirjaga ja jagame kättesaamise üksikasju ning käivituskuupäeva niipea, kui park on valmis.",
+      "pickupNote": "Helsingi kättesaamispunkte alles viime lõpuni. Liitu ootenimekirjaga ja jagame kättesaamise üksikasju ning käivituskuupäeva niipea, kui park on valmis.",
       "neighbourhoods": [
         "Kallio",
         "Punavuori",
@@ -838,28 +838,28 @@
     "pricing": {
       "kicker": "Paketid ja hinnad",
       "heading": "Üks päevahind. Arve iga 30 päeva tagant.",
-      "lead": "Kõiki rentaro e-jalgrattaid renditakse samadel lihtsatel tingimustel — vali 30-päevane, 6- või 12-kuine pakett ja maksa päevahind × 30. Vali pikem periood ja sinu päevahind langeb. Minimaalne renditähtaeg on 30 päeva."
+      "lead": "Iga rentaro e-jalgratas renditakse samadel lihtsatel tingimustel — vali 30 päeva, 6 kuu või 12 kuu plaan ja maksa päevahind × 30. Laadija ja teenindustugi on hinnas; lisavarustus on valikuline tasuline lisa."
     },
     "howItWorks": {
       "kicker": "Alustamine",
-      "heading": "Broneeri, tuvasta, võta vastu, maksa, sõida.",
-      "lead": "Rentaro e-jalgratta peale saamine on ehitatud kiireks. Broneeri tasuta ja kui kinnitame su broneeringu, tuvastad isiku, võtad lepingu vastu ja maksad portaalis esimesed 30 päeva ja tagatisraha — seejärel tule rattale järele, teenindustugi kaasas esimesest päevast."
+      "heading": "Broneeri, allkirjasta, maksa, sõida.",
+      "lead": "Broneerimine on tasuta. Pärast kinnitust loed ja allkirjastad rendilepingu, maksad esimese 30 päeva ja deposiidi ning võtad ratta koos laadijaga vastu. Lisa varustus ainult siis, kui seda vajad."
     },
     "faq": {
       "kicker": "KKK",
       "heading": "Kõik, mida pead teadma.",
-      "lead": "Kõige sagedasemad küsimused rentaro e-jalgratta rentimise kohta tarnetööks — paketid, tagatisrahad, hooldus ja kättesaamine. Vajad veel midagi? Võta ühendust ja aitame."
+      "lead": "Levinumad küsimused kuu kaupa e-jalgratta rentimise kohta tarneks — paketid, deposiit, teenindustugi, laadija, valikulised lisad ja üleandmine."
     },
     "accessories": {
       "kicker": "Lisad",
       "heading": "Varustus, mis toob vahetusi sisse.",
-      "lead": "Lisa varustus, mis sinu rutiini sobib. Pikkadeks tarnepäevadeks mõeldud lisaakudest kottide, hoidikute ja ilmastikukaitseni — iga lisa on loodud kullertööks ja selle saab lisada igale rentaro paketile."
+      "lead": "Lisa ainult see varustus, mis sinu rutiiniga sobib. Lisaakud, tarnekotid, telefonihoidikud, lukud, kiivrid, vihmakatted ja talverehvid on valikulised tasulised lisad; laadija kuulub iga ratta juurde."
     }
   },
   "modelsPage": {
     "kicker": "Kogu park",
     "heading": "Kõik mudelid.",
-    "lead": "Kõiki rentaro e-jalgrattaid renditakse samadel lihtsatel tingimustel — 30-päevased, 6- või 12-kuised paketid koos teenindustoega. Vali ratas, mis sinu vahetustele sobib.",
+    "lead": "Iga rentaro e-jalgratas renditakse samadel lihtsatel tingimustel — 30 päeva, 6 kuu või 12 kuu plaan teenindustoe ja laadijaga. Lisavarustus jääb valikuliseks, nii et valid ratta ja varustuse oma vahetuste järgi.",
     "allModels": "Kõik mudelid",
     "from": "",
     "perDay": "/ päev",
@@ -934,7 +934,7 @@
       "hero": {
         "kicker": "Igakuine e-jalgrataste rent",
         "heading": "Rendi ratas. Jäta hinnasilt vahele.",
-        "lead": "Igakuine e-jalgrataste rent on lihtsaim viis saada kvaliteetne ratas ilma seda ostmata. Maksad selget päevahinda, mille arve esitatakse iga 30 päeva tagant, ning ratas, teenindustugi ja laadija tulevad ühe paketina. Kui sinu vajadused muutuvad, muutub ka pakett — ei mingit edasimüüki, väärtuse langust ega töökojaarveid.",
+        "lead": "Kuu kaupa e-jalgratta rent on lihtsaim viis kvaliteetse tarnerattani ilma seda ostmata. Maksad selget päevahinda, arveldus iga 30 päeva järel. Ratas, laadija ja teenindustugi on hinna sees; lisaaku, lukk, kott ja muu varustus jäävad valikulisteks tasulisteks lisadeks.",
         "ctaReserve": "Broneeri ratas",
         "ctaExplore": "Uuri parki"
       },
@@ -944,8 +944,8 @@
           "copy": "Maksad päevahinda, mille arve esitatakse iga 30 päeva tagant. Ei mingit suurt ettemaksu ega ootamatuid remondiarveid — tead täpselt, mis ratas igal kuul maksab."
         },
         "repairsOnUs": {
-          "title": "Remondid on meie kanda",
-          "copy": "Teenindustugi on osa igast paketist. Kui midagi vajab parandamist, korraldame selle — nii et kulunud piduriklots või tühi rehv ei muutu sinu probleemiks."
+          "title": "Teenindustugi on hinna sees",
+          "copy": "Tavapärane teenindustugi on osa igast plaanist. Pidurite reguleerimine, torkeabi ja kulumisega seotud tööd on meie teha; kahju või väärkasutus käib rendireeglite järgi."
         },
         "commitFlexible": {
           "title": "Seo end nii vähe või kauaks, kui soovid",
@@ -953,7 +953,7 @@
         },
         "nothingTiedUp": {
           "title": "Midagi pole rattasse kinni pandud",
-          "copy": "E-jalgratta ostmine tähendab sadu eurosid ette, lisaks akud, lukud ja hooldus. Rentimine hoiab sinu raha vabana ja ratta hoolduse kellegi teise mureks."
+          "copy": "E-jalgratta ost seob raha ratta, hooajavarustuse ja tulevase hoolduse alla. Rent hoiab raha vabana ja teenindustugi jääb meie teha."
         }
       },
       "models": {
@@ -968,7 +968,7 @@
       },
       "meta": {
         "title": "E-jalgrataste igakuine rent — rentaro",
-        "description": "Rendi tarnevalmis e-jalgratas kuu kaupa, selle asemel et seda osta. 177 € esimese 30 päeva eest katab ratta, teenindustoe ja laadija — ei mingit 1000 €+ ettemaksu, võid 30 päeva järel lõpetada. Tallinn, Riia ja Helsingi."
+        "description": "Rendi tarneks mõeldud e-jalgratas kuu kaupa ostmise asemel. Esimesed 30 päeva alates €177 katavad ratta, laadija ja teenindustoe; lisavarustus on valikuline tasuline lisa. Tallinn, Riia ja Helsingi."
       },
       "compare": {
         "kicker": "Rentida või osta",
@@ -978,8 +978,8 @@
           "title": "Igakuine rent",
           "items": [
             "Alates 177 € esimese 30 päeva eest — ei mingit 1000 €+ ostu enne, kui saad teenima hakata.",
-            "Teenindus ja laadija sisalduvad hinnas.",
-            "Remondi eest hoolitseme meie; asendusratas, kui laoseis lubab.",
+            "Ratas, laadija ja teenindustugi on hinnas.",
+            "Tavapärane teenindustugi meie poolt; asendusratas laoseisu võimalusel.",
             "Lõpeta 30 päeva järel või liigu pikemale paketile madalama päevahinnaga.",
             "Anna ratas tagasi, kui lõpetad — ei mingit edasimüüki ega väärtuse langust."
           ]
@@ -1002,8 +1002,8 @@
       },
       "included": {
         "kicker": "Igas paketis",
-        "heading": "Üks hind. Kõik sõiduks vajalik.",
-        "lead": "Sinu kuuhind pole ainult ratas. See on varustus ja tugi, mis hoiavad sind teenimas — ilma üllatuslisadeta.",
+        "heading": "Ratas, laadija ja tugi hinnas.",
+        "lead": "Kuuhind katab ratta, laadija ja teenindustoe. Lisavarustus jääb valikuliseks, nii et lisad ainult selle, mida sinu vahetused päriselt vajavad.",
         "items": {
           "bike": {
             "title": "Tarnevalmis e-jalgratas",
@@ -1011,15 +1011,15 @@
           },
           "service": {
             "title": "Teenindustugi",
-            "copy": "Pidurite reguleerimine, tühjad rehvid ja üldhooldus kuuluvad paketti. Kauem seisma jäänud? Asendame ratta, kui laoseis lubab."
+            "copy": "Pidurite reguleerimine, torkeabi ja kulumisega seotud hooldus on plaani osa. Pikem seisak? Asendame ratta laoseisu võimalusel."
           },
           "lockCharger": {
-            "title": "Laadija",
+            "title": "Laadija hinnas",
             "copy": "Laadija käib iga paketiga kaasas, nii et saad ratta vahetuste vahel kodus täis laadida."
           },
           "swap": {
-            "title": "Paindlikkus muuta",
-            "copy": "Pikenda kuust kuusse, vaheta pikemale paketile madalama päevahinnaga või lisa lisaaku ja varustus, kui sinu rutiin muutub."
+            "title": "Valikulised lisad vajaduse järgi",
+            "copy": "Pikenda kuu kaupa, vaheta pikema plaani vastu madalama päevahinna jaoks või lisa tasuline varustus nagu lisaaku, tarnekott, telefonihoidik või lukk."
           }
         }
       },
@@ -1029,7 +1029,7 @@
         "items": {
           "firstPayment": {
             "q": "Kui palju pean alustamiseks maksma?",
-            "a": "Esimesed 30 päeva paindlikul paketil on 177 € (5,90 €/päev × 30), lisaks tagastatav tagatisraha. Broneerimisel makset ei võeta — maksad alles siis, kui rent on kinnitatud ja sa ratta kätte saad."
+            "a": "Paindliku plaani esimene 30 päeva maksab alates €177 (€5.90/päev × 30), lisaks tagastatav deposiit ja sinu valitud valikulised tasulised lisad. Broneerimisel makset ei võeta."
           },
           "cancel": {
             "q": "Kas saan kuu pärast lõpetada?",
@@ -1050,7 +1050,7 @@
       "hero": {
         "kicker": "Tarne-e-jalgrataste rent",
         "heading": "E-jalgratas, mis on tehtud tööks.",
-        "lead": "Tarnetöö paneb ratta proovile: pikad tunnid, rasked koormad ja igasugune ilm. rentaro rendib tarnevalmis e-jalgrattaid kuupõhiselt, sobiva mootori, kandevõime ja teenindustoega — nii et veedad oma vahetuse teenides, mitte tühja akuga ratast lükates. Maksad päevas, arve kuupõhiselt, remondid sinu eest korraldatud.",
+        "lead": "Tarnetöö kulutab ratast: pikad tunnid, koormad ja iga ilm. rentaro rendib tarneks mõeldud e-jalgrattaid kuu kaupa, laadija ja teenindustugi hinnas. Tasulised lisad nagu lisaaku, tarnekott, telefonihoidik või lukk on valikulised.",
         "ctaReserve": "Broneeri ratas",
         "ctaExplore": "Uuri parki"
       },
@@ -1061,7 +1061,7 @@
         },
         "downtimeCosts": {
           "title": "Seisuaeg maksab sulle raha",
-          "copy": "Sinu ratas on sinu sissetulekuallikas, seega on teenindustugi sisse ehitatud igasse paketti. Hoiame seda liikvel kiirete paranduste ja lisaaku valikutega järjestikusteks vahetusteks."
+          "copy": "Sinu ratas on sinu sissetulekuallikas, seega on teenindustugi sisse ehitatud igasse paketti. Hoiame seda liikvel kiirete parandustega; lisaaku on saadaval lisana järjestikusteks vahetusteks."
         },
         "readyForWeather": {
           "title": "Valmis igaks ilmaks",
@@ -1079,17 +1079,17 @@
       },
       "cta": {
         "heading": "Valmistu järgmiseks vahetuseks.",
-        "lead": "Vali tarnevalmis e-jalgratas ja pakett ning broneeri mõne sammuga — teenindustugi ja lisaaku valikud kaasas.",
+        "lead": "Vali tarnevalmis e-jalgratas ja plaan ning broneeri mõne sammuga — laadija ja teenindustugi hinnas, tasulised lisad valikulised.",
         "button": "Broneeri oma e-jalgratas"
       },
       "meta": {
         "title": "Tarne-e-jalgrataste rent — rentaro",
-        "description": "Tarneks ehitatud e-jalgrattad, mida saad kuu kaupa rentida — mootor, kandevõime ja teenindustugi hoiavad seisaku madala. Lisa lisaaku, tarnekott, telefonihoidik ja tugev lukk — sobib Bolti ja Wolti laadseks tööks Tallinnas, Riias ja Helsingis."
+        "description": "Tarneks ehitatud e-jalgrattad kuu kaupa rentimiseks, laadija ja teenindustugi hinnas. Lisa valikuline tasuline lisaaku, tarnekott, telefonihoidik või lukk kulleritööks Tallinnas, Riias ja Helsingis."
       },
       "gear": {
         "kicker": "Varustus, mis teenib vahetusi",
         "heading": "Varusta ratas tööks.",
-        "lead": "Tarne võidetakse detailides. Lisa tarvikud, mis muudavad hea ratta päris tarnevarustuseks — kõik need on saadaval koos paketiga.",
+        "lead": "Tarnes loevad detailid. Lisa ainult need tarvikud, mida vajad — igaüks neist on valikuline tasuline lisa sinu plaani juurde.",
         "items": {
           "battery": {
             "title": "Lisaaku",
@@ -1097,7 +1097,7 @@
           },
           "bag": {
             "title": "Tarnekott",
-            "copy": "Vastupidav, soojustatud kott toidu ja pakkide jaoks — hoiab tellimused kindlalt ja stabiilselt, olgu sõidad Boltile, Woltile või kellele iganes."
+            "copy": "Vastupidav, soojustatud kott toidu ja pakkide jaoks — hoiab tellimused linnas tarnides kindlalt ja stabiilselt."
           },
           "phone": {
             "title": "Telefonihoidik",
@@ -1123,8 +1123,8 @@
             "a": "Teenindustugi kuulub igasse paketti. Pidurid, tühjad rehvid ja üldhooldus on kaetud, ja kui ratas vajab pikemat remonti, asendame selle, kui laoseis lubab — sinu ratas on su teenimisvahend, seega hoiame su vahetused käigus."
           },
           "accessories": {
-            "q": "Kas saan lisada aku ja tarnekoti?",
-            "a": "Jah. Lisaaku, tarnekott, telefonihoidik ja tugev lukk on kõik saadaval lisadena, ja saad neid muuta, kui rutiin muutub. Engine Pro 2.0 kannab 832 Wh akut nõudlikeks päevadeks."
+            "q": "Millised lisad on hinnas?",
+            "a": "Laadija on rattaga kaasas. Lisaaku, tarnekott, telefonihoidik, tugev lukk ja talverehvid on valikulised tasulised lisad ning neid saab rutiini muutudes muuta."
           },
           "weather": {
             "q": "Kas rattad on valmis vihmaks ja talveks?",
@@ -1141,7 +1141,7 @@
       "hero": {
         "kicker": "E-jalgrataste rent kulleritele",
         "heading": "Tehtud kulleritele, mitte nädalavahetuse sõitjatele.",
-        "lead": "rentaro on olemas ühe töö jaoks: hoida tarnekullerid teenimas. Rendid tarnevalmis e-jalgratta kuupõhiselt, alustad kiiresti ja sõidad teenindustugi selja taga. Ei mingit suurt ostu, edasimüügipeavalu ega päeva, mis kaob ratta peale, mida sa ise parandada ei saa. Vali oma mudel, broneeri veebis ja alusta järgmist vahetust.",
+        "lead": "rentaro eesmärk on aidata kulleritel kiiresti alustada ja liikumas püsida. Rendi tarneks mõeldud e-jalgratas kuu kaupa, laadija ja teenindustugi hinnas. Suurt ostu pole, edasimüügi muret pole ning tasulised lisad ainult siis, kui neid vajad.",
         "ctaBook": "Alusta broneerimist",
         "ctaExplore": "Uuri parki"
       },
@@ -1160,7 +1160,7 @@
         },
         "staminaLongShifts": {
           "title": "Vastupidavus pikkadeks vahetusteks",
-          "copy": "Tarnetööks valitud rattad koos lisaaku valikutega päevadeks, mil paned järjestikuseid tellimusi üle linna kokku."
+          "copy": "Rattad on valitud tarnetööks, valikulised tasulised lisaakud aitavad päevadel, kui sõidad järjest tellimusi üle linna."
         }
       },
       "howItWorks": {
@@ -1175,7 +1175,7 @@
       },
       "cta": {
         "heading": "Valmis teenima hakkama?",
-        "lead": "Vali oma rentaro e-jalgratas, vali pakett ja broneeri mõne sammuga — teenindustugi kohe esimesest päevast.",
+        "lead": "Vali rentaro e-jalgratas, vali plaan ja broneeri mõne sammuga — laadija ja teenindustugi esimesest päevast hinnas.",
         "button": "Alusta broneerimist"
       }
     }
@@ -1210,21 +1210,29 @@
     "learnMore": "Privaatsuspoliitika"
   },
   "pageMeta": {
+    "home": {
+      "title": "rentaro — jalgratta ja elektriratta rent Tallinnas kuutasuga",
+      "description": "Rendi kulleritööks ehitatud elektriratas kuu kaupa Tallinnas. 30 päeva, 6 või 12 kuu paketid koos hoolduse ja laadijaga — alates €177 / 30 päeva."
+    },
+    "book": {
+      "title": "Broneeri oma elektriratas — rentaro",
+      "description": "Vali linn, ratas ja pakett ning saada tasuta broneerimissoov — makse alles pärast kinnitust."
+    },
     "accessories": {
       "title": "Lisavarustus ja tarvikud kulleritele | rentaro",
-      "description": "Varusta oma vahetus rentaro lisadega — varuakud, kullerikotid, telefonihoidikud, tugevad lukud ja palju muud. Loodud kulleritele, saadaval iga paketiga."
+      "description": "Varusta oma vahetus valikuliste tasuliste rentaro lisadega — lisaakud, tarnekotid, telefonihoidikud, tugevad lukud ja muu. Laadija on iga rattaga kaasas."
     },
     "faq": {
       "title": "KKK — kuupõhine elektriratta rent kulleritele | rentaro",
-      "description": "Vastused rentaro pakettide, 30-päevase miinimumi, tagatisraha, hoolduse, varuakude, järeletuleku asukohtade ja digilepingu kohta kulleritele."
+      "description": "Vastused rentaro kuupõhiste e-jalgratta plaanide, 30-päevase miinimumi, deposiidi, teenindustoe, laadija, valikuliste tasuliste lisade, üleandmise ja lepingute kohta."
     },
     "models": {
       "title": "Kõik elektrirattamudelid — rentaro",
-      "description": "Sirvi kogu rentaro parki — kulleritööks valmis elektrirattad 30-päevase, 6- või 12-kuulise paketiga Tallinnas, Riias ja Helsingis."
+      "description": "Sirvi kogu rentaro rattaparki — tarnevalmis e-jalgrattad 30 päeva, 6 kuu või 12 kuu plaaniga, laadija ja teenindustugi hinnas."
     },
     "pricing": {
       "title": "Hinnad — kuupõhised elektriratta paketid kulleritele | rentaro",
-      "description": "Lihtne hind iga 30 päeva kohta kulleritele: 5,90 €/päev 30-päevase paketiga, 4,90 €/päev 6 kuuga ja 3,90 €/päev 12 kuuga. Sama paketihind kõigil mudelitel."
+      "description": "Lihtne 30-päevane hinnastus kulleritele: €5.90/päev 30 päeva plaanil, €4.90/päev 6 kuul ja €3.90/päev 12 kuul. Laadija ja teenindustugi hinnas; lisavarustus valikuline."
     },
     "privacy": {
       "title": "Privaatsuspoliitika — rentaro",
@@ -1236,7 +1244,7 @@
     },
     "rules": {
       "title": "Rendireeglid — rentaro",
-      "description": "Kuidas rentaro elektriratta rent toimib: 30-päevane miinimum, tagatisraha, sisalduv hooldus, kahjustuste ja varguste käsitlemine, laadimine ja tagastamine kulleritele."
+      "description": "Kuidas rentaro e-jalgratta rent töötab: 30-päevane miinimum, deposiit, laadija ja teenindustugi, valikulised tasulised lisad, kahju, vargus, laadimine ja tagastamine."
     },
     "bookingStatus": {
       "title": "Jälgi oma broneeringut — rentaro",
@@ -1244,7 +1252,11 @@
     },
     "couriers": {
       "title": "Elektriratta rent kulleritele — rentaro",
-      "description": "rentaro on elektriratta rent, mis on loodud kulleritele. Alusta kiiresti kuupõhise paketiga, sõida hoolduse toega ja hoia oma ratas — sinu sissetulekuvahend — liikumas. Tallinn, Riia ja Helsingi."
+      "description": "rentaro on kuupõhine e-jalgratta rent kulleritele. Alusta kiiresti, sõida laadija ja teenindustoega ning lisa tasuline varustus ainult vajadusel. Tallinn, Riia ja Helsingi."
+    },
+    "howItWorks": {
+      "title": "Kuidas see töötab — kuupõhine e-jalgratta rent | rentaro",
+      "description": "Broneeri tasuta, allkirjasta rendileping, maksa esimene 30 päeva ja deposiit ning võta vastu tarnevalmis e-jalgratas koos laadija ja teenindustoega."
     }
   }
 }

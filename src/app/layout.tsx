@@ -1,15 +1,14 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { defaultOgImages, defaultTwitterImages } from "@/lib/og";
+import { getSiteUrl, SITE_DESCRIPTION, SITE_TITLE } from "@/lib/site";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 import { Analytics } from "@/components/analytics/Analytics";
 import { JsonLd, buildOrganizationSchema } from "@/components/seo/JsonLd";
 
-const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rentaro-courier-hub.vercel.app"
-).replace(/\/$/, "");
+const siteUrl = getSiteUrl();
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -25,9 +24,8 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const title = "rentaro — Delivery-ready e-bikes by the month";
-const description =
-  "Rent a delivery-built e-bike by the month in Tallinn, Riga and Helsinki. 30-day, 6 and 12-month plans with service support, lock, charger and extra-battery options included.";
+const title = SITE_TITLE;
+const description = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

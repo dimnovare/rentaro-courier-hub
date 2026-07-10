@@ -31,7 +31,7 @@ export const rentalRules: LegalDoc = {
       heading: "Who can rent",
       body: [
         "To rent a rentaro e-bike you must be at least 18 years old, hold a valid government-issued identity document and complete our identity verification. You must provide accurate, current information and be legally able to enter into a rental contract in Estonia or Latvia.",
-        "The rental is personal to you, the named renter. You are responsible for the bike at all times while it is in your care. You must not lend, sublet, hand over or transfer the bike, battery, charger, lock or accessories to anyone else, and you must not let anyone else ride it, unless we have agreed this with you in writing.",
+        "The rental is personal to you, the named renter. You are responsible for the bike at all times while it is in your care. You must not lend, sublet, hand over or transfer the bike, battery, charger or any selected accessories to anyone else, and you must not let anyone else ride it, unless we have agreed this with you in writing.",
         "We may decline a booking, or pause or end an active rental, where identity cannot be verified, where the information provided turns out to be inaccurate, where payment or the deposit cannot be taken, or where these rules or the rental agreement are not followed.",
       ],
     },
@@ -48,7 +48,7 @@ export const rentalRules: LegalDoc = {
       heading: "Deposit",
       body: [
         "A refundable security deposit is required before pickup. The deposit equals the 30-day price of the plan you select: €177 on the 30-day plan, €147 on the 6-month plan and €117 on the 12-month plan. The exact amount is confirmed during booking before you pay.",
-        "The deposit secures your obligations under the rental. We may apply it towards, or deduct from it, amounts you owe us — for example damage beyond fair wear and tear, missing or damaged equipment (lock, charger, battery or accessories), unpaid rental charges, cleaning where the bike is returned excessively dirty, or charges arising from late or non-return.",
+        "The deposit secures your obligations under the rental. We may apply it towards, or deduct from it, amounts you owe us — for example damage beyond fair wear and tear, missing or damaged equipment (charger, battery or selected accessories, including a rentaro lock if selected), unpaid rental charges, cleaning where the bike is returned excessively dirty, or charges arising from late or non-return.",
         "After the bike is returned and inspected, and once any amounts owed are settled, we refund the remaining deposit to the payment method used, normally within 14 days of return. Where we need to deduct from the deposit, we will explain the reason and amount before completing the refund.",
       ],
     },
@@ -84,8 +84,8 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Locking and security",
       body: [
-        "Whenever the bike is unattended, even briefly, lock it with the supplied lock to a fixed, solid object and secure it as instructed at pickup. Never leave the bike unlocked, never leave the battery or charger unattended in public, and do not leave the keys with the bike.",
-        "Failing to lock or secure the bike properly may make you responsible for the cost of loss, theft or damage that results. If extra security equipment is included with your model, use it as directed.",
+        "Whenever the bike is unattended, even briefly, lock it to a fixed, solid object with a suitable lock, or with the rentaro lock if you selected one. Secure it as instructed at pickup. Never leave the bike unlocked, never leave the battery or charger unattended in public, and do not leave the keys with the bike.",
+        "Failing to lock or secure the bike properly may make you responsible for the cost of loss, theft or damage that results. If you selected extra security equipment, use it as directed.",
       ],
     },
     {
@@ -113,7 +113,7 @@ export const rentalRules: LegalDoc = {
     {
       heading: "Returns and handover",
       body: [
-        "At the end of your rental, return the bike at the agreed time and place with all supplied equipment — battery, charger, lock, keys and any accessories — in clean, working condition allowing for fair wear and tear.",
+        "At the end of your rental, return the bike at the agreed time and place with all supplied equipment — battery, charger, keys and any selected accessories, including a rentaro lock if selected — in clean, working condition allowing for fair wear and tear.",
         "We inspect the bike at handover and note its condition. Once any outstanding charges are settled, we release the remaining deposit as described above. Bikes returned late, returned incomplete, or not returned at all may incur additional daily charges, replacement costs and deductions from the deposit, and we may treat a bike that is not returned as a loss and recover its value.",
       ],
     },
