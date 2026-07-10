@@ -22,13 +22,13 @@ const faqKeys = [
 export function FaqView({
   count,
   defaultOpen,
-  liveCityIds = [],
-  soonCityIds = [],
+  liveCities = [],
+  soonCities = [],
 }: {
   count: number;
   defaultOpen: number;
-  liveCityIds?: string[];
-  soonCityIds?: string[];
+  liveCities?: { id: string; name: string }[];
+  soonCities?: { id: string; name: string }[];
 }) {
   const t = useTranslations("faq");
   const tc = useTranslations("cities");
@@ -39,8 +39,11 @@ export function FaqView({
   // The "Where can I pick up the bike?" answer names the live/soon markets, so
   // it derives from real city status with LOCALIZED names (cities.names.*). The
   // ICU message uses {live} / {soon} placeholders; all other answers take none.
-  const liveCityNames = liveCityIds.map((id) => tc(`names.${id}`)).join(" + ");
-  const soonCityNames = soonCityIds.map((id) => tc(`names.${id}`)).join(", ");
+  // t.has guard: admin-added cities have no message key — use the API name.
+  const cityName = (c: { id: string; name: string }) =>
+    tc.has(`names.${c.id}`) ? tc(`names.${c.id}`) : c.name || c.id;
+  const liveCityNames = liveCities.map(cityName).join(" + ");
+  const soonCityNames = soonCities.map(cityName).join(", ");
   // `soonState` drives an ICU select so the "…coming soon" clause is dropped
   // entirely when no market is pending — keeping the sentence natural.
   const answerVars = (key: string): Record<string, string> =>

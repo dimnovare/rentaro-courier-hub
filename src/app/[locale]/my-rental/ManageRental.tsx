@@ -946,7 +946,11 @@ function ContractCard({
           >
             <h3 style={{ fontSize: 18, letterSpacing: "-0.02em" }}>{t("heading")}</h3>
             <span className={`model-badge ${variant}`} style={{ position: "static" }}>
-              {t(`status.${contract.status}`)}
+              {/* Guard: an unknown future SignatureStatus passes normalizeStatus
+                  through raw — show the raw value rather than a missing-key error. */}
+              {t.has(`status.${contract.status}`)
+                ? t(`status.${contract.status}`)
+                : contract.status}
             </span>
           </div>
 

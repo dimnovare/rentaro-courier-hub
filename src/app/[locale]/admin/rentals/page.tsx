@@ -464,7 +464,17 @@ function ManageRentalBody({
               className="btn btn-primary"
               style={miniBtn}
               disabled={busy}
-              onClick={() => onInspect(id, true, notes)}
+              onClick={() => {
+                // Inspection is terminal: it permanently CLOSES the rental with
+                // no undo, so a single (mis)click must not be enough.
+                if (
+                  typeof window !== "undefined" &&
+                  !window.confirm("Pass inspection and close this rental? This is final.")
+                ) {
+                  return;
+                }
+                onInspect(id, true, notes);
+              }}
             >
               Pass inspection
             </button>
@@ -473,7 +483,17 @@ function ManageRentalBody({
               className="btn btn-ghost"
               style={miniBtn}
               disabled={busy}
-              onClick={() => onInspect(id, false, notes)}
+              onClick={() => {
+                if (
+                  typeof window !== "undefined" &&
+                  !window.confirm(
+                    "Fail inspection and close this rental? This is final — the bike unit goes to maintenance.",
+                  )
+                ) {
+                  return;
+                }
+                onInspect(id, false, notes);
+              }}
             >
               Fail inspection
             </button>

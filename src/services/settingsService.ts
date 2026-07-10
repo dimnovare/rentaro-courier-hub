@@ -41,6 +41,9 @@ export async function getSettings(): Promise<SiteSettings> {
     const res = await fetch(`${API_BASE}/api/public/settings`, {
       headers: { Accept: "application/json" },
       cache: "no-store",
+      // Abort a stalled API rather than hanging SSR (mirrors portalService's
+      // PORTAL_TIMEOUT_MS / api.ts's API_TIMEOUT_MS pattern).
+      signal: AbortSignal.timeout(12_000),
     });
     if (!res.ok) throw new Error(`GET /api/public/settings → ${res.status}`);
     const data = (await res.json()) as Partial<SiteSettings>;

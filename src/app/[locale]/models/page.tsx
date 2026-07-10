@@ -6,7 +6,6 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { ModelCard } from "@/components/models/ModelCard";
 import { modelService } from "@/services/modelService";
-import { getLiveModelTotals, modelStatus } from "@/services/availabilityService";
 
 export async function generateMetadata({
   params,
@@ -24,15 +23,11 @@ export async function generateMetadata({
 }
 
 export default async function ModelsPage() {
-  const [models, liveTotals] = await Promise.all([
-    modelService.getModels(),
-    getLiveModelTotals(),
-  ]);
-  const patched = models.map((m) => {
-    const avail = liveTotals.get(m.id);
-    if (avail === undefined) return m;
-    return { ...m, availability: avail, status: modelStatus(avail) };
-  });
+  // /api/public/models already embeds live-derived availability/status
+  // server-side — no re-patch from /api/public/availability. The old second
+  // fetch had its own 20s cache window and could contradict the embedded
+  // values within the same render.
+  const models = await modelService.getModels();
   const t = await getTranslations("modelsPage");
   return (
     <main>
@@ -46,7 +41,7 @@ export default async function ModelsPage() {
             </p>
           </Reveal>
           <div className="models-grid">
-            {patched.map((model, i) => (
+            {models.map((model, i) => (
               <Reveal key={model.id} delay={(i % 3) * 80}>
                 <ModelCard m={model} />
               </Reveal>

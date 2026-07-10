@@ -84,7 +84,10 @@ export function PricingView({
 
         <div className="pricing-grid">
           {plans.map((plan, i) => {
-            const term = t(`terms.${plan.id}`);
+            // t.has guards: plan ids are admin/catalog-driven — a new plan has
+            // no message key yet, so fall back to the API-provided term/tag.
+            const term = t.has(`terms.${plan.id}`) ? t(`terms.${plan.id}`) : plan.term;
+            const tag = t.has(`tags.${plan.id}`) ? t(`tags.${plan.id}`) : plan.tag;
             const perks = plan.perks[locale] ?? plan.perks.en ?? [];
             // Every figure on the card flows through resolvePlanPrice so the
             // daily, 30-day, deposit and due-at-pickup numbers all agree with the
@@ -95,7 +98,7 @@ export function PricingView({
                 <article className={`card price-card ${plan.featured ? "feat" : ""}`} style={{ flex: 1 }}>
                   <div className="ptop">
                     <span className="term">{term}</span>
-                    <span className="tag">{t(`tags.${plan.id}`)}</span>
+                    <span className="tag">{tag}</span>
                   </div>
                   <div className="amount">
                     <span className="big price-num" key={flashKey}>
@@ -142,7 +145,7 @@ export function PricingView({
                     className={`btn btn-block ${plan.featured ? "btn-primary" : "btn-ghost"}`}
                     onClick={() =>
                       isWaitlist && selected
-                        ? reserve(`waitlist:${selected.id}`, "pricing")
+                        ? reserve(`waitlist:${selected.id}`, "pricing", { modelName: selected.name })
                         : reserve(plan.id, "pricing", selected ? { model: selected.id } : undefined)
                     }
                   >

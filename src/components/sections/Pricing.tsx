@@ -14,12 +14,15 @@ export async function Pricing() {
     modelService.getModels(),
   ]);
 
-  // The bike selector only appears once at least one active model has custom
-  // pricing — until then the section is byte-for-byte the standard tiers, and
-  // the extra chrome never clutters the locked design. Pass a slim, active-only
-  // list so the client bundle carries just what the selector needs.
-  const active = models.filter((m) => m.isActive !== false);
-  const pricedModels = active.some(hasOverride) ? active : undefined;
+  // The bike selector only appears once at least one model has custom pricing —
+  // until then the section is byte-for-byte the standard tiers, and the extra
+  // chrome never clutters the locked design.
+  //
+  // No isActive filter: the public /api/public/models endpoint never sends
+  // isActive (inactive models are filtered server-side), and every static
+  // fallback entry in bikeModels.ts carries isActive: true — so the old
+  // `m.isActive !== false` filter was a no-op on both paths and was removed.
+  const pricedModels = models.some(hasOverride) ? models : undefined;
 
   return <PricingView plans={plans} models={pricedModels} />;
 }

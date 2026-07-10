@@ -14,6 +14,7 @@ import { API_BASE } from "@/services/api";
 import { resolveImg, handleModelImgError } from "@/services/modelService";
 import { operatingCityNames } from "@/lib/cities";
 import type { SiteSettings } from "@/services/settingsService";
+import { modelStatus } from "@/services/availabilityService";
 import type { Accessory, BikeModel, City, PlanId } from "@/types";
 
 /** Contact preference captured on the review step. */
@@ -87,7 +88,9 @@ export function BookingWizard({
   // Localized names of the cities we currently operate in (status !== "soon"),
   // used to derive the city-step subtitle ("We operate in {live} today.") so the
   // copy can never name a market that admin has flipped to "coming soon".
-  const { live: liveCityNames } = operatingCityNames(cities, (id) => tc(`names.${id}`));
+  const { live: liveCityNames } = operatingCityNames(cities, (id) =>
+    tc.has(`names.${id}`) ? tc(`names.${id}`) : cities.find((c) => c.id === id)?.name ?? id,
+  );
 
   // Pre-fill from deep-link query params (e.g. "Reserve this bike" → ?model=…,
   // "Reserve in Tallinn" → ?city=…, "Choose 6 months" → ?plan=…). A pre-filled
@@ -192,11 +195,20 @@ export function BookingWizard({
   // Selected add-ons' per-30-day total. Accessory prices are admin-managed
   // display strings ("€15 / 30d"), so parse the leading number defensively —
   // an unparseable price simply contributes 0 rather than breaking the wizard.
-  // The backend applies the same parse when charging, so shown = billed.
+  // The backend (AccessoryPricing) applies the same parse when charging, so
+  // shown = billed — keep the two implementations in lockstep.
   const accessoryPriceOf = (id: string): number => {
     const raw = accessories.find((a) => a.id === id)?.price ?? "";
-    const m = raw.match(/(\d+(?:[.,]\d+)?)/);
-    return m ? parseFloat(m[1].replace(",", ".")) : 0;
+    // Anchored like the backend parser; "€1,299" is thousands, "€12,50" decimal.
+    const m = raw.match(/^\s*(?:[€$]\s*)?(\d+(?:[.,]\d+)?)/);
+    if (!m) return 0;
+    const num = m[1];
+    const comma = num.indexOf(",");
+    const normalized =
+      comma >= 0 && !num.includes(".") && num.length - comma - 1 <= 2
+        ? num.replace(",", ".")
+        : num.replace(",", "");
+    return parseFloat(normalized);
   };
   const gearMonthly = accessoryIds.reduce((sum, id) => sum + accessoryPriceOf(id), 0);
 
@@ -411,6 +423,12 @@ export function BookingWizard({
         plan: plan?.term ?? "",
         // Includes selected add-ons — they bill per 30 days alongside the bike.
         monthly: plan ? priceFor(plan).monthly + gearMonthly : 0,
+        // Split money fields for the success page: the deposit equals the BIKE's
+        // 30-day price only (never add-ons), and the one-time delivery fee is
+        // part of the first payment but never of the deposit or recurring price.
+        bikeMonthly: plan ? priceFor(plan).monthly : 0,
+        gear: gearMonthly,
+        fee: feeApplied,
         daily: plan ? priceFor(plan).daily : 0,
         city: city?.name ?? "",
         startDate,
@@ -451,11 +469,15 @@ export function BookingWizard({
         {/* Running selection + price, visible across every step. */}
         {(cityId || modelId || planId) && (
           <div className="wizard-pick">
-            {cityId && <span className="chip">{tc(`names.${cityId}`)}</span>}
+            {cityId && (
+              <span className="chip">
+                {tc.has(`names.${cityId}`) ? tc(`names.${cityId}`) : city?.name ?? cityId}
+              </span>
+            )}
             {model && <span className="chip">{model.name}</span>}
             {plan && (
               <span className="chip accent">
-                {tp(`terms.${planId}`)} · {t("plan.per30", { price: priceFor(plan).monthly })}
+                {tp.has(`terms.${planId}`) ? tp(`terms.${planId}`) : plan.term} · {t("plan.per30", { price: priceFor(plan).monthly })}
               </span>
             )}
           </div>
@@ -492,7 +514,7 @@ export function BookingWizard({
                     disabled={soon}
                     onClick={() => !soon && pick(() => setCityId(c.id))}
                   >
-                    <span className="opt-t">{tc(`names.${c.id}`)}</span>
+                    <span className="opt-t">{tc.has(`names.${c.id}`) ? tc(`names.${c.id}`) : c.name}</span>
                     <span className="opt-m">{tc(`countries.${countryKey[c.country]}`)}</span>
                     <span className="opt-p">
                       {soon
@@ -530,7 +552,7 @@ export function BookingWizard({
                 // Real numbers, not vague words: fall back to the model's static
                 // count until the live fetch resolves, so a count always exists.
                 const count = availLoaded ? (availMap[`model:${m.id}`] ?? 0) : m.availability;
-                const stat = count === 0 ? "wait" : count <= 3 ? "low" : "in";
+                const stat = modelStatus(count);
                 const statLabel =
                   stat === "in"
                     ? t("model.statAvailable", { count })
@@ -638,6 +660,11 @@ export function BookingWizard({
         {key === "plan" && (
           <>
             <h3>{t("plan.heading")}</h3>
+            {selectedIsWaitlist && model && (
+              <p className="sub" role="status" style={{ color: "var(--warn)" }}>
+                {t("model.waitSelectedNote", { name: model.name })}
+              </p>
+            )}
             <p className="sub">{t("plan.sub")}</p>
             <div className="opt-grid three">
               {pricingPlans.map((p) => (
@@ -649,7 +676,7 @@ export function BookingWizard({
                     pick(() => setPlanId(p.id));
                   }}
                 >
-                  <span className="opt-t">{tp(`terms.${p.id}`)}</span>
+                  <span className="opt-t">{tp.has(`terms.${p.id}`) ? tp(`terms.${p.id}`) : p.term}</span>
                   <span className="opt-p">
                     {t("plan.perDay", { price: priceFor(p).daily.toFixed(2) })}
                   </span>
@@ -669,6 +696,11 @@ export function BookingWizard({
         {key === "details" && (
           <>
             <h3>{t("details.heading")}</h3>
+            {selectedIsWaitlist && model && (
+              <p className="sub" role="status" style={{ color: "var(--warn)" }}>
+                {t("model.waitSelectedNote", { name: model.name })}
+              </p>
+            )}
             <p className="sub">{t("details.sub")}</p>
             <div className="field-row">
               <div className="field">
@@ -816,7 +848,7 @@ export function BookingWizard({
                         >
                           <span>
                             <span className="opt-t" style={{ display: "block" }}>
-                              {ta(`names.${a.id}`)}
+                              {ta.has(`names.${a.id}`) ? ta(`names.${a.id}`) : a.name}
                             </span>
                             <span className="opt-p">{a.price}</span>
                           </span>
@@ -839,7 +871,7 @@ export function BookingWizard({
             <div>
               <div className="summary-row">
                 <span className="l">{t("review.city")}</span>
-                <span className="v">{cityId ? tc(`names.${cityId}`) : city?.name}</span>
+                <span className="v">{cityId && tc.has(`names.${cityId}`) ? tc(`names.${cityId}`) : city?.name ?? cityId}</span>
               </div>
               <div className="summary-row">
                 <span className="l">{t("review.model")}</span>
@@ -848,7 +880,7 @@ export function BookingWizard({
               <div className="summary-row">
                 <span className="l">{t("review.plan")}</span>
                 <span className="v">
-                  {planId ? tp(`terms.${planId}`) : plan?.term} · {t("plan.perDay", { price: plan?.daily.toFixed(2) ?? "" })}
+                  {planId && tp.has(`terms.${planId}`) ? tp(`terms.${planId}`) : plan?.term} · {t("plan.perDay", { price: plan ? priceFor(plan).daily.toFixed(2) : "" })}
                 </span>
               </div>
               {settings.showAddGear && (
@@ -859,7 +891,9 @@ export function BookingWizard({
                       ? accessoryIds
                           .map((id) => {
                             const price = accessoryPriceOf(id);
-                            const name = ta(`names.${id}`);
+                            const name = ta.has(`names.${id}`)
+                              ? ta(`names.${id}`)
+                              : accessories.find((a) => a.id === id)?.name ?? id;
                             return price > 0 ? `${name} · €${price}` : name;
                           })
                           .join(", ")
@@ -925,7 +959,10 @@ export function BookingWizard({
               <p className="sub" style={{ marginTop: 4 }}>
                 {/* Longer plans bill per 30-day period: invoice before each one.
                     The recurring amount excludes the one-time delivery fee. */}
-                {t("review.thenPer30", { amount: priceFor(plan).monthly + gearMonthly })}
+                {t(
+                  settings.showAddGear && gearMonthly > 0 ? "review.thenPer30WithGear" : "review.thenPer30",
+                  { amount: priceFor(plan).monthly + gearMonthly },
+                )}
               </p>
             )}
             {plan && endDate && (
@@ -1136,7 +1173,7 @@ export function BookingWizard({
                 {infoModel.brand} · {tm.has(`${infoModel.id}.tagline`) ? tm(`${infoModel.id}.tagline`) : infoModel.tagline}
               </div>
               <p className="lead" style={{ fontSize: 14.5, marginTop: 10 }}>
-                {infoModel.blurb}
+                {tm.has(`${infoModel.id}.blurb`) ? tm(`${infoModel.id}.blurb`) : infoModel.blurb}
               </p>
               <div className="spec-row" style={{ marginTop: 12 }}>
                 {infoModel.pills.map((p) => (

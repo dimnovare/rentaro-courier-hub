@@ -20,6 +20,7 @@ import {
   type AdminPayment,
   type CreateBookingInput,
 } from "@/services/adminBookingService";
+import { listRentals } from "@/services/adminRentalService";
 import { modelService } from "@/services/modelService";
 import { cityService } from "@/services/cityService";
 import { pricingService } from "@/services/pricingService";
@@ -70,6 +71,14 @@ interface PageData {
   models: { id: string; name: string }[];
   cities: { id: string; name: string }[];
   plans: { id: string; label: string }[];
+  /**
+   * bookingId → assigned bike unit code, derived from the rentals list. This is
+   * the only truthful "a bike is really assigned" signal: the backend consumes
+   * the hold (clears HeldBikeUnitId) when a rental starts, so the booking DTO
+   * alone can't distinguish a real assignment from a raw status jump. `null`
+   * when the rentals fetch failed (signal unknown — don't make claims from it).
+   */
+  rentalUnitByBooking: Map<string, string> | null;
 }
 
 type LoadState =
@@ -113,12 +122,16 @@ export default function AdminBookingsPage() {
     // and visibly blink an open Manage panel.
     if (!opts?.silent) setState({ phase: "loading" });
     try {
-      const [bookings, units, models, cities, plans] = await Promise.all([
+      const [bookings, units, models, cities, plans, rentals] = await Promise.all([
         listBookings(),
         listUnitCodes(),
         modelService.getModels(),
         cityService.getCities(),
         pricingService.getPlans(),
+        // Rentals feed the "is a bike really assigned?" signal only — a hiccup
+        // here must not take down bookings management, so degrade to null
+        // (signal unknown) instead of failing the whole load.
+        listRentals().catch(() => null),
       ]);
       setState({
         phase: "ready",
@@ -128,6 +141,13 @@ export default function AdminBookingsPage() {
           models: models.map((m) => ({ id: m.id, name: m.name })),
           cities: cities.map((c) => ({ id: c.id, name: c.name })),
           plans: plans.map((p) => ({ id: p.id, label: `${p.term} · €${p.monthly}/30d` })),
+          rentalUnitByBooking: rentals
+            ? new Map(
+                rentals
+                  .filter((r) => r.bookingId)
+                  .map((r) => [r.bookingId as string, r.bikeUnitInternalCode]),
+              )
+            : null,
         },
       });
     } catch (err) {
@@ -530,6 +550,7 @@ export default function AdminBookingsPage() {
             <BookingsManageTable
               bookings={state.data.bookings}
               units={state.data.units}
+              rentalUnitByBooking={state.data.rentalUnitByBooking}
               contracts={contracts}
               contractBusy={contractBusy}
               payments={payments}
@@ -559,15 +580,21 @@ export default function AdminBookingsPage() {
                   "Booking approved.",
                 )
               }
-              onReject={(id) =>
-                runAction(
+              onReject={(id) => {
+                // Rejecting emails the customer a rejection and releases the
+                // held bike — confirm before firing.
+                const ok = window.confirm(
+                  "Reject this booking? The customer is emailed a rejection and the held bike is released.",
+                );
+                if (!ok) return;
+                void runAction(
                   id,
                   async () => {
                     await updateStatus(id, "rejected");
                   },
                   "Booking rejected.",
-                )
-              }
+                );
+              }}
               onAssign={(id, code) =>
                 runAction(
                   id,
@@ -928,6 +955,7 @@ const COL_COUNT = 8;
 function BookingsManageTable({
   bookings,
   units,
+  rentalUnitByBooking,
   contracts,
   contractBusy,
   payments,
@@ -949,6 +977,7 @@ function BookingsManageTable({
 }: {
   bookings: AdminBooking[];
   units: AdminFleetUnit[];
+  rentalUnitByBooking: Map<string, string> | null;
   contracts: Record<string, Contract>;
   contractBusy: Record<string, boolean>;
   payments: Record<string, AdminPayment | null | "loading">;
@@ -993,6 +1022,12 @@ function BookingsManageTable({
                 key={b.id}
                 booking={b}
                 units={units}
+                // undefined = rentals unknown (fetch failed); null = known: no rental.
+                assignedUnitCode={
+                  rentalUnitByBooking === null
+                    ? undefined
+                    : (rentalUnitByBooking.get(b.id) ?? null)
+                }
                 contract={contracts[b.id]}
                 contractBusy={Boolean(contractBusy[b.id])}
                 payment={payments[b.id]}
@@ -1026,6 +1061,7 @@ function BookingsManageTable({
 function BookingRow({
   booking: b,
   units,
+  assignedUnitCode,
   contract,
   contractBusy,
   payment,
@@ -1047,6 +1083,8 @@ function BookingRow({
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
+  /** Unit code of this booking's rental; null = known none; undefined = unknown. */
+  assignedUnitCode: string | null | undefined;
   contract: Contract | undefined;
   contractBusy: boolean;
   payment: AdminPayment | null | "loading" | undefined;
@@ -1112,6 +1150,7 @@ function BookingRow({
             <ManagePanel
               booking={b}
               units={units}
+              assignedUnitCode={assignedUnitCode}
               contract={contract}
               contractBusy={contractBusy}
               payment={payment}
@@ -1144,6 +1183,7 @@ function BookingRow({
 function ManagePanel({
   booking: b,
   units,
+  assignedUnitCode,
   contract,
   contractBusy,
   payment,
@@ -1163,6 +1203,8 @@ function ManagePanel({
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
+  /** Unit code of this booking's rental; null = known none; undefined = unknown. */
+  assignedUnitCode: string | null | undefined;
   contract: Contract | undefined;
   contractBusy: boolean;
   payment: AdminPayment | null | "loading" | undefined;
@@ -1264,6 +1306,7 @@ function ManagePanel({
         <AssignControl
           booking={b}
           units={units}
+          assignedUnitCode={assignedUnitCode}
           payment={payment}
           contract={contract}
           onlineSigning={onlineSigning}
@@ -1952,6 +1995,7 @@ function ContractCheckbox({
 function AssignControl({
   booking: b,
   units,
+  assignedUnitCode,
   payment,
   contract,
   onlineSigning,
@@ -1959,6 +2003,8 @@ function AssignControl({
 }: {
   booking: AdminBooking;
   units: AdminFleetUnit[];
+  /** Unit code of this booking's rental; null = known none; undefined = unknown. */
+  assignedUnitCode: string | null | undefined;
   payment: AdminPayment | null | "loading" | undefined;
   contract: Contract | undefined;
   onlineSigning: boolean;
@@ -1995,14 +2041,34 @@ function AssignControl({
   // job is done — the previously-eligible unit is now rented, so without this
   // guard the empty `eligible` list would show the "No assignable unit" warning
   // on every successfully assigned booking.
+  //
+  // BUT status alone doesn't prove an assignment: a raw set-status jump to
+  // active/completed skips assignment entirely (the backend releases the held
+  // unit on that jump), so only claim "already assigned" when the row carries
+  // an actual assignment signal: a rental linked to this booking (the assign
+  // endpoint consumes the hold, so heldBikeUnitCode is null after a REAL
+  // assignment) or a still-held unit (a raw jump to bikeassigned keeps the
+  // hold). When the rentals lookup failed (undefined) the signal is unknown —
+  // keep the softer claim rather than wrongly telling the operator to reset a
+  // legitimately assigned booking.
   const normalizedStatus = (b.status ?? "").toLowerCase().replace(/[_\s-]/g, "");
   if (normalizedStatus === "bikeassigned" || normalizedStatus === "active" || normalizedStatus === "completed") {
+    const linkedUnit = assignedUnitCode ?? b.heldBikeUnitCode;
+    if (linkedUnit || assignedUnitCode === undefined) {
+      return (
+        <p style={hintStyle}>
+          A bike{linkedUnit ? <> (<span className="mono">{linkedUnit}</span>)</> : ""} is
+          already assigned to this booking
+          {normalizedStatus === "active" ? " and the rental is active" : ""}
+          {normalizedStatus === "completed" ? " and the rental is completed" : ""}. Manage the
+          unit from the Rentals or Fleet view.
+        </p>
+      );
+    }
     return (
       <p style={hintStyle}>
-        A bike is already assigned to this booking
-        {normalizedStatus === "active" ? " and the rental is active" : ""}
-        {normalizedStatus === "completed" ? " and the rental is completed" : ""}. Manage the
-        unit from the Rentals or Fleet view.
+        This booking&apos;s status is past assignment, but no bike is linked. Set the
+        status back to approved to assign one.
       </p>
     );
   }

@@ -41,7 +41,11 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
         aria-label={m.name}
         onClick={() => track("cta_view_details", { model: m.id, source: "model-card-image" })}
       >
-        <span className={`model-badge ${m.badge.variant}`}>{m.badge.text}</span>
+        {/* Badge-less models come over the wire as badge:{text:""} — render the
+            pill only when there is actual text, never an empty floating chip. */}
+        {m.badge?.text?.trim() && (
+          <span className={`model-badge ${m.badge.variant}`}>{m.badge.text}</span>
+        )}
         <span className={`model-avail ${avail.cls}`}>
           <span className="dot" />
           {avail.label}
@@ -94,7 +98,9 @@ export function ModelCard({ m, compact = false }: { m: BikeModel; compact?: bool
           </div>
           <button
             className={`reserve-btn ${isWait ? "wait" : ""}`}
-            onClick={() => reserve(isWait ? `waitlist:${m.id}` : m.id, "model-card")}
+            onClick={() =>
+              reserve(isWait ? `waitlist:${m.id}` : m.id, "model-card", { modelName: m.name })
+            }
           >
             {isWait ? t("joinWaitlist") : t("reserve")}
             {!isWait && <Ic.arrow s={13} />}

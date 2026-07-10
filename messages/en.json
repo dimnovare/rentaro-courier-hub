@@ -60,7 +60,7 @@
     "ctaReserve": "Reserve a bike",
     "ctaExplore": "Explore the fleet",
     "stats": {
-      "priceValue": "€3.90",
+      "priceValue": "from €3.90",
       "priceUnit": "/day",
       "priceLabel": "12-mo plan",
       "termValue": "30",
@@ -68,7 +68,7 @@
       "termLabel": "Minimum term",
       "citiesUnit": "cities",
       "citiesLabel": "Live now{soonState, select, some{ · {soon} soon} other{}}",
-      "availableUnit": "bikes",
+      "availableUnit": "{count, plural, one {bike} other {bikes}}",
       "availableLabel": "Available now"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 delivery e-bike",
@@ -148,7 +148,7 @@
   "fleet": {
     "kicker": "The full fleet",
     "heading": "{count} bikes. One simple plan.",
-    "lead": "From the heavy-duty Engine Pro to lightweight folding commuters — every model rents on the same 30-day, 6 or 12-month terms."
+    "lead": "From the moto-style Engine Pro to easy folding fat-tyre bikes — every model rents on the same 30-day, 6 or 12-month terms."
   },
   "howItWorks": {
     "kicker": "How it works",
@@ -256,7 +256,7 @@
       },
       "deposit": {
         "q": "What deposit is required?",
-        "a": "A refundable security deposit equal to your plan's 30-day price (€177 on the 30-day plan, €147 on 6 months, €117 on 12 months) is taken at pickup. It is returned at the end of your rental minus any damage beyond fair wear."
+        "a": "A refundable security deposit equal to your bike's 30-day price is taken at pickup — the exact amount is shown during booking. It is returned at the end of your rental minus any damage beyond fair wear."
       },
       "pickup": {
         "q": "Where can I pick up the bike?",
@@ -312,7 +312,7 @@
       "perDay": "€{price}/day",
       "per30": "€{price} per 30 days",
       "depositBadge": "Refundable deposit €{deposit} — you get it back",
-      "dueLine": "€{total} paid in your portal after approval",
+      "dueLine": "€{total} to start — first 30 days + refundable deposit",
       "dayRange": "€{min}–{max}/day"
     },
     "addons": {
@@ -396,7 +396,8 @@
       "payStripTransfer": "Pay before pickup",
       "firstPayment": "First payment",
       "firstPaymentNote": "Due after your booking is approved and you've accepted the contract — plus a €{deposit} refundable deposit paid alongside it.",
-      "thenPer30": "Then €{amount} every 30 days — we send an invoice before each new period."
+      "thenPer30": "Then €{amount} every 30 days — we send an invoice before each new period.",
+      "thenPer30WithGear": "Then €{amount} every 30 days (bike + add-ons) — we send an invoice before each new period."
     },
     "buttons": {
       "cancel": "Cancel",
@@ -717,7 +718,7 @@
           "points": [
             {
               "title": "No big outlay to start",
-              "copy": "A delivery-capable e-bike costs well over a thousand euros to buy, plus a lock, charger and winter tyres. Renting is €177 for your first 30 days and you're on the road — cash stays in your pocket for rent and deposits."
+              "copy": "A delivery-capable e-bike costs well over a thousand euros to buy, plus a lock, charger and winter tyres. Renting starts at €177 for your first 30 days and you're on the road — cash stays in your pocket for rent and deposits."
             },
             {
               "title": "Repairs aren't your problem",
@@ -967,7 +968,7 @@
       },
       "meta": {
         "title": "Monthly e-bike rental — rentaro",
-        "description": "Rent a delivery-built e-bike by the month instead of buying one. €177 for your first 30 days covers the bike, service support and charger — no €1,000+ up front, cancel after 30 days. Tallinn, Riga and Helsinki."
+        "description": "Rent a delivery-built e-bike by the month instead of buying one. From €177 for your first 30 days covers the bike, service support and charger — no €1,000+ up front, cancel after 30 days. Tallinn, Riga and Helsinki."
       },
       "compare": {
         "kicker": "Rent vs buy",
@@ -976,7 +977,7 @@
         "rent": {
           "title": "Renting monthly",
           "items": [
-            "€177 for your first 30 days — no €1,000+ purchase before you can earn.",
+            "From €177 for your first 30 days — no €1,000+ purchase before you can earn.",
             "Service and charger included in the price.",
             "Repairs handled for you; a replacement bike where stock allows.",
             "Cancel after 30 days, or move to a longer plan for a lower daily rate.",
@@ -1028,7 +1029,7 @@
         "items": {
           "firstPayment": {
             "q": "How much do I pay to start?",
-            "a": "Your first 30 days on the flexible plan are €177 (€5.90/day × 30), plus a refundable deposit. No payment is taken when you reserve — you pay only once your rental is approved and you collect the bike."
+            "a": "Your first 30 days on the flexible plan start from €177 (€5.90/day × 30), plus a refundable deposit. No payment is taken when you reserve — you pay only once your rental is approved and you collect the bike."
           },
           "cancel": {
             "q": "Can I cancel after a month?",
@@ -1036,7 +1037,7 @@
           },
           "deposit": {
             "q": "Is there a deposit?",
-            "a": "Yes — a refundable security deposit equal to your plan's 30-day price (€177 on 30 days, €147 on 6 months, €117 on 12 months), taken at pickup and returned at the end minus any damage beyond fair wear."
+            "a": "Yes — a refundable security deposit equal to your bike's 30-day price (shown exactly during booking), taken at pickup and returned at the end minus any damage beyond fair wear."
           },
           "extend": {
             "q": "What if I want to keep the bike longer?",

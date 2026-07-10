@@ -60,7 +60,7 @@
     "ctaReserve": "Broneeri ratas",
     "ctaExplore": "Tutvu pargiga",
     "stats": {
-      "priceValue": "€3.90",
+      "priceValue": "al. €3.90",
       "priceUnit": "/päev",
       "priceLabel": "12-kuu pakett",
       "termValue": "30",
@@ -68,7 +68,7 @@
       "termLabel": "Minimaalne periood",
       "citiesUnit": "linna",
       "citiesLabel": "Juba töös{soonState, select, some{ · {soon} varsti} other{}}",
-      "availableUnit": "jalgrattad",
+      "availableUnit": "{count, plural, one {jalgratas} other {jalgratast}}",
       "availableLabel": "Saadaval praegu"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 tarne-e-ratas",
@@ -148,7 +148,7 @@
   "fleet": {
     "kicker": "Kogu park",
     "heading": "{count} ratast. Üks lihtne plaan.",
-    "lead": "Alates vastupidavast Engine Prost kuni kergete kokkupandavate linnaratasteni — iga mudel renditakse samadel 30 päeva, 6 või 12 kuu tingimustel."
+    "lead": "Alates võimsast Engine Prost kuni mugavate kokkupandavate fat-rehviga ratasteni — iga mudel renditakse samadel 30 päeva, 6 või 12 kuu tingimustel."
   },
   "howItWorks": {
     "kicker": "Kuidas see töötab",
@@ -256,7 +256,7 @@
       },
       "deposit": {
         "q": "Kui suur tagatisraha on nõutav?",
-        "a": "Järeletulekul võetakse tagastatav tagatisraha, mis võrdub sinu paketi 30-päevase hinnaga (€177 30-päevase paketi puhul, €147 6 kuu puhul, €117 12 kuu puhul). See tagastatakse rendi lõpus, millest arvatakse maha tavakulumist suuremad kahjustused."
+        "a": "Järeletulekul võetakse tagastatav tagatisraha, mis võrdub sinu ratta 30 päeva hinnaga — täpne summa on näha broneerimisel. See tagastatakse rendi lõpus, millest arvatakse maha tavakulumist suuremad kahjustused."
       },
       "pickup": {
         "q": "Kust saan rattale järele tulla?",
@@ -312,7 +312,7 @@
       "perDay": "€{price}/päev",
       "per30": "€{price} 30 päeva eest",
       "depositBadge": "Tagastatav tagatisraha €{deposit} — saad selle tagasi",
-      "dueLine": "€{total} makstud portaalis pärast kinnitamist",
+      "dueLine": "€{total} alustamiseks — esimesed 30 päeva + tagastatav tagatisraha",
       "dayRange": "€{min}–{max}/päev"
     },
     "addons": {
@@ -396,7 +396,8 @@
       "payStripTransfer": "Maksa enne üleandmist",
       "firstPayment": "Esimene makse",
       "firstPaymentNote": "Tasumisele pärast broneeringu kinnitamist, kui oled lepinguga nõustunud — lisaks {deposit} € tagastatav tagatisraha, mis tasutakse koos sellega.",
-      "thenPer30": "Seejärel {amount} € iga 30 päeva järel — saadame arve enne iga uut perioodi."
+      "thenPer30": "Seejärel {amount} € iga 30 päeva järel — saadame arve enne iga uut perioodi.",
+      "thenPer30WithGear": "Seejärel {amount} € iga 30 päeva järel (ratas + lisad) — saadame arve enne iga uut perioodi."
     },
     "buttons": {
       "cancel": "Tühista",
@@ -976,7 +977,7 @@
         "rent": {
           "title": "Igakuine rent",
           "items": [
-            "177 € esimese 30 päeva eest — ei mingit 1000 €+ ostu enne, kui saad teenima hakata.",
+            "Alates 177 € esimese 30 päeva eest — ei mingit 1000 €+ ostu enne, kui saad teenima hakata.",
             "Teenindus ja laadija sisalduvad hinnas.",
             "Remondi eest hoolitseme meie; asendusratas, kui laoseis lubab.",
             "Lõpeta 30 päeva järel või liigu pikemale paketile madalama päevahinnaga.",
@@ -1036,7 +1037,7 @@
           },
           "deposit": {
             "q": "Kas on tagatisraha?",
-            "a": "Jah — tagastatav tagatisraha sinu paketi 30 päeva hinna ulatuses (177 € 30 päeva, 147 € 6 kuu, 117 € 12 kuu puhul), võetakse kättesaamisel ja tagastatakse lõpus, miinus võimalik kahju üle tavakulumi."
+            "a": "Jah — tagastatav tagatisraha sinu ratta 30 päeva hinna ulatuses (täpne summa on näha broneerimisel), võetakse kättesaamisel ja tagastatakse lõpus, miinus võimalik kahju üle tavakulumi."
           },
           "extend": {
             "q": "Mis siis, kui tahan ratast kauem hoida?",

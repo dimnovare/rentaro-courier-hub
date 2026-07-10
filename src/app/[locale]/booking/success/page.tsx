@@ -12,7 +12,14 @@ type Summary = {
   id: string;
   model: string;
   plan: string;
+  /** Recurring per-30-days total (bike + add-ons). */
   monthly: number;
+  /** The bike's own 30-day price — the deposit equals exactly this. */
+  bikeMonthly?: number;
+  /** Selected add-ons' per-30-day total. */
+  gear?: number;
+  /** One-time delivery fee (0 for pickup). */
+  fee?: number;
   city: string;
   startDate: string;
   firstName: string;
@@ -123,9 +130,11 @@ export default function BookingSuccessPage() {
                   </article>
                 )}
 
-                {/* Restated cost: refundable deposit (= one 30-day period) plus the
-                    total paid later in the portal — after approval and contract
-                    acceptance (two periods). Only shown once we have the price. */}
+                {/* Restated cost: the refundable deposit equals the BIKE's 30-day
+                    price only (never add-ons), and the total due before pickup is
+                    first 30 days (bike + add-ons) + deposit + one-time delivery
+                    fee. Older summaries lack the split fields — fall back to the
+                    recurring total so the line never understates. */}
                 {s && s.monthly > 0 && (
                   <p
                     className="mono"
@@ -137,7 +146,10 @@ export default function BookingSuccessPage() {
                       maxWidth: 440,
                     }}
                   >
-                    {t("cost", { deposit: s.monthly, total: s.monthly * 2 })}
+                    {t("cost", {
+                      deposit: s.bikeMonthly ?? s.monthly,
+                      total: (s.bikeMonthly ?? s.monthly) + s.monthly + (s.fee ?? 0),
+                    })}
                   </p>
                 )}
 

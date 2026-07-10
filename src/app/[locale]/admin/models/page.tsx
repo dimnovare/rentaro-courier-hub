@@ -19,6 +19,7 @@ import {
   type ModelInput,
 } from "@/services/adminModelService";
 import { resolveImg } from "@/services/modelService";
+import { pricingService } from "@/services/pricingService";
 import { formatEur } from "@/lib/money";
 import type { ColorOption } from "@/types/bike";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
@@ -59,25 +60,33 @@ const BADGE_TEXT_PRESETS = [
   "New",
 ] as const;
 
+/** Global per-30-day tier prices, one per plan tier. */
+type GlobalTier = { p30: number; p6mo: number; p12mo: number };
+
 /**
- * Global per-30-day tier prices (business constants, mirror the pricing plans).
- * Used to compute a model's "from / day" when a tier price isn't overridden.
+ * Last-resort tier values used ONLY until the live plans load (or when the
+ * fetch fails). The real numbers are fetched from the pricing API on mount —
+ * the pricelist page can edit the global tiers, so hardcoding them here would
+ * drift the "from / day" column and the placeholder hints.
  */
-const GLOBAL_TIER = { p30: 177, p6mo: 147, p12mo: 117 } as const;
+const FALLBACK_GLOBAL_TIER: GlobalTier = { p30: 177, p6mo: 147, p12mo: 117 };
 
 /**
  * Lowest daily rate across the three tiers (override € when set, else the global
  * tier), i.e. the model's headline "from / day". Matches how the public site
  * derives it (pricingService.modelFromDaily), so admin and site never diverge.
  */
-function fromDailyOf(m: {
-  price30?: number | null;
-  price6mo?: number | null;
-  price12mo?: number | null;
-}): number {
-  const e30 = m.price30 ?? GLOBAL_TIER.p30;
-  const e6 = m.price6mo ?? GLOBAL_TIER.p6mo;
-  const e12 = m.price12mo ?? GLOBAL_TIER.p12mo;
+function fromDailyOf(
+  m: {
+    price30?: number | null;
+    price6mo?: number | null;
+    price12mo?: number | null;
+  },
+  tier: GlobalTier,
+): number {
+  const e30 = m.price30 ?? tier.p30;
+  const e6 = m.price6mo ?? tier.p6mo;
+  const e12 = m.price12mo ?? tier.p12mo;
   return Math.round((Math.min(e30, e6, e12) / 30) * 100) / 100;
 }
 
@@ -98,6 +107,28 @@ export default function AdminModelsPage() {
   const [pending, setPending] = useState<Record<string, boolean>>({});
   // Per-code cache-buster bumped after an image upload so <img> re-fetches.
   const [imgVersion, setImgVersion] = useState<Record<string, number>>({});
+  // Live global tier prices (per-30-day € for p30/p180/p365), fetched once on
+  // mount so the "from / day" column and the blank-override hints track edits
+  // made on the pricelist page. Falls back to the shipped constants until the
+  // fetch resolves (pricingService itself degrades to the static plans on
+  // error, so this effectively never stays stale unless everything is down).
+  const [globalTier, setGlobalTier] = useState<GlobalTier>(FALLBACK_GLOBAL_TIER);
+
+  useEffect(() => {
+    let cancelled = false;
+    void pricingService.getPlans().then((plans) => {
+      if (cancelled) return;
+      const monthly = (id: string) => plans.find((p) => p.id === id)?.monthly;
+      setGlobalTier({
+        p30: monthly("p30") ?? FALLBACK_GLOBAL_TIER.p30,
+        p6mo: monthly("p180") ?? FALLBACK_GLOBAL_TIER.p6mo,
+        p12mo: monthly("p365") ?? FALLBACK_GLOBAL_TIER.p12mo,
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
@@ -391,6 +422,7 @@ export default function AdminModelsPage() {
                     <ModelRow
                       key={m.code}
                       model={m}
+                      globalTier={globalTier}
                       isFirst={idx === 0}
                       isLast={idx === state.models.length - 1}
                       busy={Boolean(pending[m.code])}
@@ -415,6 +447,7 @@ export default function AdminModelsPage() {
             open={editing !== null}
             mode={editing === "__new__" ? "create" : "edit"}
             model={editingModel}
+            globalTier={globalTier}
             usedCodes={usedCodes}
             imgVersion={editingModel ? imgVersion[editingModel.code] : undefined}
             busy={editingModel ? Boolean(pending[editingModel.code]) : false}
@@ -457,6 +490,7 @@ function sortModels(models: AdminModel[]): AdminModel[] {
 
 function ModelRow({
   model,
+  globalTier,
   isFirst,
   isLast,
   busy,
@@ -468,6 +502,7 @@ function ModelRow({
   onReorder,
 }: {
   model: AdminModel;
+  globalTier: GlobalTier;
   isFirst: boolean;
   isLast: boolean;
   busy: boolean;
@@ -524,7 +559,7 @@ function ModelRow({
           <BadgeCell model={model} />
         </Td>
         <Td mono nowrap>
-          {formatEur(fromDailyOf(model))}
+          {formatEur(fromDailyOf(model, globalTier))}
         </Td>
         <Td nowrap>
           <div style={{ display: "inline-flex", gap: 4 }}>
@@ -636,6 +671,7 @@ function ModelEditor({
   open,
   mode,
   model,
+  globalTier,
   usedCodes,
   imgVersion,
   busy,
@@ -650,6 +686,8 @@ function ModelEditor({
   open: boolean;
   mode: "create" | "edit";
   model?: AdminModel | null;
+  /** Live per-30-day global tier prices (for hints + derived "from / day"). */
+  globalTier: GlobalTier;
   usedCodes: string[];
   /** Cache-buster for the uploaded image preview (bumped after a replace). */
   imgVersion?: number;
@@ -915,8 +953,9 @@ function ModelEditor({
       <FormSection label="Pricing" />
 
       {/* Plan pricing — the per-30-day € for each tier. Blank = the global tier
-          (177 / 147 / 112). The public "from / day" is the lowest tier's daily
-          rate, computed live here so admin + site never diverge. */}
+          (live values fetched from the pricing API, so edits on the pricelist
+          page are reflected here). The public "from / day" is the lowest tier's
+          daily rate, computed live here so admin + site never diverge. */}
       <div
         style={{
           display: "flex",
@@ -932,43 +971,46 @@ function ModelEditor({
           From{" "}
           <strong className="mono">
             {formatEur(
-              fromDailyOf({
-                price30: optNum(f.price30),
-                price6mo: optNum(f.price6mo),
-                price12mo: optNum(f.price12mo),
-              }),
+              fromDailyOf(
+                {
+                  price30: optNum(f.price30),
+                  price6mo: optNum(f.price6mo),
+                  price12mo: optNum(f.price12mo),
+                },
+                globalTier,
+              ),
             )}
           </strong>{" "}
           / day
         </span>
       </div>
       <div style={gridStyle}>
-        <Field label="30-day price (€)" hint="Blank = global tier (177)">
+        <Field label="30-day price (€)" hint={`Blank = global tier (${globalTier.p30})`}>
           <input
             value={f.price30}
             onChange={(e) => set("price30", e.target.value)}
             inputMode="numeric"
-            placeholder="177"
+            placeholder={String(globalTier.p30)}
             aria-label="30-day price override"
             style={inputStyle}
           />
         </Field>
-        <Field label="6-month price (€/30d)" hint="Blank = global tier (147)">
+        <Field label="6-month price (€/30d)" hint={`Blank = global tier (${globalTier.p6mo})`}>
           <input
             value={f.price6mo}
             onChange={(e) => set("price6mo", e.target.value)}
             inputMode="numeric"
-            placeholder="147"
+            placeholder={String(globalTier.p6mo)}
             aria-label="6-month price override"
             style={inputStyle}
           />
         </Field>
-        <Field label="12-month price (€/30d)" hint="Blank = global tier (117)">
+        <Field label="12-month price (€/30d)" hint={`Blank = global tier (${globalTier.p12mo})`}>
           <input
             value={f.price12mo}
             onChange={(e) => set("price12mo", e.target.value)}
             inputMode="numeric"
-            placeholder="117"
+            placeholder={String(globalTier.p12mo)}
             aria-label="12-month price override"
             style={inputStyle}
           />

@@ -25,20 +25,45 @@ import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { modelService } from "@/services/modelService";
 import { cityService } from "@/services/cityService";
 
-/** Valid BikeUnitStatus values — must match the backend enum (Rentaro.Domain). */
+/**
+ * Valid BikeUnitStatus values in their WIRE form — the backend serializes enum
+ * names lower-cased with no separators (e.g. "returningsoon"), and the PATCH
+ * status endpoint parses the same form back. Option values must match the wire
+ * exactly or the select's includes() check fails and duplicates the raw entry.
+ */
 const UNIT_STATUSES = [
   "available",
   "reserved",
   "rented",
-  "returningSoon",
+  "returningsoon",
+  "inspectionpending",
   "maintenance",
   "damaged",
+  "stolen",
   "retired",
 ] as const;
 
-/** Pretty label for a status value (camelCase → spaced words). */
+/** Human-readable labels for the squashed lowercase wire values. */
+const UNIT_STATUS_LABELS: Record<string, string> = {
+  available: "available",
+  reserved: "reserved",
+  rented: "rented",
+  returningsoon: "returning soon",
+  inspectionpending: "inspection pending",
+  maintenance: "maintenance",
+  damaged: "damaged",
+  stolen: "stolen",
+  retired: "retired",
+};
+
+/** Pretty label for a status value: known wire values get their mapped label;
+ *  anything else (e.g. rental statuses in the timeline) falls back to spacing
+ *  out camelCase and lower-casing, so unknown values still render sensibly. */
 function statusLabel(value: string): string {
-  return value.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+  return (
+    UNIT_STATUS_LABELS[value.toLowerCase()] ??
+    value.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()
+  );
 }
 
 interface FleetData {

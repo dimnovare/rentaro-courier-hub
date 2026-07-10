@@ -86,7 +86,9 @@ export function Hero({
                 <div className="n">
                   {showBikes ? liveAvailable : liveCount}
                   <span className="u">
-                    {showBikes ? t("stats.availableUnit") : t("stats.citiesUnit")}
+                    {showBikes
+                      ? t("stats.availableUnit", { count: liveAvailable ?? 0 })
+                      : t("stats.citiesUnit")}
                   </span>
                 </div>
                 <div className="l">

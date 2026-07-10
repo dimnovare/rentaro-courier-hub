@@ -1,7 +1,7 @@
 import type { SyntheticEvent } from "react";
 import { bikeModels, popularModels, getModelBySlug } from "@/data/bikeModels";
 import type { BikeModel } from "@/types";
-import { API_BASE, apiGet } from "./api";
+import { API_BASE, apiGet, apiGetOrNotFound } from "./api";
 
 /**
  * Resolve a model image `src` for use in `<img>`.
@@ -43,6 +43,9 @@ export const modelService = {
   getModels: () => apiGet<BikeModel[]>("/api/public/models", bikeModels),
   getPopular: () =>
     apiGet<BikeModel[]>("/api/public/models?popular=true", popularModels),
+  // A live-API 404 means the model was deleted/deactivated in admin — resolve
+  // undefined (→ notFound()) instead of resurrecting the static fallback. The
+  // fallback still covers network errors / 5xx (API down).
   getModel: (slug: string) =>
-    apiGet<BikeModel | undefined>(`/api/public/models/${slug}`, getModelBySlug(slug)),
+    apiGetOrNotFound<BikeModel>(`/api/public/models/${slug}`, getModelBySlug(slug)),
 };

@@ -82,7 +82,9 @@ export interface BikeModel {
   img: string;
   /** Optional photo gallery for the detail page. */
   gallery?: string[];
-  badge: ModelBadge;
+  /** Optional marketing badge; admin models without one serialize {text:""} —
+   *  treat blank text as "no badge". */
+  badge?: ModelBadge;
   /** Marketing pills — no fixed-km range promises (per business rules). */
   pills: string[];
   /** Uniform term pricing: every bike starts here on a 30-day plan. */

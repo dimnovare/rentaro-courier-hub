@@ -25,7 +25,11 @@ export async function Accessories() {
                     <Glyph s={22} />
                   </div>
                   <div>
-                    <div className="an">{t(`names.${a.id}`)}</div>
+                    {/* Admin-added accessories have no message key — fall back
+                        to the API-provided name so a new row never crashes. */}
+                    <div className="an">
+                      {t.has(`names.${a.id}`) ? t(`names.${a.id}`) : a.name}
+                    </div>
                     <div className="ap">{a.price}</div>
                     {colors.length > 0 && (
                       <div className="model-swatches" role="group" aria-label={t("colors")}>

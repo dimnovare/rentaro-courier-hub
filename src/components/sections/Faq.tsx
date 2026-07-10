@@ -8,17 +8,22 @@ export async function Faq() {
     contentService.getFaqs(),
     cityService.getCities(),
   ]);
-  // Live/soon city-id split fed to the pickup answer so it derives from real
-  // status (FaqView localizes the ids via cities.names.*). A city is live once
-  // it is no longer "soon".
-  const liveCityIds = cities.filter((c) => c.status !== "soon").map((c) => c.id);
-  const soonCityIds = cities.filter((c) => c.status === "soon").map((c) => c.id);
+  // Live/soon city split fed to the pickup answer so it derives from real
+  // status (FaqView localizes via cities.names.*, falling back to the API name
+  // for admin-added cities with no message key). A city is live once it is no
+  // longer "soon".
+  const liveCities = cities
+    .filter((c) => c.status !== "soon")
+    .map((c) => ({ id: c.id, name: c.name }));
+  const soonCities = cities
+    .filter((c) => c.status === "soon")
+    .map((c) => ({ id: c.id, name: c.name }));
   return (
     <FaqView
       count={faqs.length}
       defaultOpen={defaultOpenFaq}
-      liveCityIds={liveCityIds}
-      soonCityIds={soonCityIds}
+      liveCities={liveCities}
+      soonCities={soonCities}
     />
   );
 }

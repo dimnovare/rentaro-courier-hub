@@ -60,7 +60,7 @@
     "ctaReserve": "Varaa pyörä",
     "ctaExplore": "Tutustu kalustoon",
     "stats": {
-      "priceValue": "€3.90",
+      "priceValue": "alk. €3.90",
       "priceUnit": "/pv",
       "priceLabel": "12 kk suunnitelma",
       "termValue": "30",
@@ -68,7 +68,7 @@
       "termLabel": "Vähimmäisaika",
       "citiesUnit": "kaupunkia",
       "citiesLabel": "Käytössä nyt{soonState, select, some{ · {soon} pian} other{}}",
-      "availableUnit": "pyörää",
+      "availableUnit": "{count, plural, one {pyörä} other {pyörää}}",
       "availableLabel": "Saatavilla nyt"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 -lähettisähköpyörä",
@@ -148,7 +148,7 @@
   "fleet": {
     "kicker": "Koko kalusto",
     "heading": "{count} pyörää. Yksi selkeä suunnitelma.",
-    "lead": "Järeästä Engine Prosta kevyisiin taittopyöriin — jokainen malli vuokrataan samoilla 30 päivän, 6 tai 12 kuukauden ehdoilla."
+    "lead": "Järeästä Engine Prosta helppoihin taitettaviin fat-rengaspyöriin — jokainen malli vuokrataan samoilla 30 päivän, 6 tai 12 kuukauden ehdoilla."
   },
   "howItWorks": {
     "kicker": "Näin se toimii",
@@ -256,7 +256,7 @@
       },
       "deposit": {
         "q": "Mikä vakuus vaaditaan?",
-        "a": "Noudon yhteydessä peritään palautettava vakuus, joka vastaa suunnitelmasi 30 päivän hintaa (€177 30 päivän suunnitelmassa, €147 6 kuukaudessa, €117 12 kuukaudessa). Se palautetaan vuokra-ajan päättyessä vähennettynä mahdollisilla normaalin kulumisen ylittävillä vahingoilla."
+        "a": "Noudon yhteydessä peritään palautettava vakuus, joka vastaa pyöräsi 30 päivän hintaa — tarkka summa näkyy varauksen yhteydessä. Se palautetaan vuokra-ajan päättyessä vähennettynä mahdollisilla normaalin kulumisen ylittävillä vahingoilla."
       },
       "pickup": {
         "q": "Mistä voin noutaa pyörän?",
@@ -312,7 +312,7 @@
       "perDay": "€{price}/pv",
       "per30": "€{price} per 30 päivää",
       "depositBadge": "Palautettava vakuus €{deposit} — saat sen takaisin",
-      "dueLine": "€{total} maksetaan portaalissasi hyväksynnän jälkeen",
+      "dueLine": "€{total} aloitukseen — ensimmäiset 30 päivää + palautettava vakuus",
       "dayRange": "€{min}–{max}/päivä"
     },
     "addons": {
@@ -400,7 +400,8 @@
       "payStripTransfer": "Maksa ennen noutoa",
       "firstPayment": "Ensimmäinen maksu",
       "firstPaymentNote": "Erääntyy, kun varauksesi on hyväksytty ja olet hyväksynyt sopimuksen — lisäksi {deposit} € palautettava vakuus maksetaan sen yhteydessä.",
-      "thenPer30": "Sen jälkeen {amount} € joka 30. päivä — lähetämme laskun ennen jokaista uutta jaksoa."
+      "thenPer30": "Sen jälkeen {amount} € joka 30. päivä — lähetämme laskun ennen jokaista uutta jaksoa.",
+      "thenPer30WithGear": "Sen jälkeen {amount} € joka 30. päivä (pyörä + lisävarusteet) — lähetämme laskun ennen jokaista uutta jaksoa."
     },
     "buttons": {
       "cancel": "Peruuta",
@@ -976,7 +977,7 @@
         "rent": {
           "title": "Kuukausivuokraus",
           "items": [
-            "177 € ensimmäisistä 30 päivästä — ei yli 1000 € ostosta ennen kuin voit ansaita.",
+            "Alkaen 177 € ensimmäisistä 30 päivästä — ei yli 1000 € ostosta ennen kuin voit ansaita.",
             "Huolto ja laturi sisältyvät hintaan.",
             "Korjaukset hoidetaan puolestasi; vaihtopyörä varaston salliessa.",
             "Lopeta 30 päivän jälkeen tai siirry pidempään suunnitelmaan alemmalla päivähinnalla.",
@@ -1036,7 +1037,7 @@
           },
           "deposit": {
             "q": "Onko vakuusmaksua?",
-            "a": "Kyllä — palautettava vakuusmaksu, joka vastaa suunnitelmasi 30 päivän hintaa (177 € 30 päivän, 147 € 6 kuukauden, 117 € 12 kuukauden suunnitelmassa), otetaan noudettaessa ja palautetaan lopussa miinus normaalin kulumisen ylittävät vauriot."
+            "a": "Kyllä — palautettava vakuusmaksu, joka vastaa pyöräsi 30 päivän hintaa (tarkka summa näkyy varauksen yhteydessä), otetaan noudettaessa ja palautetaan lopussa miinus normaalin kulumisen ylittävät vauriot."
           },
           "extend": {
             "q": "Entä jos haluan pitää pyörän pidempään?",

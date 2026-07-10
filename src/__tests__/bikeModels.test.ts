@@ -4,7 +4,9 @@ import { bikeModels } from "@/data/bikeModels";
 /**
  * Catalogue invariants (see CLAUDE.md):
  *  - four active models (matches the production fleet: engine-pro + 3 engwe-*);
- *  - uniform term pricing — every bike starts at €5.90 / day;
+ *  - per-model pricing is internally consistent — the headline fromDay/from30
+ *    must equal the model's own cheapest tier (overrides included), so the
+ *    fallback can never show a "from" price its own tiers don't back up;
  *  - NO fixed-km range promise in marketing pills (the range rule). Range may
  *    only live in the detailed spec block / spec tables, never a card pill.
  */
@@ -13,10 +15,20 @@ describe("bikeModels", () => {
     expect(bikeModels).toHaveLength(4);
   });
 
-  it("starts every model at €5.90 / day", () => {
+  it("keeps each model's headline prices consistent with its own tiers", () => {
+    // Mirrors the backend derivation: from30 is the model's 30-DAY-plan price
+    // and fromDay the cheapest tier's daily rate (prod payload semantics).
     for (const model of bikeModels) {
-      expect(model.fromDay).toBe(5.9);
-      expect(model.from30).toBe(177);
+      const tiers = [
+        model.price30 ?? 177,
+        model.price6mo ?? 147,
+        model.price12mo ?? 117,
+      ];
+      expect(model.from30, model.id).toBe(tiers[0]);
+      expect(model.fromDay, model.id).toBeCloseTo(
+        Math.round((Math.min(...tiers) / 30) * 100) / 100,
+        2,
+      );
     }
   });
 

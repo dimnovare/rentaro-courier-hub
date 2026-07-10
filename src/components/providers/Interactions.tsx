@@ -22,10 +22,20 @@ type Interactions = {
    *  ("p30"...), "city:<id>" or "waitlist:<modelId>". Routes to /book with
    *  prefill, or opens the waitlist capture modal. `source` is analytics-only
    *  (the CTA location, e.g. "hero" / "nav" / "pricing") and never affects
-   *  routing. */
-  reserve: (what?: string, source?: string, opts?: { model?: string }) => void;
+   *  routing. `opts.modelName` is display-only — it lets the waitlist toast
+   *  name API-only models that aren't in the static fallback list. */
+  reserve: (
+    what?: string,
+    source?: string,
+    opts?: { model?: string; modelName?: string },
+  ) => void;
   /** Open the waitlist capture modal directly with explicit context. */
-  openWaitlist: (opts: { cityId?: string; modelId?: string; source: string }) => void;
+  openWaitlist: (opts: {
+    cityId?: string;
+    modelId?: string;
+    modelName?: string;
+    source: string;
+  }) => void;
   /** Smooth-scroll to a section id on the landing, or route to /#id elsewhere. */
   nav: (id: string) => void;
   /** Go to the full /models page. `source` is analytics-only (the CTA location). */
@@ -34,8 +44,13 @@ type Interactions = {
   toast: (msg: string) => void;
 };
 
-/** What the open waitlist modal should submit. */
-type WaitlistTarget = { cityId?: string; modelId?: string; source: string };
+/** What the open waitlist modal should submit. `modelName` is display-only. */
+type WaitlistTarget = {
+  cityId?: string;
+  modelId?: string;
+  modelName?: string;
+  source: string;
+};
 
 const InteractionContext = createContext<Interactions | null>(null);
 
@@ -89,7 +104,7 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
   );
 
   const reserve = useCallback(
-    (what?: string, source?: string, opts?: { model?: string }) => {
+    (what?: string, source?: string, opts?: { model?: string; modelName?: string }) => {
       if (!what) {
         track("cta_reserve", { source });
         router.push("/book");
@@ -99,7 +114,7 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
         const id = what.split(":")[1];
         // A model with no stock routes into the waitlist instead of /book.
         track("waitlist_opened", { source: source ?? `model-${id}`, model: id });
-        setWaitlist({ modelId: id, source: `model-${id}` });
+        setWaitlist({ modelId: id, modelName: opts?.modelName, source: `model-${id}` });
         return;
       }
       if (what.startsWith("city:")) {
@@ -116,9 +131,12 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
         router.push(opts?.model ? `/book?plan=${what}&model=${opts.model}` : `/book?plan=${what}`);
         return;
       }
-      const m = bikeModels.find((x) => x.id === what);
-      track("cta_reserve", { source: source ?? "model", model: m?.id });
-      router.push(m ? `/book?model=${m.id}` : "/book");
+      // Anything else is a model id. Do NOT gate it on the static bikeModels
+      // list: admin-added (API-only) models aren't in the fallback, and gating
+      // silently dropped their ?model= prefill. The wizard validates the id
+      // against the live catalogue itself, so pass it straight through.
+      track("cta_reserve", { source: source ?? "model", model: what });
+      router.push(`/book?model=${encodeURIComponent(what)}`);
     },
     [router],
   );
@@ -128,17 +146,21 @@ export function InteractionProvider({ children }: { children: React.ReactNode })
     [reserve, openWaitlist, nav, goModels, toast],
   );
 
-  // Friendly success toast after a confirmed signup. Name the model when known.
+  // Friendly success toast after a confirmed signup. Name the model when known:
+  // prefer the caller-supplied display name (works for API-only models), then
+  // the static list, then the raw id — never drop the model mention entirely.
   const onWaitlistSuccess = useCallback(() => {
     track("waitlist_submitted", {
       source: waitlist?.source,
       city: waitlist?.cityId,
       model: waitlist?.modelId,
     });
-    const model = waitlist?.modelId
-      ? bikeModels.find((x) => x.id === waitlist.modelId)
-      : undefined;
-    setMsg(model ? tw("toastModel", { model: model.name }) : tw("toast"));
+    const name =
+      waitlist?.modelName ??
+      (waitlist?.modelId
+        ? (bikeModels.find((x) => x.id === waitlist.modelId)?.name ?? waitlist.modelId)
+        : undefined);
+    setMsg(name ? tw("toastModel", { model: name }) : tw("toast"));
   }, [waitlist, tw]);
 
   return (

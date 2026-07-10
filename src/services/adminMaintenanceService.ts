@@ -9,9 +9,10 @@
  * maintenance slice owns its own contract types and helpers.
  *
  * Endpoints:
- *   GET   /api/admin/maintenance              (list — reused from the dashboard)
- *   POST  /api/admin/maintenance              (create a ticket)
- *   PATCH /api/admin/maintenance/{id}/status  (set status)
+ *   GET    /api/admin/maintenance              (list — reused from the dashboard)
+ *   POST   /api/admin/maintenance              (create a ticket)
+ *   PATCH  /api/admin/maintenance/{id}/status  (set status)
+ *   DELETE /api/admin/maintenance/{id}         (delete a ticket)
  */
 
 /* ── Contract types (must match the backend exactly) ───────────────────── */
@@ -126,3 +127,8 @@ export const updateStatus = (id: number, status: string) =>
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+
+/** Deletes a ticket permanently. A backend without the endpoint answers
+ *  400/404, which surfaces as a normal MaintenanceApiError banner. */
+export const deleteTicket = (id: number) =>
+  request<void>(`/api/admin/maintenance/${id}`, { method: "DELETE" });

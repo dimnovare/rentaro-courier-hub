@@ -60,7 +60,7 @@
     "ctaReserve": "Rezervēt velosipēdu",
     "ctaExplore": "Apskatīt parku",
     "stats": {
-      "priceValue": "€3.90",
+      "priceValue": "no €3.90",
       "priceUnit": "/dienā",
       "priceLabel": "12 mēn. plāns",
       "termValue": "30",
@@ -68,7 +68,7 @@
       "termLabel": "Minimālais termiņš",
       "citiesUnit": "pilsētas",
       "citiesLabel": "Darbojas tagad{soonState, select, some{ · {soon} drīz} other{}}",
-      "availableUnit": "velosipēdi",
+      "availableUnit": "{count, plural, zero {velosipēdu} one {velosipēds} other {velosipēdi}}",
       "availableLabel": "Pieejami tagad"
     },
     "bikeAlt": "rentaro Engine Pro 2.0 piegādes e-velosipēds",
@@ -148,7 +148,7 @@
   "fleet": {
     "kicker": "Viss parks",
     "heading": "{count} velosipēdi. Viens vienkāršs plāns.",
-    "lead": "No izturīgā Engine Pro līdz viegliem salokāmiem ikdienas velosipēdiem — katrs modelis tiek nomāts ar tiem pašiem 30 dienu, 6 vai 12 mēnešu nosacījumiem."
+    "lead": "No jaudīgā Engine Pro līdz ērtiem salokāmiem fat-riepu velosipēdiem — katrs modelis tiek nomāts ar tiem pašiem 30 dienu, 6 vai 12 mēnešu nosacījumiem."
   },
   "howItWorks": {
     "kicker": "Kā tas darbojas",
@@ -256,7 +256,7 @@
       },
       "deposit": {
         "q": "Kāds depozīts ir nepieciešams?",
-        "a": "Saņemšanas brīdī tiek ieturēts atmaksājams drošības depozīts, kas vienāds ar tava plāna 30 dienu cenu (€177 30 dienu plānam, €147 6 mēnešiem, €117 12 mēnešiem). To atmaksā nomas beigās, atskaitot bojājumus, kas pārsniedz normālu nolietojumu."
+        "a": "Saņemšanas brīdī tiek ieturēts atmaksājams drošības depozīts, kas vienāds ar tava velosipēda 30 dienu cenu — precīzā summa ir redzama rezervācijas laikā. To atmaksā nomas beigās, atskaitot bojājumus, kas pārsniedz normālu nolietojumu."
       },
       "pickup": {
         "q": "Kur varu saņemt velosipēdu?",
@@ -312,7 +312,7 @@
       "perDay": "€{price}/dienā",
       "per30": "€{price} par 30 dienām",
       "depositBadge": "Atmaksājama drošības nauda €{deposit} — to saņemsi atpakaļ",
-      "dueLine": "€{total} samaksā portālā pēc apstiprināšanas",
+      "dueLine": "€{total} sākumam — pirmās 30 dienas + atmaksājams depozīts",
       "dayRange": "€{min}–{max}/dienā"
     },
     "addons": {
@@ -400,7 +400,8 @@
       "payStripTransfer": "Maksā pirms saņemšanas",
       "firstPayment": "Pirmais maksājums",
       "firstPaymentNote": "Jāapmaksā pēc rezervācijas apstiprināšanas, kad esat pieņēmis līgumu — papildus €{deposit} atmaksājamā drošības nauda, ko maksā kopā ar to.",
-      "thenPer30": "Pēc tam €{amount} ik pēc 30 dienām — rēķinu nosūtām pirms katra jaunā perioda."
+      "thenPer30": "Pēc tam €{amount} ik pēc 30 dienām — rēķinu nosūtām pirms katra jaunā perioda.",
+      "thenPer30WithGear": "Pēc tam €{amount} ik pēc 30 dienām (velosipēds + piederumi) — rēķinu nosūtām pirms katra jaunā perioda."
     },
     "buttons": {
       "cancel": "Atcelt",
@@ -976,7 +977,7 @@
         "rent": {
           "title": "Noma uz mēnesi",
           "items": [
-            "177 € par pirmajām 30 dienām — bez 1000 €+ pirkuma, pirms vari sākt pelnīt.",
+            "No 177 € par pirmajām 30 dienām — bez 1000 €+ pirkuma, pirms vari sākt pelnīt.",
             "Serviss un lādētājs iekļauti cenā.",
             "Par remontu parūpējamies mēs; rezerves velosipēds, ja krājumi to ļauj.",
             "Pārtrauc pēc 30 dienām vai pārej uz garāku plānu ar zemāku dienas cenu.",
@@ -1036,7 +1037,7 @@
           },
           "deposit": {
             "q": "Vai ir drošības nauda?",
-            "a": "Jā — atmaksājama drošības nauda tava plāna 30 dienu cenas apmērā (177 € 30 dienām, 147 € 6 mēnešiem, 117 € 12 mēnešiem), tiek ņemta saņemšanas brīdī un atmaksāta beigās, atskaitot bojājumus, kas pārsniedz parastu nolietojumu."
+            "a": "Jā — atmaksājama drošības nauda tava velosipēda 30 dienu cenas apmērā (precīzā summa ir redzama rezervācijas laikā), tiek ņemta saņemšanas brīdī un atmaksāta beigās, atskaitot bojājumus, kas pārsniedz parastu nolietojumu."
           },
           "extend": {
             "q": "Ko darīt, ja gribu paturēt velosipēdu ilgāk?",

@@ -5,6 +5,7 @@ import {
   listTickets,
   createTicket,
   updateStatus,
+  deleteTicket,
   MaintenanceApiError,
   MaintenanceConfigError,
   MaintenanceAuthError,
@@ -124,6 +125,33 @@ export default function AdminMaintenancePage() {
     }
   }
 
+  async function removeTicket(id: number) {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Delete ticket #${id} permanently? This cannot be undone.`)
+    ) {
+      return;
+    }
+    setActionError(null);
+    setPending((p) => ({ ...p, [id]: true }));
+    try {
+      await deleteTicket(id);
+      setState((s) =>
+        s.phase === "ready" ? { ...s, tickets: s.tickets.filter((t) => t.id !== id) } : s,
+      );
+    } catch (err) {
+      // A backend without the DELETE endpoint answers 400/404 — surfaced here
+      // as a normal inline error, so the page stays usable either way.
+      handleActionError(err, `Could not delete ticket #${id}.`);
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[id];
+        return next;
+      });
+    }
+  }
+
   // Returns null on success, or an error message for the drawer to show inline.
   async function submitTicket(input: CreateTicketInput): Promise<string | null> {
     setActionError(null);
@@ -186,6 +214,7 @@ export default function AdminMaintenancePage() {
             tickets={state.tickets}
             pending={pending}
             onChangeStatus={changeStatus}
+            onDelete={(id) => void removeTicket(id)}
           />
 
           <NewTicketDrawer
@@ -407,10 +436,12 @@ function TicketsTable({
   tickets,
   pending,
   onChangeStatus,
+  onDelete,
 }: {
   tickets: MaintenanceTicket[];
   pending: Record<number, boolean>;
   onChangeStatus: (id: number, status: string) => void;
+  onDelete: (id: number) => void;
 }) {
   return (
     <section style={{ marginBottom: 24 }}>
@@ -426,11 +457,12 @@ function TicketsTable({
             <Th>Change status</Th>
             <Th>Resolved</Th>
             <Th>Description</Th>
+            <Th>Actions</Th>
           </tr>
         </thead>
         <tbody>
           {tickets.length === 0 ? (
-            <EmptyRow colSpan={8} label="No maintenance tickets." />
+            <EmptyRow colSpan={9} label="No maintenance tickets." />
           ) : (
             tickets.map((t) => (
               <tr key={t.id}>
@@ -456,6 +488,24 @@ function TicketsTable({
                   {t.resolvedAt ? fmtDate(t.resolvedAt) : "—"}
                 </Td>
                 <Td dim>{t.description?.trim() ? t.description : "—"}</Td>
+                <Td nowrap>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => onDelete(t.id)}
+                    disabled={Boolean(pending[t.id])}
+                    style={{
+                      padding: "7px 14px",
+                      fontSize: 12,
+                      color: "var(--danger)",
+                      borderColor: "rgba(255, 138, 120, 0.32)",
+                      opacity: pending[t.id] ? 0.55 : 1,
+                      cursor: pending[t.id] ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </Td>
               </tr>
             ))
           )}

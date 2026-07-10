@@ -8,7 +8,7 @@ import { Ic } from "@/components/ui/Icon";
 import { Gallery } from "@/components/models/Gallery";
 import { SpecTable } from "@/components/models/SpecTable";
 import { ReserveButton } from "@/components/models/ReserveButton";
-import { bikeModels, getModelBySlug } from "@/data/bikeModels";
+import { bikeModels } from "@/data/bikeModels";
 import { pricingPlans } from "@/data/pricingPlans";
 import { modelService, resolveImg } from "@/services/modelService";
 import { modelFromDaily, resolvePlanPrice } from "@/services/pricingService";
@@ -25,7 +25,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { locale, slug } = await params;
   const loc: Locale = isLocale(locale) ? locale : "en";
-  const m = getModelBySlug(slug);
+  // Live model, like the page body — so an admin-added model (absent from the
+  // static fallback) gets a real title/OG image, and a deleted one 404s
+  // consistently. modelService falls back to the static list when the API is
+  // unreachable, so offline metadata still renders.
+  const m = await modelService.getModel(slug);
   if (!m) return { title: "Model not found — rentaro" };
   const title = `${m.name} — rentaro`;
   const description =

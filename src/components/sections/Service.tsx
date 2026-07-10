@@ -14,8 +14,13 @@ export async function Service() {
   ]);
   // A city is live once it is no longer "soon" — derived from LIVE data so this
   // stat stays in lockstep with the hero pill and hero stat, with localized
-  // "soon" names.
-  const { soon, liveCount } = operatingCityNames(cities, (id) => tc(`names.${id}`));
+  // "soon" names. t.has guard: admin-added cities have no cities.names.* key —
+  // fall back to the API-provided name (then the id) instead of crashing.
+  const { soon, liveCount } = operatingCityNames(cities, (id) =>
+    tc.has(`names.${id}`)
+      ? tc(`names.${id}`)
+      : (cities.find((c) => c.id === id)?.name ?? id),
+  );
   const liveCityCount = liveCount;
   const soonCityNames = soon.join(", ");
   return (
