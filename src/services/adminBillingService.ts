@@ -114,6 +114,8 @@ export interface CreateInvoiceInput {
   lineItems?: InvoiceLineInput[];
   notes?: string;
   locale?: string;
+  /** Whole calendar days from issue date to due date (0 means due today). */
+  paymentTermDays?: number;
 }
 
 export interface ManualInvoicePaymentInput {
