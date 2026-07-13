@@ -5,6 +5,7 @@
 // instrumentation). This file runs in the browser; the DSN is intentionally a
 // public (NEXT_PUBLIC_) value.
 import * as Sentry from "@sentry/nextjs";
+import { redactSentryTokens } from "./src/lib/sentryPrivacy";
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
@@ -13,6 +14,10 @@ if (dsn) {
     dsn,
     // Conservative trace sampling — adjust per environment as needed.
     tracesSampleRate: 0.1,
+    beforeBreadcrumb: (breadcrumb) => redactSentryTokens(breadcrumb),
+    beforeSend: (event) => redactSentryTokens(event),
+    beforeSendTransaction: (event) => redactSentryTokens(event),
+    beforeSendSpan: (span) => redactSentryTokens(span),
     // Surface SDK logs only when explicitly debugging.
     debug: false,
   });

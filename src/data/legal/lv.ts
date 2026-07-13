@@ -312,6 +312,7 @@ export const privacyPolicy: LegalDoc = {
         "Identitātes un līguma dati: lai noslēgtu īres līgumu, mēs vācam personu apliecinošā dokumenta informāciju un jūsu personas identifikācijas kodu vai dzimšanas datumu. Tie tiek vākti un apstrādāti droši, tiek izmantoti tikai pārbaudei un līgumam un netiek glabāti mūsu tīmekļa vietnes priekšpusē.",
         "Īres, maksājumu un drošības naudas dati: plāns un piederumi, ko izvēlaties, jums piešķirtais velosipēds, rēķinu un drošības naudas ieraksti un maksājumu apstiprinājumi. Kartes dati tiek ievadīti un glabāti pie mūsu maksājumu pakalpojumu sniedzēja; mēs neglabājam pilnus kartes numurus.",
         "Parakstīšana un saziņa: īres līguma un tā parakstīšanas ieraksti un e-pasti un ziņojumi, ko apmaināmies ar jums par jūsu rezervāciju un īri.",
+        "Nomas atsauksmes: vērtējums, neobligāts komentārs un publicēšanas piekrišanas izvēle, ko iesniedzat pēc pabeigtas nomas.",
         "Tehniskie un lietošanas dati: ierīces, pārlūkprogrammas un līdzīga informācija un — tikai tad, kad esat piekritis — analītika par to, kā jūs izmantojat tīmekļa vietni. Skatiet sīkdatņu politiku zemāk.",
       ],
     },
@@ -322,6 +323,7 @@ export const privacyPolicy: LegalDoc = {
         "Lai pieņemtu maksājumus un drošības naudu, pārvaldītu atjaunojumus un atgūtu summas, ko esat parādā par bojājumiem, trūkstošu aprīkojumu vai novēlotu vai neatgriešanu — juridiskais pamats: līguma izpilde un mūsu likumīgās intereses saņemt samaksu un aizsargāt mūsu īpašumu.",
         "Lai izpildītu juridiskos pienākumus, piemēram, grāmatvedības, nodokļu un patērētāju tiesību ierakstu kārtošanu, un atbildētu uz likumīgiem pieprasījumiem — juridiskais pamats: juridiska pienākuma izpilde.",
         "Lai uzturētu mūsu pakalpojumu un tīmekļa vietni drošu, novērstu krāpšanu un ļaunprātīgu izmantošanu, izskatītu sūdzības un aizstāvētu juridiskas prasības — juridiskais pamats: mūsu likumīgās intereses pakalpojuma darbībā un aizsardzībā. Ja paļaujamies uz likumīgajām interesēm, mēs tās līdzsvarojam ar jūsu tiesībām.",
+        "Lai saprastu un uzlabotu mūsu velosipēdus un nomas pakalpojumu, izmantojot atsauksmes, ko izvēlaties sniegt — juridiskais pamats: mūsu leģitīmā interese uzlabot pakalpojumu. Atsauksmi kopā ar jūsu vārdu un pilsētu publicējam tikai tad, ja esat devis nepārprotamu piekrišanu, kuru varat atsaukt jebkurā laikā.",
         "Lai izprastu un uzlabotu to, kā tīmekļa vietne un rezervēšanas plūsma tiek izmantota, izmantojot analītiku — juridiskais pamats: jūsu piekrišana, kuru varat atsaukt jebkurā laikā, neietekmējot jūsu īri.",
       ],
     },
@@ -350,6 +352,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "Mēs glabājam personas datus tikai tik ilgi, cik tas ir nepieciešams iepriekš minētajiem mērķiem, pēc tam tos dzēšam vai anonimizējam.",
         "Rezervēšanas un īres ieraksti, kā arī grāmatvedības un nodokļu ieraksti tiek glabāti Igaunijas likumā noteiktajos periodos (grāmatvedības ieraksti parasti tiek glabāti septiņus gadus).",
+        "Nomas atsauksmes glabājam tik ilgi, kamēr tās ir noderīgas pakalpojuma uzlabošanai. Piekrišanu atsauksmes publicēšanai glabājam līdz tās atsaukšanai; pēc atsaukšanas pārtraucam turpmāku izmantošanu un, ciktāl tas ir saprātīgi iespējams, izņemam to no rentaro kontrolētajiem kanāliem.",
         "Identitātes pārbaudes dokumenti un jūsu personas identifikācijas kods tiek glabāti tikai tik ilgi, cik tas ir nepieciešams īres līguma noslēgšanai un atbalstam un juridisko pienākumu izpildei, un pēc tam tiek dzēsti. Analītikas dati tiek glabāti ierobežotu periodu saskaņā ar rīku iestatījumiem, un piekrišanas ieraksti tiek glabāti tik ilgi, cik tas ir nepieciešams, lai pierādītu jūsu izvēli. Mārketinga vai neobligāto ziņojumu piekrišanas tiek glabātas, līdz tās atsaucat.",
       ],
     },

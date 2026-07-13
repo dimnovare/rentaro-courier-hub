@@ -25,6 +25,7 @@ import {
   createInvoice,
   invoicePdfPath,
   markInvoicePaid,
+  confirmManualInvoicePayment,
   deleteInvoice,
   BillingApiError,
   BillingConfigError,
@@ -43,6 +44,7 @@ import { Drawer } from "@/components/admin/Drawer";
 import { DateField } from "@/components/admin/DateField";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { formatEur } from "@/lib/money";
+import { isLocale, locales, localeNames, type Locale } from "@/i18n/config";
 
 /** Common expense categories for bookkeeping. Backend still stores free-text. */
 const CATEGORIES = [
@@ -80,6 +82,7 @@ export default function AdminBillingPage() {
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
+  const [transferInvoice, setTransferInvoice] = useState<Invoice | null>(null);
 
   const load = useCallback(async () => {
     setState({ phase: "loading" });
@@ -206,6 +209,25 @@ export default function AdminBillingPage() {
     }
   }
 
+  async function confirmTransfer(
+    invoice: Invoice,
+    input: { amount: number; currency: string; providerReference: string },
+  ): Promise<string | null> {
+    setActionError(null);
+    try {
+      await confirmManualInvoicePayment(invoice.id, input);
+      setTransferInvoice(null);
+      await load();
+      return null;
+    } catch (err) {
+      if (err instanceof BillingAuthError || (err instanceof BillingApiError && err.unauthorized)) {
+        signOut();
+        return null;
+      }
+      return err instanceof BillingApiError ? err.message : "Could not confirm the bank transfer.";
+    }
+  }
+
   async function removeInvoice(inv: Invoice) {
     if (state.phase !== "ready") return;
     if (
@@ -283,6 +305,7 @@ export default function AdminBillingPage() {
             invoices={state.invoices}
             pending={pending}
             onMarkPaid={markPaid}
+            onConfirmTransfer={setTransferInvoice}
             onDelete={removeInvoice}
           />
 
@@ -298,6 +321,12 @@ export default function AdminBillingPage() {
             open={invoiceDrawerOpen}
             onClose={() => setInvoiceDrawerOpen(false)}
             onSubmit={submitInvoice}
+          />
+
+          <ConfirmTransferDrawer
+            invoice={transferInvoice}
+            onClose={() => setTransferInvoice(null)}
+            onSubmit={confirmTransfer}
           />
         </>
       )}
@@ -513,11 +542,13 @@ function InvoicesTable({
   invoices,
   pending,
   onMarkPaid,
+  onConfirmTransfer,
   onDelete,
 }: {
   invoices: Invoice[];
   pending: Record<string, boolean>;
   onMarkPaid: (id: string) => void;
+  onConfirmTransfer: (invoice: Invoice) => void;
   onDelete: (inv: Invoice) => void;
 }) {
   return (
@@ -528,6 +559,8 @@ function InvoicesTable({
             <Th>Number</Th>
             <Th>Date</Th>
             <Th>Customer</Th>
+            <Th>Type</Th>
+            <Th>Language</Th>
             <Th>Total</Th>
             <Th>Status</Th>
             <Th>PDF</Th>
@@ -536,10 +569,11 @@ function InvoicesTable({
         </thead>
         <tbody>
           {invoices.length === 0 ? (
-            <EmptyRow colSpan={7} label="No invoices generated yet." />
+            <EmptyRow colSpan={9} label="No invoices generated yet." />
           ) : (
             invoices.map((inv) => {
               const paid = inv.status === "paid";
+              const extensionManaged = isExtensionInvoice(inv);
               return (
                 <tr key={inv.id}>
                   <Td mono nowrap>
@@ -556,6 +590,19 @@ function InvoicesTable({
                       </span>
                     ) : null}
                   </Td>
+                  <Td nowrap>
+                    <span className="mono" style={{ color: "var(--text-muted)", fontSize: 11 }}>
+                      {invoiceKindLabel(inv.kind)}
+                    </span>
+                  </Td>
+                  <Td nowrap>
+                    <span
+                      className="mono"
+                      style={{ color: "var(--text-2)", fontSize: 11, textTransform: "uppercase" }}
+                    >
+                    {(inv.locale || "en").toUpperCase()}
+                    </span>
+                  </Td>
                   <Td mono nowrap>
                     {formatEur(inv.total)}
                   </Td>
@@ -571,12 +618,12 @@ function InvoicesTable({
                     >
                       {inv.status}
                     </span>
-                    {!paid && (
+                    {!paid && inv.status !== "voided" && (
                       <button
                         type="button"
                         className="btn btn-ghost"
                         disabled={Boolean(pending[inv.id])}
-                        onClick={() => onMarkPaid(inv.id)}
+                        onClick={() => extensionManaged ? onConfirmTransfer(inv) : onMarkPaid(inv.id)}
                         style={{
                           marginLeft: 10,
                           padding: "5px 10px",
@@ -585,7 +632,11 @@ function InvoicesTable({
                           cursor: pending[inv.id] ? "wait" : "pointer",
                         }}
                       >
-                        {pending[inv.id] ? "Saving…" : "Mark paid"}
+                        {pending[inv.id]
+                          ? "Saving…"
+                          : extensionManaged
+                            ? "Confirm transfer"
+                            : "Mark paid"}
                       </button>
                     )}
                   </Td>
@@ -608,21 +659,28 @@ function InvoicesTable({
                     )}
                   </Td>
                   <Td nowrap>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      disabled={Boolean(pending[inv.id])}
-                      onClick={() => onDelete(inv)}
-                      style={{
-                        padding: "5px 10px",
-                        fontSize: 11.5,
-                        color: "var(--danger)",
-                        border: "1px solid rgba(255, 138, 120, 0.32)",
-                        opacity: pending[inv.id] ? 0.55 : 1,
-                      }}
-                    >
-                      Delete
-                    </button>
+                    {extensionManaged ? (
+                      <span className="mono" style={{ color: "var(--text-dim)", fontSize: 11 }}>
+                        Protected
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        aria-label={`Delete invoice ${inv.number}`}
+                        disabled={Boolean(pending[inv.id])}
+                        onClick={() => onDelete(inv)}
+                        style={{
+                          padding: "5px 10px",
+                          fontSize: 11.5,
+                          color: "var(--danger)",
+                          border: "1px solid rgba(255, 138, 120, 0.32)",
+                          opacity: pending[inv.id] ? 0.55 : 1,
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </Td>
                 </tr>
               );
@@ -632,6 +690,23 @@ function InvoicesTable({
       </AdminTable>
     </AdminSection>
   );
+}
+
+function isExtensionInvoice(invoice: Invoice): boolean {
+  return invoice.kind === "rentalExtension" || invoice.kind === "recurringBilling";
+}
+
+function invoiceKindLabel(kind: string): string {
+  switch (kind) {
+    case "rentalExtension":
+      return "Rental extension";
+    case "recurringBilling":
+      return "Recurring billing";
+    case "booking":
+      return "Booking";
+    default:
+      return "Manual";
+  }
 }
 
 /* ── Create invoice drawer ─────────────────────────────────────────────── */
@@ -658,6 +733,7 @@ function CreateInvoiceDrawer({
   const [bookings, setBookings] = useState<AdminBooking[] | null>(null);
   const [bookingsError, setBookingsError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState("");
+  const [invoiceLocale, setInvoiceLocale] = useState<Locale>("en");
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [rows, setRows] = useState<ManualLineRow[]>([{ ...EMPTY_LINE }]);
@@ -701,6 +777,7 @@ function CreateInvoiceDrawer({
 
   function resetFields() {
     setBookingId("");
+    setInvoiceLocale("en");
     setCustomerName("");
     setCustomerEmail("");
     setRows([{ ...EMPTY_LINE }]);
@@ -713,10 +790,11 @@ function CreateInvoiceDrawer({
     setFormError(null);
     const input: CreateInvoiceInput =
       mode === "booking"
-        ? { bookingId }
+        ? { bookingId, locale: invoiceLocale }
         : {
             customerName: customerName.trim(),
             customerEmail: customerEmail.trim(),
+            locale: invoiceLocale,
             lineItems: validRows.map((r) => ({
               description: r.description.trim(),
               quantity: toNum(r.quantity, 1),
@@ -816,13 +894,38 @@ function CreateInvoiceDrawer({
           {modeButton("manual", "Manual line items")}
         </div>
 
+        <div className="field">
+          <label htmlFor="inv-locale">Invoice language</label>
+          <select
+            id="inv-locale"
+            aria-label="Invoice language"
+            value={invoiceLocale}
+            disabled={submitting}
+            onChange={(event) => setInvoiceLocale(event.target.value as Locale)}
+          >
+            {locales.map((locale) => (
+              <option key={locale} value={locale}>
+                {localeNames[locale]} ({locale.toUpperCase()})
+              </option>
+            ))}
+          </select>
+          <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", margin: "6px 0 0" }}>
+            Booking invoices default to the customer&apos;s language; you can override it here.
+          </p>
+        </div>
+
         {mode === "booking" ? (
           <div className="field">
             <label htmlFor="inv-booking">Booking</label>
             <select
               id="inv-booking"
               value={bookingId}
-              onChange={(e) => setBookingId(e.target.value)}
+              onChange={(e) => {
+                const nextId = e.target.value;
+                setBookingId(nextId);
+                const bookingLocale = bookings?.find((booking) => booking.id === nextId)?.locale;
+                if (isLocale(bookingLocale)) setInvoiceLocale(bookingLocale);
+              }}
               aria-label="Booking"
               disabled={submitting || bookings === null}
             >
@@ -954,6 +1057,133 @@ function CreateInvoiceDrawer({
         {/* Hidden submit keeps Enter-to-save working. */}
         <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
       </form>
+    </Drawer>
+  );
+}
+
+function ConfirmTransferDrawer({
+  invoice,
+  onClose,
+  onSubmit,
+}: {
+  invoice: Invoice | null;
+  onClose: () => void;
+  onSubmit: (
+    invoice: Invoice,
+    input: { amount: number; currency: string; providerReference: string },
+  ) => Promise<string | null>;
+}) {
+  const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState("EUR");
+  const [reference, setReference] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!invoice) return;
+    setAmount(String(invoice.total));
+    setCurrency(invoice.currency || "EUR");
+    setReference("");
+    setFormError(null);
+  }, [invoice]);
+
+  const amountValue = Number(amount);
+  const canSubmit =
+    invoice !== null &&
+    Number.isFinite(amountValue) &&
+    amountValue > 0 &&
+    currency.length === 3 &&
+    reference.trim().length > 0 &&
+    !submitting;
+
+  async function submit() {
+    if (!invoice || !canSubmit) return;
+    setSubmitting(true);
+    setFormError(null);
+    const error = await onSubmit(invoice, {
+      amount: amountValue,
+      currency,
+      providerReference: reference.trim(),
+    });
+    setSubmitting(false);
+    if (error) setFormError(error);
+  }
+
+  return (
+    <Drawer
+      open={invoice !== null}
+      onClose={onClose}
+      title="Confirm bank transfer"
+      footer={
+        <>
+          <button type="button" className="btn btn-ghost" onClick={onClose} disabled={submitting}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={!canSubmit}
+            onClick={() => void submit()}
+            style={{ opacity: canSubmit ? 1 : 0.55 }}
+          >
+            {submitting ? "Confirming…" : "Confirm payment"}
+          </button>
+        </>
+      }
+    >
+      {invoice && (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submit();
+          }}
+        >
+          <p style={{ margin: "0 0 18px", color: "var(--text-muted)", lineHeight: 1.55 }}>
+            Match the received transfer to <strong style={{ color: "var(--text)" }}>{invoice.number}</strong>.
+            Confirming the first extension invoice activates the full committed term.
+          </p>
+          {formError && <InlineError message={formError} />}
+          <div className="field-row">
+            <div className="field">
+              <label htmlFor="transfer-amount">Payment amount</label>
+              <input
+                id="transfer-amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                aria-label="Payment amount"
+                value={amount}
+                disabled={submitting}
+                onChange={(event) => setAmount(event.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="transfer-currency">Payment currency</label>
+              <select
+                id="transfer-currency"
+                aria-label="Payment currency"
+                value={currency}
+                disabled={submitting}
+                onChange={(event) => setCurrency(event.target.value)}
+              >
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="transfer-reference">Bank reference</label>
+            <input
+              id="transfer-reference"
+              aria-label="Bank reference"
+              value={reference}
+              disabled={submitting}
+              onChange={(event) => setReference(event.target.value)}
+              placeholder="Statement or transfer reference"
+            />
+          </div>
+          <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
+        </form>
+      )}
     </Drawer>
   );
 }

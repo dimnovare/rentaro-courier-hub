@@ -311,6 +311,7 @@ export const privacyPolicy: LegalDoc = {
         "Identity and contract details: to enter into the rental agreement we collect identity-document information and your personal identification code or date of birth. These are collected and handled securely, are used only for verification and the contract, and are not stored in our website front-end.",
         "Rental, payment and deposit details: the plan and accessories you choose, the bike assigned to you, billing and deposit records, and payment confirmations. Card details are entered with and held by our payment provider; we do not store full card numbers.",
         "Signing and communications: records of the rental agreement and its signing, and the emails and messages we exchange with you about your booking and rental.",
+        "Rental feedback: the rating, optional comment and publication-consent choice you submit after a completed rental.",
         "Technical and usage data: device, browser and similar information, and — only where you have consented — analytics about how you use the website. See the cookie policy below.",
       ],
     },
@@ -321,6 +322,7 @@ export const privacyPolicy: LegalDoc = {
         "To take payments and the deposit, manage renewals, and recover amounts owed for damage, missing equipment or late or non-return — legal basis: performance of a contract, and our legitimate interest in being paid and protecting our property.",
         "To meet legal obligations, such as accounting, tax and consumer-law record-keeping, and to respond to lawful requests — legal basis: compliance with a legal obligation.",
         "To keep our service and website secure, prevent fraud and misuse, handle complaints and defend legal claims — legal basis: our legitimate interests in running and protecting the service. Where we rely on legitimate interests, we balance them against your rights.",
+        "To understand and improve our bikes and rental service using feedback you choose to provide — legal basis: our legitimate interest in improving the service. We publish a testimonial with your first name and city only where you have given explicit consent, which you may withdraw at any time.",
         "To understand and improve how the website and booking flow are used through analytics — legal basis: your consent, which you can withdraw at any time without affecting your rental.",
       ],
     },
@@ -349,6 +351,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "We keep personal data only for as long as needed for the purposes above, then delete or anonymise it.",
         "Booking and rental records, and accounting and tax records, are kept for the periods required by Estonian law (accounting records are generally retained for seven years).",
+        "Rental feedback is kept while it remains useful for service improvement. Testimonial-publication consent is kept until you withdraw it; after withdrawal we stop future use and remove it from rentaro-controlled channels where reasonably possible.",
         "Identity-verification documents and your personal identification code are kept only as long as needed to enter and support the rental contract and to meet legal obligations, and are then deleted. Analytics data is retained for a limited period in line with the tools' settings, and consent records are kept for as long as needed to evidence your choice. Marketing or optional-message consents are kept until you withdraw them.",
       ],
     },

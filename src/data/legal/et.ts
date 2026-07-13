@@ -312,6 +312,7 @@ export const privacyPolicy: LegalDoc = {
         "Isikusamasuse ja lepingu andmed: rendilepingu sõlmimiseks kogume isikut tõendava dokumendi andmeid ja sinu isikukoodi või sünnikuupäeva. Need kogutakse ja töödeldakse turvaliselt, neid kasutatakse ainult kontrolliks ja lepinguks ning neid ei säilitata meie veebisaidi esiosas.",
         "Rendi-, makse- ja tagatisraha andmed: sinu valitud pakett ja lisatarvikud, sulle määratud ratas, arveldus- ja tagatisrahakirjed ning maksekinnitused. Kaardiandmed sisestatakse meie makseteenuse pakkuja juures ja neid hoiab tema; me ei säilita täielikke kaardinumbreid.",
         "Allkirjastamine ja suhtlus: rendilepingu ja selle allkirjastamise andmed ning e-kirjad ja sõnumid, mida me sinuga sinu broneeringu ja rendi kohta vahetame.",
+        "Renditagasiside: hinnang, valikuline kommentaar ja avaldamise nõusoleku valik, mille esitad pärast lõppenud renti.",
         "Tehnilised ja kasutusandmed: seadme, brauseri ja sarnane teave ning — ainult seal, kus sa oled nõustunud — analüütika selle kohta, kuidas sa veebisaiti kasutad. Vaata allolevat küpsiste poliitikat.",
       ],
     },
@@ -322,6 +323,7 @@ export const privacyPolicy: LegalDoc = {
         "Et võtta makseid ja tagatisraha, hallata pikendusi ja nõuda sisse summad, mida võlgnetakse kahjustuste, puuduva varustuse või hilise või tagastamata jätmise eest — õiguslik alus: lepingu täitmine ja meie õigustatud huvi saada tasu ning kaitsta oma vara.",
         "Et täita juriidilisi kohustusi, nagu raamatupidamine, maksud ja tarbijaõiguse alusel arvepidamine, ning vastata seaduslikele taotlustele — õiguslik alus: juriidilise kohustuse täitmine.",
         "Et hoida meie teenus ja veebisait turvalisena, ennetada pettust ja väärkasutust, käsitleda kaebusi ja kaitsta õigusnõudeid — õiguslik alus: meie õigustatud huvid teenuse haldamisel ja kaitsmisel. Kui me tugineme õigustatud huvidele, kaalume neid sinu õiguste vastu.",
+        "Et mõista ja parandada meie rattaid ja renditeenust tagasiside põhjal, mille otsustad anda — õiguslik alus: meie õigustatud huvi teenust parandada. Avaldame iseloomustuse koos sinu eesnime ja linnaga ainult siis, kui oled andnud selgesõnalise nõusoleku, mille võid igal ajal tagasi võtta.",
         "Et mõista ja parandada, kuidas veebisaiti ja broneerimisvoogu kasutatakse, analüütika kaudu — õiguslik alus: sinu nõusolek, mille võid igal ajal tagasi võtta, ilma et see mõjutaks sinu renti.",
       ],
     },
@@ -350,6 +352,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "Säilitame isikuandmeid ainult nii kaua, kui ülaltoodud eesmärkide jaoks vaja, seejärel kustutame või anonümiseerime need.",
         "Broneeringu- ja rendikirjeid ning raamatupidamis- ja maksukirjeid säilitatakse Eesti seadusega nõutud perioodide jooksul (raamatupidamiskirjeid säilitatakse üldjuhul seitse aastat).",
+        "Renditagasisidet säilitame seni, kuni see on teenuse parandamiseks kasulik. Iseloomustuse avaldamise nõusolekut säilitame selle tagasivõtmiseni; pärast tagasivõtmist lõpetame edasise kasutamise ja eemaldame selle mõistlikkuse piires rentaro kontrollitavatest kanalitest.",
         "Isikusamasuse kontrolli dokumente ja sinu isikukoodi säilitatakse ainult nii kaua, kui vaja rendilepingu sõlmimiseks ja toetamiseks ning juriidiliste kohustuste täitmiseks, ja seejärel kustutatakse. Analüütikaandmeid säilitatakse piiratud aja jooksul vastavalt tööriistade seadetele ning nõusolekukirjeid hoitakse nii kaua, kui vaja sinu valiku tõendamiseks. Turundus- või valikuliste sõnumite nõusolekuid hoitakse, kuni sa need tagasi võtad.",
       ],
     },

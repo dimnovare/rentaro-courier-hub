@@ -69,10 +69,18 @@ export interface Invoice {
   id: string;
   number: string;
   bookingId?: string | null;
+  rentalId?: string | null;
+  rentalExtensionId?: string | null;
+  billingPeriodId?: string | null;
+  kind: "booking" | "rentalExtension" | "recurringBilling" | "manual" | string;
+  locale: string;
   customerName: string;
   customerEmail: string;
   /** ISO date `yyyy-MM-dd`. */
   issueDate: string;
+  dueDate?: string | null;
+  serviceStartDate?: string | null;
+  serviceEndDateExclusive?: string | null;
   lines: InvoiceLine[];
   subtotal: number;
   vatRatePercent: number;
@@ -80,6 +88,8 @@ export interface Invoice {
   total: number;
   currency: string;
   status: string;
+  paidAt?: string | null;
+  voidedAt?: string | null;
   notes?: string | null;
   hasPdf: boolean;
   createdAt: string;
@@ -103,6 +113,20 @@ export interface CreateInvoiceInput {
   customerEmail?: string;
   lineItems?: InvoiceLineInput[];
   notes?: string;
+  locale?: string;
+}
+
+export interface ManualInvoicePaymentInput {
+  amount: number;
+  currency: string;
+  providerReference: string;
+}
+
+export interface ManualInvoicePaymentResult {
+  paymentId: string;
+  invoiceId: string;
+  idempotent: boolean;
+  status: "paid";
 }
 
 /** This-month vs all-time incomings / outgoings / net. All money is EUR. */
@@ -267,6 +291,19 @@ export const markInvoicePaid = (id: string) =>
     method: "PATCH",
     body: JSON.stringify({ status: "paid" }),
   });
+
+/** Confirms a bank transfer and lets the backend activate linked extension billing. */
+export const confirmManualInvoicePayment = (
+  id: string,
+  input: ManualInvoicePaymentInput,
+) =>
+  request<ManualInvoicePaymentResult>(
+    `/api/admin/invoices/${encodeURIComponent(id)}/payments/manual-confirmation`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
 
 /** Deletes an invoice (e.g. a mistake or one orphaned by a deleted booking). */
 export const deleteInvoice = (id: string) =>
