@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 import { redactSentryTokens } from "@/lib/sentryPrivacy";
 
 describe("redactSentryTokens", () => {

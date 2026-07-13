@@ -70,6 +70,51 @@ export interface CalendarResponse {
   units: CalendarUnit[];
 }
 
+export interface RentalExtensionBillingPeriod {
+  id: string;
+  sequenceNumber: number;
+  serviceStartDate: string;
+  serviceEndDateExclusive: string;
+  dueDate: string;
+  total: number;
+  currency: string;
+  status: string;
+  invoiceId: string | null;
+  invoiceNumber: string | null;
+  invoiceStatus: string | null;
+  paymentId: string | null;
+  paymentProvider: string | null;
+  paymentReference: string | null;
+  paymentStatus: string | null;
+}
+
+export interface RentalExtension {
+  id: string;
+  status: string;
+  planId: string;
+  previousPlannedEndDate: string;
+  proposedPlannedEndDate: string;
+  billingPeriodCount: number;
+  baseAmountPerPeriod: number;
+  accessoryAmountPerPeriod: number;
+  totalAmountPerPeriod: number;
+  totalCommitmentAmount: number;
+  currency: string;
+  locale: string;
+  source: string;
+  adminReason: string | null;
+  requestedAt: string;
+  activatedAt: string | null;
+  cancelledAt: string | null;
+  periods: RentalExtensionBillingPeriod[];
+}
+
+export interface RentalExtensionActionResult {
+  extensionId: string;
+  plannedEndDate: string;
+  idempotent: boolean;
+}
+
 /* ── Typed errors ──────────────────────────────────────────────────────── */
 
 export class RentalApiError extends Error {
@@ -210,3 +255,29 @@ export const updateRentalDates = (
     method: "PATCH",
     body: JSON.stringify(body),
   });
+
+export const listRentalExtensions = (rentalId: string) =>
+  request<RentalExtension[]>(
+    `/api/admin/rentals/${encodeURIComponent(rentalId)}/extensions`,
+  );
+
+export const createComplimentaryExtension = (
+  rentalId: string,
+  input: { newEndDate: string; reason: string },
+) =>
+  request<RentalExtensionActionResult>(
+    `/api/admin/rentals/${encodeURIComponent(rentalId)}/complimentary-extension`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        newEndDate: input.newEndDate,
+        reason: input.reason.trim(),
+      }),
+    },
+  );
+
+export const cancelRentalExtension = (rentalId: string, extensionId: string) =>
+  request<RentalExtensionActionResult>(
+    `/api/admin/rentals/${encodeURIComponent(rentalId)}/extensions/${encodeURIComponent(extensionId)}/cancel`,
+    { method: "POST" },
+  );

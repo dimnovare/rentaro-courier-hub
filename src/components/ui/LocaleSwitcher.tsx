@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { locales, localeNames, type Locale } from "@/i18n/config";
 import { FlagIcon } from "@/components/ui/FlagIcon";
+import { markPortalLocaleChoice } from "@/i18n/portalLocale";
 
 type Variant = "bar" | "menu";
 
@@ -44,9 +45,11 @@ export function LocaleSwitcher({ variant = "bar" }: { variant?: Variant }) {
 
   function select(next: Locale) {
     setOpen(false);
+    markPortalLocaleChoice();
     if (next !== activeLocale) {
       startTransition(() => {
-        router.replace(pathname, { locale: next });
+        const query = typeof window === "undefined" ? "" : window.location.search;
+        router.replace(`${pathname}${query}`, { locale: next });
       });
     }
   }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
@@ -35,6 +35,10 @@ import {
   type StartIdentityPayload,
 } from "@/services/identityService";
 import type { SiteSettings } from "@/services/settingsService";
+import { isLocale } from "@/i18n/config";
+import { hasPortalLocaleChoice } from "@/i18n/portalLocale";
+import { RentalExtensionCard } from "./RentalExtensionCard";
+import { InvoiceHistoryCard } from "./InvoiceHistoryCard";
 
 /**
  * Map the API status (lowercased enum name) to its badge tone. Friendly labels
@@ -116,8 +120,12 @@ const selectStyle: React.CSSProperties = {
 
 export function ManageRental({ settings }: { settings: SiteSettings }) {
   const t = useTranslations("portal");
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
   const params = useSearchParams();
   const token = params.get("token") ?? "";
+  const query = params.toString();
 
   const [state, setState] = useState<PortalResult<PortalRental> | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -145,6 +153,13 @@ export function ManageRental({ settings }: { settings: SiteSettings }) {
       cancelled = true;
     };
   }, [token, reloadKey]);
+
+  useEffect(() => {
+    if (state?.kind !== "ok") return;
+    const preferred = state.data.preferredLocale;
+    if (!preferred || !isLocale(preferred) || preferred === locale || hasPortalLocaleChoice()) return;
+    router.replace(query ? `${pathname}?${query}` : pathname, { locale: preferred });
+  }, [locale, pathname, query, router, state]);
 
   // Missing token, or the API rejected it → one clean message.
   if (!token.trim() || state?.kind === "invalid") {
@@ -175,7 +190,14 @@ export function ManageRental({ settings }: { settings: SiteSettings }) {
     );
   }
 
-  return <PortalView rental={state.data} token={token} settings={settings} />;
+  return (
+    <PortalView
+      rental={state.data}
+      token={token}
+      settings={settings}
+      onRentalChanged={(rental) => setState({ kind: "ok", data: rental })}
+    />
+  );
 }
 
 /* ── The signed-in view: details card + two action forms ─────────────────── */
@@ -184,10 +206,12 @@ function PortalView({
   rental,
   token,
   settings,
+  onRentalChanged,
 }: {
   rental: PortalRental;
   token: string;
   settings: SiteSettings;
+  onRentalChanged: (rental: PortalRental) => void;
 }) {
   const t = useTranslations("portal");
   const statusLabel = useStatusLabel();
@@ -274,6 +298,18 @@ function PortalView({
             </div>
           </div>
         </article>
+      </Reveal>
+
+      <Reveal delay={34}>
+        <RentalExtensionCard
+          token={token}
+          rental={rental}
+          onRentalChanged={onRentalChanged}
+        />
+      </Reveal>
+
+      <Reveal delay={44}>
+        <InvoiceHistoryCard token={token} invoices={rental.invoices ?? []} />
       </Reveal>
 
       {settings.showOnlineSigning && (
@@ -1376,7 +1412,7 @@ function RepairForm({ token }: { token: string }) {
 
         <button
           type="submit"
-          className="btn btn-primary btn-block"
+          className="btn btn-primary btn-block portal-repair-submit"
           disabled={status === "sending" || !description.trim()}
           style={
             status === "sending" || !description.trim()

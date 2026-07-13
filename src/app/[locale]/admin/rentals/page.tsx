@@ -9,11 +9,16 @@ import {
   extendRental,
   updateRentalDates,
   sendReturnReminder,
+  listRentalExtensions,
+  createComplimentaryExtension,
+  cancelRentalExtension,
   RentalApiError,
   RentalConfigError,
   RentalAuthError,
   type AdminRental,
+  type RentalExtension,
 } from "@/services/adminRentalService";
+import { invoicePdfPath } from "@/services/adminBillingService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
@@ -180,6 +185,7 @@ export default function AdminRentalsPage() {
             onSendReminder={(id) =>
               runAction(id, () => sendReturnReminder(id), "Return reminder sent.")
             }
+            onExtensionChanged={() => void load({ silent: true })}
           />
         </>
       )}
@@ -317,6 +323,7 @@ function ManageRentalDrawer({
   onExtend,
   onEditDates,
   onSendReminder,
+  onExtensionChanged,
 }: {
   rental: AdminRental | null;
   banner: { tone: "ok" | "bad"; text: string } | null;
@@ -328,6 +335,7 @@ function ManageRentalDrawer({
   onExtend: (id: string, date: string) => void;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
   onSendReminder: (id: string) => void;
+  onExtensionChanged: () => void;
 }) {
   return (
     <Drawer
@@ -360,6 +368,7 @@ function ManageRentalDrawer({
           onExtend={onExtend}
           onEditDates={onEditDates}
           onSendReminder={onSendReminder}
+          onExtensionChanged={onExtensionChanged}
         />
       )}
     </Drawer>
@@ -376,6 +385,7 @@ function ManageRentalBody({
   onExtend,
   onEditDates,
   onSendReminder,
+  onExtensionChanged,
 }: {
   rental: AdminRental;
   banner: { tone: "ok" | "bad"; text: string } | null;
@@ -386,6 +396,7 @@ function ManageRentalBody({
   onExtend: (id: string, date: string) => void;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
   onSendReminder: (id: string) => void;
+  onExtensionChanged: () => void;
 }) {
   const id = rental.id;
   // Seed from the saved scheduled return (if any) so re-opening shows it, not today.
@@ -399,6 +410,8 @@ function ManageRentalBody({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
       {banner && <Banner tone={banner.tone} text={banner.text} />}
+
+      <RentalExtensionAdminSection rental={rental} onChanged={onExtensionChanged} />
 
       {/* 1 · Schedule return */}
       <ActionBlock label="1 · Schedule return">
@@ -579,6 +592,211 @@ function ManageRentalBody({
   );
 }
 
+function RentalExtensionAdminSection({
+  rental,
+  onChanged,
+}: {
+  rental: AdminRental;
+  onChanged: () => void;
+}) {
+  const [extensions, setExtensions] = useState<RentalExtension[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [workingId, setWorkingId] = useState<string | null>(null);
+  const [newEndDate, setNewEndDate] = useState(rental.plannedEndDate ?? todayISO());
+  const [reason, setReason] = useState("");
+
+  const loadExtensions = useCallback(async () => {
+    try {
+      setError(null);
+      setExtensions(await listRentalExtensions(rental.id));
+    } catch (err) {
+      setError(extensionErrorMessage(err));
+    }
+  }, [rental.id]);
+
+  useEffect(() => {
+    void loadExtensions();
+  }, [loadExtensions]);
+
+  async function applyComplimentaryExtension() {
+    const trimmedReason = reason.trim();
+    if (!newEndDate || !trimmedReason || workingId) return;
+
+    setWorkingId("complimentary");
+    setError(null);
+    setNotice(null);
+    try {
+      await createComplimentaryExtension(rental.id, {
+        newEndDate,
+        reason: trimmedReason,
+      });
+      setReason("");
+      setNotice("Complimentary extension applied.");
+      await loadExtensions();
+      onChanged();
+    } catch (err) {
+      setError(extensionErrorMessage(err));
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  async function cancelExtension(extensionId: string) {
+    if (workingId) return;
+    setWorkingId(extensionId);
+    setError(null);
+    setNotice(null);
+    try {
+      await cancelRentalExtension(rental.id, extensionId);
+      setNotice("Extension cancelled.");
+      await loadExtensions();
+      onChanged();
+    } catch (err) {
+      setError(extensionErrorMessage(err));
+    } finally {
+      setWorkingId(null);
+    }
+  }
+
+  return (
+    <ActionBlock label="Extension history">
+      {error && <Banner tone="bad" text={error} />}
+      {notice && <Banner tone="ok" text={notice} />}
+
+      {extensions === null ? (
+        <span className="mono" style={extensionHintStyle}>Loading extension ledger…</span>
+      ) : extensions.length === 0 ? (
+        <span className="mono" style={extensionHintStyle}>No extension requests yet.</span>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {extensions.map((extension) => (
+            <div key={extension.id} className="card" style={extensionCardStyle}>
+              <div style={extensionHeaderStyle}>
+                <div>
+                  <strong style={{ display: "block", fontSize: 13 }}>
+                    {fmtDay(extension.previousPlannedEndDate)} → {fmtDay(extension.proposedPlannedEndDate)}
+                  </strong>
+                  <span className="mono" style={extensionHintStyle}>
+                    <span>{titleCase(extension.source)}</span>
+                    <span> · {extension.billingPeriodCount} billing period{extension.billingPeriodCount === 1 ? "" : "s"}</span>
+                  </span>
+                </div>
+                <StatusPill value={titleCase(extension.status)} />
+              </div>
+
+              <div className="mono" style={extensionMoneyStyle}>
+                {fmtMoney(extension.baseAmountPerPeriod)} bike + {fmtMoney(extension.accessoryAmountPerPeriod)} selected optional extras = {fmtMoney(extension.totalAmountPerPeriod)} / period
+              </div>
+
+              {extension.adminReason && (
+                <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 12.5 }}>
+                  Reason: {extension.adminReason}
+                </p>
+              )}
+
+              {extension.periods.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {extension.periods.map((period) => (
+                    <div key={period.id} style={periodRowStyle}>
+                      <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                        #{period.sequenceNumber} · {fmtDay(period.serviceStartDate)} – {fmtDay(period.serviceEndDateExclusive)} · {titleCase(period.status)}
+                      </span>
+                      {period.invoiceId && period.invoiceNumber ? (
+                        <a
+                          href={invoicePdfPath(period.invoiceId)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mono"
+                          style={{ color: "var(--lime)", fontSize: 11 }}
+                        >
+                          {period.invoiceNumber}
+                        </a>
+                      ) : (
+                        <span className="mono" style={extensionHintStyle}>Not invoiced</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {extension.status === "awaiting_payment" && (
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    style={miniBtn}
+                    disabled={Boolean(workingId)}
+                    onClick={() => void cancelExtension(extension.id)}
+                  >
+                    Cancel extension
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <form
+        style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 4 }}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void applyComplimentaryExtension();
+        }}
+      >
+        <fieldset
+          aria-label="Complimentary extension end date"
+          style={{ ...editDateField, border: 0, padding: 0, margin: 0 }}
+        >
+          <legend style={{ ...editDateLabel, padding: 0, marginBottom: 5 }}>
+            Complimentary extension end date
+          </legend>
+          <DateField
+            value={newEndDate}
+            onChange={setNewEndDate}
+            disabled={Boolean(workingId)}
+          />
+        </fieldset>
+        <label style={editDateField}>
+          <span style={editDateLabel}>Reason (required for audit history)</span>
+          <input
+            type="text"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            aria-label="Complimentary extension reason"
+            placeholder="e.g. Service downtime credit"
+            style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
+            disabled={Boolean(workingId)}
+          />
+        </label>
+        <div>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={miniBtn}
+            disabled={Boolean(workingId) || !newEndDate || !reason.trim()}
+          >
+            Apply complimentary extension
+          </button>
+        </div>
+      </form>
+    </ActionBlock>
+  );
+}
+
+function extensionErrorMessage(err: unknown): string {
+  if (err instanceof RentalApiError || err instanceof RentalConfigError || err instanceof RentalAuthError) {
+    return err.message;
+  }
+  return "Could not update the extension ledger.";
+}
+
+function titleCase(value: string): string {
+  const normalized = value.replaceAll("_", " ");
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
 /** A labelled group inside the Manage drawer. */
 function ActionBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -633,6 +851,42 @@ const editDateHint: React.CSSProperties = {
   fontSize: 11,
   lineHeight: 1.5,
   color: "var(--text-dim)",
+};
+
+const extensionHintStyle: React.CSSProperties = {
+  fontSize: 10.5,
+  color: "var(--text-dim)",
+};
+
+const extensionCardStyle: React.CSSProperties = {
+  padding: 14,
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  borderRadius: "var(--r-sm)",
+};
+
+const extensionHeaderStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  flexWrap: "wrap",
+};
+
+const extensionMoneyStyle: React.CSSProperties = {
+  fontSize: 11,
+  lineHeight: 1.55,
+  color: "var(--text-2)",
+};
+
+const periodRowStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 10,
+  paddingTop: 6,
+  borderTop: "1px solid var(--border)",
 };
 
 /* ── Shared pieces (match the other admin pages) ───────────────────────── */
