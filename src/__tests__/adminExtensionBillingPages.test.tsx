@@ -215,9 +215,20 @@ describe("admin billing extension UX", () => {
     fireEvent.change(bookingSelect, { target: { value: "booking-1" } });
 
     expect(within(dialog).getByRole("combobox", { name: "Invoice language" })).toHaveValue("et");
+    const paymentTerm = within(dialog).getByRole("spinbutton", {
+      name: "Payment timeframe in days",
+    });
+    expect(paymentTerm).toHaveValue(7);
+    fireEvent.change(paymentTerm, { target: { value: "14" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Create invoice" }));
 
-    await waitFor(() => expect(billing.createInvoice).toHaveBeenCalledWith({ bookingId: "booking-1", locale: "et" }));
+    await waitFor(() =>
+      expect(billing.createInvoice).toHaveBeenCalledWith({
+        bookingId: "booking-1",
+        locale: "et",
+        paymentTermDays: 14,
+      }),
+    );
   });
 
   it("confirms amount and currency then refreshes billing data", async () => {

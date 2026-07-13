@@ -56,13 +56,13 @@ describe("adminBillingService extension contracts", () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(extensionInvoice, 201));
     vi.stubGlobal("fetch", fetchMock);
 
-    await createInvoice({ bookingId: "booking-1", locale: locales[1] });
+    await createInvoice({ bookingId: "booking-1", locale: locales[1], paymentTermDays: 14 });
 
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/admin/invoices",
       expect.objectContaining({
         method: "POST",
-        body: JSON.stringify({ bookingId: "booking-1", locale: "et" }),
+        body: JSON.stringify({ bookingId: "booking-1", locale: "et", paymentTermDays: 14 }),
       }),
     );
   });

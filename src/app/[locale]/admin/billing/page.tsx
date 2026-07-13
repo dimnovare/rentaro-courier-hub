@@ -734,6 +734,7 @@ function CreateInvoiceDrawer({
   const [bookingsError, setBookingsError] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState("");
   const [invoiceLocale, setInvoiceLocale] = useState<Locale>("en");
+  const [paymentTermDays, setPaymentTermDays] = useState("7");
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [rows, setRows] = useState<ManualLineRow[]>([{ ...EMPTY_LINE }]);
@@ -764,8 +765,12 @@ function CreateInvoiceDrawer({
   }, [open, bookings]);
 
   const validRows = rows.filter((r) => r.description.trim().length > 0);
+  const parsedPaymentTermDays = Number.parseInt(paymentTermDays, 10);
+  const hasValidPaymentTerm =
+    /^\d+$/.test(paymentTermDays) && parsedPaymentTermDays >= 0 && parsedPaymentTermDays <= 365;
   const canSubmit =
     !submitting &&
+    hasValidPaymentTerm &&
     (mode === "booking"
       ? bookingId.length > 0
       : customerName.trim().length > 0 && validRows.length > 0);
@@ -778,6 +783,7 @@ function CreateInvoiceDrawer({
   function resetFields() {
     setBookingId("");
     setInvoiceLocale("en");
+    setPaymentTermDays("7");
     setCustomerName("");
     setCustomerEmail("");
     setRows([{ ...EMPTY_LINE }]);
@@ -790,11 +796,12 @@ function CreateInvoiceDrawer({
     setFormError(null);
     const input: CreateInvoiceInput =
       mode === "booking"
-        ? { bookingId, locale: invoiceLocale }
+        ? { bookingId, locale: invoiceLocale, paymentTermDays: parsedPaymentTermDays }
         : {
             customerName: customerName.trim(),
             customerEmail: customerEmail.trim(),
             locale: invoiceLocale,
+            paymentTermDays: parsedPaymentTermDays,
             lineItems: validRows.map((r) => ({
               description: r.description.trim(),
               quantity: toNum(r.quantity, 1),
@@ -911,6 +918,26 @@ function CreateInvoiceDrawer({
           </select>
           <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", margin: "6px 0 0" }}>
             Booking invoices default to the customer&apos;s language; you can override it here.
+          </p>
+        </div>
+
+        <div className="field">
+          <label htmlFor="inv-payment-term">Payment timeframe (calendar days)</label>
+          <input
+            id="inv-payment-term"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={365}
+            step={1}
+            value={paymentTermDays}
+            onChange={(event) => setPaymentTermDays(event.target.value)}
+            aria-label="Payment timeframe in days"
+            disabled={submitting}
+            style={{ maxWidth: 180 }}
+          />
+          <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", margin: "6px 0 0" }}>
+            0 means due today. The default payment deadline is 7 calendar days.
           </p>
         </div>
 
