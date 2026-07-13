@@ -311,6 +311,7 @@ export const privacyPolicy: LegalDoc = {
         "Henkilöllisyys- ja sopimustiedot: vuokrasopimuksen tekemiseksi keräämme henkilöllisyystodistuksen tiedot ja henkilötunnuksesi tai syntymäaikasi. Nämä kerätään ja käsitellään turvallisesti, niitä käytetään vain todentamiseen ja sopimukseen, eikä niitä tallenneta verkkosivustomme käyttöliittymään.",
         "Vuokraus-, maksu- ja vakuustiedot: valitsemasi sopimus ja lisävarusteet, sinulle osoitettu pyörä, laskutus- ja vakuustiedot sekä maksuvahvistukset. Korttitiedot syötetään maksupalveluntarjoajallemme ja niitä säilyttää maksupalveluntarjoajamme; emme tallenna täydellisiä korttinumeroita.",
         "Allekirjoitus ja viestintä: tiedot vuokrasopimuksesta ja sen allekirjoittamisesta sekä sähköpostit ja viestit, joita vaihdamme kanssasi varauksestasi ja vuokrauksestasi.",
+        "Vuokrauspalaute: arvosana, valinnainen kommentti ja julkaisusuostumus, jonka annat päättyneen vuokrauksen jälkeen.",
         "Tekniset ja käyttötiedot: laite-, selain- ja vastaavat tiedot sekä — vain suostumuksellasi — analytiikka siitä, miten käytät verkkosivustoa. Katso alla oleva evästekäytäntö.",
       ],
     },
@@ -321,6 +322,7 @@ export const privacyPolicy: LegalDoc = {
         "Maksujen ja vakuuden veloittamiseksi, uusintojen hallinnoimiseksi ja vaurioista, puuttuvista varusteista tai myöhästyneestä tai palauttamatta jättämisestä velkaamiesi summien perimiseksi — oikeusperuste: sopimuksen täyttäminen ja oikeutettu etumme saada maksu ja suojella omaisuuttamme.",
         "Lakisääteisten velvoitteiden täyttämiseksi, kuten kirjanpito, verotus ja kuluttajalainsäädännön mukainen tietojen säilyttäminen, sekä lakisääteisiin pyyntöihin vastaamiseksi — oikeusperuste: lakisääteisen velvoitteen noudattaminen.",
         "Palvelumme ja verkkosivustomme pitämiseksi turvallisena, petosten ja väärinkäytösten estämiseksi, valitusten käsittelemiseksi ja oikeudellisten vaatimusten puolustamiseksi — oikeusperuste: oikeutetut etumme palvelun pyörittämisessä ja suojaamisessa. Kun nojaudumme oikeutettuihin etuihin, punnitsemme niitä oikeuksiasi vastaan.",
+        "Ymmärtääksemme ja kehittääksemme pyöriämme ja vuokrauspalveluamme antamasi palautteen avulla — oikeusperuste: oikeutettu etumme kehittää palvelua. Julkaisemme asiakaskokemuksen etunimesi ja kaupunkisi kanssa vain, jos olet antanut siihen nimenomaisen suostumuksen, jonka voit peruuttaa milloin tahansa.",
         "Ymmärtääksemme ja parantaaksemme sitä, miten verkkosivustoa ja varausprosessia käytetään analytiikan avulla — oikeusperuste: suostumuksesi, jonka voit peruuttaa milloin tahansa vaikuttamatta vuokraukseesi.",
       ],
     },
@@ -349,6 +351,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "Säilytämme henkilötietoja vain niin kauan kuin se on tarpeen edellä mainittuihin tarkoituksiin, minkä jälkeen poistamme tai anonymisoimme ne.",
         "Varaus- ja vuokraustiedot sekä kirjanpito- ja verotiedot säilytetään Viron lain edellyttämien ajanjaksojen ajan (kirjanpitotiedot säilytetään yleensä seitsemän vuotta).",
+        "Säilytämme vuokrauspalautetta niin kauan kuin siitä on hyötyä palvelun kehittämisessä. Säilytämme julkaisusuostumuksen, kunnes peruutat sen; peruuttamisen jälkeen lopetamme tulevan käytön ja poistamme palautteen rentaron hallitsemista kanavista kohtuullisessa määrin.",
         "Henkilöllisyyden todentamisasiakirjoja ja henkilötunnustasi säilytetään vain niin kauan kuin on tarpeen vuokrasopimuksen tekemiseksi ja tukemiseksi sekä lakisääteisten velvoitteiden täyttämiseksi, minkä jälkeen ne poistetaan. Analytiikkatietoja säilytetään rajoitetun ajan työkalujen asetusten mukaisesti, ja suostumustietoja säilytetään niin kauan kuin on tarpeen valintasi todistamiseksi. Markkinointi- tai valinnaisten viestien suostumukset säilytetään, kunnes peruutat ne.",
       ],
     },

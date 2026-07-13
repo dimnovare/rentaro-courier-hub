@@ -55,6 +55,11 @@ const I = {
       <path d="M21 11.5 a8.5 8.5 0 1 0-3.6 6.95 L21 20 l-1-3.2" /><path d="M8.5 10.5 H15.5" /><path d="M8.5 14 H13" />
     </svg>
   ),
+  feedback: ({ s = 17 }: IcoProps): ReactElement => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" />
+    </svg>
+  ),
   content: ({ s = 17 }: IcoProps): ReactElement => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <rect x="4" y="4" width="16" height="16" rx="2" /><path d="M8 9 H16" /><path d="M8 13 H16" /><path d="M8 17 H12" />
@@ -125,6 +130,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Calendar", href: "/admin/calendar", icon: "calendar" },
       { label: "Maintenance", href: "/admin/maintenance", icon: "maintenance" },
       { label: "Support", href: "/admin/support", icon: "support" },
+      { label: "Feedback", href: "/admin/feedback", icon: "feedback" },
     ],
   },
   {

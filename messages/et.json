@@ -1180,6 +1180,36 @@
       }
     }
   },
+  "feedback": {
+    "metaTitle": "Anna rendi kohta tagasisidet — rentaro",
+    "metaDescription": "Räägi rentarole, kuidas sinu lõppenud e-ratta rent läks.",
+    "eyebrow": "Rent lõppenud",
+    "title": "Kuidas sinu sõit läks?",
+    "intro": "Sinu tagasiside aitab meil kulleritele mõeldud rattaid ja teenust paremaks muuta.",
+    "rental": "{model} · {city}",
+    "ratingLegend": "Hinda oma renti",
+    "ratingLabel": "Anna hindeks {rating} punkti 5-st",
+    "poor": "Ei olnud hea",
+    "excellent": "Suurepärane",
+    "commentLabel": "Kommentaar (valikuline)",
+    "commentPlaceholder": "Mis toimis hästi? Mida saaksime parandada?",
+    "consent": "Luban rentarol avaldada oma tagasiside iseloomustusena, kasutades minu eesnime ja linna.",
+    "submit": "Saada tagasiside",
+    "submitting": "Saadan…",
+    "thankTitle": "Aitäh tagasiside eest.",
+    "thankBody": "Sinu vastus on salvestatud.",
+    "nextBike": "Vali järgmine ratas",
+    "loading": "Laadime sinu rendi andmeid…",
+    "invalidTitle": "See tagasiside link on vigane või aegunud.",
+    "invalidBody": "Kui soovid siiski tagasisidet anda, vasta rentaro e-kirjale.",
+    "notReadyTitle": "Tagasisidet ei saa veel anda.",
+    "notReadyBody": "Tagasisidet saad anda pärast ratta tagastamist ja ülevaatust.",
+    "errorTitle": "Tagasiside vormi laadimine ebaõnnestus.",
+    "errorBody": "Kontrolli internetiühendust ja proovi uuesti.",
+    "retry": "Proovi uuesti",
+    "submitError": "Tagasiside salvestamine ebaõnnestus. Palun proovi uuesti.",
+    "noApi": "Tagasiside teenus pole selles eelvaates saadaval."
+  },
   "admin": {
     "settings": {
       "title": "Saidi seaded",

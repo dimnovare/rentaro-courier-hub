@@ -1180,6 +1180,36 @@
       }
     }
   },
+  "feedback": {
+    "metaTitle": "Share rental feedback — rentaro",
+    "metaDescription": "Tell rentaro how your completed e-bike rental went.",
+    "eyebrow": "Rental complete",
+    "title": "How was your ride?",
+    "intro": "Your feedback helps us improve our bikes and service for couriers.",
+    "rental": "{model} · {city}",
+    "ratingLegend": "Rate your rental",
+    "ratingLabel": "Rate {rating} out of 5",
+    "poor": "Not good",
+    "excellent": "Excellent",
+    "commentLabel": "Comment (optional)",
+    "commentPlaceholder": "What worked well? What could we improve?",
+    "consent": "I allow rentaro to publish my feedback as a testimonial using my first name and city.",
+    "submit": "Send feedback",
+    "submitting": "Sending…",
+    "thankTitle": "Thank you for your feedback.",
+    "thankBody": "Your response has been saved.",
+    "nextBike": "Choose your next bike",
+    "loading": "Loading your rental…",
+    "invalidTitle": "This feedback link is invalid or has expired.",
+    "invalidBody": "Reply to the rentaro email if you still want to share feedback.",
+    "notReadyTitle": "Feedback is not available yet.",
+    "notReadyBody": "You can leave feedback after your bike has been returned and inspected.",
+    "errorTitle": "We couldn't load the feedback form.",
+    "errorBody": "Check your connection and try again.",
+    "retry": "Try again",
+    "submitError": "Your feedback could not be saved. Please try again.",
+    "noApi": "The feedback service is unavailable in this preview."
+  },
   "admin": {
     "settings": {
       "title": "Site settings",

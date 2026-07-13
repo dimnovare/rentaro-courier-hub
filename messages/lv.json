@@ -1180,6 +1180,36 @@
       }
     }
   },
+  "feedback": {
+    "metaTitle": "Sniedz atsauksmi par nomu — rentaro",
+    "metaDescription": "Pastāsti rentaro, kā noritēja tava pabeigtā e-velosipēda noma.",
+    "eyebrow": "Noma pabeigta",
+    "title": "Kā pagāja brauciens?",
+    "intro": "Tava atsauksme palīdz mums uzlabot velosipēdus un pakalpojumu kurjeriem.",
+    "rental": "{model} · {city}",
+    "ratingLegend": "Novērtē savu nomu",
+    "ratingLabel": "Novērtē ar {rating} no 5",
+    "poor": "Nebija labi",
+    "excellent": "Lieliski",
+    "commentLabel": "Komentārs (neobligāts)",
+    "commentPlaceholder": "Kas izdevās labi? Ko mēs varētu uzlabot?",
+    "consent": "Atļauju rentaro publicēt manu atsauksmi kā klienta pieredzes stāstu, norādot manu vārdu un pilsētu.",
+    "submit": "Nosūtīt atsauksmi",
+    "submitting": "Nosūta…",
+    "thankTitle": "Paldies par atsauksmi.",
+    "thankBody": "Tava atbilde ir saglabāta.",
+    "nextBike": "Izvēlēties nākamo velosipēdu",
+    "loading": "Ielādējam tavas nomas datus…",
+    "invalidTitle": "Šī atsauksmes saite nav derīga vai ir beigusies.",
+    "invalidBody": "Ja joprojām vēlies sniegt atsauksmi, atbildi uz rentaro e-pastu.",
+    "notReadyTitle": "Atsauksmi vēl nevar iesniegt.",
+    "notReadyBody": "Atsauksmi vari sniegt pēc velosipēda atgriešanas un pārbaudes.",
+    "errorTitle": "Neizdevās ielādēt atsauksmes veidlapu.",
+    "errorBody": "Pārbaudi interneta savienojumu un mēģini vēlreiz.",
+    "retry": "Mēģināt vēlreiz",
+    "submitError": "Atsauksmi neizdevās saglabāt. Lūdzu, mēģini vēlreiz.",
+    "noApi": "Atsauksmju pakalpojums šajā priekšskatījumā nav pieejams."
+  },
   "admin": {
     "settings": {
       "title": "Vietnes iestatījumi",

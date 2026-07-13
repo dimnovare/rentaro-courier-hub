@@ -1180,6 +1180,36 @@
       }
     }
   },
+  "feedback": {
+    "metaTitle": "Anna palautetta vuokrauksesta — rentaro",
+    "metaDescription": "Kerro rentarolle, miten päättynyt sähköpyörävuokrauksesi sujui.",
+    "eyebrow": "Vuokraus päättynyt",
+    "title": "Miten ajosi sujui?",
+    "intro": "Palautteesi auttaa meitä kehittämään pyöriämme ja kuriireille suunnattua palveluamme.",
+    "rental": "{model} · {city}",
+    "ratingLegend": "Arvioi vuokrauksesi",
+    "ratingLabel": "Anna arvosanaksi {rating}/5",
+    "poor": "Ei hyvä",
+    "excellent": "Erinomainen",
+    "commentLabel": "Kommentti (valinnainen)",
+    "commentPlaceholder": "Mikä toimi hyvin? Mitä voisimme parantaa?",
+    "consent": "Annan rentarolle luvan julkaista palautteeni asiakaskokemuksena etunimeni ja kaupunkini kanssa.",
+    "submit": "Lähetä palaute",
+    "submitting": "Lähetetään…",
+    "thankTitle": "Kiitos palautteestasi.",
+    "thankBody": "Vastauksesi on tallennettu.",
+    "nextBike": "Valitse seuraava pyörä",
+    "loading": "Ladataan vuokraustietojasi…",
+    "invalidTitle": "Palautelinkki on virheellinen tai vanhentunut.",
+    "invalidBody": "Jos haluat silti antaa palautetta, vastaa rentaron sähköpostiin.",
+    "notReadyTitle": "Palautetta ei voi vielä antaa.",
+    "notReadyBody": "Voit antaa palautetta, kun pyörä on palautettu ja tarkastettu.",
+    "errorTitle": "Palautelomaketta ei voitu ladata.",
+    "errorBody": "Tarkista verkkoyhteys ja yritä uudelleen.",
+    "retry": "Yritä uudelleen",
+    "submitError": "Palautetta ei voitu tallentaa. Yritä uudelleen.",
+    "noApi": "Palautepalvelu ei ole käytettävissä tässä esikatselussa."
+  },
   "admin": {
     "settings": {
       "title": "Sivuston asetukset",
