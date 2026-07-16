@@ -16,19 +16,21 @@
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
 /**
- * A support ticket as returned by the admin inbox endpoint. `resolvedAt` is null
- * until the ticket is resolved; `bookingId` is null for messages not tied to a
- * specific booking.
+ * A support ticket as returned by the admin inbox endpoint
+ * (AdminSupportTicketDto). `id` and `bookingId` are GUID strings on the wire;
+ * `bookingId` is null for messages not tied to a specific booking. `resolvedAt`
+ * is OMITTED (not null) until the ticket is resolved — the backend serializes
+ * with WhenWritingNull.
  */
 export interface SupportTicket {
-  id: number;
-  bookingId: number | null;
+  id: string;
+  bookingId: string | null;
   customerEmail: string;
   source: string;
   message: string;
   status: string;
   createdAt: string;
-  resolvedAt: string | null;
+  resolvedAt?: string | null;
 }
 
 /* ── Typed errors ──────────────────────────────────────────────────────── */
@@ -90,12 +92,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       const data = (await res.json()) as { error?: string; notConfigured?: boolean };
       if (data?.notConfigured) notConfigured = true;
-      if (data?.error) detail = `: ${data.error}`;
+      if (data?.error) detail = data.error;
     } catch {
       /* non-JSON body — ignore. */
     }
     if (notConfigured) throw new SupportConfigError();
-    throw new SupportApiError(`Request failed (${res.status})${detail}`, res.status);
+    // A server-supplied detail reads best on its own; otherwise fall back to a
+    // friendly generic rather than a bare "Request failed (nnn)".
+    throw new SupportApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+    );
   }
 
   // 204 / empty body tolerance.
@@ -110,7 +117,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const listSupportTickets = () => request<SupportTicket[]>("/api/admin/support");
 
 /** Marks a support ticket resolved; returns the updated ticket. */
-export const resolveSupportTicket = (id: number) =>
-  request<SupportTicket>(`/api/admin/support/${id}/resolve`, {
+export const resolveSupportTicket = (id: string) =>
+  request<SupportTicket>(`/api/admin/support/${encodeURIComponent(id)}/resolve`, {
     method: "POST",
   });

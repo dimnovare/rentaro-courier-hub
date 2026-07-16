@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import {
   getCalendar,
   RentalApiError,
@@ -12,6 +13,9 @@ import {
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { DateField } from "@/components/admin/DateField";
+import { AdminSection } from "@/components/admin/Table";
+import { Notice, ErrorPanel } from "@/components/admin/Feedback";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -56,8 +60,10 @@ export default function AdminCalendarPage() {
   const [to, setTo] = useState(() => plusDaysISO(todayUTC(), 30));
 
   const load = useCallback(
-    async (rangeFrom: string, rangeTo: string) => {
-      setState({ phase: "loading" });
+    async (rangeFrom: string, rangeTo: string, opts?: { silent?: boolean }) => {
+      // Silent reloads keep the current timeline on screen instead of
+      // unmounting it into "Loading calendar…" on every range tweak.
+      if (!opts?.silent) setState({ phase: "loading" });
       try {
         const data = await getCalendar(rangeFrom, rangeTo);
         setState({ phase: "ready", units: data.units ?? [] });
@@ -80,13 +86,28 @@ export default function AdminCalendarPage() {
     [signOut],
   );
 
-  // Load on mount (once signed in) and whenever the window changes.
+  // Load on mount (once signed in) and whenever the window changes. The first
+  // load runs immediately (showing the loading notice); subsequent range
+  // changes debounce ~300ms and reload silently so the timeline stays visible.
+  // An incomplete DateField entry reports "" — wait until both ends are valid.
+  const loadedOnce = useRef(false);
   useEffect(() => {
-    if (authenticated) void load(from, to);
+    if (!authenticated || !from || !to) return;
+    if (!loadedOnce.current) {
+      loadedOnce.current = true;
+      void load(from, to);
+      return;
+    }
+    const timer = window.setTimeout(() => void load(from, to, { silent: true }), 300);
+    return () => window.clearTimeout(timer);
   }, [authenticated, from, to, load]);
 
-  // Topbar Refresh reloads the current window.
-  useAdminRefresh(useCallback(() => void load(from, to), [load, from, to]));
+  // Topbar Refresh reloads the current window in place.
+  useAdminRefresh(
+    useCallback(() => {
+      if (from && to) void load(from, to, { silent: true });
+    }, [load, from, to]),
+  );
 
   return (
     <div>
@@ -146,14 +167,14 @@ function RangeControls({
         marginBottom: 26,
       }}
     >
-      <label style={fieldLabel}>
+      <div style={fieldLabel}>
         <span style={fieldKicker}>From</span>
-        <input type="date" value={from} max={to} onChange={(e) => onFrom(e.target.value)} style={dateStyle} />
-      </label>
-      <label style={fieldLabel}>
+        <DateField value={from} onChange={onFrom} label="From" />
+      </div>
+      <div style={fieldLabel}>
         <span style={fieldKicker}>To</span>
-        <input type="date" value={to} min={from} onChange={(e) => onTo(e.target.value)} style={dateStyle} />
-      </label>
+        <DateField value={to} onChange={onTo} label="To" />
+      </div>
       <button
         type="button"
         className="btn btn-ghost"
@@ -182,19 +203,21 @@ function Timeline({ units, from, to }: { units: CalendarUnit[]; from: string; to
     return { min, max, totalDays, today };
   }, [from, to]);
 
-  // Month tick labels across the window for light orientation.
+  // Month tick labels across the window for light orientation. The leftmost
+  // column is ALWAYS labelled — a window starting mid-month previously skipped
+  // its month (the tick sat before axis.min) and the first weeks read unnamed.
   const months = useMemo(() => {
-    const ticks: { left: number; label: string }[] = [];
-    const start = new Date(axis.min);
-    const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
     const span = axis.totalDays * DAY_MS;
+    const monthShort = (d: Date) =>
+      d.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+    const start = new Date(axis.min);
+    const ticks: { left: number; label: string }[] = [{ left: 0, label: monthShort(start) }];
+    const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
     while (cursor.getTime() <= axis.max) {
-      const t = cursor.getTime();
-      if (t >= axis.min) {
-        ticks.push({
-          left: ((t - axis.min) / span) * 100,
-          label: cursor.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }),
-        });
+      const left = ((cursor.getTime() - axis.min) / span) * 100;
+      // Skip a boundary tick that would sit on top of the previous label.
+      if (left - ticks[ticks.length - 1].left >= 4) {
+        ticks.push({ left, label: monthShort(cursor) });
       }
       cursor.setUTCMonth(cursor.getUTCMonth() + 1);
     }
@@ -218,9 +241,7 @@ function Timeline({ units, from, to }: { units: CalendarUnit[]; from: string; to
   );
 
   return (
-    <section style={{ marginBottom: 24 }}>
-      <SectionHead title="Fleet calendar" count={units.length} />
-
+    <AdminSection title="Fleet calendar" count={units.length} noun="unit">
       {units.length === 0 ? (
         <div
           className="card mono"
@@ -328,7 +349,7 @@ function Timeline({ units, from, to }: { units: CalendarUnit[]; from: string; to
           </div>
         </div>
       )}
-    </section>
+    </AdminSection>
   );
 }
 
@@ -373,38 +394,59 @@ function BlockBar({
         color: "var(--blue)",
       };
 
-  return (
+  const describe = `${block.type}: ${block.label} · ${block.from.slice(0, 10)} → ${
+    block.to ? block.to.slice(0, 10) : "ongoing"
+  }`;
+
+  const barStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 4,
+    bottom: 4,
+    left: `${left}%`,
+    width: `${width}%`,
+    borderRadius: "var(--r-full)",
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: 8,
+    overflow: "hidden",
+    zIndex: 1,
+    ...style,
+  };
+
+  const label = (
     <span
-      title={`${block.type}: ${block.label} · ${block.from.slice(0, 10)} → ${
-        block.to ? block.to.slice(0, 10) : "ongoing"
-      }`}
+      className="mono"
       style={{
-        position: "absolute",
-        top: 4,
-        bottom: 4,
-        left: `${left}%`,
-        width: `${width}%`,
-        borderRadius: "var(--r-full)",
-        display: "flex",
-        alignItems: "center",
-        paddingLeft: 8,
+        fontSize: 9.5,
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
         overflow: "hidden",
-        zIndex: 1,
-        ...style,
       }}
     >
-      <span
-        className="mono"
-        style={{
-          fontSize: 9.5,
-          fontWeight: 600,
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-          overflow: "hidden",
-        }}
+      {block.label}
+    </span>
+  );
+
+  // Rental blocks carry the rental id — deep-link them to the rentals page
+  // (which auto-opens the Manage drawer for ?id=). Maintenance blocks (no id)
+  // stay plain bars.
+  if (block.rentalId) {
+    return (
+      <Link
+        href={`/admin/rentals?id=${encodeURIComponent(block.rentalId)}`}
+        title={describe}
+        aria-label={describe}
+        style={{ ...barStyle, textDecoration: "none" }}
       >
-        {block.label}
-      </span>
+        {label}
+      </Link>
+    );
+  }
+
+  return (
+    <span role="img" title={describe} aria-label={describe} style={barStyle}>
+      {label}
     </span>
   );
 }
@@ -466,69 +508,3 @@ const fieldKicker: React.CSSProperties = {
   fontWeight: 500,
 };
 
-const dateStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: "var(--r-sm)",
-  background: "var(--bg-2)",
-  border: "1px solid var(--border)",
-  color: "var(--text)",
-  fontFamily: "var(--font-mono)",
-  fontSize: 12.5,
-  colorScheme: "dark",
-};
-
-function SectionHead({ title, count }: { title: string; count?: number }) {
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-      <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>{title}</h2>
-      {typeof count === "number" && (
-        <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
-          {count} {count === 1 ? "unit" : "units"}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)", marginBottom: 10 }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      {!config && (
-        <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
-          Try again
-        </button>
-      )}
-    </div>
-  );
-}

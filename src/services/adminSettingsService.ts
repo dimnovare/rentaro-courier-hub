@@ -72,6 +72,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (res.status === 401) {
       throw new SettingsApiError("Your session has expired. Sign in again.", 401);
     }
+    // Show ONLY the server-supplied error message when present, otherwise a
+    // friendly generic — never the raw "Request failed" prefix.
     let detail = "";
     let notConfigured = false;
     try {
@@ -83,12 +85,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       };
       if (data?.notConfigured) notConfigured = true;
       const msg = data?.error ?? data?.message ?? data?.title;
-      if (msg) detail = `: ${msg}`;
+      if (msg) detail = msg;
     } catch {
       /* non-JSON body — ignore. */
     }
     if (notConfigured) throw new SettingsConfigError();
-    throw new SettingsApiError(`Request failed (${res.status})${detail}`, res.status);
+    throw new SettingsApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+    );
   }
 
   if (res.status === 204) return undefined as T;

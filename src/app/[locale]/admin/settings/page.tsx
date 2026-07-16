@@ -11,7 +11,6 @@
  * signOut on a 401, and subscribes to the topbar refresh bus.
  */
 import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
 import {
   getSettings,
   updateSettings,
@@ -20,6 +19,7 @@ import {
   type SiteSettings,
 } from "@/services/adminSettingsService";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Notice, ErrorPanel, ActionErrorBar } from "@/components/admin/Feedback";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -33,11 +33,30 @@ const TOGGLE_KEYS = [
   "showPayConfirm",
   "showOnlineSigning",
 ] as const;
+type ToggleKey = (typeof TOGGLE_KEYS)[number];
+
+/** Hardcoded English labels — the admin console is English-only (no i18n). */
+const TOGGLE_LABEL: Record<ToggleKey, string> = {
+  showAccessories: "Show accessories section on the homepage",
+  showReferralCode: "Show referral-code input in booking",
+  showAddGear: "Show add-gear step in booking",
+  showReferAcourier: "Show 'refer a courier' card in the portal",
+  showPayConfirm: "Show 'pay & confirm your rental' card in the portal",
+  showOnlineSigning: "Show online Smart-ID / Mobile-ID signing",
+};
 
 /* ── The four bank-requisite fields, in display order ──────────────────── */
 
 const BANK_KEYS = ["bankIban", "bankAccountName", "bankName", "bankReference"] as const;
 type BankKey = (typeof BANK_KEYS)[number];
+
+/** Hardcoded English labels — admin console strings are not translated. */
+const BANK_LABEL: Record<BankKey, string> = {
+  bankIban: "IBAN",
+  bankAccountName: "Account name",
+  bankName: "Bank name",
+  bankReference: "Payment reference",
+};
 
 const BANK_PLACEHOLDER: Record<BankKey, string> = {
   bankIban: "EE00 0000 0000 0000 0000",
@@ -124,7 +143,6 @@ type LoadState =
   | { phase: "error"; message: string; config: boolean };
 
 export default function AdminSettingsPage() {
-  const t = useTranslations("admin.settings");
   const { signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   const [busy, setBusy] = useState(false);
@@ -135,8 +153,11 @@ export default function AdminSettingsPage() {
   // a successful save. State (not a ref) so the comparison runs during render.
   const [baseline, setBaseline] = useState<SiteSettings | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh) keep the current form on screen instead
+    // of blanking the page back to the loading notice.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     setActionError(null);
     setSavedAt(null);
     try {
@@ -146,7 +167,8 @@ export default function AdminSettingsPage() {
     } catch (err) {
       if (err instanceof SettingsApiError && err.unauthorized) {
         signOut();
-      } else {
+      } else if (!silent) {
+        // A failed SILENT refresh keeps the (still-valid) form on screen.
         setState(toErrorState(err));
       }
     }
@@ -156,7 +178,8 @@ export default function AdminSettingsPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   const setField = useCallback(<K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
     // Editing anything clears the previous "Saved" confirmation and any error,
@@ -200,20 +223,22 @@ export default function AdminSettingsPage() {
   const data = state.data;
   // Unsaved-changes flag: the on-screen record differs from the last save.
   const dirty = baseline ? !sameSettings(data, baseline) : false;
+  // Nudge the operator to fill the company requisites before issuing invoices.
+  const companyEmpty = COMPANY_KEYS.every((k) => !(data[k] ?? "").trim());
 
   return (
     <div style={{ maxWidth: 720 }}>
-      <PageHeader title={t("title")} subtitle="What couriers see on the site, plus bank details for transfers." />
+      <PageHeader title="Settings" subtitle="What couriers see on the site, plus bank details for transfers." />
 
       {actionError && <ActionErrorBar message={actionError} onDismiss={() => setActionError(null)} />}
 
       {/* ── Features ────────────────────────────────────────────────────── */}
-      <SettingsCard title={t("sections")} help={FEATURES_HELP}>
+      <SettingsCard title="Feature visibility" help={FEATURES_HELP}>
         <div className="admin-set-card-body">
           {TOGGLE_KEYS.map((key, i) => (
             <ToggleRow
               key={key}
-              label={t(key)}
+              label={TOGGLE_LABEL[key]}
               checked={data[key]}
               first={i === 0}
               onChange={(v) => setField(key, v)}
@@ -223,10 +248,10 @@ export default function AdminSettingsPage() {
       </SettingsCard>
 
       {/* ── Operations ──────────────────────────────────────────────────── */}
-      <SettingsCard title={t("opsHeading")} help={OPS_HELP}>
+      <SettingsCard title="Operations" help={OPS_HELP}>
         <div className="admin-set-card-body">
           <ToggleRow
-            label={t("autoSendReturnReminders")}
+            label="Send return reminders automatically"
             checked={data.autoSendReturnReminders}
             first
             onChange={(v) => setField("autoSendReturnReminders", v)}
@@ -251,6 +276,24 @@ export default function AdminSettingsPage() {
       {/* ── Company details (printed on generated invoices) ─────────────── */}
       <SettingsCard title="Company details" help={COMPANY_SECTION_HELP}>
         <div className="admin-set-card-body pad">
+          {companyEmpty && (
+            <p
+              className="mono"
+              role="status"
+              style={{
+                color: "var(--blue)",
+                fontSize: 12.5,
+                lineHeight: 1.55,
+                margin: "0 0 20px",
+                padding: "12px 16px",
+                borderRadius: "var(--r-md)",
+                border: "1px solid rgba(111, 180, 255, 0.32)",
+                background: "rgba(111, 180, 255, 0.06)",
+              }}
+            >
+              Company details appear on invoices — fill them before issuing invoices.
+            </p>
+          )}
           {COMPANY_KEYS.map((key) => (
             <BankField
               key={key}
@@ -271,12 +314,12 @@ export default function AdminSettingsPage() {
       </SettingsCard>
 
       {/* ── Bank details / requisites ───────────────────────────────────── */}
-      <SettingsCard title={t("bankHeading")} help={BANK_SECTION_HELP}>
+      <SettingsCard title="Bank requisites" help={BANK_SECTION_HELP}>
         <div className="admin-set-card-body pad">
           {BANK_KEYS.map((key) => (
             <BankField
               key={key}
-              label={t(key)}
+              label={BANK_LABEL[key]}
               value={data[key]}
               placeholder={BANK_PLACEHOLDER[key]}
               help={BANK_HELP[key]}
@@ -295,7 +338,7 @@ export default function AdminSettingsPage() {
           disabled={busy || !dirty}
           style={{ padding: "12px 26px", fontSize: 14, opacity: busy || !dirty ? 0.55 : 1 }}
         >
-          {busy ? "Saving…" : t("save")}
+          {busy ? "Saving…" : "Save settings"}
         </button>
 
         {dirty ? (
@@ -496,101 +539,6 @@ function BankField({
         style={{ fontFamily: "var(--font-mono)" }}
       />
       <p className="admin-set-field-help">{help}</p>
-    </div>
-  );
-}
-
-/* ── Shared chrome (mirrors the content page) ──────────────────────────── */
-
-function ActionErrorBar({ message, onDismiss }: { message: string; onDismiss: () => void }) {
-  return (
-    <div
-      className="mono"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 14,
-        color: "var(--danger)",
-        fontSize: 12.5,
-        marginBottom: 24,
-        padding: "12px 16px",
-        borderRadius: "var(--r-md)",
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "rgba(255, 138, 120, 0.06)",
-      }}
-    >
-      <span>{message}</span>
-      <button
-        type="button"
-        onClick={onDismiss}
-        className="mono"
-        style={{
-          background: "transparent",
-          border: "none",
-          color: "var(--danger)",
-          cursor: "pointer",
-          fontSize: 12.5,
-          padding: 0,
-        }}
-        aria-label="Dismiss"
-      >
-        ✕
-      </button>
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
     </div>
   );
 }

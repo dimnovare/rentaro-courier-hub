@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Link } from "@/i18n/navigation";
 import {
   getUnits,
   getRentals,
@@ -18,12 +19,15 @@ import {
   type UpdateUnitInput,
 } from "@/services/adminFleetService";
 import { AdminTable, Th, Td, fmtDay } from "@/components/admin/Table";
-import { StatusPill } from "@/components/admin/StatusPill";
+import { StatusPill, statusLabel } from "@/components/admin/StatusPill";
+import { Banner, InlineError, Notice, ErrorPanel } from "@/components/admin/Feedback";
 import { Drawer } from "@/components/admin/Drawer";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { DateField, formatDateLong } from "@/components/admin/DateField";
+import { DateField } from "@/components/admin/DateField";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { confirmAction } from "@/lib/confirm";
+import { formatEur } from "@/lib/money";
 import { modelService } from "@/services/modelService";
 import { cityService } from "@/services/cityService";
 
@@ -46,28 +50,23 @@ const UNIT_STATUSES = [
   "retired",
 ] as const;
 
-/** Human-readable labels for the squashed lowercase wire values. */
-const UNIT_STATUS_LABELS: Record<string, string> = {
-  incoming: "incoming (on order)",
-  available: "available",
-  reserved: "reserved",
-  rented: "rented",
-  returningsoon: "returning soon",
-  inspectionpending: "inspection pending",
-  maintenance: "maintenance",
-  damaged: "damaged",
-  stolen: "stolen",
-  retired: "retired",
-};
+/** Select-option label for a unit status: the shared display label, keeping
+ *  the richer ops hint for units on order ("Incoming (on order)"). */
+function unitStatusOption(value: string): string {
+  return value.toLowerCase() === "incoming" ? "Incoming (on order)" : statusLabel(value);
+}
 
-/** Pretty label for a status value: known wire values get their mapped label;
- *  anything else (e.g. rental statuses in the timeline) falls back to spacing
- *  out camelCase and lower-casing, so unknown values still render sensibly. */
-function statusLabel(value: string): string {
-  return (
-    UNIT_STATUS_LABELS[value.toLowerCase()] ??
-    value.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()
-  );
+/**
+ * Client heuristic for the Delete affordance: a unit that is in (or heading
+ * out of) a live rental almost certainly has rental history, which the backend
+ * refuses to delete (409 — retire instead). Disable the button up front; the
+ * backend 409 stays as the backstop for every other case.
+ */
+const DELETE_BLOCKED_STATUSES = new Set(["rented", "returningsoon", "inspectionpending"]);
+const DELETE_BLOCKED_TITLE = "Units with rental history can't be deleted — retire instead";
+
+function deleteBlocked(unit: FleetUnit): boolean {
+  return DELETE_BLOCKED_STATUSES.has(unit.status.toLowerCase());
 }
 
 interface FleetData {
@@ -93,45 +92,60 @@ export default function AdminFleetPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   // The unit currently being edited (used/for-sale state), or null when closed.
   const [editingUnit, setEditingUnit] = useState<FleetUnit | null>(null);
+  // Success follow-through after receiving an incoming unit (rendered in a Banner).
+  const [receiveNotice, setReceiveNotice] = useState<ReactNode>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
-    setUpdateError(null);
-    try {
-      const [units, rentals, models, cities] = await Promise.all([
-        getUnits(),
-        getRentals(),
-        modelService.getModels(),
-        cityService.getCities(),
-      ]);
-      setState({
-        phase: "ready",
-        data: {
-          units,
-          rentals,
-          models: models.map((m) => ({ id: m.id, name: m.name })),
-          cities: cities.map((c) => ({ id: c.id, name: c.name })),
-        },
-      });
-    } catch (err) {
-      // A missing token / 401 means the session is gone — drop to sign-in.
-      if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
-        signOut();
-      } else if (err instanceof FleetConfigError) {
-        setState({ phase: "error", message: err.message, config: true });
-      } else if (err instanceof FleetApiError) {
-        setState({ phase: "error", message: err.message, config: false });
-      } else {
-        setState({ phase: "error", message: "Something went wrong loading the fleet.", config: false });
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent === true;
+      if (!silent) {
+        setState({ phase: "loading" });
+        setUpdateError(null);
+        setReceiveNotice(null);
       }
-    }
-  }, [signOut]);
+      try {
+        const [units, rentals, models, cities] = await Promise.all([
+          getUnits(),
+          getRentals(),
+          modelService.getModels(),
+          cityService.getCities(),
+        ]);
+        setState({
+          phase: "ready",
+          data: {
+            units,
+            rentals,
+            models: models.map((m) => ({ id: m.id, name: m.name })),
+            cities: cities.map((c) => ({ id: c.id, name: c.name })),
+          },
+        });
+      } catch (err) {
+        // A missing token / 401 means the session is gone — drop to sign-in.
+        if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
+          signOut();
+          return;
+        }
+        const message =
+          err instanceof FleetConfigError || err instanceof FleetApiError
+            ? err.message
+            : "Something went wrong loading the fleet.";
+        if (silent) {
+          // Keep the current data (and any open drawer) on screen; surface inline.
+          setUpdateError(message);
+        } else {
+          setState({ phase: "error", message, config: err instanceof FleetConfigError });
+        }
+      }
+    },
+    [signOut],
+  );
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  // The topbar Refresh reloads in place, so an open drawer survives it.
+  useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 
   async function changeStatus(internalCode: string, nextStatus: string) {
     if (state.phase !== "ready") return;
@@ -179,7 +193,7 @@ export default function AdminFleetPage() {
     const current = state.data.units.find((u) => u.internalCode === internalCode);
     if (!current || current.status !== "incoming") return;
     if (
-      !window.confirm(
+      !confirmAction(
         `Receive ${internalCode} into live stock? It becomes available for assignment.`,
       )
     ) {
@@ -202,6 +216,22 @@ export default function AdminFleetPage() {
               },
             }
           : s,
+      );
+      // Follow-through: point the operator at bookings that were waiting for stock.
+      setReceiveNotice(
+        <>
+          Unit {internalCode} received and available.{" "}
+          <Link
+            href="/admin/bookings?filter=awaiting-stock"
+            style={{
+              color: "inherit",
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
+            }}
+          >
+            Bookings waiting for stock →
+          </Link>
+        </>,
       );
     } catch (err) {
       if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
@@ -275,9 +305,7 @@ export default function AdminFleetPage() {
   }
 
   async function removeUnit(internalCode: string) {
-    if (
-      !window.confirm(`Delete unit ${internalCode}? This cannot be undone.`)
-    ) {
+    if (!confirmAction(`Delete unit ${internalCode}?`, { finality: "irreversible" })) {
       return;
     }
     setUpdateError(null);
@@ -322,21 +350,11 @@ export default function AdminFleetPage() {
         <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />
       ) : (
         <>
-          {updateError && (
-            <div
-              className="mono"
-              style={{
-                color: "var(--danger)",
-                fontSize: 12.5,
-                marginBottom: 20,
-                padding: "12px 16px",
-                borderRadius: "var(--r-md)",
-                border: "1px solid rgba(255, 138, 120, 0.32)",
-                background: "rgba(255, 138, 120, 0.06)",
-              }}
-            >
-              {updateError}
-            </div>
+          {updateError && <InlineError message={updateError} />}
+          {receiveNotice != null && (
+            // Banner renders its `text` verbatim; the prop is typed string but
+            // the receive follow-through needs an inline Link, which renders fine.
+            <Banner tone="ok" text={receiveNotice} />
           )}
 
           <PageHeader
@@ -523,23 +541,7 @@ function NewUnitDrawer({
           void handleSubmit();
         }}
       >
-        {formError && (
-          <div
-            className="mono"
-            role="alert"
-            style={{
-              color: "var(--danger)",
-              fontSize: 12,
-              marginBottom: 16,
-              padding: "10px 13px",
-              borderRadius: "var(--r-sm)",
-              border: "1px solid rgba(255, 138, 120, 0.32)",
-              background: "rgba(255, 138, 120, 0.06)",
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <InlineError message={formError} />}
 
         <div className="field">
           <label htmlFor="bu-code">Internal code</label>
@@ -581,7 +583,7 @@ function NewUnitDrawer({
             <select id="bu-status" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
               {UNIT_STATUSES.map((s) => (
                 <option key={s} value={s}>
-                  {statusLabel(s)}
+                  {unitStatusOption(s)}
                 </option>
               ))}
             </select>
@@ -645,27 +647,18 @@ function NewUnitDrawer({
           />
         </div>
 
-        <div className="field-row">
-          <div className="field">
-            <label htmlFor="bu-last-svc">Last service</label>
-            <input
-              id="bu-last-svc"
-              type="date"
-              value={lastServiceDate}
-              onChange={(e) => setLastServiceDate(e.target.value)}
-              aria-label="Last service date"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="bu-next-svc">Next service due</label>
-            <input
-              id="bu-next-svc"
-              type="date"
-              value={nextServiceDueDate}
-              onChange={(e) => setNextServiceDueDate(e.target.value)}
-              aria-label="Next service due date"
-            />
-          </div>
+        {/* Stacked (not .field-row): each DateField needs the drawer's full width. */}
+        <div className="field">
+          <label>Last service</label>
+          <DateField value={lastServiceDate} onChange={setLastServiceDate} label="Last service" />
+        </div>
+        <div className="field">
+          <label>Next service due</label>
+          <DateField
+            value={nextServiceDueDate}
+            onChange={setNextServiceDueDate}
+            label="Next service due"
+          />
         </div>
 
         <div className="field">
@@ -778,7 +771,8 @@ function IncomingInventory({
   if (units.length === 0) return null;
 
   return (
-    <section style={{ marginBottom: 48 }}>
+    // id="incoming" is a cross-page anchor — the dashboard links to /admin/fleet#incoming.
+    <section id="incoming" style={{ marginBottom: 48 }}>
       <SectionHead title="Incoming inventory" count={units.length} />
       <p
         className="mono"
@@ -814,7 +808,7 @@ function IncomingInventory({
                 {g.modelId} · {g.cityId} · {g.units.length}
               </h3>
               <span className="mono" style={{ fontSize: 11, color: "var(--text-dim)" }}>
-                {g.date ? `expected ${formatDateLong(g.date)}` : "no arrival date"}
+                {g.date ? `expected ${fmtDay(g.date)}` : "no arrival date"}
               </span>
             </div>
             <AdminTable>
@@ -840,7 +834,7 @@ function IncomingInventory({
                         {u.serialNumber ?? "—"}
                       </Td>
                       <Td mono nowrap>
-                        {u.expectedArrivalDate ? formatDateLong(u.expectedArrivalDate) : "—"}
+                        {fmtDay(u.expectedArrivalDate)}
                       </Td>
                       <Td dim>{u.notes?.trim() ? u.notes : "—"}</Td>
                       <Td nowrap>
@@ -919,7 +913,8 @@ function UnitsByCity({
   onEdit: (unit: FleetUnit) => void;
   onDelete: (code: string) => void;
 }) {
-  // Group units by city, preserving first-seen city order.
+  // Group units by city. Groups sort alphabetically (stable) so the layout
+  // never flips when a mutation or refresh changes the first-seen API order.
   const groups = useMemo(() => {
     const map = new Map<string, FleetUnit[]>();
     for (const u of units) {
@@ -927,7 +922,7 @@ function UnitsByCity({
       if (list) list.push(u);
       else map.set(u.cityId, [u]);
     }
-    return [...map.entries()];
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [units]);
 
   return (
@@ -974,67 +969,72 @@ function UnitsByCity({
                   </tr>
                 </thead>
                 <tbody>
-                  {cityUnits.map((u) => (
-                    <tr key={u.internalCode}>
-                      <Td mono nowrap>
-                        {u.internalCode}
-                      </Td>
-                      <Td mono dim>
-                        {u.modelId}
-                      </Td>
-                      <Td mono dim>
-                        {u.serialNumber ?? "—"}
-                      </Td>
-                      <Td nowrap>
-                        <StatusPill value={u.status} />
-                      </Td>
-                      <Td nowrap>
-                        <StatusSelect
-                          value={u.status}
-                          busy={Boolean(pending[u.internalCode])}
-                          onChange={(next) => onChangeStatus(u.internalCode, next)}
-                        />
-                      </Td>
-                      <Td nowrap>
-                        <SaleState unit={u} />
-                      </Td>
-                      <Td mono nowrap>
-                        {fmtDay(u.lastServiceDate)}
-                      </Td>
-                      <Td mono nowrap>
-                        {fmtDay(u.nextServiceDueDate)}
-                      </Td>
-                      <Td dim>{u.notes?.trim() ? u.notes : "—"}</Td>
-                      <Td nowrap>
-                        <span style={{ display: "inline-flex", gap: 8 }}>
-                          <button
-                            type="button"
-                            className="btn btn-ghost"
-                            onClick={() => onEdit(u)}
-                            style={{ padding: "7px 14px", fontSize: 12 }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-ghost"
-                            onClick={() => onDelete(u.internalCode)}
-                            disabled={Boolean(pending[u.internalCode])}
-                            style={{
-                              padding: "7px 14px",
-                              fontSize: 12,
-                              color: "var(--danger)",
-                              borderColor: "rgba(255, 138, 120, 0.32)",
-                              opacity: pending[u.internalCode] ? 0.55 : 1,
-                              cursor: pending[u.internalCode] ? "not-allowed" : "pointer",
-                            }}
-                          >
-                            Delete
-                          </button>
-                        </span>
-                      </Td>
-                    </tr>
-                  ))}
+                  {cityUnits.map((u) => {
+                    const busy = Boolean(pending[u.internalCode]);
+                    const blocked = deleteBlocked(u);
+                    return (
+                      <tr key={u.internalCode}>
+                        <Td mono nowrap>
+                          {u.internalCode}
+                        </Td>
+                        <Td mono dim>
+                          {u.modelId}
+                        </Td>
+                        <Td mono dim>
+                          {u.serialNumber ?? "—"}
+                        </Td>
+                        <Td nowrap>
+                          <StatusPill value={u.status} />
+                        </Td>
+                        <Td nowrap>
+                          <StatusSelect
+                            value={u.status}
+                            busy={busy}
+                            onChange={(next) => onChangeStatus(u.internalCode, next)}
+                          />
+                        </Td>
+                        <Td nowrap>
+                          <SaleState unit={u} />
+                        </Td>
+                        <Td mono nowrap>
+                          {fmtDay(u.lastServiceDate)}
+                        </Td>
+                        <Td mono nowrap>
+                          {fmtDay(u.nextServiceDueDate)}
+                        </Td>
+                        <Td dim>{u.notes?.trim() ? u.notes : "—"}</Td>
+                        <Td nowrap>
+                          <span style={{ display: "inline-flex", gap: 8 }}>
+                            <button
+                              type="button"
+                              className="btn btn-ghost"
+                              onClick={() => onEdit(u)}
+                              style={{ padding: "7px 14px", fontSize: 12 }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-ghost"
+                              onClick={() => onDelete(u.internalCode)}
+                              disabled={busy || blocked}
+                              title={blocked ? DELETE_BLOCKED_TITLE : undefined}
+                              style={{
+                                padding: "7px 14px",
+                                fontSize: 12,
+                                color: "var(--danger)",
+                                borderColor: "rgba(255, 138, 120, 0.32)",
+                                opacity: busy || blocked ? 0.55 : 1,
+                                cursor: busy || blocked ? "not-allowed" : "pointer",
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </span>
+                        </Td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </AdminTable>
             </div>
@@ -1057,7 +1057,7 @@ function SaleState({ unit }: { unit: FleetUnit }) {
       {used && <StatusPill value="used" tone="neutral" />}
       {unit.forSale && (
         <StatusPill
-          value={unit.salePrice != null ? `for sale · €${unit.salePrice}` : "for sale"}
+          value={unit.salePrice != null ? `for sale · ${formatEur(unit.salePrice)}` : "for sale"}
           tone="info"
         />
       )}
@@ -1165,14 +1165,15 @@ function EditUnitDrawer({
               type="button"
               className="btn btn-ghost spacer"
               onClick={() => onDelete(unit.internalCode)}
-              disabled={submitting}
+              disabled={submitting || deleteBlocked(unit)}
+              title={deleteBlocked(unit) ? DELETE_BLOCKED_TITLE : undefined}
               style={{
                 padding: "11px 20px",
                 fontSize: 14,
                 color: "var(--danger)",
                 borderColor: "rgba(255, 138, 120, 0.32)",
-                opacity: submitting ? 0.55 : 1,
-                cursor: submitting ? "not-allowed" : "pointer",
+                opacity: submitting || deleteBlocked(unit) ? 0.55 : 1,
+                cursor: submitting || deleteBlocked(unit) ? "not-allowed" : "pointer",
               }}
             >
               Delete
@@ -1209,23 +1210,7 @@ function EditUnitDrawer({
           void handleSubmit();
         }}
       >
-        {formError && (
-          <div
-            className="mono"
-            role="alert"
-            style={{
-              color: "var(--danger)",
-              fontSize: 12,
-              marginBottom: 16,
-              padding: "10px 13px",
-              borderRadius: "var(--r-sm)",
-              border: "1px solid rgba(255, 138, 120, 0.32)",
-              background: "rgba(255, 138, 120, 0.06)",
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <InlineError message={formError} />}
 
         {/* Internal code is a unique business key — editable here so a mistyped
             code can be corrected; submitting a new value renames the unit. */}
@@ -1308,27 +1293,18 @@ function EditUnitDrawer({
           />
         </div>
 
-        <div className="field-row">
-          <div className="field">
-            <label htmlFor="eu-last-svc">Last service</label>
-            <input
-              id="eu-last-svc"
-              type="date"
-              value={lastServiceDate}
-              onChange={(e) => setLastServiceDate(e.target.value)}
-              aria-label="Last service date"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="eu-next-svc">Next service due</label>
-            <input
-              id="eu-next-svc"
-              type="date"
-              value={nextServiceDueDate}
-              onChange={(e) => setNextServiceDueDate(e.target.value)}
-              aria-label="Next service due date"
-            />
-          </div>
+        {/* Stacked (not .field-row): each DateField needs the drawer's full width. */}
+        <div className="field">
+          <label>Last service</label>
+          <DateField value={lastServiceDate} onChange={setLastServiceDate} label="Last service" />
+        </div>
+        <div className="field">
+          <label>Next service due</label>
+          <DateField
+            value={nextServiceDueDate}
+            onChange={setNextServiceDueDate}
+            label="Next service due"
+          />
         </div>
 
         {/* Expected arrival — meaningful while the unit is on order (incoming). */}
@@ -1441,7 +1417,7 @@ function StatusSelect({
     >
       {options.map((s) => (
         <option key={s} value={s} style={{ background: "var(--panel)", color: "var(--text)" }}>
-          {statusLabel(s)}
+          {unitStatusOption(s)}
         </option>
       ))}
     </select>
@@ -1733,62 +1709,6 @@ function SectionHead({ title, count }: { title: string; count?: number }) {
         <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
           {count} {count === 1 ? "record" : "records"}
         </span>
-      )}
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
-        {message}
-      </p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
       )}
     </div>
   );

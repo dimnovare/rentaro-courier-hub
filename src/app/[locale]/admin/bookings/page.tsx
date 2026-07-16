@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   listBookings,
   listUnitCodes,
@@ -37,11 +38,26 @@ import {
   type Contract,
   type ContractDocumentKind,
 } from "@/services/adminContractService";
-import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate, fmtDay } from "@/components/admin/Table";
-import { StatusPill, type PillTone } from "@/components/admin/StatusPill";
+import { AdminTable, Th, Td, EmptyRow, AdminSection } from "@/components/admin/Table";
+import { StatusPill, statusLabel, type PillTone } from "@/components/admin/StatusPill";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { Banner, Notice, ErrorPanel, InlineError } from "@/components/admin/Feedback";
+import { DrawerFooter } from "@/components/admin/DrawerFooter";
+import { confirmAction } from "@/lib/confirm";
+import { fmtDate, fmtDay, todayIso, isoDay } from "@/lib/dates";
+import { formatEur } from "@/lib/money";
+
+/** Client-side page size for the bookings table ("Load more" reveals the next
+ *  slice). Filter counts always cover the FULL loaded set — pagination only
+ *  limits how many rows are rendered. */
+const PAGE_SIZE = 50;
+
+/** Whole days elapsed since an ISO timestamp (clamped at 0). */
+function ageInDays(iso: string): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000));
+}
 
 /**
  * Every status the operator can set from the Manage panel's "Set status" select.
@@ -209,11 +225,14 @@ function computeNextAction({
   if (paymentSettled)
     return { key: "assign", label: "Ready to assign a bike", tone: "warn", needsAction: true, detail: `Payment is settled and a unit is free in ${b.cityId} — assign a bike to start the rental.` };
 
-  // Payment not yet fetched (row collapsed): coarse, status-based best guess —
-  // the panel refines it once opened and the payment loads.
+  // Payment not yet fetched (row collapsed): a soft status-echo guess only —
+  // assert nothing about payment/contract state the row can't know yet (the
+  // strong "Contract not signed" / "Awaiting payment" claims above are reserved
+  // for FETCHED state, so the guess can never contradict the refined panel).
+  // Opening the row loads the payment/contract and sharpens the pill.
   if (status === "signaturepending")
-    return { key: "contract", label: "Contract not signed", tone: "warn", needsAction: true, detail: "Open the row to confirm payment and the contract, then assign a bike." };
-  return { key: "payment", label: "Awaiting payment", tone: "warn", needsAction: true, detail: "Open the row to confirm payment, then assign a bike." };
+    return { key: "contract", label: "Signature pending", tone: "warn", needsAction: true, detail: "Open the row to check payment and the agreement, then assign a bike." };
+  return { key: "payment", label: "Payment unconfirmed", tone: "warn", needsAction: true, detail: "Open the row to confirm payment, then assign a bike." };
 }
 
 /** Fill tones for the Manage-panel next-step banner, keyed to the pill tone. */
@@ -294,8 +313,18 @@ type LoadState =
 
 export default function AdminBookingsPage() {
   const { authenticated, signOut } = useAdminAuth();
+  const searchParams = useSearchParams();
   const [state, setState] = useState<LoadState>({ phase: "idle" });
   const [banner, setBanner] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+  // The success/failure banner renders above the H1; when the operator acted
+  // deep in the list it would land off-screen — nudge it back into view.
+  const bannerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (banner) bannerRef.current?.scrollIntoView({ block: "nearest" });
+  }, [banner]);
+  // Booking ids with an in-flight mutation (approve/reject/status/assign/
+  // payment/delete). Gates the acting row's controls so nothing double-fires.
+  const [pending, setPending] = useState<Record<string, boolean>>({});
   // Contracts known for a booking, keyed by booking id — populated either by
   // generating one this session or by the lazy-load when a Manage panel opens.
   const [contracts, setContracts] = useState<Record<string, Contract>>({});
@@ -322,8 +351,18 @@ export default function AdminBookingsPage() {
   const [onlineSigning, setOnlineSigning] = useState(false);
   // Worklist filter: show all bookings, only ones needing operator action, or
   // only ones blocked on incoming stock. Purely a client-side view over the
-  // already-loaded rows — no extra fetches.
-  const [filter, setFilter] = useState<"all" | "attention" | "stock">("all");
+  // already-loaded rows — no extra fetches. Pre-selectable via the
+  // ?filter=needs-action|awaiting-stock deep link (dashboard cards).
+  const [filter, setFilter] = useState<"all" | "attention" | "stock">(() => {
+    const f = searchParams.get("filter");
+    return f === "needs-action" ? "attention" : f === "awaiting-stock" ? "stock" : "all";
+  });
+  // How many filtered rows are rendered ("Load more" adds another page).
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  // Booking id whose row should be scrolled into view once rendered (deep link).
+  const [scrollTargetId, setScrollTargetId] = useState<string | null>(null);
+  // Whether the ?id=<bookingId> deep link has been consumed (once per mount).
+  const deepLinkDone = useRef(false);
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     // A "silent" refresh (after an action) keeps the current bookings on screen
@@ -434,16 +473,29 @@ export default function AdminBookingsPage() {
     return { all: nextActions.size, attention, stock };
   }, [nextActions]);
 
+  // Newest first, so "Load more" pages from the most recent request backwards.
+  const sortedBookings = useMemo(() => {
+    if (state.phase !== "ready") return [] as AdminBooking[];
+    return [...state.data.bookings].sort((a, b) =>
+      a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0,
+    );
+  }, [state]);
+
   const filteredBookings = useMemo(() => {
-    if (state.phase !== "ready") return [];
-    const all = state.data.bookings;
-    if (filter === "all") return all;
-    return all.filter((b) => {
+    if (filter === "all") return sortedBookings;
+    return sortedBookings.filter((b) => {
       const a = nextActions.get(b.id);
       if (!a) return false;
       return filter === "attention" ? a.needsAction : a.key === "stock";
     });
-  }, [state, filter, nextActions]);
+  }, [sortedBookings, filter, nextActions]);
+
+  // Pagination only limits the RENDERED rows — filters and their counts above
+  // always evaluate the full loaded set.
+  const visibleBookings = useMemo(
+    () => filteredBookings.slice(0, visibleCount),
+    [filteredBookings, visibleCount],
+  );
 
   // Fetch (once) the latest payment for a booking. Errors are swallowed: the
   // payment readout is non-critical, so a hiccup just leaves it unknown rather
@@ -509,6 +561,51 @@ export default function AdminBookingsPage() {
     [payments, loadPayment, contractLoaded, contracts, loadContract],
   );
 
+  // Deep link: /admin/bookings?id=<bookingId> auto-expands that booking's
+  // Manage panel once the list is loaded and scrolls it into view (dashboard /
+  // support cross-links). Widens the filter / page size when the target row
+  // would otherwise be hidden.
+  useEffect(() => {
+    if (deepLinkDone.current || state.phase !== "ready") return;
+    deepLinkDone.current = true;
+    const id = searchParams.get("id");
+    if (!id) return;
+    const inFiltered = filteredBookings.findIndex((b) => b.id === id);
+    if (inFiltered >= 0) {
+      setVisibleCount((c) => Math.max(c, inFiltered + 1));
+    } else {
+      const inAll = sortedBookings.findIndex((b) => b.id === id);
+      if (inAll < 0) return; // Unknown booking id — ignore the link.
+      setFilter("all");
+      setVisibleCount((c) => Math.max(c, inAll + 1));
+    }
+    setOpenId(id);
+    if (payments[id] === undefined) void loadPayment(id);
+    if (!contractLoaded[id] && contracts[id] === undefined) void loadContract(id);
+    setScrollTargetId(id);
+  }, [
+    state,
+    searchParams,
+    filteredBookings,
+    sortedBookings,
+    payments,
+    contracts,
+    contractLoaded,
+    loadPayment,
+    loadContract,
+  ]);
+
+  // Scroll the deep-linked row into view. The target is set in the same state
+  // batch that opens/reveals the row, so by the time this effect runs the row
+  // is already rendered.
+  useEffect(() => {
+    if (!scrollTargetId) return;
+    const el = document.getElementById(`booking-row-${scrollTargetId}`);
+    if (!el) return;
+    el.scrollIntoView({ block: "center" });
+    setScrollTargetId(null);
+  }, [scrollTargetId]);
+
   // Surface a per-row error inside the management panel for a booking.
   const setRowErr = useCallback((bookingId: string, text: string) => {
     setRowError({ bookingId, text });
@@ -517,10 +614,13 @@ export default function AdminBookingsPage() {
   // Run a mutating action for a booking. Success → top banner + refresh; a
   // failure stays attached to the row (so the cause is visible next to the
   // control the operator just used) instead of scrolling away in the banner.
+  // The booking is marked pending for the duration so its row/panel controls
+  // disable and the action can't double-fire.
   const runAction = useCallback(
     async (bookingId: string, action: () => Promise<void>, okText: string) => {
       setBanner(null);
       setRowError(null);
+      setPending((p) => ({ ...p, [bookingId]: true }));
       try {
         await action();
         setBanner({ tone: "ok", text: okText });
@@ -536,6 +636,12 @@ export default function AdminBookingsPage() {
             ? err.message
             : "Action failed.";
         setRowErr(bookingId, text);
+      } finally {
+        setPending((p) => {
+          const next = { ...p };
+          delete next[bookingId];
+          return next;
+        });
       }
     },
     [load, signOut, setRowErr],
@@ -549,8 +655,7 @@ export default function AdminBookingsPage() {
       // Money action: creates a settled payment record (and an invoice when
       // auto-create is on) — confirm before recording.
       if (
-        typeof window !== "undefined" &&
-        !window.confirm(
+        !confirmAction(
           "Mark this payment as received? This records a settled payment (and creates an invoice if auto-create is enabled).",
         )
       ) {
@@ -558,6 +663,7 @@ export default function AdminBookingsPage() {
       }
       setBanner(null);
       setRowError(null);
+      setPending((p) => ({ ...p, [bookingId]: true }));
       try {
         const updated = await confirmPayment(bookingId);
         setPayments((m) => ({ ...m, [bookingId]: updated }));
@@ -573,6 +679,12 @@ export default function AdminBookingsPage() {
             ? err.message
             : "Could not confirm the payment.";
         setRowErr(bookingId, text);
+      } finally {
+        setPending((p) => {
+          const next = { ...p };
+          delete next[bookingId];
+          return next;
+        });
       }
     },
     [load, signOut, setRowErr],
@@ -584,8 +696,7 @@ export default function AdminBookingsPage() {
   const onRevokePayment = useCallback(
     async (bookingId: string) => {
       if (
-        typeof window !== "undefined" &&
-        !window.confirm(
+        !confirmAction(
           "Mark this payment as unpaid? This reverts the confirmed payment and re-blocks bike assignment until it is confirmed again.",
         )
       ) {
@@ -593,6 +704,7 @@ export default function AdminBookingsPage() {
       }
       setBanner(null);
       setRowError(null);
+      setPending((p) => ({ ...p, [bookingId]: true }));
       try {
         const updated = await revokePayment(bookingId);
         setPayments((m) => ({ ...m, [bookingId]: updated }));
@@ -608,6 +720,12 @@ export default function AdminBookingsPage() {
             ? err.message
             : "Could not revoke the payment.";
         setRowErr(bookingId, text);
+      } finally {
+        setPending((p) => {
+          const next = { ...p };
+          delete next[bookingId];
+          return next;
+        });
       }
     },
     [load, signOut, setRowErr],
@@ -773,20 +891,8 @@ export default function AdminBookingsPage() {
       ) : (
         <>
           {banner && (
-            <div
-              className="mono"
-              role="status"
-              style={{
-                marginBottom: 18,
-                padding: "11px 15px",
-                borderRadius: "var(--r-sm)",
-                fontSize: 12.5,
-                color: banner.tone === "ok" ? "var(--lime)" : "var(--danger)",
-                background: banner.tone === "ok" ? "rgba(216,255,54,0.08)" : "rgba(255,138,120,0.08)",
-                border: `1px solid ${banner.tone === "ok" ? "rgba(216,255,54,0.3)" : "rgba(255,138,120,0.32)"}`,
-              }}
-            >
-              {banner.text}
+            <div ref={bannerRef}>
+              <Banner tone={banner.tone} text={banner.text} />
             </div>
           )}
 
@@ -804,11 +910,20 @@ export default function AdminBookingsPage() {
             </button>
           </PageHeader>
 
-          <AdminSection title="Bookings" count={state.data.bookings.length}>
-            <BookingFilterBar filter={filter} counts={filterCounts} onChange={setFilter} />
+          <AdminSection title="Bookings" count={state.data.bookings.length} noun="booking">
+            <BookingFilterBar
+              filter={filter}
+              counts={filterCounts}
+              onChange={(f) => {
+                setFilter(f);
+                // A new view starts back at the first page.
+                setVisibleCount(PAGE_SIZE);
+              }}
+            />
             <BookingsManageTable
-              bookings={filteredBookings}
+              bookings={visibleBookings}
               nextActions={nextActions}
+              pending={pending}
               emptyLabel={
                 filter === "attention"
                   ? "No bookings need action right now."
@@ -828,8 +943,7 @@ export default function AdminBookingsPage() {
               onConfirmPayment={onConfirmPayment}
               onRevokePayment={onRevokePayment}
               onSetStatus={(id, status, label) => {
-                const ok = window.confirm(`Change this booking's status to "${label}"?`);
-                if (!ok) return;
+                if (!confirmAction(`Change this booking's status to "${label}"?`)) return;
                 void runAction(
                   id,
                   async () => {
@@ -850,10 +964,13 @@ export default function AdminBookingsPage() {
               onReject={(id) => {
                 // Rejecting emails the customer a rejection and releases the
                 // held bike — confirm before firing.
-                const ok = window.confirm(
-                  "Reject this booking? The customer is emailed a rejection and the held bike is released.",
-                );
-                if (!ok) return;
+                if (
+                  !confirmAction(
+                    "Reject this booking? The customer is emailed a rejection and the held bike is released.",
+                  )
+                ) {
+                  return;
+                }
                 void runAction(
                   id,
                   async () => {
@@ -866,10 +983,13 @@ export default function AdminBookingsPage() {
                 // Assigning starts a live rental and marks the unit rented — a
                 // real operational commitment, so confirm before firing (matches
                 // the reject / payment / delete confirms).
-                const ok = window.confirm(
-                  `Assign ${code} to this booking and start the rental now? This creates an active rental and marks the unit rented.`,
-                );
-                if (!ok) return;
+                if (
+                  !confirmAction(
+                    `Assign ${code} to this booking and start the rental now? This creates an active rental and marks the unit rented.`,
+                  )
+                ) {
+                  return;
+                }
                 void runAction(
                   id,
                   async () => {
@@ -891,10 +1011,14 @@ export default function AdminBookingsPage() {
                 )
               }
               onDelete={(id) => {
-                const ok = window.confirm(
-                  "Delete this booking permanently? This removes its contract, payments and any rental, and frees the bike. This cannot be undone.",
-                );
-                if (!ok) return;
+                if (
+                  !confirmAction(
+                    "Delete this booking permanently? This removes its contract, payments and any rental, and frees the bike.",
+                    { finality: "irreversible" },
+                  )
+                ) {
+                  return;
+                }
                 void runAction(
                   id,
                   async () => {
@@ -904,6 +1028,21 @@ export default function AdminBookingsPage() {
                 );
               }}
             />
+            {filteredBookings.length > visibleBookings.length && (
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14 }}>
+                <span className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)" }}>
+                  Showing {visibleBookings.length} of {filteredBookings.length}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  style={{ padding: "7px 14px", fontSize: 12.5 }}
+                  onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                >
+                  Load more
+                </button>
+              </div>
+            )}
           </AdminSection>
 
           <NewBookingDrawer
@@ -962,11 +1101,25 @@ function NewBookingDrawer({
     if (!planId && plans[0]) setPlanId(plans[0].id);
   }, [plans, planId]);
 
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const canSubmit = emailOk && !!cityId && !!modelId && !!planId && !submitting;
+  const emailOk = EMAIL_RE.test(email.trim());
+  // What still blocks creation, in display order. The Create button stays
+  // ENABLED while incomplete so a click can explain exactly what is missing
+  // (a silently disabled button gave no clue).
+  const missing: string[] = [];
+  if (!cityId) missing.push("city");
+  if (!modelId) missing.push("model");
+  if (!planId) missing.push("plan");
+  if (!emailOk) missing.push(email.trim() ? "a valid customer email" : "customer email");
+  const complete = missing.length === 0;
+  // The operator tried to submit while incomplete — show what is missing.
+  const [attempted, setAttempted] = useState(false);
 
   async function handleSubmit() {
-    if (!canSubmit) return;
+    if (submitting) return;
+    if (!complete) {
+      setAttempted(true);
+      return;
+    }
     setSubmitting(true);
     setFormError(null);
     const err = await onSubmit(
@@ -999,11 +1152,13 @@ function NewBookingDrawer({
       setNotes("");
       setNotify(false);
       setMarkPaid(false);
+      setAttempted(false);
     }
   }
 
   function close() {
     setFormError(null);
+    setAttempted(false);
     onClose();
   }
 
@@ -1012,56 +1167,29 @@ function NewBookingDrawer({
       open={open}
       onClose={close}
       title="New booking"
+      // Typed-in customer details guard the Esc/backdrop/× close paths with a
+      // discard confirm; the explicit Cancel button still closes directly.
+      dirty={Boolean(firstName || lastName || email || phone || startDate || notes)}
       footer={
-        <>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={close}
-            style={{ padding: "11px 20px", fontSize: 14 }}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => void handleSubmit()}
-            disabled={!canSubmit}
-            style={{
-              padding: "11px 20px",
-              fontSize: 14,
-              opacity: canSubmit ? 1 : 0.55,
-              cursor: canSubmit ? "pointer" : "not-allowed",
-            }}
-          >
-            {submitting ? "Creating…" : "Create booking"}
-          </button>
-        </>
+        <DrawerFooter
+          onCancel={close}
+          primaryLabel="Create booking"
+          busyLabel="Creating…"
+          busy={submitting}
+          onPrimary={() => void handleSubmit()}
+        />
       }
     >
       <form
+        // Validation is handled below (requirements hint + missing-fields
+        // alert), so suppress the native bubbles for a single consistent path.
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
           void handleSubmit();
         }}
       >
-        {formError && (
-          <div
-            className="mono"
-            role="alert"
-            style={{
-              color: "var(--danger)",
-              fontSize: 12,
-              marginBottom: 16,
-              padding: "10px 13px",
-              borderRadius: "var(--r-sm)",
-              border: "1px solid rgba(255, 138, 120, 0.32)",
-              background: "rgba(255, 138, 120, 0.06)",
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <InlineError message={formError} />}
 
         <div className="field-row">
           <div className="field">
@@ -1122,7 +1250,7 @@ function NewBookingDrawer({
 
         <div className="field-row">
           <div className="field">
-            <label htmlFor="nb-email">Email</label>
+            <label htmlFor="nb-email">Email (required)</label>
             <input
               id="nb-email"
               type="email"
@@ -1130,7 +1258,8 @@ function NewBookingDrawer({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="rider@example.com"
               aria-label="Email"
-              aria-invalid={email.length > 0 && !emailOk}
+              required
+              aria-invalid={(email.length > 0 || attempted) && !emailOk}
             />
           </div>
           <div className="field">
@@ -1203,11 +1332,19 @@ function NewBookingDrawer({
           Mark as already paid (payment received)
         </label>
 
-        {email.length > 0 && !emailOk && (
-          <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: "10px 0 0" }}>
-            A valid customer email is required.
+        {!complete && (
+          <p className="mono" style={{ fontSize: 11.5, color: "var(--text-dim)", margin: "14px 0 0" }}>
+            City, model, plan and a valid customer email are required.
           </p>
         )}
+        {/* Announced when the operator tries to create while incomplete. */}
+        <div aria-live="polite">
+          {attempted && !complete && (
+            <p className="mono" role="alert" style={{ fontSize: 11.5, color: "var(--danger)", margin: "8px 0 0" }}>
+              Missing: {missing.join(", ")}.
+            </p>
+          )}
+        </div>
 
         {/* Hidden submit keeps Enter-to-create working. */}
         <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
@@ -1292,6 +1429,7 @@ function BookingFilterBar({
 function BookingsManageTable({
   bookings,
   nextActions,
+  pending,
   emptyLabel,
   units,
   rentalUnitByBooking,
@@ -1316,6 +1454,8 @@ function BookingsManageTable({
 }: {
   bookings: AdminBooking[];
   nextActions: Map<string, NextAction>;
+  /** Booking ids with an in-flight mutation — their controls disable. */
+  pending: Record<string, boolean>;
   emptyLabel: string;
   units: AdminFleetUnit[];
   rentalUnitByBooking: Map<string, string> | null;
@@ -1363,6 +1503,7 @@ function BookingsManageTable({
                 key={b.id}
                 booking={b}
                 nextAction={nextActions.get(b.id)}
+                busy={Boolean(pending[b.id])}
                 units={units}
                 // undefined = rentals unknown (fetch failed); null = known: no rental.
                 assignedUnitCode={
@@ -1403,6 +1544,7 @@ function BookingsManageTable({
 function BookingRow({
   booking: b,
   nextAction,
+  busy,
   units,
   assignedUnitCode,
   contract,
@@ -1426,6 +1568,8 @@ function BookingRow({
 }: {
   booking: AdminBooking;
   nextAction: NextAction | undefined;
+  /** A mutation for this booking is in flight — controls disable. */
+  busy: boolean;
   units: AdminFleetUnit[];
   /** Unit code of this booking's rental; null = known none; undefined = unknown. */
   assignedUnitCode: string | null | undefined;
@@ -1448,11 +1592,31 @@ function BookingRow({
   onSaveCustomer: (patch: BookingCustomerPatch) => void;
   onDelete: () => void;
 }) {
+  // Age cue for rows still waiting on a first decision: how long the request
+  // has sat since submission. Warns once it is more than a week old.
+  const normalizedStatus = (b.status ?? "").toLowerCase().replace(/[_\s-]/g, "");
+  const ageDays =
+    normalizedStatus === "submitted" || normalizedStatus === "awaitingreview"
+      ? ageInDays(b.createdAt)
+      : null;
+
   return (
     <>
-      <tr style={open ? { background: "rgba(255,255,255,0.02)" } : undefined}>
+      <tr id={`booking-row-${b.id}`} style={open ? { background: "rgba(255,255,255,0.02)" } : undefined}>
         <Td mono nowrap>
           {fmtDate(b.createdAt)}
+          {ageDays !== null && (
+            <div
+              className="mono"
+              style={{
+                fontSize: 10.5,
+                marginTop: 3,
+                color: ageDays > 7 ? "var(--warn)" : "var(--text-dim)",
+              }}
+            >
+              ({ageDays} d old)
+            </div>
+          )}
         </Td>
         <Td nowrap>
           <StatusPill value={b.status} />
@@ -1487,6 +1651,7 @@ function BookingRow({
             className="btn btn-ghost"
             style={{ padding: "8px 14px", fontSize: 12.5, whiteSpace: "nowrap" }}
             aria-expanded={open}
+            disabled={busy}
             onClick={onToggle}
           >
             {open ? "Close ▴" : "Manage ▾"}
@@ -1499,6 +1664,7 @@ function BookingRow({
             <ManagePanel
               booking={b}
               nextAction={nextAction}
+              busy={busy}
               units={units}
               assignedUnitCode={assignedUnitCode}
               contract={contract}
@@ -1533,6 +1699,7 @@ function BookingRow({
 function ManagePanel({
   booking: b,
   nextAction,
+  busy,
   units,
   assignedUnitCode,
   contract,
@@ -1554,6 +1721,8 @@ function ManagePanel({
 }: {
   booking: AdminBooking;
   nextAction: NextAction | undefined;
+  /** A mutation for this booking is in flight — every action control disables. */
+  busy: boolean;
   units: AdminFleetUnit[];
   /** Unit code of this booking's rental; null = known none; undefined = unknown. */
   assignedUnitCode: string | null | undefined;
@@ -1619,18 +1788,18 @@ function ManagePanel({
         </div>
       )}
 
-      <BookingDetails booking={b} onSave={onSaveCustomer} />
+      <BookingDetails booking={b} busy={busy} onSave={onSaveCustomer} />
 
       <PanelGroup title="1 · Review">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button type="button" className="btn btn-primary" style={miniBtn} onClick={onApprove}>
+          <button type="button" className="btn btn-primary" style={miniBtn} disabled={busy} onClick={onApprove}>
             Approve
           </button>
-          <button type="button" className="btn btn-ghost" style={miniBtn} onClick={onReject}>
+          <button type="button" className="btn btn-ghost" style={miniBtn} disabled={busy} onClick={onReject}>
             Reject
           </button>
         </div>
-        <SetStatusControl current={b.status} onSetStatus={onSetStatus} />
+        <SetStatusControl current={b.status} disabled={busy} onSetStatus={onSetStatus} />
         {b.heldBikeUnitCode && (
           <p style={{ ...hintStyle, marginTop: 8 }}>
             Held:{" "}
@@ -1645,7 +1814,7 @@ function ManagePanel({
       <PanelGroup title="2 · Contract">
         <ContractControl
           contract={contract}
-          busy={contractBusy}
+          busy={contractBusy || busy}
           onGenerate={onGenerateContract}
           onMarkSigned={onMarkSigned}
           onDownload={onDownloadContract}
@@ -1653,7 +1822,12 @@ function ManagePanel({
       </PanelGroup>
 
       <PanelGroup title="3 · Payment">
-        <PaymentControl payment={payment} onConfirm={onConfirmPayment} onRevoke={onRevokePayment} />
+        <PaymentControl
+          payment={payment}
+          disabled={busy}
+          onConfirm={onConfirmPayment}
+          onRevoke={onRevokePayment}
+        />
       </PanelGroup>
 
       <PanelGroup title="4 · Assign a bike">
@@ -1664,6 +1838,7 @@ function ManagePanel({
           payment={payment}
           contract={contract}
           onlineSigning={onlineSigning}
+          disabled={busy}
           onAssign={onAssign}
         />
       </PanelGroup>
@@ -1687,6 +1862,7 @@ function ManagePanel({
           type="button"
           className="btn btn-ghost"
           style={dangerBtn}
+          disabled={busy}
           onClick={onDelete}
         >
           Delete booking
@@ -1757,9 +1933,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function BookingDetails({
   booking: b,
+  busy,
   onSave,
 }: {
   booking: AdminBooking;
+  /** A mutation for this booking is in flight — the save control disables. */
+  busy?: boolean;
   onSave: (patch: BookingCustomerPatch) => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -1799,8 +1978,8 @@ function BookingDetails({
             <button
               type="button"
               className="btn btn-primary"
-              style={{ padding: "5px 12px", fontSize: 11.5, opacity: canSave ? 1 : 0.5 }}
-              disabled={!canSave}
+              style={{ padding: "5px 12px", fontSize: 11.5, opacity: canSave && !busy ? 1 : 0.5 }}
+              disabled={!canSave || busy}
               onClick={() => {
                 onSave({ firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() });
               }}
@@ -1933,9 +2112,12 @@ function PanelGroup({ title, children }: { title: string; children: React.ReactN
  */
 function SetStatusControl({
   current,
+  disabled,
   onSetStatus,
 }: {
   current: string;
+  /** A mutation is in flight — the select disables. */
+  disabled?: boolean;
   onSetStatus: (status: string, label: string) => void;
 }) {
   // Match the booking's current status to a known wire value so the select
@@ -1953,6 +2135,7 @@ function SetStatusControl({
       <select
         id={`set-status-${current}`}
         value={currentValue}
+        disabled={disabled}
         onChange={(e) => {
           const value = e.target.value;
           if (value === currentValue) return;
@@ -1965,7 +2148,7 @@ function SetStatusControl({
         {/* Show the current status even if it isn't one of the selectable
             options, so the select never appears blank. */}
         {!STATUS_OPTIONS.some((o) => o.value === currentValue) && (
-          <option value={currentValue}>{current}</option>
+          <option value={currentValue}>{statusLabel(current)}</option>
         )}
         {STATUS_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
@@ -1992,10 +2175,13 @@ function SetStatusControl({
  */
 function PaymentControl({
   payment,
+  disabled,
   onConfirm,
   onRevoke,
 }: {
   payment: AdminPayment | null | "loading" | undefined;
+  /** A mutation is in flight — the confirm/revoke buttons disable. */
+  disabled?: boolean;
   onConfirm: () => void;
   onRevoke: () => void;
 }) {
@@ -2015,6 +2201,7 @@ function PaymentControl({
           type="button"
           className="btn btn-primary"
           style={{ ...miniBtn, alignSelf: "flex-start" }}
+          disabled={disabled}
           onClick={onConfirm}
         >
           Mark payment received
@@ -2036,7 +2223,7 @@ function PaymentControl({
   const confirmable = status === "pending_manual";
   // A real provider charge still awaiting settlement (a non-manual "pending").
   const providerPending = status === "pending" && payment.provider.toLowerCase() !== "manual";
-  const amount = `${payment.amount.toFixed(2)} ${payment.currency}`;
+  const amount = formatEur(payment.amount, { currency: payment.currency });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -2049,6 +2236,7 @@ function PaymentControl({
           type="button"
           className="btn btn-primary"
           style={{ ...miniBtn, alignSelf: "flex-start" }}
+          disabled={disabled}
           onClick={onConfirm}
         >
           Mark payment received
@@ -2059,6 +2247,7 @@ function PaymentControl({
           type="button"
           className="btn btn-ghost"
           style={{ ...miniBtn, alignSelf: "flex-start" }}
+          disabled={disabled}
           onClick={onRevoke}
         >
           Mark unpaid
@@ -2111,14 +2300,6 @@ function paymentStatusTone(status: string): PillTone {
  * list-by-booking endpoint), so a page refresh resets these back to the generate
  * button — generation is idempotent on the backend, so re-running it is safe.
  */
-/** Short local date for the "uploaded on …" admin note. */
-function formatUploadedDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? ""
-    : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-}
-
 function ContractControl({
   contract,
   busy,
@@ -2262,7 +2443,7 @@ function ContractControl({
           }}
         >
           The customer uploaded a signed copy
-          {contract.uploadedAt ? ` on ${formatUploadedDate(contract.uploadedAt)}` : ""} — review
+          {contract.uploadedAt ? ` on ${fmtDay(contract.uploadedAt)}` : ""} — review
           it (Customer copy ↓), then mark the contract signed below.
         </p>
       )}
@@ -2353,6 +2534,7 @@ function AssignControl({
   payment,
   contract,
   onlineSigning,
+  disabled,
   onAssign,
 }: {
   booking: AdminBooking;
@@ -2362,6 +2544,8 @@ function AssignControl({
   payment: AdminPayment | null | "loading" | undefined;
   contract: Contract | undefined;
   onlineSigning: boolean;
+  /** A mutation is in flight — assignment must not double-fire. */
+  disabled?: boolean;
   onAssign: (code: string) => void;
 }) {
   const [code, setCode] = useState("");
@@ -2454,11 +2638,17 @@ function AssignControl({
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
       onSubmit={(e) => {
         e.preventDefault();
-        if (code && !gated) onAssign(code);
+        if (code && !gated && !disabled) onAssign(code);
       }}
     >
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        <select value={code} onChange={(e) => setCode(e.target.value)} style={selectStyle} aria-label="Bike unit">
+        <select
+          value={code}
+          disabled={disabled}
+          onChange={(e) => setCode(e.target.value)}
+          style={selectStyle}
+          aria-label="Bike unit"
+        >
           <option value="">Choose a unit…</option>
           {eligible.map((u) => (
             <option key={u.internalCode} value={u.internalCode}>
@@ -2468,7 +2658,12 @@ function AssignControl({
             </option>
           ))}
         </select>
-        <button type="submit" className="btn btn-primary" style={miniBtn} disabled={!code || gated}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          style={miniBtn}
+          disabled={!code || gated || disabled}
+        >
           Assign &amp; start rental
         </button>
       </div>
@@ -2502,20 +2697,6 @@ function contractStatusTone(status: Contract["status"]) {
 /** Spaced label for a contract status (e.g. SentForSignature → "sent for signature"). */
 function contractStatusLabel(status: Contract["status"]): string {
   return status.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
-}
-
-/** Today's date as an ISO `yyyy-MM-dd` string (local), for seeding date inputs. */
-function todayIso(): string {
-  const now = new Date();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${m}-${d}`;
-}
-
-/** First 10 chars (the `yyyy-MM-dd` date part) of an ISO timestamp, or "" when
- *  absent — the value a `<input type="date">` expects. */
-function isoDay(iso: string | null | undefined): string {
-  return iso ? iso.slice(0, 10) : "";
 }
 
 /**
@@ -2573,47 +2754,4 @@ const selectStyle: React.CSSProperties = {
   fontSize: 12,
 };
 
-/* ── Pieces ────────────────────────────────────────────────────────────── */
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)", marginBottom: 10 }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      {!config && (
-        <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
-          Try again
-        </button>
-      )}
-    </div>
-  );
-}
+// Notice / ErrorPanel / Banner come from the shared admin Feedback module.

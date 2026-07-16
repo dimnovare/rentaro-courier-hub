@@ -1,7 +1,14 @@
 /** Bare presentational table primitives shared by the admin views. Styling is
- *  done with inline styles + brand CSS vars so we never touch globals.css. */
+ *  inline styles + brand CSS vars; the scroll wrapper additionally carries the
+ *  `.admin-table-scroll` class for the few behaviours that need real CSS
+ *  (max-height cap, row hover, tabular numerals — see globals.css). */
 import { useState } from "react";
 import type { ReactNode } from "react";
+
+// Canonical implementations moved to src/lib/dates.ts; re-exported here so the
+// many existing `import { fmtDate } from "@/components/admin/Table"` keep
+// working. New code should import from "@/lib/dates".
+export { fmtDate, fmtDay } from "@/lib/dates";
 
 export function AdminTable({ children }: { children: ReactNode }) {
   const [edge, setEdge] = useState<"both" | "right" | "left" | "none">("none");
@@ -36,6 +43,7 @@ export function AdminTable({ children }: { children: ReactNode }) {
       role="region"
       aria-label="Table — scroll horizontally to see more"
       tabIndex={0}
+      className="admin-table-scroll"
       ref={(el) => onScroll(el)}
       onScroll={(e) => onScroll(e.currentTarget)}
       style={{
@@ -49,7 +57,12 @@ export function AdminTable({ children }: { children: ReactNode }) {
       <table
         style={{
           width: "100%",
-          borderCollapse: "collapse",
+          // "separate" (not "collapse") so the sticky header keeps its own
+          // bottom border while rows scroll beneath it — with border-collapse,
+          // browsers scroll the collapsed border away with the rows. Only
+          // bottom borders are used, so spacing 0 renders identically.
+          borderCollapse: "separate",
+          borderSpacing: 0,
           fontSize: 13,
           minWidth: 640,
         }}
@@ -60,12 +73,21 @@ export function AdminTable({ children }: { children: ReactNode }) {
   );
 }
 
-export function Th({ children, mono = true }: { children: ReactNode; mono?: boolean }) {
+export function Th({
+  children,
+  mono = true,
+  align = "left",
+}: {
+  children: ReactNode;
+  mono?: boolean;
+  /** Column alignment — use "right" for numeric columns. */
+  align?: "left" | "right";
+}) {
   return (
     <th
       className={mono ? "mono" : undefined}
       style={{
-        textAlign: "left",
+        textAlign: align,
         padding: "12px 14px",
         fontSize: 10.5,
         letterSpacing: "0.08em",
@@ -73,7 +95,15 @@ export function Th({ children, mono = true }: { children: ReactNode; mono?: bool
         color: "var(--text-dim)",
         fontWeight: 500,
         borderBottom: "1px solid var(--border)",
-        background: "rgba(255,255,255,0.02)",
+        // Sticky within the .admin-table-scroll wrapper (which caps its own
+        // height), so headers stay visible while long tables scroll. The
+        // background must be OPAQUE — the old translucent 2% white would let
+        // rows shine through — so it layers the same 2% wash over the page bg.
+        position: "sticky",
+        top: 0,
+        zIndex: 1,
+        background:
+          "linear-gradient(rgba(255,255,255,0.02), rgba(255,255,255,0.02)) var(--bg)",
         whiteSpace: "nowrap",
       }}
     >
@@ -87,11 +117,14 @@ export function Td({
   mono = false,
   dim = false,
   nowrap = false,
+  align = "left",
 }: {
   children: ReactNode;
   mono?: boolean;
   dim?: boolean;
   nowrap?: boolean;
+  /** Cell alignment — use "right" for numeric cells (pair with Th align). */
+  align?: "left" | "right";
 }) {
   return (
     <td
@@ -103,6 +136,7 @@ export function Td({
         verticalAlign: "top",
         fontSize: mono ? 12 : 13,
         whiteSpace: nowrap ? "nowrap" : undefined,
+        textAlign: align === "right" ? "right" : undefined,
       }}
     >
       {children}
@@ -134,10 +168,13 @@ export function EmptyRow({ colSpan, label }: { colSpan: number; label: string })
 export function AdminSection({
   title,
   count,
+  noun = "record",
   children,
 }: {
   title: string;
   count?: number;
+  /** Singular noun for the count readout, e.g. "invoice" → "3 invoices". */
+  noun?: string;
   children: ReactNode;
 }) {
   return (
@@ -146,31 +183,11 @@ export function AdminSection({
         <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>{title}</h2>
         {typeof count === "number" && (
           <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
-            {count} {count === 1 ? "record" : "records"}
+            {count} {count === 1 ? noun : `${noun}s`}
           </span>
         )}
       </div>
       {children}
     </section>
   );
-}
-
-/** Format an ISO datetime as a compact mono-friendly string. */
-export function fmtDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(
-    d.getMinutes(),
-  )}`;
-}
-
-/** Format an ISO date (no time component expected). */
-export function fmtDay(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }

@@ -31,8 +31,11 @@ import {
   type AdminLocale,
 } from "@/components/admin/LocalizedListEditor";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Notice, ErrorPanel } from "@/components/admin/Feedback";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { formatEur } from "@/lib/money";
+import { confirmAction } from "@/lib/confirm";
 import { Link } from "@/i18n/navigation";
 
 /* ── Load-state machine (mirrors the settings / content pages) ──────────── */
@@ -56,16 +59,21 @@ export default function AdminPricelistPage() {
   // Bumped on every (re)load so the per-plan cards re-initialise their drafts.
   const [loadSeq, setLoadSeq] = useState(0);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh) keep the cards on screen. They also do
+    // NOT bump loadSeq: re-keying the cards would throw away any unsaved
+    // per-card draft the operator is still typing.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     try {
       const plans = await getPlans();
       setState({ phase: "ready", plans: sortPlans(plans) });
-      setLoadSeq((n) => n + 1);
+      if (!silent) setLoadSeq((n) => n + 1);
     } catch (err) {
       if (err instanceof PricingAuthError || (err instanceof PricingApiError && err.unauthorized)) {
         signOut();
-      } else {
+      } else if (!silent) {
+        // A failed SILENT refresh keeps the (still-valid) cards on screen.
         setState(toErrorState(err));
       }
     }
@@ -75,7 +83,8 @@ export default function AdminPricelistPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   /** Replace one plan in place after a successful save. */
   const replacePlan = useCallback((saved: AdminPlan) => {
@@ -260,10 +269,10 @@ function PlanCard({
   const dirty = !sameDraft(draft, baseline);
   const saveDisabled = busy || !dirty || priceInvalid;
 
-  async function save() {
+  const save = useCallback(async () => {
     if (saveDisabled || daily === null || monthly === null) return;
     if (
-      !window.confirm(
+      !confirmAction(
         `Save changes to the ${plan.term} plan? The new prices go live on the public site right away.`,
       )
     ) {
@@ -283,7 +292,7 @@ function PlanCard({
     } finally {
       setBusy(false);
     }
-  }
+  }, [saveDisabled, daily, monthly, plan, draft, onSaved, onError]);
 
   return (
     <section className="card" style={{ padding: 22 }}>
@@ -349,9 +358,16 @@ function PlanCard({
           />
         </Field>
       </div>
-      {priceInvalid && (
+      {priceInvalid ? (
         <p className="mono" style={{ color: "var(--danger)", fontSize: 11.5, margin: "4px 0 0" }} role="alert">
           Both prices must be numbers (0 or more) before you can save.
+        </p>
+      ) : (
+        // Always-two-decimals display preview ("5.9" reads sloppy for money);
+        // the inputs above keep the raw numbers.
+        <p className="mono" style={{ color: "var(--text-dim)", fontSize: 11.5, margin: "4px 0 0" }}>
+          Shown on the site as {formatEur(daily)} / day · {formatEur(monthly, { cents: false })} per
+          30 days.
         </p>
       )}
 
@@ -591,62 +607,6 @@ function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean
         }}
       />
     </span>
-  );
-}
-
-/* ── Shared chrome (mirrors the settings / content pages) ──────────────── */
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
-    </div>
   );
 }
 

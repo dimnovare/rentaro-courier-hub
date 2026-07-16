@@ -45,10 +45,18 @@ export function DateField({
   value,
   onChange,
   disabled,
+  label,
 }: {
   value: string;
   onChange: (iso: string) => void;
   disabled?: boolean;
+  /**
+   * Accessible group name. When set, the three controls are wrapped in an
+   * invisible fieldset/legend and their aria-labels are prefixed, so a screen
+   * reader hears "Preferred start date — day" instead of a bare "Day".
+   * Renders exactly as before when absent.
+   */
+  label?: string;
 }) {
   const [parts, setParts] = useState<Parts>(() => parseIso(value));
 
@@ -66,7 +74,12 @@ export function DateField({
     onChange(toIso(next));
   };
 
-  return (
+  const aria = (part: "day" | "month" | "year") =>
+    label
+      ? `${label} — ${part}`
+      : part.charAt(0).toUpperCase() + part.slice(1);
+
+  const row = (
     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
       <input
         type="number"
@@ -74,14 +87,14 @@ export function DateField({
         min={1}
         max={31}
         placeholder="Day"
-        aria-label="Day"
+        aria-label={aria("day")}
         disabled={disabled}
         value={parts.day}
         onChange={(e) => update({ ...parts, day: e.target.value })}
         style={{ ...fieldStyle, width: 62 }}
       />
       <select
-        aria-label="Month"
+        aria-label={aria("month")}
         disabled={disabled}
         value={parts.month}
         onChange={(e) => update({ ...parts, month: e.target.value })}
@@ -100,7 +113,7 @@ export function DateField({
         min={2000}
         max={2100}
         placeholder="Year"
-        aria-label="Year"
+        aria-label={aria("year")}
         disabled={disabled}
         value={parts.year}
         onChange={(e) => update({ ...parts, year: e.target.value })}
@@ -108,7 +121,29 @@ export function DateField({
       />
     </div>
   );
+
+  if (!label) return row;
+
+  // Invisible group wrapper: no visual change, but AT users get the field name.
+  return (
+    <fieldset style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+      <legend style={visuallyHidden}>{label}</legend>
+      {row}
+    </fieldset>
+  );
 }
+
+const visuallyHidden: React.CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
 
 /** Pretty, unambiguous readout for an ISO date, e.g. "12 Jun 2026". "" when unset. */
 export function formatDateLong(iso: string | null | undefined): string {

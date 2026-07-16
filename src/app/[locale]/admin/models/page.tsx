@@ -21,12 +21,14 @@ import {
 import { resolveImg } from "@/services/modelService";
 import { pricingService } from "@/services/pricingService";
 import { formatEur } from "@/lib/money";
+import { confirmAction } from "@/lib/confirm";
 import type { ColorOption } from "@/types/bike";
 import { AdminTable, Th, Td, EmptyRow } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { ColorListEditor } from "@/components/admin/ColorListEditor";
 import { Drawer } from "@/components/admin/Drawer";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Notice, InlineError, ErrorPanel } from "@/components/admin/Feedback";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 
@@ -130,8 +132,11 @@ export default function AdminModelsPage() {
     };
   }, []);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh) keep the current table on screen — no
+    // full-page blank, and an open editor drawer stays mounted.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     setActionError(null);
     try {
       const models = await listModels();
@@ -139,7 +144,8 @@ export default function AdminModelsPage() {
     } catch (err) {
       if (err instanceof ModelAuthError || (err instanceof ModelApiError && err.unauthorized)) {
         signOut();
-      } else {
+      } else if (!silent) {
+        // A failed SILENT refresh keeps the (still-valid) data on screen.
         setState(toErrorState(err, "Something went wrong loading models."));
       }
     }
@@ -149,7 +155,8 @@ export default function AdminModelsPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   /** Drops to the shell sign-in on 401, otherwise shows an inline action error. */
   const handleActionError = useCallback(
@@ -203,10 +210,10 @@ export default function AdminModelsPage() {
 
   async function removeModel(code: string) {
     if (
-      typeof window !== "undefined" &&
-      !window.confirm(
+      !confirmAction(
         `Delete model "${code}"? Its catalogue entry, photos and price settings are removed permanently. ` +
-          `(Bookings or bike units still referencing it will block the delete.) This cannot be undone.`,
+          `(Bookings or bike units still referencing it will block the delete.)`,
+        { finality: "irreversible" },
       )
     ) {
       return;
@@ -280,8 +287,9 @@ export default function AdminModelsPage() {
       );
     } catch (err) {
       handleActionError(err, "Could not reorder models.");
-      // A partial Promise.all failure can leave the table half-applied; resync.
-      void load();
+      // A partial Promise.all failure can leave the table half-applied; resync
+      // silently so the rows stay on screen while they refresh.
+      void load({ silent: true });
     } finally {
       setBusy(a.code, false);
       setBusy(b.code, false);
@@ -306,9 +314,9 @@ export default function AdminModelsPage() {
   /** Remove a model's uploaded photo and reset it to the static default. */
   async function removeImage(code: string) {
     if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        `Remove the uploaded photo for "${code}"? It will fall back to the default catalogue image. This cannot be undone.`,
+      !confirmAction(
+        `Remove the uploaded photo for "${code}"? It will fall back to the default catalogue image.`,
+        { finality: "irreversible" },
       )
     ) {
       return;
@@ -343,10 +351,7 @@ export default function AdminModelsPage() {
 
   /** Remove one gallery image (by its url) from a model. */
   async function removeGalleryImage(code: string, url: string) {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Remove this gallery image from "${code}"? This cannot be undone.`)
-    ) {
+    if (!confirmAction(`Remove this gallery image from "${code}"?`, { finality: "irreversible" })) {
       return;
     }
     setActionError(null);
@@ -365,6 +370,20 @@ export default function AdminModelsPage() {
     () => (state.phase === "ready" ? state.models.map((m) => m.code) : []),
     [state],
   );
+
+  // How many models carry each non-empty badge text — drives the per-row
+  // "badge shared with N other models" hygiene hint in the list.
+  const badgeCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    if (state.phase === "ready") {
+      for (const m of state.models) {
+        const text = m.badge?.text?.trim();
+        if (!text) continue;
+        counts.set(text, (counts.get(text) ?? 0) + 1);
+      }
+    }
+    return counts;
+  }, [state]);
 
   // The model currently open for editing (null in create mode or when closed).
   const editingModel = useMemo(
@@ -428,6 +447,11 @@ export default function AdminModelsPage() {
                       busy={Boolean(pending[m.code])}
                       isEditing={editing === m.code}
                       imgVersion={imgVersion[m.code]}
+                      badgeSharedWith={
+                        m.badge?.text?.trim()
+                          ? (badgeCounts.get(m.badge.text.trim()) ?? 1) - 1
+                          : 0
+                      }
                       onEdit={() => setEditing(m.code)}
                       onDelete={() => void removeModel(m.code)}
                       onTogglePopular={() => void togglePopular(m)}
@@ -496,6 +520,7 @@ function ModelRow({
   busy,
   isEditing,
   imgVersion,
+  badgeSharedWith,
   onEdit,
   onDelete,
   onTogglePopular,
@@ -508,6 +533,8 @@ function ModelRow({
   busy: boolean;
   isEditing: boolean;
   imgVersion: number | undefined;
+  /** How many OTHER models carry the same non-empty badge text (0 = unique). */
+  badgeSharedWith: number;
   onEdit: () => void;
   onDelete: () => void;
   onTogglePopular: () => void;
@@ -531,11 +558,13 @@ function ModelRow({
         </Td>
         <Td nowrap>
           {/* Pill + live stock count, so availability is visible without opening Fleet. */}
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+          <span
+            title="Live availability — derived from available units in Fleet"
+            style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
+          >
             <StatusPill value={model.status} />
             <span
               className="mono"
-              title={`${model.availability} bike${model.availability === 1 ? "" : "s"} available — counted from the Fleet bike units`}
               style={{ fontSize: 11, color: "var(--text-dim)", whiteSpace: "nowrap" }}
             >
               · {model.availability}
@@ -556,7 +585,7 @@ function ModelRow({
           </button>
         </Td>
         <Td nowrap>
-          <BadgeCell model={model} />
+          <BadgeCell model={model} sharedWith={badgeSharedWith} />
         </Td>
         <Td mono nowrap>
           {formatEur(fromDailyOf(model, globalTier))}
@@ -710,6 +739,11 @@ function ModelEditor({
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Unsaved-changes flag for the drawer's Esc/backdrop guard — a long draft
+  // must not vanish on a stray Esc. The draft and the initial fields share one
+  // shape (built by initialFields), so JSON comparison is stable.
+  const initialJson = useMemo(() => JSON.stringify(initialFields(model ?? undefined)), [model]);
+  const dirty = JSON.stringify(f) !== initialJson;
   // The form lives in the drawer body; the Save button lives in the sticky
   // footer (a sibling of the form in the DOM), so associate them by id.
   const formId = "model-editor-form";
@@ -800,6 +834,7 @@ function ModelEditor({
     <Drawer
       open={open}
       onClose={onClose}
+      dirty={dirty}
       title={mode === "create" ? "New model" : "Edit model"}
       subtitle={mode === "edit" ? (model?.code ?? undefined) : undefined}
       footer={
@@ -1504,18 +1539,31 @@ function FieldNote({ text }: { text: string }) {
 
 /** Read-only badge preview for a list row — shows how the model's badge looks on
  *  the site, or a dash when none. Editing lives in the model drawer (one place),
- *  so the list stays scannable and nothing is changed by an accidental click. */
-function BadgeCell({ model }: { model: AdminModel }) {
+ *  so the list stays scannable and nothing is changed by an accidental click.
+ *  When 2+ models share the same badge text, a subtle warn hint flags it — the
+ *  marketing badges lose their meaning once they are everywhere. */
+function BadgeCell({ model, sharedWith }: { model: AdminModel; sharedWith: number }) {
   const cur = model.badge;
   if (!cur?.text) {
     return <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>;
   }
   return (
-    <span
-      className={`model-badge ${cur.variant}`}
-      style={{ position: "static", top: "auto", left: "auto", display: "inline-block" }}
-    >
-      {cur.text}
+    <span style={{ display: "inline-flex", flexDirection: "column", gap: 3 }}>
+      <span
+        className={`model-badge ${cur.variant}`}
+        style={{ position: "static", top: "auto", left: "auto", display: "inline-block" }}
+      >
+        {cur.text}
+      </span>
+      {sharedWith > 0 && (
+        <span
+          className="mono"
+          title={`"${cur.text}" is also used by ${sharedWith} other ${sharedWith === 1 ? "model" : "models"} — consider making badges unique.`}
+          style={{ fontSize: 10, color: "var(--warn)", whiteSpace: "nowrap" }}
+        >
+          badge shared with {sharedWith} other {sharedWith === 1 ? "model" : "models"}
+        </span>
+      )}
     </span>
   );
 }
@@ -1535,27 +1583,13 @@ function RowAction({
   danger?: boolean;
   active?: boolean;
 }) {
+  // Visuals live in globals.css (.admin-row-action + .danger / .is-active),
+  // which replicates the previous inline styles and adds hover states.
+  const cls = ["admin-row-action", danger && "danger", active && "is-active"]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="mono"
-      style={{
-        padding: "6px 11px",
-        fontSize: 11.5,
-        letterSpacing: "0.03em",
-        borderRadius: "var(--r-sm)",
-        cursor: disabled ? "not-allowed" : "pointer",
-        background: active ? "rgba(216,255,54,0.1)" : "var(--bg-2)",
-        border: `1px solid ${
-          danger ? "rgba(255,138,120,0.32)" : active ? "rgba(216,255,54,0.3)" : "var(--border)"
-        }`,
-        color: danger ? "var(--danger)" : active ? "var(--lime)" : "var(--text-2)",
-        opacity: disabled ? 0.5 : 1,
-        whiteSpace: "nowrap",
-      }}
-    >
+    <button type="button" onClick={onClick} disabled={disabled} className={cls}>
       {children}
     </button>
   );
@@ -1572,6 +1606,7 @@ function IconButton({
   disabled: boolean;
   label: string;
 }) {
+  // Visuals live in globals.css (.admin-icon-btn) — same 30px square chip.
   return (
     <button
       type="button"
@@ -1579,21 +1614,7 @@ function IconButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className="mono"
-      style={{
-        width: 30,
-        height: 30,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: "var(--r-sm)",
-        background: "var(--bg-2)",
-        border: "1px solid var(--border)",
-        color: "var(--text-2)",
-        fontSize: 13,
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.35 : 1,
-      }}
+      className="admin-icon-btn"
     >
       {children}
     </button>
@@ -1614,83 +1635,6 @@ function pillButtonStyle(on: boolean, busy: boolean): React.CSSProperties {
     opacity: busy ? 0.6 : 1,
     whiteSpace: "nowrap",
   };
-}
-
-/* ── Shared scaffold (mirrors the fleet / maintenance pages) ───────────── */
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function InlineError({ message }: { message: string }) {
-  return (
-    <div
-      className="mono"
-      style={{
-        color: "var(--danger)",
-        fontSize: 12.5,
-        marginBottom: 20,
-        padding: "12px 16px",
-        borderRadius: "var(--r-md)",
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "rgba(255, 138, 120, 0.06)",
-      }}
-    >
-      {message}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
-        {message}
-      </p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
-    </div>
-  );
 }
 
 /* ── Error mapping (auth failures are handled by the caller via signOut) ─── */

@@ -100,12 +100,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       const data = (await res.json()) as { error?: string; notConfigured?: boolean };
       if (data?.notConfigured) notConfigured = true;
-      if (data?.error) detail = `: ${data.error}`;
+      if (data?.error) detail = data.error;
     } catch {
       /* non-JSON body — ignore. */
     }
     if (notConfigured) throw new FleetConfigError();
-    throw new FleetApiError(`Request failed (${res.status})${detail}`, res.status);
+    // A server-supplied detail reads best on its own; otherwise fall back to a
+    // friendly generic rather than a bare "Request failed (nnn)".
+    throw new FleetApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+    );
   }
 
   // 204 / empty bodies are not expected here, but guard anyway.

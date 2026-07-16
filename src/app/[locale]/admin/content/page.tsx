@@ -41,9 +41,12 @@ import {
   type AdminLocale,
 } from "@/components/admin/LocalizedListEditor";
 import { Drawer } from "@/components/admin/Drawer";
+import { DrawerFooter } from "@/components/admin/DrawerFooter";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Notice, InlineError, ErrorPanel, ActionErrorBar } from "@/components/admin/Feedback";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { confirmAction } from "@/lib/confirm";
 
 /** City status options — must match the backend CityStatus enum (lowercased). */
 const CITY_STATUSES: readonly CityStatusValue[] = ["available", "limited", "soon"];
@@ -69,8 +72,11 @@ export default function AdminContentPage() {
   // Page-level banner for any write error (each section also clears it on retry).
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh) keep the current sections on screen — no
+    // full-page blank, and any open editor drawer stays mounted.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     setActionError(null);
     try {
       const [accessories, cities, faqs, marquee] = await Promise.all([
@@ -84,7 +90,8 @@ export default function AdminContentPage() {
       // Auth failure → drop to the shell's sign-in; otherwise show an error.
       if (err instanceof CatalogAuthError || (err instanceof CatalogApiError && err.unauthorized)) {
         signOut();
-      } else {
+      } else if (!silent) {
+        // A failed SILENT refresh keeps the (still-valid) data on screen.
         setState(toErrorState(err));
       }
     }
@@ -94,7 +101,8 @@ export default function AdminContentPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   /**
    * Shared error handler for write actions. Re-gates on auth (signs out), and
@@ -227,6 +235,8 @@ const ACCESSORY_TIERS = [
 function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<AdminAccessory>) {
   const [editor, setEditor] = useState<Editor<string> | null>(null);
   const [draft, setDraft] = useState<AccessoryInput>(EMPTY_ACCESSORY);
+  // Snapshot of the draft the drawer opened with — drives the dirty guard.
+  const [baseline, setBaseline] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -234,6 +244,7 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
     clearError();
     setFormError(null);
     setDraft(EMPTY_ACCESSORY);
+    setBaseline(JSON.stringify(EMPTY_ACCESSORY));
     setEditor({ mode: "create" });
   }
 
@@ -241,13 +252,15 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
     clearError();
     setFormError(null);
     // Clone every nested value so editing the draft never mutates the loaded row.
-    setDraft({
+    const next: AccessoryInput = {
       ...row,
       nameLocalized: { ...(row.nameLocalized ?? {}) },
       descriptionLocalized: { ...(row.descriptionLocalized ?? {}) },
       componentIds: [...(row.componentIds ?? [])],
       colors: (row.colors ?? []).map((c) => ({ ...c })),
-    });
+    };
+    setDraft(next);
+    setBaseline(JSON.stringify(next));
     setEditor({ mode: "edit", id: row.id });
   }
 
@@ -311,7 +324,7 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
   async function remove() {
     if (busy || !editor || editor.mode !== "edit") return;
     const id = editor.id;
-    if (!window.confirm(`Delete accessory "${id}"? This cannot be undone.`)) return;
+    if (!confirmAction(`Delete accessory "${id}"?`, { finality: "irreversible" })) return;
     clearError();
     setFormError(null);
     setBusy(true);
@@ -329,6 +342,7 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
   }
 
   const isEdit = editor?.mode === "edit";
+  const dirty = editor !== null && JSON.stringify(draft) !== baseline;
   // Non-bundle accessories are the only valid bundle components; a bundle can
   // never contain itself or another bundle.
   const componentChoices = rows.filter((r) => !r.isBundle && r.id !== draft.id);
@@ -349,7 +363,12 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && <EmptyRow colSpan={7} label="No accessories yet." />}
+          {rows.length === 0 && (
+            <EmptyRow
+              colSpan={7}
+              label="No accessories yet — use “+ Add accessory” below to create the first one."
+            />
+          )}
 
           {rows.map((row) => (
             <tr key={row.id}>
@@ -379,15 +398,16 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
       <Drawer
         open={editor !== null}
         onClose={close}
+        dirty={dirty}
         title={isEdit ? "Edit accessory" : "New accessory"}
         subtitle={isEdit && editor ? editor.id : undefined}
         footer={
           <DrawerFooter
             busy={busy}
-            onSave={submit}
+            onPrimary={() => void submit()}
             onCancel={close}
-            saveLabel={isEdit ? "Save" : "Create"}
-            onDelete={isEdit ? remove : undefined}
+            primaryLabel={isEdit ? "Save" : "Create"}
+            danger={isEdit ? { label: "Delete", onClick: () => void remove() } : undefined}
           />
         }
       >
@@ -511,7 +531,7 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
             onChange={(next) => setDraft({ ...draft, colors: next })}
           />
         </div>
-        <FormError message={formError} />
+        {formError && <InlineError message={formError} />}
       </Drawer>
     </Section>
   );
@@ -790,6 +810,8 @@ const EMPTY_CITY: CityInput = {
 function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminCity>) {
   const [editor, setEditor] = useState<Editor<string> | null>(null);
   const [draft, setDraft] = useState<CityInput>(EMPTY_CITY);
+  // Snapshot of the draft the drawer opened with — drives the dirty guard.
+  const [baseline, setBaseline] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -797,13 +819,16 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
     clearError();
     setFormError(null);
     setDraft(EMPTY_CITY);
+    setBaseline(JSON.stringify(EMPTY_CITY));
     setEditor({ mode: "create" });
   }
 
   function openEdit(row: AdminCity) {
     clearError();
     setFormError(null);
-    setDraft({ ...row });
+    const next: CityInput = { ...row };
+    setDraft(next);
+    setBaseline(JSON.stringify(next));
     setEditor({ mode: "edit", id: row.id });
   }
 
@@ -843,7 +868,7 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
   async function remove() {
     if (busy || !editor || editor.mode !== "edit") return;
     const id = editor.id;
-    if (!window.confirm(`Delete city "${id}"? This cannot be undone.`)) return;
+    if (!confirmAction(`Delete city "${id}"?`, { finality: "irreversible" })) return;
     clearError();
     setFormError(null);
     setBusy(true);
@@ -859,6 +884,7 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
   }
 
   const isEdit = editor?.mode === "edit";
+  const dirty = editor !== null && JSON.stringify(draft) !== baseline;
 
   return (
     <Section id="cities" title="Cities" count={rows.length}>
@@ -876,7 +902,12 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && <EmptyRow colSpan={8} label="No cities yet." />}
+          {rows.length === 0 && (
+            <EmptyRow
+              colSpan={8}
+              label="No cities yet — use “+ Add city” below to create the first one."
+            />
+          )}
 
           {rows.map((row) => (
             <tr key={row.id}>
@@ -898,15 +929,16 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
       <Drawer
         open={editor !== null}
         onClose={close}
+        dirty={dirty}
         title={isEdit ? "Edit city" : "New city"}
         subtitle={isEdit && editor ? editor.id : undefined}
         footer={
           <DrawerFooter
             busy={busy}
-            onSave={submit}
+            onPrimary={() => void submit()}
             onCancel={close}
-            saveLabel={isEdit ? "Save" : "Create"}
-            onDelete={isEdit ? remove : undefined}
+            primaryLabel={isEdit ? "Save" : "Create"}
+            danger={isEdit ? { label: "Delete", onClick: () => void remove() } : undefined}
           />
         }
       >
@@ -954,7 +986,7 @@ function CitiesSection({ rows, onError, clearError, patch }: SectionProps<AdminC
           value={draft.sortOrder}
           onChange={(v) => setDraft({ ...draft, sortOrder: v })}
         />
-        <FormError message={formError} />
+        {formError && <InlineError message={formError} />}
       </Drawer>
     </Section>
   );
@@ -1009,13 +1041,17 @@ function MarqueeSection({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<LocalizedStrings>(() => toLocalizedStrings(marquee));
+  // Snapshot of the draft the drawer opened with — drives the dirty guard.
+  const [baseline, setBaseline] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   function openEdit() {
     clearError();
     setFormError(null);
-    setDraft(toLocalizedStrings(marquee));
+    const next = toLocalizedStrings(marquee);
+    setDraft(next);
+    setBaseline(JSON.stringify(next));
     setOpen(true);
   }
 
@@ -1077,10 +1113,11 @@ function MarqueeSection({
       <Drawer
         open={open}
         onClose={close}
+        dirty={open && JSON.stringify(draft) !== baseline}
         title="Edit hero marquee"
         subtitle={`${enItems.length} EN ${enItems.length === 1 ? "item" : "items"}`}
         footer={
-          <DrawerFooter busy={busy} onSave={submit} onCancel={close} saveLabel="Save" />
+          <DrawerFooter busy={busy} onPrimary={() => void submit()} onCancel={close} primaryLabel="Save" />
         }
       >
         <div className="field">
@@ -1094,7 +1131,7 @@ function MarqueeSection({
             placeholder="Tallinn, Riga, Helsinki"
           />
         </div>
-        <FormError message={formError} />
+        {formError && <InlineError message={formError} />}
       </Drawer>
     </Section>
   );
@@ -1110,6 +1147,8 @@ const EMPTY_FAQ: FaqInput = { question: "", answer: "", openByDefault: false, so
 function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>) {
   const [editor, setEditor] = useState<Editor<number> | null>(null);
   const [draft, setDraft] = useState<FaqInput>(EMPTY_FAQ);
+  // Snapshot of the draft the drawer opened with — drives the dirty guard.
+  const [baseline, setBaseline] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -1117,6 +1156,7 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
     clearError();
     setFormError(null);
     setDraft(EMPTY_FAQ);
+    setBaseline(JSON.stringify(EMPTY_FAQ));
     setEditor({ mode: "create" });
   }
 
@@ -1125,7 +1165,9 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
     setFormError(null);
     const { id: _id, ...rest } = row;
     void _id;
-    setDraft({ ...rest });
+    const next: FaqInput = { ...rest };
+    setDraft(next);
+    setBaseline(JSON.stringify(next));
     setEditor({ mode: "edit", id: row.id });
   }
 
@@ -1161,7 +1203,7 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
     if (busy || !editor || editor.mode !== "edit") return;
     const id = editor.id;
     const question = draft.question;
-    if (!window.confirm(`Delete this FAQ entry? This cannot be undone.\n\n"${question}"`)) return;
+    if (!confirmAction(`Delete this FAQ entry?\n\n"${question}"`, { finality: "irreversible" })) return;
     clearError();
     setFormError(null);
     setBusy(true);
@@ -1177,6 +1219,7 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
   }
 
   const isEdit = editor?.mode === "edit";
+  const dirty = editor !== null && JSON.stringify(draft) !== baseline;
 
   return (
     <Section id="faq" title="FAQ" count={rows.length}>
@@ -1192,7 +1235,12 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && <EmptyRow colSpan={6} label="No FAQ entries yet." />}
+          {rows.length === 0 && (
+            <EmptyRow
+              colSpan={6}
+              label="No FAQ entries yet — use “+ Add FAQ” below to create the first one."
+            />
+          )}
 
           {rows.map((row) => (
             <tr key={row.id}>
@@ -1212,15 +1260,16 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
       <Drawer
         open={editor !== null}
         onClose={close}
+        dirty={dirty}
         title={isEdit ? "Edit FAQ" : "New FAQ"}
         subtitle={isEdit && editor ? `#${editor.id}` : undefined}
         footer={
           <DrawerFooter
             busy={busy}
-            onSave={submit}
+            onPrimary={() => void submit()}
             onCancel={close}
-            saveLabel={isEdit ? "Save" : "Create"}
-            onDelete={isEdit ? remove : undefined}
+            primaryLabel={isEdit ? "Save" : "Create"}
+            danger={isEdit ? { label: "Delete", onClick: () => void remove() } : undefined}
           />
         }
       >
@@ -1251,7 +1300,7 @@ function FaqSection({ rows, onError, clearError, patch }: SectionProps<AdminFaq>
             onChange={(v) => setDraft({ ...draft, sortOrder: v })}
           />
         </div>
-        <FormError message={formError} />
+        {formError && <InlineError message={formError} />}
       </Drawer>
     </Section>
   );
@@ -1454,20 +1503,6 @@ function FieldHint({ text }: { text: string }) {
   );
 }
 
-/** In-drawer submit / validation error line. */
-function FormError({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <p
-      className="mono"
-      style={{ color: "var(--danger)", fontSize: 12, margin: "16px 0 0", lineHeight: 1.5 }}
-      role="alert"
-    >
-      {message}
-    </p>
-  );
-}
-
 /* ════════════════════════════════════════════════════════════════════════
    Row + footer button pieces (inline styles + brand CSS vars).
    ════════════════════════════════════════════════════════════════════════ */
@@ -1476,91 +1511,16 @@ function BoolPill({ value }: { value: boolean }) {
   return <StatusPill value={value ? "yes" : "no"} tone={value ? "good" : "neutral"} />;
 }
 
-/** Single Edit affordance on a read-only table row. */
+/** Single Edit affordance on a read-only table row. Styling comes from the
+ *  shared .admin-mini-btn class in globals.css (same visuals as the old
+ *  inline-styled MiniButton). */
 function RowEdit({ busy, onEdit }: { busy: boolean; onEdit: () => void }) {
   return (
     <div style={{ display: "flex", gap: 8 }}>
-      <MiniButton onClick={onEdit} disabled={busy}>Edit</MiniButton>
+      <button type="button" className="admin-mini-btn" onClick={onEdit} disabled={busy}>
+        Edit
+      </button>
     </div>
-  );
-}
-
-/**
- * Sticky drawer footer: optional Delete pinned left (via the .spacer class the
- * global .drawer-foot rule honours), then Cancel + Save on the right. Reuses the
- * same MiniButton styling the page already uses for its actions.
- */
-function DrawerFooter({
-  busy,
-  onSave,
-  onCancel,
-  saveLabel,
-  onDelete,
-}: {
-  busy: boolean;
-  onSave: () => void;
-  onCancel: () => void;
-  saveLabel: string;
-  onDelete?: () => void;
-}) {
-  return (
-    <>
-      {onDelete && (
-        <MiniButton onClick={onDelete} disabled={busy} danger className="spacer">
-          Delete
-        </MiniButton>
-      )}
-      <MiniButton onClick={onCancel} disabled={busy}>Cancel</MiniButton>
-      <MiniButton onClick={onSave} disabled={busy} primary>
-        {busy ? "…" : saveLabel}
-      </MiniButton>
-    </>
-  );
-}
-
-function MiniButton({
-  children,
-  onClick,
-  disabled,
-  primary = false,
-  danger = false,
-  className,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-  primary?: boolean;
-  danger?: boolean;
-  className?: string;
-}) {
-  const palette = primary
-    ? { fg: "var(--lime-ink)", bg: "var(--lime)", bd: "var(--lime)" }
-    : danger
-      ? { fg: "var(--danger)", bg: "transparent", bd: "rgba(255, 138, 120, 0.32)" }
-      : { fg: "var(--text-2)", bg: "var(--surface)", bd: "var(--border-strong)" };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={className ? `mono ${className}` : "mono"}
-      style={{
-        padding: "7px 13px",
-        borderRadius: "var(--r-full)",
-        background: palette.bg,
-        border: `1px solid ${palette.bd}`,
-        color: palette.fg,
-        fontSize: 11.5,
-        letterSpacing: "0.04em",
-        fontWeight: primary ? 600 : 500,
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.55 : 1,
-        whiteSpace: "nowrap",
-      }}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -1611,101 +1571,6 @@ function Section({
       {!note && <div style={{ height: 10 }} />}
       {children}
     </section>
-  );
-}
-
-function ActionErrorBar({ message, onDismiss }: { message: string; onDismiss: () => void }) {
-  return (
-    <div
-      className="mono"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 14,
-        color: "var(--danger)",
-        fontSize: 12.5,
-        marginBottom: 24,
-        padding: "12px 16px",
-        borderRadius: "var(--r-md)",
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "rgba(255, 138, 120, 0.06)",
-      }}
-    >
-      <span>{message}</span>
-      <button
-        type="button"
-        onClick={onDismiss}
-        className="mono"
-        style={{
-          background: "transparent",
-          border: "none",
-          color: "var(--danger)",
-          cursor: "pointer",
-          fontSize: 12.5,
-          padding: 0,
-        }}
-        aria-label="Dismiss"
-      >
-        ✕
-      </button>
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
-        {message}
-      </p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
-    </div>
   );
 }
 

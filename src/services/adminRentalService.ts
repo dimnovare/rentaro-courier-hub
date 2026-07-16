@@ -16,7 +16,6 @@
  *   POST /api/admin/rentals/{id}/schedule-return     { date }
  *   POST /api/admin/rentals/{id}/return
  *   POST /api/admin/rentals/{id}/inspect             { passed, notes? }
- *   POST /api/admin/rentals/{id}/extend              { plannedEndDate }
  *   POST /api/admin/rentals/{id}/return-reminder     (manual "ends soon" email)
  *   PATCH /api/admin/rentals/{id}                    { startDate?, plannedEndDate? }
  */
@@ -174,12 +173,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       const data = (await res.json()) as { error?: string; notConfigured?: boolean };
       if (data?.notConfigured) notConfigured = true;
-      if (data?.error) detail = `: ${data.error}`;
+      if (data?.error) detail = data.error;
     } catch {
       /* non-JSON body — ignore. */
     }
     if (notConfigured) throw new RentalConfigError();
-    throw new RentalApiError(`Request failed (${res.status})${detail}`, res.status);
+    // Server details are already operator-readable ("A reason of up to 2000
+    // characters is required…") — show them verbatim, without a technical
+    // "Request failed (400):" prefix. Only fall back to a generic line when
+    // the body carried nothing usable.
+    throw new RentalApiError(detail || `Something went wrong (${res.status}). Try again.`, res.status);
   }
 
   // 204 / empty body tolerance (the action endpoints may return the updated
@@ -234,12 +237,10 @@ export const inspectRental = (id: string, passed: boolean, notes?: string) =>
     body: JSON.stringify(notes && notes.trim() ? { passed, notes: notes.trim() } : { passed }),
   });
 
-/** Extends a rental's planned end date (YYYY-MM-DD). */
-export const extendRental = (id: string, plannedEndDate: string) =>
-  request<AdminRental>(`/api/admin/rentals/${encodeURIComponent(id)}/extend`, {
-    method: "POST",
-    body: JSON.stringify({ plannedEndDate }),
-  });
+// NOTE: the former extendRental() (POST /rentals/{id}/extend) was removed — the
+// backend turned that route into a thin alias of the complimentary-extension
+// flow (it now REQUIRES a reason and writes the same extension ledger), so the
+// admin UI extends rentals exclusively via createComplimentaryExtension().
 
 /**
  * Corrects a rental's dates (YYYY-MM-DD). A blank/omitted startDate keeps the

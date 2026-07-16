@@ -10,13 +10,127 @@ const TONE: Record<PillTone, { fg: string; bg: string; bd: string }> = {
   neutral: { fg: "var(--text-2)", bg: "var(--surface)", bd: "var(--border)" },
 };
 
-/** Map a raw status/priority string to a tone using simple keyword buckets. */
+/**
+ * Display labels for every known wire status. The backend serializes enum
+ * names lower-cased with no separators ("bikeassigned", "awaitingreview"),
+ * which reads terribly in the UI; this map restores the spaces. Keys are the
+ * lowercase wire values — lookups lower-case the input, so the contract
+ * endpoint's PascalCase SignatureStatus ("SentForSignature") also matches.
+ *
+ * Sources of truth: Rentaro.Domain/Enums.cs (BookingStatus, RentalStatus,
+ * BikeUnitStatus, MaintenanceStatus/Priority/IssueType, SignatureStatus,
+ * PaymentStatus, InvoicePaymentStatus, RentalExtensionStatus,
+ * RentalBillingPeriodStatus, SupportTicketStatus) + invoice/identity statuses
+ * used by the admin/portal services.
+ */
+export const STATUS_LABELS: Record<string, string> = {
+  // Booking (BookingStatus)
+  submitted: "Submitted",
+  awaitingreview: "Awaiting review",
+  approved: "Approved",
+  rejected: "Rejected",
+  cancelled: "Cancelled",
+  paymentpending: "Payment pending",
+  bikeassigned: "Bike assigned",
+  signaturepending: "Signature pending",
+  active: "Active",
+  completed: "Completed",
+  // Rental (RentalStatus + legacy/plan extras seen in older data)
+  endingsoon: "Ending soon",
+  returnscheduled: "Return scheduled",
+  extended: "Extended",
+  returned: "Returned",
+  closed: "Closed",
+  overdue: "Overdue",
+  inspectionpending: "Inspection pending",
+  defaulted: "Defaulted",
+  // Bike unit (BikeUnitStatus)
+  incoming: "Incoming",
+  available: "Available",
+  reserved: "Reserved",
+  rented: "Rented",
+  returningsoon: "Returning soon",
+  maintenance: "Maintenance",
+  damaged: "Damaged",
+  stolen: "Stolen",
+  retired: "Retired",
+  // Maintenance status / priority / issue type
+  open: "Open",
+  inprogress: "In progress",
+  in_progress: "In progress",
+  resolved: "Resolved",
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  puncture: "Puncture",
+  brakes: "Brakes",
+  battery: "Battery",
+  motor: "Motor",
+  lock: "Lock",
+  charger: "Charger",
+  generalservice: "General service",
+  inspection: "Inspection",
+  accident: "Accident",
+  // Contract signature (SignatureStatus — arrives PascalCase, lower-cased here)
+  notstarted: "Not started",
+  generated: "Generated",
+  sentforsignature: "Sent for signature",
+  senttosigning: "Sent to signing",
+  viewed: "Viewed",
+  signed: "Signed",
+  declined: "Declined",
+  expired: "Expired",
+  failed: "Failed",
+  // Invoices / payments / billing periods / extensions
+  draft: "Draft",
+  issued: "Issued",
+  paid: "Paid",
+  void: "Void",
+  voided: "Voided",
+  uncollectible: "Uncollectible",
+  pending: "Pending",
+  pendingmanual: "Pending manual",
+  pending_manual: "Pending manual",
+  refunded: "Refunded",
+  manualreview: "Manual review",
+  awaitingpayment: "Awaiting payment",
+  scheduled: "Scheduled",
+  invoiced: "Invoiced",
+  // Identity / misc
+  verified: "Verified",
+  none: "None",
+};
+
+/** Display label for a wire status: mapped when known, otherwise the raw value
+ *  with underscores spaced out (the pill's former fallback behaviour — the
+ *  pill's CSS upper-cases it either way). Exported for non-pill uses too. */
+export function statusLabel(value: string): string {
+  return STATUS_LABELS[value.toLowerCase()] ?? value.replace(/_/g, " ");
+}
+
+/**
+ * Map a raw status/priority string to a tone using word-bounded keyword
+ * buckets. Runs on the DISPLAY label, so squashed wire values regain their
+ * word boundaries ("paymentpending" → "payment pending" → warn) — and \b on
+ * both sides means "inactive" no longer matches "active".
+ */
 export function toneFor(value: string): PillTone {
-  const v = value.toLowerCase();
-  if (/(active|approved|available|completed|resolved|closed|done|in)\b/.test(v)) return "good";
-  if (/(pending|awaiting|review|submitted|reserved|low|limited|scheduled|medium|returning|open|waitlist|wait)/.test(v))
+  const v = statusLabel(value).toLowerCase();
+  // Checked before the good bucket, whose standalone "in" would otherwise
+  // swallow "in progress".
+  if (/\b(?:inprogress|in[ _]progress)\b/.test(v)) return "warn";
+  if (/\b(?:active|approved|available|completed|resolved|closed|done|in)\b/.test(v)) return "good";
+  if (
+    /\b(?:pending|awaiting|review|submitted|reserved|low|limited|scheduled|medium|returning|open|waitlist|wait)\b/.test(
+      v,
+    )
+  )
     return "warn";
-  if (/(rejected|cancelled|canceled|damaged|stolen|overdue|defaulted|failed|urgent|high|maintenance|retired)/.test(v))
+  if (
+    /\b(?:rejected|cancelled|canceled|damaged|stolen|overdue|defaulted|failed|urgent|high|maintenance|retired)\b/.test(
+      v,
+    )
+  )
     return "bad";
   return "neutral";
 }
@@ -41,7 +155,7 @@ export function StatusPill({ value, tone }: { value: string; tone?: PillTone }) 
         whiteSpace: "nowrap",
       }}
     >
-      {value.replace(/_/g, " ")}
+      {statusLabel(value)}
     </span>
   );
 }

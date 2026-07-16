@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   listRentals,
   scheduleReturn,
   markReturned,
   inspectRental,
-  extendRental,
   updateRentalDates,
   sendReturnReminder,
   listRentalExtensions,
@@ -19,25 +19,50 @@ import {
   type RentalExtension,
 } from "@/services/adminRentalService";
 import { invoicePdfPath } from "@/services/adminBillingService";
-import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDay } from "@/components/admin/Table";
-import { StatusPill } from "@/components/admin/StatusPill";
+import { AdminTable, Th, Td, EmptyRow, AdminSection } from "@/components/admin/Table";
+import { fmtDay, todayIso, isoDay } from "@/lib/dates";
+import { formatEur } from "@/lib/money";
+import { confirmAction } from "@/lib/confirm";
+import { Banner, Notice, ErrorPanel } from "@/components/admin/Feedback";
+import { StatusPill, statusLabel } from "@/components/admin/StatusPill";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
 import { DateField } from "@/components/admin/DateField";
 import { PageHeader } from "@/components/admin/PageHeader";
 
-/** Today as YYYY-MM-DD (local), used to seed the date inputs. */
-function todayISO(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/** ISO day `days` after the given ISO day (local, no timezone shifting). */
+function addDays(iso: string, days: number): string {
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  return isoDay(d);
 }
 
-/** €-format a numeric amount; em-dash for nullish. */
-function fmtMoney(n: number | null | undefined): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
-  return `€${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+/** Days from today (local midnight) until the given ISO day; negative = past. */
+function daysUntil(iso: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  return Math.round((end.getTime() - today.getTime()) / 86_400_000);
+}
+
+/** Rental statuses still counting down to a planned end. */
+const ACTIVEISH = new Set(["active", "endingsoon", "extended", "returnscheduled", "overdue"]);
+
+/**
+ * "Ends in Nd" cue next to the planned end for rentals that are still running.
+ * Warn tone within a week of the end, danger once overdue; null (no chip) for
+ * returned/closed rentals or ones without a planned end.
+ */
+function endsInChip(r: AdminRental): { text: string; tone: "warn" | "bad" | "neutral" } | null {
+  if (!r.plannedEndDate || r.actualEndDate) return null;
+  if (!ACTIVEISH.has((r.status ?? "").toLowerCase())) return null;
+  const days = daysUntil(r.plannedEndDate);
+  if (days < 0 || r.isOverdue) {
+    return { text: days < 0 ? `${-days}d overdue` : "overdue", tone: "bad" };
+  }
+  if (days === 0) return { text: "ends today", tone: "warn" };
+  return { text: `ends in ${days}d`, tone: days <= 7 ? "warn" : "neutral" };
 }
 
 type LoadState =
@@ -54,6 +79,12 @@ export default function AdminRentalsPage() {
   const [pending, setPending] = useState<Record<string, boolean>>({});
   // The rental whose "Manage" drawer is currently open (null = closed).
   const [manageId, setManageId] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  // Whether the ?id=<rentalId> deep link has been consumed (once per mount).
+  const deepLinkDone = useRef(false);
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     // A "silent" refresh (after an action, or a background refresh) keeps the
@@ -79,6 +110,15 @@ export default function AdminRentalsPage() {
   }, [authenticated, load]);
 
   useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
+
+  // Deep link: /admin/rentals?id=<rentalId> auto-opens that rental's Manage
+  // drawer once the list is loaded (dashboard / support cross-links).
+  useEffect(() => {
+    if (deepLinkDone.current || state.phase !== "ready") return;
+    deepLinkDone.current = true;
+    const id = searchParams.get("id");
+    if (id && state.rentals.some((r) => r.id === id)) setManageId(id);
+  }, [state, searchParams]);
 
   // Run a mutating action for a rental, then refresh the list. A returned
   // rental (when the endpoint echoes it) is patched in optimistically before
@@ -137,6 +177,18 @@ export default function AdminRentalsPage() {
     setManageId(id);
   }
 
+  // Closing the drawer also strips a consumed ?id deep link from the URL, so a
+  // reload doesn't surprise-reopen the drawer.
+  const closeManage = useCallback(() => {
+    setManageId(null);
+    if (searchParams.get("id")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("id");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  }, [searchParams, router, pathname]);
+
   return (
     <div>
       {state.phase === "loading" || state.phase === "idle" ? (
@@ -152,7 +204,7 @@ export default function AdminRentalsPage() {
 
           {banner && <Banner tone={banner.tone} text={banner.text} />}
 
-          <AdminSection title="Rentals" count={state.rentals.length}>
+          <AdminSection title="Rentals" count={state.rentals.length} noun="rental">
             <RentalsTable
               rentals={state.rentals}
               pending={pending}
@@ -164,7 +216,7 @@ export default function AdminRentalsPage() {
             rental={managed}
             banner={banner}
             busy={managed ? Boolean(pending[managed.id]) : false}
-            onClose={() => setManageId(null)}
+            onClose={closeManage}
             onScheduleReturn={(id, date) =>
               runAction(id, () => scheduleReturn(id, date), "Return scheduled.")
             }
@@ -175,9 +227,6 @@ export default function AdminRentalsPage() {
                 () => inspectRental(id, passed, notes),
                 passed ? "Inspection passed." : "Inspection failed — logged.",
               )
-            }
-            onExtend={(id, date) =>
-              runAction(id, () => extendRental(id, date), "Rental extended.")
             }
             onEditDates={(id, body) =>
               runAction(id, () => updateRentalDates(id, body), "Dates updated.")
@@ -228,16 +277,20 @@ function RentalsTable({
           <Th>Planned end</Th>
           <Th>Return due</Th>
           <Th>Returned</Th>
-          <Th>Price / deposit</Th>
+          <Th align="right">Price / deposit</Th>
           <Th>Actions</Th>
         </tr>
       </thead>
       <tbody>
         {rentals.length === 0 ? (
-          <EmptyRow colSpan={10} label="No rentals yet." />
+          <EmptyRow
+            colSpan={10}
+            label="No rentals yet. Rentals appear when you assign a bike to an approved booking — see Bookings."
+          />
         ) : (
           rentals.map((r) => {
             const overdue = r.isOverdue;
+            const chip = endsInChip(r);
             return (
               <tr
                 key={r.id}
@@ -254,6 +307,7 @@ function RentalsTable({
                   </div>
                 </Td>
                 <Td>
+                  {/* The rental DTO carries only the customer email (no name). */}
                   <div className="mono" style={{ fontSize: 12 }}>{r.customerEmail}</div>
                   {r.bookingId && (
                     <div className="mono" style={{ fontSize: 10.5, color: "var(--text-dim)", marginTop: 3 }}>
@@ -275,13 +329,18 @@ function RentalsTable({
                   <span style={overdue ? { color: "var(--danger)" } : undefined}>
                     {fmtDay(r.plannedEndDate)}
                   </span>
+                  {chip && (
+                    <div style={{ marginTop: 4 }}>
+                      <StatusPill value={chip.text} tone={chip.tone} />
+                    </div>
+                  )}
                 </Td>
                 <Td mono nowrap dim>{fmtDay(r.returnScheduledDate)}</Td>
                 <Td mono nowrap dim>{fmtDay(r.actualEndDate)}</Td>
-                <Td mono nowrap>
-                  <div>{fmtMoney(r.monthlyPrice)}</div>
+                <Td mono nowrap align="right">
+                  <div>{formatEur(r.monthlyPrice)}</div>
                   <div style={{ fontSize: 10.5, color: "var(--text-dim)", marginTop: 3 }}>
-                    dep {fmtMoney(r.depositAmount)}
+                    dep {formatEur(r.depositAmount)}
                   </div>
                 </Td>
                 <Td nowrap>
@@ -305,12 +364,13 @@ function RentalsTable({
 }
 
 /**
- * Per-rental "Manage" drawer. Groups the four lifecycle actions — schedule a
- * return (date), mark returned, run the inspection (pass/fail + optional notes),
- * and extend (date) — into numbered blocks, each with its own input(s) + button
- * wired to the same services as before. The banner is echoed inside the drawer
- * so action feedback is visible without losing the operator's place, and the
- * whole drawer disables while an action for this rental is in flight.
+ * Per-rental "Manage" drawer. Groups the lifecycle actions — schedule a return
+ * (date), mark returned, run the inspection (pass/fail + optional notes),
+ * extend (date + reason, via the extension ledger) and edit dates — into
+ * numbered blocks, each with its own input(s) + button wired to the same
+ * services as before. The banner is echoed inside the drawer so action
+ * feedback is visible without losing the operator's place, and the whole
+ * drawer disables while an action for this rental is in flight.
  */
 function ManageRentalDrawer({
   rental,
@@ -320,7 +380,6 @@ function ManageRentalDrawer({
   onScheduleReturn,
   onReturn,
   onInspect,
-  onExtend,
   onEditDates,
   onSendReminder,
   onExtensionChanged,
@@ -332,7 +391,6 @@ function ManageRentalDrawer({
   onScheduleReturn: (id: string, date: string) => void;
   onReturn: (id: string) => void;
   onInspect: (id: string, passed: boolean, notes?: string) => void;
-  onExtend: (id: string, date: string) => void;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
   onSendReminder: (id: string) => void;
   onExtensionChanged: () => void;
@@ -365,7 +423,6 @@ function ManageRentalDrawer({
           onScheduleReturn={onScheduleReturn}
           onReturn={onReturn}
           onInspect={onInspect}
-          onExtend={onExtend}
           onEditDates={onEditDates}
           onSendReminder={onSendReminder}
           onExtensionChanged={onExtensionChanged}
@@ -382,7 +439,6 @@ function ManageRentalBody({
   onScheduleReturn,
   onReturn,
   onInspect,
-  onExtend,
   onEditDates,
   onSendReminder,
   onExtensionChanged,
@@ -393,25 +449,33 @@ function ManageRentalBody({
   onScheduleReturn: (id: string, date: string) => void;
   onReturn: (id: string) => void;
   onInspect: (id: string, passed: boolean, notes?: string) => void;
-  onExtend: (id: string, date: string) => void;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
   onSendReminder: (id: string) => void;
   onExtensionChanged: () => void;
 }) {
   const id = rental.id;
   // Seed from the saved scheduled return (if any) so re-opening shows it, not today.
-  const [returnDate, setReturnDate] = useState(rental.returnScheduledDate ?? todayISO());
-  const [extendDate, setExtendDate] = useState(todayISO());
+  const [returnDate, setReturnDate] = useState(rental.returnScheduledDate ?? todayIso());
   const [notes, setNotes] = useState("");
   // Edit-dates block, seeded from the rental's current ISO dates.
   const [startDate, setStartDate] = useState(rental.startDate);
   const [plannedEnd, setPlannedEnd] = useState(rental.plannedEndDate ?? "");
 
+  // The action banner renders at the top of the drawer body, which can be
+  // scrolled off-screen when acting on a lower block — bring it (minimally)
+  // back into view whenever it (re)appears.
+  const bannerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (banner) bannerRef.current?.scrollIntoView({ block: "nearest" });
+  }, [banner]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-      {banner && <Banner tone={banner.tone} text={banner.text} />}
-
-      <RentalExtensionAdminSection rental={rental} onChanged={onExtensionChanged} />
+      {banner && (
+        <div ref={bannerRef}>
+          <Banner tone={banner.tone} text={banner.text} />
+        </div>
+      )}
 
       {/* 1 · Schedule return */}
       <ActionBlock label="1 · Schedule return">
@@ -444,8 +508,7 @@ function ManageRentalBody({
             disabled={busy}
             onClick={() => {
               if (
-                typeof window !== "undefined" &&
-                !window.confirm(
+                !confirmAction(
                   "Mark this rental as returned? This ends the active rental and frees the bike for inspection.",
                 )
               ) {
@@ -480,10 +543,7 @@ function ManageRentalBody({
               onClick={() => {
                 // Inspection is terminal: it permanently CLOSES the rental with
                 // no undo, so a single (mis)click must not be enough.
-                if (
-                  typeof window !== "undefined" &&
-                  !window.confirm("Pass inspection and close this rental? This is final.")
-                ) {
+                if (!confirmAction("Pass inspection and close this rental?", { finality: "final" })) {
                   return;
                 }
                 onInspect(id, true, notes);
@@ -498,9 +558,9 @@ function ManageRentalBody({
               disabled={busy}
               onClick={() => {
                 if (
-                  typeof window !== "undefined" &&
-                  !window.confirm(
-                    "Fail inspection and close this rental? This is final — the bike unit goes to maintenance.",
+                  !confirmAction(
+                    "Fail inspection and close this rental? The bike unit goes to maintenance.",
+                    { finality: "final" },
                   )
                 ) {
                   return;
@@ -514,21 +574,8 @@ function ManageRentalBody({
         </div>
       </ActionBlock>
 
-      {/* 4 · Extend */}
-      <ActionBlock label="4 · Extend">
-        <form
-          style={actionRow}
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (extendDate && !busy) onExtend(id, extendDate);
-          }}
-        >
-          <DateField value={extendDate} onChange={setExtendDate} disabled={busy} />
-          <button type="submit" className="btn btn-ghost" style={miniBtn} disabled={busy || !extendDate}>
-            Extend
-          </button>
-        </form>
-      </ActionBlock>
+      {/* 4 · Extend + extension history (one combined control — see below) */}
+      <RentalExtensionAdminSection rental={rental} onChanged={onExtensionChanged} />
 
       {/* 5 · Edit dates */}
       <ActionBlock label="5 · Edit dates">
@@ -592,6 +639,16 @@ function ManageRentalBody({
   );
 }
 
+/**
+ * The single "Extend" control + the extension ledger.
+ *
+ * There used to be TWO near-identical flows here: a bare "Extend" (date-only,
+ * POST /extend) and this complimentary-extension form (date + reason). The
+ * backend has since turned /extend into an alias of the complimentary flow —
+ * it now REQUIRES a reason and records the same ledger entry — so the bare
+ * control could only ever 400. The two are merged into this one control:
+ * one date (seeded planned end + 30 days), one reason, one button.
+ */
 function RentalExtensionAdminSection({
   rental,
   onChanged,
@@ -603,8 +660,20 @@ function RentalExtensionAdminSection({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [workingId, setWorkingId] = useState<string | null>(null);
-  const [newEndDate, setNewEndDate] = useState(rental.plannedEndDate ?? todayISO());
+  // Seed the proposed end a full billing period past the current planned end —
+  // the planned end itself (or today) is never a valid extension target.
+  const seedEndDate = useCallback(
+    () => (rental.plannedEndDate ? addDays(rental.plannedEndDate, 30) : todayIso()),
+    [rental.plannedEndDate],
+  );
+  const [newEndDate, setNewEndDate] = useState(seedEndDate);
   const [reason, setReason] = useState("");
+
+  // Re-seed when the planned end moves (e.g. right after an extension applies),
+  // so the next proposal starts from the new end instead of the stale one.
+  useEffect(() => {
+    setNewEndDate(seedEndDate());
+  }, [seedEndDate]);
 
   const loadExtensions = useCallback(async () => {
     try {
@@ -660,128 +729,136 @@ function RentalExtensionAdminSection({
   }
 
   return (
-    <ActionBlock label="Extension history">
-      {error && <Banner tone="bad" text={error} />}
-      {notice && <Banner tone="ok" text={notice} />}
+    <>
+      <ActionBlock label="4 · Extend">
+        {error && <Banner tone="bad" text={error} />}
+        {notice && <Banner tone="ok" text={notice} />}
 
-      {extensions === null ? (
-        <span className="mono" style={extensionHintStyle}>Loading extension ledger…</span>
-      ) : extensions.length === 0 ? (
-        <span className="mono" style={extensionHintStyle}>No extension requests yet.</span>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {extensions.map((extension) => (
-            <div key={extension.id} className="card" style={extensionCardStyle}>
-              <div style={extensionHeaderStyle}>
-                <div>
-                  <strong style={{ display: "block", fontSize: 13 }}>
-                    {fmtDay(extension.previousPlannedEndDate)} → {fmtDay(extension.proposedPlannedEndDate)}
-                  </strong>
-                  <span className="mono" style={extensionHintStyle}>
-                    <span>{titleCase(extension.source)}</span>
-                    <span> · {extension.billingPeriodCount} billing period{extension.billingPeriodCount === 1 ? "" : "s"}</span>
-                  </span>
-                </div>
-                <StatusPill value={titleCase(extension.status)} />
-              </div>
-
-              <div className="mono" style={extensionMoneyStyle}>
-                {fmtMoney(extension.baseAmountPerPeriod)} bike + {fmtMoney(extension.accessoryAmountPerPeriod)} selected optional extras = {fmtMoney(extension.totalAmountPerPeriod)} / period
-              </div>
-
-              {extension.adminReason && (
-                <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 12.5 }}>
-                  Reason: {extension.adminReason}
-                </p>
-              )}
-
-              {extension.periods.length > 0 && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {extension.periods.map((period) => (
-                    <div key={period.id} style={periodRowStyle}>
-                      <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                        #{period.sequenceNumber} · {fmtDay(period.serviceStartDate)} – {fmtDay(period.serviceEndDateExclusive)} · {titleCase(period.status)}
-                      </span>
-                      {period.invoiceId && period.invoiceNumber ? (
-                        <a
-                          href={invoicePdfPath(period.invoiceId)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mono"
-                          style={{ color: "var(--lime)", fontSize: 11 }}
-                        >
-                          {period.invoiceNumber}
-                        </a>
-                      ) : (
-                        <span className="mono" style={extensionHintStyle}>Not invoiced</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {extension.status === "awaiting_payment" && (
-                <div>
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    style={miniBtn}
-                    disabled={Boolean(workingId)}
-                    onClick={() => void cancelExtension(extension.id)}
-                  >
-                    Cancel extension
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <form
-        style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 4 }}
-        onSubmit={(event) => {
-          event.preventDefault();
-          void applyComplimentaryExtension();
-        }}
-      >
-        <fieldset
-          aria-label="Complimentary extension end date"
-          style={{ ...editDateField, border: 0, padding: 0, margin: 0 }}
+        <form
+          style={{ display: "flex", flexDirection: "column", gap: 10 }}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void applyComplimentaryExtension();
+          }}
         >
-          <legend style={{ ...editDateLabel, padding: 0, marginBottom: 5 }}>
-            Complimentary extension end date
-          </legend>
-          <DateField
-            value={newEndDate}
-            onChange={setNewEndDate}
-            disabled={Boolean(workingId)}
-          />
-        </fieldset>
-        <label style={editDateField}>
-          <span style={editDateLabel}>Reason (required for audit history)</span>
-          <input
-            type="text"
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-            aria-label="Complimentary extension reason"
-            placeholder="e.g. Service downtime credit"
-            style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
-            disabled={Boolean(workingId)}
-          />
-        </label>
-        <div>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={miniBtn}
-            disabled={Boolean(workingId) || !newEndDate || !reason.trim()}
+          <fieldset
+            aria-label="Complimentary extension end date"
+            style={{ ...editDateField, border: 0, padding: 0, margin: 0 }}
           >
-            Apply complimentary extension
-          </button>
-        </div>
-      </form>
-    </ActionBlock>
+            <legend style={{ ...editDateLabel, padding: 0, marginBottom: 5 }}>
+              Complimentary extension end date
+            </legend>
+            <DateField
+              value={newEndDate}
+              onChange={setNewEndDate}
+              disabled={Boolean(workingId)}
+            />
+          </fieldset>
+          <label style={editDateField}>
+            <span style={editDateLabel}>Reason (required for audit history)</span>
+            <input
+              type="text"
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              aria-label="Complimentary extension reason"
+              placeholder="e.g. Service downtime credit"
+              style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
+              disabled={Boolean(workingId)}
+            />
+          </label>
+          <div>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={miniBtn}
+              disabled={Boolean(workingId) || !newEndDate || !reason.trim()}
+            >
+              Apply complimentary extension
+            </button>
+          </div>
+          <p className="mono" style={editDateHint}>
+            Extends at no charge and is recorded in the ledger below. Paid
+            extensions are requested by the customer from their portal.
+          </p>
+        </form>
+      </ActionBlock>
+
+      <ActionBlock label="Extension history">
+        {extensions === null ? (
+          <span className="mono" style={extensionHintStyle}>Loading extension ledger…</span>
+        ) : extensions.length === 0 ? (
+          <span className="mono" style={extensionHintStyle}>No extension requests yet.</span>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {extensions.map((extension) => (
+              <div key={extension.id} className="card" style={extensionCardStyle}>
+                <div style={extensionHeaderStyle}>
+                  <div>
+                    <strong style={{ display: "block", fontSize: 13 }}>
+                      {fmtDay(extension.previousPlannedEndDate)} → {fmtDay(extension.proposedPlannedEndDate)}
+                    </strong>
+                    <span className="mono" style={extensionHintStyle}>
+                      <span>{titleCase(extension.source)}</span>
+                      <span> · {extension.billingPeriodCount} billing period{extension.billingPeriodCount === 1 ? "" : "s"}</span>
+                    </span>
+                  </div>
+                  <StatusPill value={titleCase(extension.status)} />
+                </div>
+
+                <div className="mono" style={extensionMoneyStyle}>
+                  {formatEur(extension.baseAmountPerPeriod)} bike + {formatEur(extension.accessoryAmountPerPeriod)} selected optional extras = {formatEur(extension.totalAmountPerPeriod)} / period
+                </div>
+
+                {extension.adminReason && (
+                  <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 12.5 }}>
+                    Reason: {extension.adminReason}
+                  </p>
+                )}
+
+                {extension.periods.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {extension.periods.map((period) => (
+                      <div key={period.id} style={periodRowStyle}>
+                        <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                          #{period.sequenceNumber} · {fmtDay(period.serviceStartDate)} – {fmtDay(period.serviceEndDateExclusive)} · {statusLabel(period.status)}
+                        </span>
+                        {period.invoiceId && period.invoiceNumber ? (
+                          <a
+                            href={invoicePdfPath(period.invoiceId)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mono"
+                            style={{ color: "var(--lime)", fontSize: 11 }}
+                          >
+                            {period.invoiceNumber}
+                          </a>
+                        ) : (
+                          <span className="mono" style={extensionHintStyle}>Not invoiced</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {extension.status === "awaiting_payment" && (
+                  <div>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      style={miniBtn}
+                      disabled={Boolean(workingId)}
+                      onClick={() => void cancelExtension(extension.id)}
+                    >
+                      Cancel extension
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </ActionBlock>
+    </>
   );
 }
 
@@ -888,68 +965,3 @@ const periodRowStyle: React.CSSProperties = {
   paddingTop: 6,
   borderTop: "1px solid var(--border)",
 };
-
-/* ── Shared pieces (match the other admin pages) ───────────────────────── */
-
-function Banner({ tone, text }: { tone: "ok" | "bad"; text: string }) {
-  return (
-    <div
-      className="mono"
-      role="status"
-      style={{
-        marginBottom: 18,
-        padding: "11px 15px",
-        borderRadius: "var(--r-sm)",
-        fontSize: 12.5,
-        color: tone === "ok" ? "var(--lime)" : "var(--danger)",
-        background: tone === "ok" ? "rgba(216,255,54,0.08)" : "rgba(255,138,120,0.08)",
-        border: `1px solid ${tone === "ok" ? "rgba(216,255,54,0.3)" : "rgba(255,138,120,0.32)"}`,
-      }}
-    >
-      {text}
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)", marginBottom: 10 }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      {!config && (
-        <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
-          Try again
-        </button>
-      )}
-    </div>
-  );
-}

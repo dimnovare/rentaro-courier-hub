@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   listTickets,
   createTicket,
@@ -12,48 +13,46 @@ import {
   type MaintenanceTicket,
   type CreateTicketInput,
 } from "@/services/adminMaintenanceService";
-import { AdminTable, Th, Td, EmptyRow, fmtDate } from "@/components/admin/Table";
-import { StatusPill } from "@/components/admin/StatusPill";
+import { AdminTable, AdminSection, Th, Td, EmptyRow, fmtDate } from "@/components/admin/Table";
+import { StatusPill, statusLabel } from "@/components/admin/StatusPill";
+import { Notice, InlineError, ErrorPanel } from "@/components/admin/Feedback";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { confirmAction } from "@/lib/confirm";
 
 /**
  * Valid MaintenanceStatus values — wire values must match what the backend emits
  * (enum name, lower-cased, no separators), so they round-trip through the
- * case-insensitive Enum.TryParse on PATCH.
+ * case-insensitive Enum.TryParse on PATCH. Display labels come from the shared
+ * statusLabel map ("inprogress" → "In progress").
  */
-const TICKET_STATUSES = [
-  { value: "open", label: "open" },
-  { value: "inprogress", label: "in progress" },
-  { value: "resolved", label: "resolved" },
-] as const;
+const TICKET_STATUSES = ["open", "inprogress", "resolved"] as const;
 
 /** Valid MaintenanceIssueType values (Rentaro.Domain), lower-cased for the wire. */
 const ISSUE_TYPES = [
-  { value: "puncture", label: "puncture" },
-  { value: "brakes", label: "brakes" },
-  { value: "battery", label: "battery" },
-  { value: "motor", label: "motor" },
-  { value: "lock", label: "lock" },
-  { value: "charger", label: "charger" },
-  { value: "generalservice", label: "general service" },
-  { value: "inspection", label: "inspection" },
-  { value: "accident", label: "accident" },
+  "puncture",
+  "brakes",
+  "battery",
+  "motor",
+  "lock",
+  "charger",
+  "generalservice",
+  "inspection",
+  "accident",
 ] as const;
 
 /** Valid MaintenancePriority values (Rentaro.Domain), lower-cased for the wire. */
-const PRIORITIES = [
-  { value: "low", label: "low" },
-  { value: "medium", label: "medium" },
-  { value: "high", label: "high" },
-] as const;
+const PRIORITIES = ["low", "medium", "high"] as const;
 
-/** Pretty label for a raw status value coming back from the API. */
-function statusLabel(value: string): string {
-  return TICKET_STATUSES.find((s) => s.value === value.toLowerCase())?.label ?? value;
+/** Open/Resolved buckets for the filter tabs: "resolved" is its own bucket;
+ *  everything else (open, inprogress, unknown) still needs attention. */
+function isTicketResolved(t: MaintenanceTicket): boolean {
+  return t.status.toLowerCase() === "resolved";
 }
+
+type TicketFilter = "open" | "resolved" | "all";
 
 type LoadState =
   | { phase: "loading" }
@@ -69,26 +68,51 @@ export default function AdminMaintenancePage() {
   // Whether the "New ticket" drawer is open.
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
-    setActionError(null);
-    try {
-      const tickets = await listTickets();
-      setState({ phase: "ready", tickets });
-    } catch (err) {
-      if (err instanceof MaintenanceAuthError || (err instanceof MaintenanceApiError && err.unauthorized)) {
-        signOut();
-      } else {
-        setState(toErrorState(err, "Something went wrong loading maintenance tickets."));
-      }
+  // Filter tabs (Open / Resolved / All). Deep links pre-select via ?filter=.
+  const urlFilter = useSearchParams().get("filter");
+  const [filter, setFilter] = useState<TicketFilter>(() =>
+    urlFilter === "resolved" || urlFilter === "all" ? urlFilter : "open",
+  );
+  useEffect(() => {
+    if (urlFilter === "open" || urlFilter === "resolved" || urlFilter === "all") {
+      setFilter(urlFilter);
     }
-  }, [signOut]);
+  }, [urlFilter]);
+
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent === true;
+      if (!silent) {
+        setState({ phase: "loading" });
+        setActionError(null);
+      }
+      try {
+        const tickets = await listTickets();
+        setState({ phase: "ready", tickets });
+      } catch (err) {
+        if (err instanceof MaintenanceAuthError || (err instanceof MaintenanceApiError && err.unauthorized)) {
+          signOut();
+        } else if (silent) {
+          // Keep the current table (and any open drawer) on screen; surface inline.
+          setActionError(
+            err instanceof MaintenanceApiError || err instanceof MaintenanceConfigError
+              ? err.message
+              : "Something went wrong refreshing maintenance tickets.",
+          );
+        } else {
+          setState(toErrorState(err, "Something went wrong loading maintenance tickets."));
+        }
+      }
+    },
+    [signOut],
+  );
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  // The topbar Refresh reloads in place, so an open drawer survives it.
+  useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 
   async function changeStatus(id: number, nextStatus: string) {
     if (state.phase !== "ready") return;
@@ -99,8 +123,7 @@ export default function AdminMaintenancePage() {
     // worth a pause, since the select fires on a single (mis)click.
     if (
       nextStatus === "resolved" &&
-      typeof window !== "undefined" &&
-      !window.confirm(`Mark ticket #${id} as resolved? It leaves the open queue and gets a resolved date.`)
+      !confirmAction(`Mark ticket #${id} as resolved? It leaves the open queue and gets a resolved date.`)
     ) {
       return;
     }
@@ -126,10 +149,7 @@ export default function AdminMaintenancePage() {
   }
 
   async function removeTicket(id: number) {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Delete ticket #${id} permanently? This cannot be undone.`)
-    ) {
+    if (!confirmAction(`Delete ticket #${id} permanently?`, { finality: "irreversible" })) {
       return;
     }
     setActionError(null);
@@ -212,6 +232,8 @@ export default function AdminMaintenancePage() {
 
           <TicketsTable
             tickets={state.tickets}
+            filter={filter}
+            onFilter={setFilter}
             pending={pending}
             onChangeStatus={changeStatus}
             onDelete={(id) => void removeTicket(id)}
@@ -240,8 +262,8 @@ function NewTicketDrawer({
   onSubmit: (input: CreateTicketInput) => Promise<string | null>;
 }) {
   const [bikeUnitCode, setBikeUnitCode] = useState("");
-  const [issueType, setIssueType] = useState<string>(ISSUE_TYPES[0].value);
-  const [priority, setPriority] = useState<string>(PRIORITIES[1].value); // medium
+  const [issueType, setIssueType] = useState<string>(ISSUE_TYPES[0]);
+  const [priority, setPriority] = useState<string>(PRIORITIES[1]); // medium
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -314,23 +336,7 @@ function NewTicketDrawer({
           void handleSubmit();
         }}
       >
-        {formError && (
-          <div
-            className="mono"
-            role="alert"
-            style={{
-              color: "var(--danger)",
-              fontSize: 12,
-              marginBottom: 16,
-              padding: "10px 13px",
-              borderRadius: "var(--r-sm)",
-              border: "1px solid rgba(255, 138, 120, 0.32)",
-              background: "rgba(255, 138, 120, 0.06)",
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <InlineError message={formError} />}
 
         <div className="field">
           <label htmlFor="mt-bike-code">Bike unit code</label>
@@ -390,14 +396,14 @@ function Select({
 }: {
   value: string;
   onChange: (next: string) => void;
-  options: ReadonlyArray<{ value: string; label: string }>;
+  /** Wire values; display labels come from the shared statusLabel map. */
+  options: ReadonlyArray<string>;
   ariaLabel: string;
   busy?: boolean;
 }) {
   // Include the current value even if it isn't in the known list, so the select
   // never silently drops an unexpected backend value.
-  const known = options.some((o) => o.value === value);
-  const opts = known ? options : [{ value, label: statusLabel(value) }, ...options];
+  const opts = options.includes(value) ? options : [value, ...options];
 
   return (
     <select
@@ -422,8 +428,8 @@ function Select({
       }}
     >
       {opts.map((o) => (
-        <option key={o.value} value={o.value} style={{ background: "var(--panel)", color: "var(--text)" }}>
-          {o.label}
+        <option key={o} value={o} style={{ background: "var(--panel)", color: "var(--text)" }}>
+          {statusLabel(o)}
         </option>
       ))}
     </select>
@@ -434,18 +440,37 @@ function Select({
 
 function TicketsTable({
   tickets,
+  filter,
+  onFilter,
   pending,
   onChangeStatus,
   onDelete,
 }: {
   tickets: MaintenanceTicket[];
+  filter: TicketFilter;
+  onFilter: (next: TicketFilter) => void;
   pending: Record<number, boolean>;
   onChangeStatus: (id: number, status: string) => void;
   onDelete: (id: number) => void;
 }) {
+  const open = tickets.filter((t) => !isTicketResolved(t));
+  const resolved = tickets.filter(isTicketResolved);
+  const shown = filter === "open" ? open : filter === "resolved" ? resolved : tickets;
+
+  const emptyLabel =
+    tickets.length === 0
+      ? "No maintenance tickets. Log one with + New ticket."
+      : filter === "open"
+        ? "No open tickets."
+        : "No resolved tickets.";
+
   return (
-    <section style={{ marginBottom: 24 }}>
-      <SectionHead title="Tickets" count={tickets.length} />
+    <AdminSection title="Tickets" count={shown.length} noun="ticket">
+      <FilterTabs
+        filter={filter}
+        onFilter={onFilter}
+        counts={{ open: open.length, resolved: resolved.length, all: tickets.length }}
+      />
       <AdminTable>
         <thead>
           <tr>
@@ -461,16 +486,16 @@ function TicketsTable({
           </tr>
         </thead>
         <tbody>
-          {tickets.length === 0 ? (
-            <EmptyRow colSpan={9} label="No maintenance tickets." />
+          {shown.length === 0 ? (
+            <EmptyRow colSpan={9} label={emptyLabel} />
           ) : (
-            tickets.map((t) => (
+            shown.map((t) => (
               <tr key={t.id}>
                 <Td mono nowrap>
                   {fmtDate(t.createdAt)}
                 </Td>
-                <Td mono>{t.bikeUnitCode}</Td>
-                <Td nowrap>{t.issueType.replace(/_/g, " ")}</Td>
+                <Td mono>{t.bikeUnitCode?.trim() ? t.bikeUnitCode : "—"}</Td>
+                <Td nowrap>{statusLabel(t.issueType)}</Td>
                 <Td nowrap>
                   <StatusPill value={t.priority} />
                 </Td>
@@ -489,19 +514,13 @@ function TicketsTable({
                 </Td>
                 <Td dim>{t.description?.trim() ? t.description : "—"}</Td>
                 <Td nowrap>
+                  {/* Deliberately quieter than the Resolve path (the status
+                      select) — deleting a ticket is the rarer, harsher action. */}
                   <button
                     type="button"
-                    className="btn btn-ghost"
+                    className="admin-row-action danger"
                     onClick={() => onDelete(t.id)}
                     disabled={Boolean(pending[t.id])}
-                    style={{
-                      padding: "7px 14px",
-                      fontSize: 12,
-                      color: "var(--danger)",
-                      borderColor: "rgba(255, 138, 120, 0.32)",
-                      opacity: pending[t.id] ? 0.55 : 1,
-                      cursor: pending[t.id] ? "not-allowed" : "pointer",
-                    }}
                   >
                     Delete
                   </button>
@@ -511,7 +530,44 @@ function TicketsTable({
           )}
         </tbody>
       </AdminTable>
-    </section>
+    </AdminSection>
+  );
+}
+
+/** Lightweight segmented filter above the tickets table. */
+function FilterTabs({
+  filter,
+  onFilter,
+  counts,
+}: {
+  filter: TicketFilter;
+  onFilter: (next: TicketFilter) => void;
+  counts: Record<TicketFilter, number>;
+}) {
+  const tabs: { id: TicketFilter; label: string }[] = [
+    { id: "open", label: "Open" },
+    { id: "resolved", label: "Resolved" },
+    { id: "all", label: "All" },
+  ];
+  return (
+    <div
+      role="group"
+      aria-label="Filter tickets"
+      style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}
+    >
+      {tabs.map((t) => (
+        <button
+          key={t.id}
+          type="button"
+          className={`admin-row-action${filter === t.id ? " is-active" : ""}`}
+          aria-pressed={filter === t.id}
+          onClick={() => onFilter(t.id)}
+        >
+          {t.label}
+          <span style={{ opacity: 0.75 }}>{counts[t.id]}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -533,96 +589,6 @@ function StatusSelect({
         options={TICKET_STATUSES}
         ariaLabel="Change ticket status"
       />
-    </div>
-  );
-}
-
-/* ── Shared pieces (mirrors the fleet page) ────────────────────────────── */
-
-function SectionHead({ title, count }: { title: string; count?: number }) {
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-      <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>{title}</h2>
-      {typeof count === "number" && (
-        <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
-          {count} {count === 1 ? "ticket" : "tickets"}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function InlineError({ message }: { message: string }) {
-  return (
-    <div
-      className="mono"
-      style={{
-        color: "var(--danger)",
-        fontSize: 12.5,
-        marginBottom: 20,
-        padding: "12px 16px",
-        borderRadius: "var(--r-md)",
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "rgba(255, 138, 120, 0.06)",
-      }}
-    >
-      {message}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
-        {message}
-      </p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
     </div>
   );
 }

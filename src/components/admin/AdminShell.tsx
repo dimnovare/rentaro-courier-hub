@@ -70,7 +70,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={`admin-app${navOpen ? " nav-open" : ""}`}>
+    <div className="admin-app">
       <AdminSidebar open={navOpen} onNavigate={() => setNavOpen(false)} />
       {navOpen && (
         <button
@@ -81,7 +81,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         />
       )}
       <div className="admin-main">
-        <AdminTopbar onToggleNav={() => setNavOpen((o) => !o)} />
+        <AdminTopbar
+          onToggleNav={() => setNavOpen((o) => !o)}
+          onOpenPalette={() => setPaletteOpen(true)}
+        />
         <main className="admin-content">{children}</main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />

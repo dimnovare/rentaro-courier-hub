@@ -183,9 +183,13 @@ export function AdminSidebar({ open, onNavigate }: { open: boolean; onNavigate: 
       </Link>
 
       <nav className="admin-nav">
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.map((group) => {
+          // A group whose single item repeats the group name (Fleet, Contracts)
+          // renders without the redundant label row — saves vertical space.
+          const solo = group.items.length === 1 && group.items[0].label === group.label;
+          return (
           <div className="admin-nav-group" key={group.label}>
-            <p className="admin-nav-grouplabel mono">{group.label}</p>
+            {!solo && <p className="admin-nav-grouplabel mono">{group.label}</p>}
             {group.items.map((item) => {
               const Icon = I[item.icon];
               const active = isActive(pathname, item);
@@ -225,7 +229,8 @@ export function AdminSidebar({ open, onNavigate }: { open: boolean; onNavigate: 
               );
             })}
           </div>
-        ))}
+          );
+        })}
       </nav>
 
       <button type="button" className="admin-nav-item admin-signout" onClick={signOut}>

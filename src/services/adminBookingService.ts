@@ -136,12 +136,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       const data = (await res.json()) as { error?: string; notConfigured?: boolean };
       if (data?.notConfigured) notConfigured = true;
-      if (data?.error) detail = ` — ${data.error}`;
+      if (data?.error) detail = data.error;
     } catch {
       /* non-JSON body; ignore */
     }
     if (notConfigured) throw new BookingConfigError();
-    throw new BookingApiError(`Request failed (${res.status})${detail}`, res.status);
+    // Server details are operator-readable — show them verbatim, without a
+    // technical "Request failed (400):" prefix; generic fallback otherwise.
+    throw new BookingApiError(detail || `Something went wrong (${res.status}). Try again.`, res.status);
   }
 
   // 204 / empty body tolerance.

@@ -14,7 +14,7 @@
   --color-text: #ffffff;
   --color-text-2: #e4e8ee;
   --color-text-muted: #aeb6c2;
-  --color-text-dim: #6b7480;
+  --color-text-dim: #7d8694;
   --color-warn: #ffc65a;
   --color-danger: #ff8a78;
 
@@ -45,7 +45,20 @@
   --text: #ffffff;
   --text-2: #e4e8ee;
   --text-muted: #aeb6c2;
-  --text-dim: #6b7480;
+  /* Brightened from #6b7480 (admin UX pass) — the old value sat around 3.5:1
+     on the darkest surfaces, uncomfortably dim for the small mono captions it
+     labels everywhere. Only ever used for secondary text + two tiny dots. */
+  --text-dim: #7d8694;
+
+  /* Stacking order tokens — every admin layer, lowest to highest. Keep new
+     layers on this scale instead of inventing numbers. */
+  --z-savebar: 5;
+  --z-quicknav: 20;
+  --z-topbar: 30;
+  --z-backdrop: 40;
+  --z-sidebar-mobile: 60;
+  --z-overlay: 100;
+  --z-palette: 110;
 
   --lime: #d8ff36;
   --lime-2: #c4f02a;
@@ -788,14 +801,16 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
 /* Topbar */
-.admin-topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; padding: 0 26px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(16, 19, 27, 0.88), rgba(10, 12, 17, 0.72)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 10px 26px -18px rgba(0, 0, 0, 0.75); }
+.admin-topbar { position: sticky; top: 0; z-index: var(--z-topbar); display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; padding: 0 26px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(16, 19, 27, 0.88), rgba(10, 12, 17, 0.72)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 10px 26px -18px rgba(0, 0, 0, 0.75); }
 .admin-topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .admin-topbar-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-topbar-menu { display: none; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); cursor: pointer; flex-shrink: 0; }
 .admin-topbar-menu:hover { background: var(--surface-2); }
 .admin-topbar-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.admin-live { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 6px 11px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); }
-.admin-live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 0 var(--lime-glow); animation: ping 2.4s var(--ease-out) infinite; }
+/* "Updated HH:MM" freshness chip (replaced the decorative LIVE pill). Static
+   dot — the time is the signal, no need for a pulse. */
+.admin-updated { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 6px 11px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.admin-updated-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 8px var(--lime-glow-soft); flex-shrink: 0; }
 .admin-topbar-refresh { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-2); font-family: var(--font-display); font-weight: 500; font-size: 13px; cursor: pointer; transition: background .18s, border-color .18s, color .18s; }
 .admin-topbar-refresh:hover { background: var(--surface-2); color: var(--text); border-color: rgba(255, 255, 255, 0.3); }
 .admin-topbar-refresh svg { transition: transform .5s var(--ease-out); }
@@ -805,14 +820,14 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-content { flex: 1; padding: 28px 30px 72px; max-width: 1480px; width: 100%; animation: admin-fade .32s var(--ease-out); }
 
 /* Mobile drawer backdrop */
-.admin-backdrop { display: none; position: fixed; inset: 0; z-index: 40; border: 0; background: rgba(6, 8, 12, 0.62); backdrop-filter: blur(2px); cursor: pointer; }
+.admin-backdrop { display: none; position: fixed; inset: 0; z-index: var(--z-backdrop); border: 0; background: rgba(6, 8, 12, 0.62); backdrop-filter: blur(2px); cursor: pointer; }
 
 @keyframes admin-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Responsive: collapse the sidebar into an off-canvas drawer ── */
 @media (max-width: 860px) {
   .admin-app { min-height: auto; }
-  .admin-sidebar { position: fixed; top: 0; left: 0; z-index: 60; width: 264px; height: 100vh; transform: translateX(-104%); transition: transform .26s var(--ease-out); background: #0c0e14; box-shadow: 0 0 60px rgba(0, 0, 0, 0.5); }
+  .admin-sidebar { position: fixed; top: 0; left: 0; z-index: var(--z-sidebar-mobile); width: 264px; height: 100vh; transform: translateX(-104%); transition: transform .26s var(--ease-out); background: #0c0e14; box-shadow: 0 0 60px rgba(0, 0, 0, 0.5); }
   .admin-sidebar.is-open { transform: translateX(0); }
   .admin-topbar-menu { display: inline-flex; }
   .admin-backdrop { display: block; }
@@ -837,7 +852,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-set-card-body.pad { padding: 20px; }
 .admin-set-field-help { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.01em; color: var(--text-dim); margin: 6px 0 0; line-height: 1.5; }
 /* Sticky save bar so the operator always sees the state of their changes. */
-.admin-set-savebar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; padding: 14px 0 4px; background: linear-gradient(180deg, rgba(10,12,17,0), var(--bg) 40%); }
+.admin-set-savebar { position: sticky; bottom: 0; z-index: var(--z-savebar); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; padding: 14px 0 4px; background: linear-gradient(180deg, rgba(10,12,17,0), var(--bg) 40%); }
 .admin-set-dirty { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; color: var(--warn); padding: 6px 12px; border-radius: var(--r-full); background: rgba(255, 198, 90, 0.08); border: 1px solid rgba(255, 198, 90, 0.3); }
 .admin-set-dirty-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); flex-shrink: 0; }
 .admin-set-saved { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 12px; color: var(--lime); }
@@ -891,7 +906,9 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 .admin-empty { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--text-dim); padding: 20px 2px; }
 
 /* ── Command palette (⌘K) ────────────────────────────────── */
-.cmdk-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 14vh 20px 20px; background: rgba(6, 8, 12, 0.66); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: admin-fade .14s var(--ease-out); }
+/* Palette sits ABOVE the drawer overlay: ⌘K opened over an edit drawer must
+   render (and click) on top of it, not underneath at the same z. */
+.cmdk-overlay { position: fixed; inset: 0; z-index: var(--z-palette); display: flex; align-items: flex-start; justify-content: center; padding: 14vh 20px 20px; background: rgba(6, 8, 12, 0.66); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: admin-fade .14s var(--ease-out); }
 .cmdk { width: 100%; max-width: 560px; display: flex; flex-direction: column; max-height: 64vh; border-color: var(--border-strong); background: linear-gradient(180deg, rgba(20, 24, 33, 0.98), rgba(14, 17, 24, 0.98)); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03); animation: cmdk-pop .16s var(--ease-spring); }
 @keyframes cmdk-pop { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .cmdk-input-row { display: flex; align-items: center; gap: 11px; padding: 15px 16px; border-bottom: 1px solid var(--border); }
@@ -913,7 +930,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 @media (max-width: 600px) { .cmdk-overlay { padding: 9vh 14px 14px; } .cmdk { max-height: 72vh; } .cmdk-foot { display: none; } }
 
 /* Edit drawer — right-side slide-in panel for admin create/edit forms */
-.drawer-overlay { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: flex-end; background: rgba(6, 8, 12, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: admin-fade .14s var(--ease-out); }
+.drawer-overlay { position: fixed; inset: 0; z-index: var(--z-overlay); display: flex; justify-content: flex-end; background: rgba(6, 8, 12, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: admin-fade .14s var(--ease-out); }
 .drawer { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(20, 24, 33, 0.99), rgba(13, 16, 23, 0.99)); border-left: 1px solid var(--border-strong); box-shadow: -30px 0 80px -20px rgba(0, 0, 0, 0.7); animation: drawer-slide .22s var(--ease-spring); }
 @keyframes drawer-slide { from { transform: translateX(26px); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
 .drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid var(--border); }
@@ -934,7 +951,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
   /* Drop the resting transforms so nothing is frozen mid-drift/float. */
   .hero-bike, .bike-shadow, .spec-chip, .stage-ring, .stage-arc, .streak { transform: none !important; }
   .bg-scan, .streak { display: none; }
-  .admin-boot-dot, .admin-live-dot { animation: none !important; }
+  .admin-boot-dot { animation: none !important; }
   .admin-signin-card, .admin-content, .admin-nav-indicator, .admin-sidebar, .admin-topbar-refresh svg { animation: none !important; transition: none !important; }
   /* No press-scale / transitions on the booking option + segment controls. */
   .opt, .seg-btn { transition: none !important; }
@@ -949,7 +966,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
 
 /* Sticky chip row of same-page anchor links; sits just below the sticky
    60px admin topbar so it stays reachable while scrolling a long page. */
-.admin-quicknav { position: sticky; top: 60px; z-index: 20; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -8px 0 24px; padding: 10px 0 12px; background: linear-gradient(180deg, var(--bg) 72%, rgba(10, 12, 17, 0)); }
+.admin-quicknav { position: sticky; top: 60px; z-index: var(--z-quicknav); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -8px 0 24px; padding: 10px 0 12px; background: linear-gradient(180deg, var(--bg) 72%, rgba(10, 12, 17, 0)); }
 .admin-quicknav a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 6px 13px; border-radius: var(--r-full); border: 1px solid var(--border-strong); background: var(--surface); white-space: nowrap; transition: color .18s, background .18s, border-color .18s; }
 .admin-quicknav a:hover { color: var(--lime); background: var(--surface-2); }
 .admin-quicknav a:active { transform: scale(0.97); }
@@ -2014,3 +2031,63 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; letter-spac
   }
 }
       
+
+/* ============================================================
+   APPENDED: admin UX wave — shared controls + table behaviours
+   (lane S). Admin-only additions; the public-site rules above
+   are untouched (`.btn:disabled` is the one shared-button gap
+   fix — disabled buttons previously looked fully clickable).
+   ============================================================ */
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* Topbar helpers: Ctrl K palette hint; Refresh keeps its icon but drops the
+   text label on narrow screens (both defined HERE — the label class used to
+   exist only in the JSX). */
+.admin-topbar-kbd { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); padding: 6px 9px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; white-space: nowrap; transition: color .18s, border-color .18s; }
+.admin-topbar-kbd:hover { color: var(--text-muted); border-color: var(--border-strong); }
+@media (max-width: 560px) {
+  .admin-topbar-refresh-label { display: none; }
+  .admin-topbar-kbd { display: none; }
+}
+
+/* Inline error paragraph (e.g. /admin/feedback load-more failure). */
+.admin-error { font-family: var(--font-mono); color: var(--danger); font-size: 12.5px; line-height: 1.5; margin: 14px 0 0; padding: 11px 15px; border-radius: var(--r-sm); border: 1px solid rgba(255, 138, 120, 0.32); background: rgba(255, 138, 120, 0.06); }
+
+/* ── Shared small controls (promoted from per-page inline styles) ─────────
+   .admin-mini-btn   — drawer-footer / card actions (content page MiniButton)
+   .admin-row-action — compact table-row action chip (models page RowAction)
+   .admin-icon-btn   — 30px square icon action (models page IconButton)      */
+.admin-mini-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 13px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border-strong); color: var(--text-2); font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background .16s, border-color .16s, color .16s; }
+.admin-mini-btn:hover:not(:disabled):not(.primary):not(.danger) { background: var(--surface-2); border-color: rgba(255, 255, 255, 0.3); }
+.admin-mini-btn:active:not(:disabled) { transform: scale(0.97); }
+.admin-mini-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.admin-mini-btn.primary { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); font-weight: 600; }
+.admin-mini-btn.primary:hover:not(:disabled) { background: var(--lime-2); border-color: var(--lime-2); }
+.admin-mini-btn.danger { background: transparent; border-color: rgba(255, 138, 120, 0.32); color: var(--danger); }
+.admin-mini-btn.danger:hover:not(:disabled) { background: rgba(255, 138, 120, 0.08); }
+
+.admin-row-action { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); color: var(--text-2); font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.03em; cursor: pointer; white-space: nowrap; transition: background .16s, border-color .16s, color .16s; }
+.admin-row-action:hover:not(:disabled):not(.danger) { background: var(--surface); border-color: var(--border-strong); }
+.admin-row-action:disabled { opacity: 0.5; cursor: not-allowed; }
+.admin-row-action.danger { color: var(--danger); border-color: rgba(255, 138, 120, 0.32); }
+.admin-row-action.danger:hover:not(:disabled) { background: rgba(255, 138, 120, 0.07); }
+.admin-row-action.is-active { background: rgba(216, 255, 54, 0.1); border-color: rgba(216, 255, 54, 0.3); color: var(--lime); }
+
+.admin-icon-btn { width: 30px; height: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--r-sm); background: var(--bg-2); border: 1px solid var(--border); color: var(--text-2); font-family: var(--font-mono); font-size: 13px; cursor: pointer; transition: color .16s, border-color .16s; }
+.admin-icon-btn:hover:not(:disabled) { color: var(--text); border-color: var(--border-strong); }
+.admin-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Admin table scroll wrapper (components/admin/Table.tsx) ──────────────
+   The wrapper is the table's own scroll container: the height cap gives long
+   tables internal vertical scroll, which is what lets the header row's
+   `position: sticky; top: 0` (inline, in Th) actually engage — stickiness is
+   scoped to the wrapper, so no topbar offset is needed. Short tables are
+   unaffected (max-height only caps). */
+.admin-table-scroll { max-height: max(340px, calc(100dvh - 140px)); }
+.admin-table-scroll th, .admin-table-scroll td { font-variant-numeric: tabular-nums; }
+/* Row hover cue; :has() skips single-cell rows (empty states, detail rows). */
+.admin-table-scroll tbody tr:not(:has(> td[colspan])):hover { background: rgba(255, 255, 255, 0.03); }
+
+/* Stat numbers (dashboard alert counts) read best with tabular figures. */
+.admin-alert .n { font-variant-numeric: tabular-nums; }

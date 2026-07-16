@@ -36,6 +36,15 @@ export class FeedbackApiError extends Error {
   }
 }
 
+/** Thrown when NEXT_PUBLIC_API_BASE_URL is not configured (mirrors the other
+ *  admin service clients, so the page can show the "Not configured" panel). */
+export class FeedbackConfigError extends Error {
+  constructor() {
+    super("Set NEXT_PUBLIC_API_BASE_URL to use admin");
+    this.name = "FeedbackConfigError";
+  }
+}
+
 export async function listRentalFeedback(
   skip = 0,
   take = 100,
@@ -57,7 +66,22 @@ export async function listRentalFeedback(
     if (response.status === 401) {
       throw new FeedbackApiError("Your session has expired. Sign in again.", 401);
     }
-    throw new FeedbackApiError(`Could not load feedback (${response.status}).`, response.status);
+    // Show ONLY the server-supplied detail message when present; otherwise a
+    // friendly generic. The proxy flags an unconfigured backend with
+    // { notConfigured: true }.
+    let detail = "";
+    try {
+      const data = (await response.json()) as { error?: string; notConfigured?: boolean };
+      if (data?.notConfigured) throw new FeedbackConfigError();
+      if (data?.error) detail = data.error;
+    } catch (err) {
+      if (err instanceof FeedbackConfigError) throw err;
+      /* non-JSON body — ignore. */
+    }
+    throw new FeedbackApiError(
+      detail || `Something went wrong (${response.status}). Try again.`,
+      response.status,
+    );
   }
 
   return (await response.json()) as AdminRentalFeedbackPage;

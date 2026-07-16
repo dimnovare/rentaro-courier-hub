@@ -26,8 +26,9 @@ export interface AdminMetrics {
 
   /* ── Ops-dashboard superset (GET /api/admin/metrics, see CONTRACT.md) ─────
    * The backend returns a superset: the legacy fields above are kept for
-   * existing readers (MetricsCards), and these newer, action-oriented figures
-   * are added. Names here are authoritative per the shared contract. Some
+   * backward compatibility (older backends / readers), and these newer,
+   * action-oriented figures are added — the dashboard prefers these and falls
+   * back to the legacy names. Names here are authoritative per the shared contract. Some
    * duplicate a legacy field (e.g. availableBikes === bikesAvailable); the
    * dashboard prefers these names. Optional in the type so an older backend
    * that hasn't shipped them yet degrades gracefully rather than throwing.
@@ -98,14 +99,21 @@ export async function getMetrics(): Promise<AdminMetrics> {
     if (res.status === 401) {
       throw new AdminMetricsApiError("Your session has expired. Sign in again.", 401);
     }
+    // Show ONLY a server-supplied detail message when present; otherwise a
+    // friendly generic (never the bare "Request failed (nnn)" prefix).
+    let detail = "";
     try {
-      const data = (await res.json()) as { notConfigured?: boolean };
+      const data = (await res.json()) as { error?: string; notConfigured?: boolean };
       if (data?.notConfigured) throw new AdminConfigError();
+      if (data?.error) detail = data.error;
     } catch (err) {
       if (err instanceof AdminConfigError) throw err;
       /* non-JSON body — fall through */
     }
-    throw new AdminMetricsApiError(`Request failed (${res.status})`, res.status);
+    throw new AdminMetricsApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+    );
   }
 
   return (await res.json()) as AdminMetrics;

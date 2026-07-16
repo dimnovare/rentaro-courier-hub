@@ -2,13 +2,16 @@
 
 /**
  * Slim top bar for the admin console: a mobile menu toggle, the current section
- * title (derived from the route), a subtle "live" status chip, and a Refresh
- * affordance that reloads whichever section is mounted (via the refresh bus).
+ * title (derived from the route — a plain div; the page's PageHeader owns the
+ * h1), an "Updated HH:MM" freshness chip, a Ctrl K hint for the command
+ * palette, and a Refresh affordance that reloads whichever section is mounted
+ * (via the refresh bus). The Updated time is stamped on mount and on every
+ * refresh-bus event, so it tracks both the Refresh button and page reloads.
  */
 import { usePathname } from "@/i18n/navigation";
-import type { ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { titleForPath } from "./AdminSidebar";
-import { triggerAdminRefresh } from "./useAdminRefresh";
+import { triggerAdminRefresh, useAdminRefresh } from "./useAdminRefresh";
 
 function MenuIcon(): ReactElement {
   return (
@@ -26,9 +29,26 @@ function RefreshIcon(): ReactElement {
   );
 }
 
-export function AdminTopbar({ onToggleNav }: { onToggleNav: () => void }) {
+export function AdminTopbar({
+  onToggleNav,
+  onOpenPalette,
+}: {
+  onToggleNav: () => void;
+  /** Opens the ⌘K command palette (the Ctrl K chip is hidden when absent). */
+  onOpenPalette?: () => void;
+}) {
   const pathname = usePathname() ?? "/admin";
   const title = titleForPath(pathname);
+
+  // "Updated HH:MM" — when the mounted section's data was last (re)loaded.
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const stamp = useCallback(() => {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setUpdatedAt(`${pad(d.getHours())}:${pad(d.getMinutes())}`);
+  }, []);
+  useEffect(() => stamp(), [stamp]); // initial load
+  useAdminRefresh(stamp); // every refresh-bus event (incl. our own button)
 
   return (
     <header className="admin-topbar">
@@ -41,14 +61,25 @@ export function AdminTopbar({ onToggleNav }: { onToggleNav: () => void }) {
         >
           <MenuIcon />
         </button>
-        <h1 className="admin-topbar-title">{title}</h1>
+        <div className="admin-topbar-title">{title}</div>
       </div>
 
       <div className="admin-topbar-right">
-        <span className="admin-live mono" aria-label="Live data">
-          <span className="admin-live-dot" aria-hidden />
-          live
+        <span className="admin-updated mono" title="When this section's data was last loaded">
+          <span className="admin-updated-dot" aria-hidden />
+          Updated {updatedAt ?? "—"}
         </span>
+        {onOpenPalette && (
+          <button
+            type="button"
+            className="admin-topbar-kbd mono"
+            onClick={onOpenPalette}
+            aria-label="Open command palette"
+            title="Command palette (Ctrl K)"
+          >
+            Ctrl K
+          </button>
+        )}
         <button
           type="button"
           className="admin-topbar-refresh"

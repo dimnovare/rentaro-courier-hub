@@ -26,6 +26,7 @@ import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { fmtDate } from "@/components/admin/Table";
+import { formatEur } from "@/lib/money";
 import {
   getMetrics,
   AdminConfigError as MetricsConfigError,
@@ -53,9 +54,12 @@ export default function AdminDashboardPage() {
   const { authenticated, signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
     if (!authenticated) return;
-    setState({ phase: "loading" });
+    // Silent reloads (topbar Refresh / post-mutation) keep the current data on
+    // screen instead of blanking the page back to the loading notice.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     try {
       // Metrics and bookings are independent; a failure in metrics shouldn't
       // hide the recent-bookings list and vice versa.
@@ -99,6 +103,9 @@ export default function AdminDashboardPage() {
         },
       });
     } catch (err) {
+      // A failed SILENT refresh keeps the (still-valid) data on screen instead
+      // of replacing the whole dashboard with an error card.
+      if (silent) return;
       setState({
         phase: "error",
         message: err instanceof Error ? err.message : "Could not load the dashboard.",
@@ -111,7 +118,8 @@ export default function AdminDashboardPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   const metrics = state.phase === "ready" ? state.data.metrics : null;
   const recent = state.phase === "ready" ? recentBookings(state.data.bookings) : [];
@@ -182,7 +190,14 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="admin-recent">
                   {recent.map((b) => (
-                    <div className="admin-recent-row" key={b.id}>
+                    // Each row deep-links to its Manage panel on the bookings
+                    // page (?id= is read there per the shared URL contract).
+                    <Link
+                      className="admin-recent-row"
+                      key={b.id}
+                      href={`/admin/bookings?id=${encodeURIComponent(b.id)}`}
+                      style={{ textDecoration: "none" }}
+                    >
                       <div className="who">
                         <span className="nm">
                           {b.customerFirstName} {b.customerLastName}
@@ -193,7 +208,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <StatusPill value={b.status} />
                       <span className="when">{fmtDate(b.createdAt)}</span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -259,9 +274,10 @@ function OpsMetrics({ metrics, pending }: { metrics: AdminMetrics; pending: numb
               lineHeight: 1,
               letterSpacing: "-0.03em",
               color: "var(--lime)",
+              fontVariantNumeric: "tabular-nums",
             }}
           >
-            {euro(m.estMonthlyRevenueEur)}
+            {formatEur(m.estMonthlyRevenueEur, { cents: false })}
           </div>
         </div>
         <div className="mono" style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.6 }}>
@@ -278,14 +294,14 @@ function OpsMetrics({ metrics, pending }: { metrics: AdminMetrics; pending: numb
         <StatCard
           label="Incoming"
           value={m.incomingBikes}
-          href="/admin/fleet"
+          href="/admin/fleet#incoming"
           hint="on order"
           tone={m.incomingBikes > 0 ? "info" : "default"}
         />
         <StatCard
           label="Maintenance"
           value={m.maintenanceOpen}
-          href="/admin/maintenance"
+          href="/admin/maintenance?filter=open"
           tone={m.maintenanceOpen > 0 ? "danger" : "default"}
         />
       </MetricGroup>
@@ -314,14 +330,14 @@ function OpsMetrics({ metrics, pending }: { metrics: AdminMetrics; pending: numb
         <StatCard
           label="Pending bookings"
           value={m.pendingBookings}
-          href="/admin/bookings"
+          href="/admin/bookings?filter=needs-action"
           hint="to review"
           tone={m.pendingBookings > 0 ? "warn" : "default"}
         />
         <StatCard
           label="Awaiting bike"
           value={m.awaitingBike}
-          href="/admin/bookings"
+          href="/admin/bookings?filter=awaiting-stock"
           hint="approved, no unit"
           tone={m.awaitingBike > 0 ? "warn" : "default"}
         />
@@ -414,6 +430,7 @@ function StatCard({
           lineHeight: 1.05,
           letterSpacing: "-0.03em",
           color: numberColor,
+          fontVariantNumeric: "tabular-nums",
         }}
       >
         {value.toLocaleString("en-US")}
@@ -474,16 +491,16 @@ function Alerts({ metrics, pending }: { metrics: AdminMetrics | null; pending: n
     if (m.overdue > 0)
       rows.push({ tone: "bad", n: m.overdue, title: "Overdue rentals", sub: "past planned end — chase return", href: "/admin/rentals" });
     if (m.maintenanceOpen > 0)
-      rows.push({ tone: "bad", n: m.maintenanceOpen, title: "Open maintenance", sub: "tickets needing action", href: "/admin/maintenance" });
+      rows.push({ tone: "bad", n: m.maintenanceOpen, title: "Open maintenance", sub: "tickets needing action", href: "/admin/maintenance?filter=open" });
     if (m.awaitingBike > 0)
-      rows.push({ tone: "warn", n: m.awaitingBike, title: "Awaiting bike", sub: "approved bookings, no unit assigned", href: "/admin/bookings" });
+      rows.push({ tone: "warn", n: m.awaitingBike, title: "Awaiting bike", sub: "approved bookings, no unit assigned", href: "/admin/bookings?filter=awaiting-stock" });
     if (m.pendingBookings > 0)
-      rows.push({ tone: "warn", n: m.pendingBookings, title: "Bookings to review", sub: "awaiting approval / assignment", href: "/admin/bookings" });
+      rows.push({ tone: "warn", n: m.pendingBookings, title: "Bookings to review", sub: "awaiting approval / assignment", href: "/admin/bookings?filter=needs-action" });
     if (m.endingSoon > 0)
       rows.push({ tone: "warn", n: m.endingSoon, title: "Rentals ending soon", sub: "within 7 days — plan the return", href: "/admin/rentals" });
   } else if (pending > 0) {
     // Metrics unavailable — still surface the pending count we derived locally.
-    rows.push({ tone: "warn", n: pending, title: "Bookings to review", sub: "awaiting approval / assignment", href: "/admin/bookings" });
+    rows.push({ tone: "warn", n: pending, title: "Bookings to review", sub: "awaiting approval / assignment", href: "/admin/bookings?filter=needs-action" });
   }
 
   if (rows.length === 0) {
@@ -584,11 +601,6 @@ function readMetrics(m: AdminMetrics, pending: number) {
     maintenanceOpen: n(m.maintenanceOpen ?? m.openMaintenance),
     pendingBookings: pending || n(m.pendingBookings),
   };
-}
-
-/** Format a number as a euro amount with no decimals (e.g. €1,234). */
-function euro(n: number): string {
-  return `€${Math.round(n).toLocaleString("en-US")}`;
 }
 
 /** Bookings still awaiting an operator decision. */

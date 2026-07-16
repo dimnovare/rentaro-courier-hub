@@ -145,16 +145,21 @@ async function fail(res: Response): Promise<never> {
   if (res.status === 401) {
     throw new ModelApiError("Your session has expired. Sign in again.", 401);
   }
+  // Show ONLY the server-supplied detail message when present; otherwise a
+  // friendly generic — never the raw "Request failed" prefix.
   let detail = "";
   try {
     const data = (await res.json()) as { error?: string; notConfigured?: boolean };
     if (data?.notConfigured) throw new ModelConfigError();
-    if (data?.error) detail = `: ${data.error}`;
+    if (data?.error) detail = data.error;
   } catch (err) {
     if (err instanceof ModelConfigError) throw err;
     /* non-JSON body — ignore. */
   }
-  throw new ModelApiError(`Request failed (${res.status})${detail}`, res.status);
+  throw new ModelApiError(
+    detail || `Something went wrong (${res.status}). Try again.`,
+    res.status,
+  );
 }
 
 /**

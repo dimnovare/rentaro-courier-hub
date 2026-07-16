@@ -172,8 +172,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     if (res.status === 401) {
       throw new CatalogApiError("Your session has expired. Sign in again.", 401);
     }
-    // Surface a server-supplied error message when present (e.g. 400/404/409 { error });
-    // the proxy flags an unconfigured backend with { notConfigured: true }.
+    // Show ONLY the server-supplied error message when present (e.g. 400/404/409
+    // { error }), otherwise a friendly generic — never the raw "Request failed"
+    // prefix. The proxy flags an unconfigured backend with { notConfigured }.
     let detail = "";
     let notConfigured = false;
     try {
@@ -185,12 +186,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       };
       if (data?.notConfigured) notConfigured = true;
       const msg = data?.error ?? data?.message ?? data?.title;
-      if (msg) detail = `: ${msg}`;
+      if (msg) detail = msg;
     } catch {
       /* non-JSON body — ignore. */
     }
     if (notConfigured) throw new CatalogConfigError();
-    throw new CatalogApiError(`Request failed (${res.status})${detail}`, res.status);
+    throw new CatalogApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+    );
   }
 
   // Some writes (e.g. DELETE) reply 204 with no body.

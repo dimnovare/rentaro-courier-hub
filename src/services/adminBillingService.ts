@@ -199,19 +199,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     if (res.status === 401) throw new BillingApiError("Your session has expired. Sign in again.", 401);
-    // Surface a server-supplied error message when present (e.g. 400/404 bodies);
-    // the proxy flags an unconfigured backend with { notConfigured: true }.
+    // Show ONLY the server-supplied error message when present (e.g. 400/404
+    // bodies), otherwise a friendly generic — never the raw "Request failed"
+    // prefix. The proxy flags an unconfigured backend with { notConfigured }.
     let detail = "";
     let notConfigured = false;
     try {
       const data = (await res.json()) as { error?: string; notConfigured?: boolean };
       if (data?.notConfigured) notConfigured = true;
-      if (data?.error) detail = `: ${data.error}`;
+      if (data?.error) detail = data.error;
     } catch {
       /* non-JSON body — ignore. */
     }
     if (notConfigured) throw new BillingConfigError();
-    throw new BillingApiError(`Request failed (${res.status})${detail}`, res.status);
+    throw new BillingApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+    );
   }
 
   // 204 / empty body tolerance.

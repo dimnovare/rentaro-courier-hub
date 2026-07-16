@@ -20,12 +20,19 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { confirmAction } from "@/lib/confirm";
 
 interface DrawerProps {
   /** When true the drawer is mounted and shown. */
   open: boolean;
   /** Close request (Esc, backdrop click, or the × button). */
   onClose: () => void;
+  /**
+   * The form inside has unsaved edits. While true, Esc / backdrop / × first ask
+   * "Discard unsaved changes?" and only close on OK. Buttons the PAGE renders
+   * (e.g. a footer Cancel) call onClose directly and are the page's concern.
+   */
+  dirty?: boolean;
   /** Heading shown top-left. */
   title: string;
   /** Optional muted line under the title (e.g. the record's id). */
@@ -49,6 +56,7 @@ export function Drawer({
   footer,
   children,
   width = 540,
+  dirty = false,
 }: DrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
@@ -56,10 +64,19 @@ export function Drawer({
   // Parents typically pass a fresh onClose each render; if it were an effect dep,
   // every keystroke (parent re-render) would re-run the trap and yank focus back
   // to the first focusable (the × button), making inputs impossible to type into.
+  // `dirty` rides along in a ref for the same reason (it changes per keystroke).
   const onCloseRef = useRef(onClose);
+  const dirtyRef = useRef(dirty);
   useEffect(() => {
     onCloseRef.current = onClose;
+    dirtyRef.current = dirty;
   });
+
+  /** Drawer-owned close paths (Esc / backdrop / ×): confirm first when dirty. */
+  const requestClose = () => {
+    if (dirtyRef.current && !confirmAction("Discard unsaved changes?")) return;
+    onCloseRef.current();
+  };
   // Portals need document.body — only render after mount to avoid any SSR /
   // hydration mismatch on the client-rendered admin pages.
   const [mounted, setMounted] = useState(false);
@@ -85,6 +102,7 @@ export function Drawer({
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.preventDefault();
+        if (dirtyRef.current && !confirmAction("Discard unsaved changes?")) return;
         onCloseRef.current();
         return;
       }
@@ -122,7 +140,7 @@ export function Drawer({
     <div
       className="drawer-overlay"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) requestClose();
       }}
     >
       <div
@@ -142,7 +160,7 @@ export function Drawer({
           <button
             type="button"
             className="drawer-close"
-            onClick={onClose}
+            onClick={requestClose}
             aria-label="Close"
           >
             <svg

@@ -103,10 +103,12 @@ test.describe("admin console", () => {
     // dashboard content: greeting, the metric cards, and the sidebar nav.
     await expect(page.getByRole("heading", { name: /, operator/i })).toBeVisible();
 
-    // Metric cards (MetricsCards) — labels are stable.
-    await expect(page.getByText("MRR estimate")).toBeVisible();
-    await expect(page.getByText("Active rentals")).toBeVisible();
-    await expect(page.getByText("Bikes available")).toBeVisible();
+    // Ops-metric cards (dashboard OpsMetrics) — labels are stable. Several
+    // labels also appear inside the "Needs attention" triage list, so match
+    // the first occurrence.
+    await expect(page.getByText("Est. monthly revenue")).toBeVisible();
+    await expect(page.getByText("Pending bookings").first()).toBeVisible();
+    await expect(page.getByText("Awaiting bike").first()).toBeVisible();
 
     // Sidebar navigation links exist. ("Fleet" also appears as a dashboard
     // quick-action link, so allow more than one match and assert the first.)

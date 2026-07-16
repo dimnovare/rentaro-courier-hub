@@ -14,8 +14,10 @@ import {
 import { AdminTable, Th, Td, EmptyRow, AdminSection, fmtDate } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Banner, Notice, ErrorPanel } from "@/components/admin/Feedback";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { confirmAction } from "@/lib/confirm";
 
 type LoadState =
   | { phase: "loading" }
@@ -29,15 +31,19 @@ export default function AdminContractsPage() {
   // Tracks which template ids currently have an in-flight activate call.
   const [pending, setPending] = useState<Record<string, boolean>>({});
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh / after a mutation) keep the current list
+    // on screen instead of blanking the page back to the loading notice.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     try {
       const templates = await listTemplates();
       setState({ phase: "ready", templates });
     } catch (err) {
       if (err instanceof ContractAuthError || (err instanceof ContractApiError && err.unauthorized)) {
         signOut();
-      } else {
+      } else if (!silent) {
+        // A failed SILENT refresh keeps the (still-valid) data on screen.
         setState(toErrorState(err));
       }
     }
@@ -47,12 +53,13 @@ export default function AdminContractsPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   const onUploaded = useCallback((created: ContractTemplate) => {
     setBanner({ tone: "ok", text: `Uploaded "${created.name}".` });
     // Refresh the list so versions / active flags reflect the server.
-    void load();
+    void load({ silent: true });
   }, [load]);
 
   async function activate(id: string) {
@@ -62,7 +69,7 @@ export default function AdminContractsPage() {
     try {
       await activateTemplate(id);
       setBanner({ tone: "ok", text: "Template activated." });
-      await load();
+      await load({ silent: true });
     } catch (err) {
       if (err instanceof ContractApiError && err.unauthorized) {
         signOut();
@@ -85,10 +92,10 @@ export default function AdminContractsPage() {
   async function remove(t: ContractTemplate) {
     if (state.phase !== "ready") return;
     if (
-      typeof window !== "undefined" &&
-      !window.confirm(
+      !confirmAction(
         `Delete template "${t.name}" (v${t.version})? Contracts already generated from it keep ` +
-          `their PDFs, but the template file is removed permanently. This cannot be undone.`,
+          `their PDFs, but the template file is removed permanently.`,
+        { finality: "irreversible" },
       )
     ) {
       return;
@@ -98,7 +105,7 @@ export default function AdminContractsPage() {
     try {
       await deleteTemplate(t.id);
       setBanner({ tone: "ok", text: `Deleted "${t.name}".` });
-      await load();
+      await load({ silent: true });
     } catch (err) {
       if (err instanceof ContractApiError && err.unauthorized) {
         signOut();
@@ -141,7 +148,7 @@ export default function AdminContractsPage() {
 
           <PlaceholderReference />
 
-          <AdminSection title="Templates" count={state.templates.length}>
+          <AdminSection title="Templates" count={state.templates.length} noun="template">
             <TemplatesTable
               templates={state.templates}
               pending={pending}
@@ -217,9 +224,12 @@ function UploadCard({
       <article className="card" style={{ maxWidth: 560 }}>
         <form onSubmit={onSubmit} style={{ padding: "24px 22px 22px" }}>
           <p style={{ color: "var(--text-muted)", fontSize: 13.5, marginBottom: 20, lineHeight: 1.6 }}>
-            Upload a <span className="mono">.docx</span> or <span className="mono">.pdf</span> rental
-            agreement. Detected placeholders are listed once it&apos;s parsed. The newest upload of a
-            template becomes a new version; activate the one you want used for new contracts.
+            {/* Explicit {" "} after the .pdf chip: JSX drops tag-adjacent
+                whitespace across line breaks, which once rendered ".pdfrental". */}
+            Upload a <span className="mono">.docx</span> or <span className="mono">.pdf</span>{" "}
+            rental agreement. Detected placeholders are listed once it&apos;s parsed. The newest
+            upload of a template becomes a new version; activate the one you want used for new
+            contracts.
           </p>
 
           <div className="field">
@@ -440,7 +450,7 @@ function TemplatesTable({
                 )}
               </Td>
               <Td dim>
-                <Placeholders values={t.placeholders} />
+                <Placeholders values={t.placeholders} isActive={t.isActive} />
               </Td>
               <Td mono nowrap>
                 {fmtDate(t.createdAt)}
@@ -486,9 +496,23 @@ function TemplatesTable({
   );
 }
 
-/** Render placeholder tokens as small mono chips, or an em-dash when none. */
-function Placeholders({ values }: { values: string[] }) {
+/** Render placeholder tokens as small mono chips, or an em-dash when none. For
+ *  the ACTIVE template, zero detected placeholders is almost certainly a
+ *  mistake (contracts would generate unfilled), so warn inline. */
+function Placeholders({ values, isActive = false }: { values: string[]; isActive?: boolean }) {
   if (!values || values.length === 0) {
+    if (isActive) {
+      return (
+        <span
+          className="mono"
+          role="alert"
+          style={{ fontSize: 11, color: "var(--warn)", lineHeight: 1.5, display: "inline-block", maxWidth: 360 }}
+        >
+          This template has no {"{{placeholders}}"} — generated contracts will be unfilled. Upload
+          a .docx with tokens to auto-fill.
+        </span>
+      );
+    }
     return <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>—</span>;
   }
   return (
@@ -511,68 +535,6 @@ function Placeholders({ values }: { values: string[] }) {
           {p}
         </span>
       ))}
-    </div>
-  );
-}
-
-/* ── Shared pieces (match the other admin pages) ───────────────────────── */
-
-function Banner({ tone, text }: { tone: "ok" | "bad"; text: string }) {
-  return (
-    <div
-      className="mono"
-      role="status"
-      style={{
-        marginBottom: 18,
-        padding: "11px 15px",
-        borderRadius: "var(--r-sm)",
-        fontSize: 12.5,
-        color: tone === "ok" ? "var(--lime)" : "var(--danger)",
-        background: tone === "ok" ? "rgba(216,255,54,0.08)" : "rgba(255,138,120,0.08)",
-        border: `1px solid ${tone === "ok" ? "rgba(216,255,54,0.3)" : "rgba(255,138,120,0.32)"}`,
-      }}
-    >
-      {text}
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div className="mono" style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--danger)", marginBottom: 10 }}>
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>{message}</p>
-      {!config && (
-        <button type="button" className="btn btn-primary" onClick={onRetry} style={{ padding: "12px 22px", fontSize: 14 }}>
-          Try again
-        </button>
-      )}
     </div>
   );
 }

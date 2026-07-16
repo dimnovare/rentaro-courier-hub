@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import {
   listSupportTickets,
   resolveSupportTicket,
@@ -9,12 +10,14 @@ import {
   SupportAuthError,
   type SupportTicket,
 } from "@/services/adminSupportService";
-import { AdminTable, Th, Td, EmptyRow, fmtDate } from "@/components/admin/Table";
+import { AdminTable, AdminSection, Th, Td, EmptyRow, fmtDate } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
+import { Notice, InlineError, ErrorPanel } from "@/components/admin/Feedback";
 import { Drawer } from "@/components/admin/Drawer";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
+import { confirmAction } from "@/lib/confirm";
 
 /* ── Load-state machine (mirrors the maintenance page) ─────────────────── */
 
@@ -32,31 +35,45 @@ export default function AdminSupportPage() {
   const { signOut } = useAdminAuth();
   const [state, setState] = useState<LoadState>({ phase: "loading" });
   // Tracks which ticket ids currently have an in-flight resolve.
-  const [pending, setPending] = useState<Record<number, boolean>>({});
+  const [pending, setPending] = useState<Record<string, boolean>>({});
   const [actionError, setActionError] = useState<string | null>(null);
   // The ticket whose full message is open in the drawer (null when closed).
   const [viewing, setViewing] = useState<SupportTicket | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
-    setActionError(null);
-    try {
-      const tickets = await listSupportTickets();
-      setState({ phase: "ready", tickets });
-    } catch (err) {
-      if (err instanceof SupportAuthError || (err instanceof SupportApiError && err.unauthorized)) {
-        signOut();
-      } else {
-        setState(toErrorState(err, "Something went wrong loading support tickets."));
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      const silent = opts?.silent === true;
+      if (!silent) {
+        setState({ phase: "loading" });
+        setActionError(null);
       }
-    }
-  }, [signOut]);
+      try {
+        const tickets = await listSupportTickets();
+        setState({ phase: "ready", tickets });
+      } catch (err) {
+        if (err instanceof SupportAuthError || (err instanceof SupportApiError && err.unauthorized)) {
+          signOut();
+        } else if (silent) {
+          // Keep the current inbox (and any open drawer) on screen; surface inline.
+          setActionError(
+            err instanceof SupportApiError || err instanceof SupportConfigError
+              ? err.message
+              : "Something went wrong refreshing support tickets.",
+          );
+        } else {
+          setState(toErrorState(err, "Something went wrong loading support tickets."));
+        }
+      }
+    },
+    [signOut],
+  );
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  // The topbar Refresh reloads in place, so an open message drawer survives it.
+  useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
 
   /** Drops to the shell sign-in on 401, otherwise shows an inline action error. */
   const handleActionError = useCallback(
@@ -70,11 +87,8 @@ export default function AdminSupportPage() {
     [signOut],
   );
 
-  async function resolve(id: number) {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Mark support ticket #${id} as resolved? It moves out of the open queue.`)
-    ) {
+  async function resolve(id: string) {
+    if (!confirmAction("Mark this support ticket as resolved? It moves out of the open queue.")) {
       return;
     }
     setActionError(null);
@@ -141,13 +155,12 @@ function TicketsTable({
   onView,
 }: {
   tickets: SupportTicket[];
-  pending: Record<number, boolean>;
-  onResolve: (id: number) => void;
+  pending: Record<string, boolean>;
+  onResolve: (id: string) => void;
   onView: (ticket: SupportTicket) => void;
 }) {
   return (
-    <section style={{ marginBottom: 24 }}>
-      <SectionHead title="Support inbox" count={tickets.length} />
+    <AdminSection title="Support inbox" count={tickets.length} noun="ticket">
       <AdminTable>
         <thead>
           <tr>
@@ -163,7 +176,10 @@ function TicketsTable({
         </thead>
         <tbody>
           {tickets.length === 0 ? (
-            <EmptyRow colSpan={8} label="No support tickets." />
+            <EmptyRow
+              colSpan={8}
+              label="No support tickets. Messages couriers send from the site will appear here."
+            />
           ) : (
             tickets.map((t) => {
               const resolved = isResolved(t);
@@ -177,7 +193,7 @@ function TicketsTable({
                   </Td>
                   <Td nowrap>{t.source ? t.source.replace(/_/g, " ") : "—"}</Td>
                   <Td mono nowrap>
-                    {t.bookingId != null ? `#${t.bookingId}` : "—"}
+                    <BookingRef bookingId={t.bookingId} />
                   </Td>
                   <Td>
                     <button
@@ -208,7 +224,9 @@ function TicketsTable({
                     </button>
                   </Td>
                   <Td nowrap>
-                    <StatusPill value={resolved ? "resolved" : "open"} tone={resolved ? "good" : "neutral"} />
+                    {/* No forced tone: toneFor gives open the standard warn
+                        treatment (matches the maintenance queue). */}
+                    <StatusPill value={resolved ? "resolved" : "open"} />
                   </Td>
                   <Td mono nowrap>
                     {t.resolvedAt ? fmtDate(t.resolvedAt) : "—"}
@@ -226,7 +244,7 @@ function TicketsTable({
           )}
         </tbody>
       </AdminTable>
-    </section>
+    </AdminSection>
   );
 }
 
@@ -281,7 +299,7 @@ function TicketDrawer({
   ticket: SupportTicket | null;
   busy: boolean;
   onClose: () => void;
-  onResolve: (id: number) => void;
+  onResolve: (id: string) => void;
 }) {
   const resolved = ticket ? isResolved(ticket) : false;
 
@@ -324,15 +342,16 @@ function TicketDrawer({
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <MetaRow label="Customer" value={ticket.customerEmail || "—"} mono />
           <MetaRow label="Source" value={ticket.source ? ticket.source.replace(/_/g, " ") : "—"} />
-          <MetaRow
-            label="Booking"
-            value={ticket.bookingId != null ? `#${ticket.bookingId}` : "—"}
-            mono
-          />
+          <div>
+            <FieldLabel>Booking</FieldLabel>
+            <span className="mono" style={{ fontSize: 13.5 }}>
+              <BookingRef bookingId={ticket.bookingId} />
+            </span>
+          </div>
           <MetaRow label="Received" value={fmtDate(ticket.createdAt)} mono />
           <div>
             <FieldLabel>Status</FieldLabel>
-            <StatusPill value={resolved ? "resolved" : "open"} tone={resolved ? "good" : "neutral"} />
+            <StatusPill value={resolved ? "resolved" : "open"} />
             {ticket.resolvedAt && (
               <span className="mono" style={{ marginLeft: 10, fontSize: 11.5, color: "var(--text-dim)" }}>
                 {fmtDate(ticket.resolvedAt)}
@@ -357,6 +376,31 @@ function TicketDrawer({
         </div>
       )}
     </Drawer>
+  );
+}
+
+/**
+ * Booking reference: a deep link into /admin/bookings (which auto-opens the
+ * Manage panel for ?id=). Styled like the page's other inline admin links
+ * (the message preview): quiet underline that reads as clickable.
+ */
+function BookingRef({ bookingId }: { bookingId: string | null }) {
+  if (!bookingId) {
+    return <span style={{ color: "var(--text-dim)" }}>—</span>;
+  }
+  return (
+    <Link
+      href={`/admin/bookings?id=${encodeURIComponent(bookingId)}`}
+      title="Open this booking in Bookings"
+      style={{
+        color: "var(--text-2)",
+        textDecoration: "underline",
+        textDecorationColor: "var(--border-strong)",
+        textUnderlineOffset: 3,
+      }}
+    >
+      #{bookingId}
+    </Link>
   );
 }
 
@@ -389,96 +433,6 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
     >
       {children}
     </p>
-  );
-}
-
-/* ── Shared scaffold (mirrors the maintenance page) ────────────────────── */
-
-function SectionHead({ title, count }: { title: string; count?: number }) {
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-      <h2 style={{ fontSize: 22, letterSpacing: "-0.02em" }}>{title}</h2>
-      {typeof count === "number" && (
-        <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
-          {count} {count === 1 ? "ticket" : "tickets"}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function InlineError({ message }: { message: string }) {
-  return (
-    <div
-      className="mono"
-      style={{
-        color: "var(--danger)",
-        fontSize: 12.5,
-        marginBottom: 20,
-        padding: "12px 16px",
-        borderRadius: "var(--r-md)",
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "rgba(255, 138, 120, 0.06)",
-      }}
-    >
-      {message}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
-        {message}
-      </p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
-    </div>
   );
 }
 

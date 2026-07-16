@@ -43,7 +43,11 @@ import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
 import { DateField } from "@/components/admin/DateField";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Notice, InlineError, ErrorPanel } from "@/components/admin/Feedback";
+import { StatusPill, type PillTone } from "@/components/admin/StatusPill";
 import { formatEur } from "@/lib/money";
+import { todayIso } from "@/lib/dates";
+import { confirmAction } from "@/lib/confirm";
 import { isLocale, locales, localeNames, type Locale } from "@/i18n/config";
 
 /** Common expense categories for bookkeeping. Backend still stores free-text. */
@@ -63,12 +67,8 @@ const CATEGORIES = [
   { value: "Other", label: "Other" },
 ] as const;
 
-/** Today as YYYY-MM-DD (local), used to seed the date input. */
-function todayISO(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
+/** Client-side page size for the invoices table — they grow monthly forever. */
+const INVOICE_PAGE_SIZE = 50;
 
 type LoadState =
   | { phase: "loading" }
@@ -84,8 +84,11 @@ export default function AdminBillingPage() {
   const [invoiceDrawerOpen, setInvoiceDrawerOpen] = useState(false);
   const [transferInvoice, setTransferInvoice] = useState<Invoice | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh / after a mutation) keep the current data
+    // on screen — no full-page blank, and open drawers stay mounted.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     setActionError(null);
     try {
       const [expenses, invoices, summary] = await Promise.all([
@@ -97,7 +100,8 @@ export default function AdminBillingPage() {
     } catch (err) {
       if (err instanceof BillingAuthError || (err instanceof BillingApiError && err.unauthorized)) {
         signOut();
-      } else {
+      } else if (!silent) {
+        // A failed SILENT refresh keeps the (still-valid) data on screen.
         setState(toErrorState(err, "Something went wrong loading billing."));
       }
     }
@@ -107,11 +111,12 @@ export default function AdminBillingPage() {
     void load();
   }, [load]);
 
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   async function removeExpense(id: string) {
     if (state.phase !== "ready") return;
-    if (typeof window !== "undefined" && !window.confirm("Delete this expense? This cannot be undone.")) {
+    if (!confirmAction("Delete this expense?", { finality: "irreversible" })) {
       return;
     }
     setActionError(null);
@@ -119,7 +124,7 @@ export default function AdminBillingPage() {
     try {
       await deleteExpense(id);
       // Reload so the summary totals stay in sync with the removed amount.
-      await load();
+      await load({ silent: true });
     } catch (err) {
       handleActionError(err, "Could not delete the expense.");
     } finally {
@@ -142,7 +147,7 @@ export default function AdminBillingPage() {
         } catch (uploadErr) {
           // The expense was created; only the invoice failed. Reload so the row
           // shows, and surface the upload problem inline.
-          await load();
+          await load({ silent: true });
           setDrawerOpen(false);
           return uploadErr instanceof BillingApiError
             ? `Expense saved, but the invoice upload failed${uploadErr.message ? `: ${uploadErr.message}` : ""}.`
@@ -150,7 +155,7 @@ export default function AdminBillingPage() {
         }
       }
       // Reload so both the list and the summary totals reflect the new expense.
-      await load();
+      await load({ silent: true });
       setDrawerOpen(false);
       return null;
     } catch (err) {
@@ -168,7 +173,7 @@ export default function AdminBillingPage() {
     try {
       await createInvoice(input);
       // Reload so the invoices list (and its numbering) reflects the new invoice.
-      await load();
+      await load({ silent: true });
       setInvoiceDrawerOpen(false);
       return null;
     } catch (err) {
@@ -182,10 +187,7 @@ export default function AdminBillingPage() {
 
   async function markPaid(id: string) {
     if (state.phase !== "ready") return;
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm("Mark this invoice as PAID? There is no un-mark — this is final.")
-    ) {
+    if (!confirmAction("Mark this invoice as PAID? There is no un-mark.", { finality: "final" })) {
       return;
     }
     setActionError(null);
@@ -217,7 +219,7 @@ export default function AdminBillingPage() {
     try {
       await confirmManualInvoicePayment(invoice.id, input);
       setTransferInvoice(null);
-      await load();
+      await load({ silent: true });
       return null;
     } catch (err) {
       if (err instanceof BillingAuthError || (err instanceof BillingApiError && err.unauthorized)) {
@@ -231,10 +233,10 @@ export default function AdminBillingPage() {
   async function removeInvoice(inv: Invoice) {
     if (state.phase !== "ready") return;
     if (
-      typeof window !== "undefined" &&
-      !window.confirm(
+      !confirmAction(
         `Delete invoice ${inv.number}? Use this only for mistakes or orphaned invoices — ` +
-          `deleting issued invoices leaves a gap in the numbering. This cannot be undone.`,
+          `deleting issued invoices leaves a gap in the numbering.`,
+        { finality: "irreversible" },
       )
     ) {
       return;
@@ -243,7 +245,7 @@ export default function AdminBillingPage() {
     setPending((p) => ({ ...p, [inv.id]: true }));
     try {
       await deleteInvoice(inv.id);
-      await load();
+      await load({ silent: true });
     } catch (err) {
       handleActionError(err, "Could not delete the invoice.");
     } finally {
@@ -465,7 +467,7 @@ function ExpensesTable({
   onDelete: (id: string) => void;
 }) {
   return (
-    <AdminSection title="Expenses" count={expenses.length}>
+    <AdminSection title="Expenses" count={expenses.length} noun="expense">
       <AdminTable>
         <thead>
           <tr>
@@ -473,14 +475,17 @@ function ExpensesTable({
             <Th>Category</Th>
             <Th>Supplier</Th>
             <Th>Description</Th>
-            <Th>Amount</Th>
+            <Th align="right">Amount</Th>
             <Th>Invoice</Th>
             <Th>Delete</Th>
           </tr>
         </thead>
         <tbody>
           {expenses.length === 0 ? (
-            <EmptyRow colSpan={7} label="No expenses recorded yet." />
+            <EmptyRow
+              colSpan={7}
+              label="No expenses recorded yet — use “+ Add expense” above to log the first one."
+            />
           ) : (
             expenses.map((x) => (
               <tr key={x.id}>
@@ -490,7 +495,7 @@ function ExpensesTable({
                 <Td nowrap>{x.category?.trim() ? x.category : "—"}</Td>
                 <Td>{x.supplier?.trim() ? x.supplier : "—"}</Td>
                 <Td dim>{x.description?.trim() ? x.description : "—"}</Td>
-                <Td mono nowrap>
+                <Td mono nowrap align="right">
                   {formatEur(x.amountGross)}
                 </Td>
                 <Td nowrap>
@@ -551,8 +556,13 @@ function InvoicesTable({
   onConfirmTransfer: (invoice: Invoice) => void;
   onDelete: (inv: Invoice) => void;
 }) {
+  // Client-side "Load more" pagination — invoices grow monthly forever, so the
+  // table shows the newest page and reveals older ones on demand.
+  const [visibleCount, setVisibleCount] = useState(INVOICE_PAGE_SIZE);
+  const visible = invoices.slice(0, visibleCount);
+
   return (
-    <AdminSection title="Invoices" count={invoices.length}>
+    <AdminSection title="Invoices" count={invoices.length} noun="invoice">
       <AdminTable>
         <thead>
           <tr>
@@ -561,7 +571,7 @@ function InvoicesTable({
             <Th>Customer</Th>
             <Th>Type</Th>
             <Th>Language</Th>
-            <Th>Total</Th>
+            <Th align="right">Total</Th>
             <Th>Status</Th>
             <Th>PDF</Th>
             <Th>Actions</Th>
@@ -569,9 +579,12 @@ function InvoicesTable({
         </thead>
         <tbody>
           {invoices.length === 0 ? (
-            <EmptyRow colSpan={9} label="No invoices generated yet." />
+            <EmptyRow
+              colSpan={9}
+              label="No invoices generated yet — use “+ Create invoice” above to issue the first one."
+            />
           ) : (
-            invoices.map((inv) => {
+            visible.map((inv) => {
               const paid = inv.status === "paid";
               const extensionManaged = isExtensionInvoice(inv);
               return (
@@ -603,21 +616,11 @@ function InvoicesTable({
                     {(inv.locale || "en").toUpperCase()}
                     </span>
                   </Td>
-                  <Td mono nowrap>
+                  <Td mono nowrap align="right">
                     {formatEur(inv.total)}
                   </Td>
                   <Td nowrap>
-                    <span
-                      className="mono"
-                      style={{
-                        fontSize: 11,
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        color: paid ? "var(--lime)" : "var(--text-muted)",
-                      }}
-                    >
-                      {inv.status}
-                    </span>
+                    <StatusPill value={inv.status} tone={invoiceTone(inv.status)} />
                     {!paid && inv.status !== "voided" && (
                       <button
                         type="button"
@@ -663,6 +666,15 @@ function InvoicesTable({
                       <span className="mono" style={{ color: "var(--text-dim)", fontSize: 11 }}>
                         Protected
                       </span>
+                    ) : paid ? (
+                      // PAID invoices are accounting records — no delete at all.
+                      <span
+                        className="mono"
+                        title="Paid invoices are accounting records and cannot be deleted."
+                        style={{ color: "var(--text-dim)", fontSize: 12 }}
+                      >
+                        —
+                      </span>
                     ) : (
                       <button
                         type="button"
@@ -688,8 +700,49 @@ function InvoicesTable({
           )}
         </tbody>
       </AdminTable>
+
+      {invoices.length > visible.length && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 14,
+            marginTop: 14,
+          }}
+        >
+          <span className="mono" style={{ fontSize: 12, color: "var(--text-dim)" }}>
+            Showing {visible.length} of {invoices.length}
+          </span>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => setVisibleCount((n) => n + INVOICE_PAGE_SIZE)}
+            style={{ padding: "9px 16px", fontSize: 13 }}
+          >
+            Load more
+          </button>
+        </div>
+      )}
     </AdminSection>
   );
+}
+
+/** Explicit pill tones for the invoice lifecycle (draft/issued/paid/void). */
+function invoiceTone(status: string): PillTone | undefined {
+  switch (status) {
+    case "paid":
+      return "good";
+    case "issued":
+      return "info";
+    case "draft":
+      return "neutral";
+    case "void":
+    case "voided":
+      return "bad";
+    default:
+      return undefined; // fall back to the shared toneFor heuristic
+  }
 }
 
 function isExtensionInvoice(invoice: Invoice): boolean {
@@ -877,23 +930,7 @@ function CreateInvoiceDrawer({
           void handleSubmit();
         }}
       >
-        {formError && (
-          <div
-            className="mono"
-            role="alert"
-            style={{
-              color: "var(--danger)",
-              fontSize: 12,
-              marginBottom: 16,
-              padding: "10px 13px",
-              borderRadius: "var(--r-sm)",
-              border: "1px solid rgba(255, 138, 120, 0.32)",
-              background: "rgba(255, 138, 120, 0.06)",
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <InlineError message={formError} />}
 
         {/* Booking-prefilled vs manual line items. */}
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
@@ -1251,7 +1288,7 @@ function AddExpenseDrawer({
   onClose: () => void;
   onSubmit: (input: CreateExpenseInput, invoice: File | null) => Promise<string | null>;
 }) {
-  const [date, setDate] = useState(todayISO());
+  const [date, setDate] = useState(todayIso());
   const [category, setCategory] = useState<string>(CATEGORIES[0].value);
   const [supplier, setSupplier] = useState("");
   const [description, setDescription] = useState("");
@@ -1268,7 +1305,7 @@ function AddExpenseDrawer({
   const canSubmit = amountOk && descOk && dateOk && !submitting;
 
   function resetFields() {
-    setDate(todayISO());
+    setDate(todayIso());
     setSupplier("");
     setDescription("");
     setAmount("");
@@ -1345,23 +1382,7 @@ function AddExpenseDrawer({
           void handleSubmit();
         }}
       >
-        {formError && (
-          <div
-            className="mono"
-            role="alert"
-            style={{
-              color: "var(--danger)",
-              fontSize: 12,
-              marginBottom: 16,
-              padding: "10px 13px",
-              borderRadius: "var(--r-sm)",
-              border: "1px solid rgba(255, 138, 120, 0.32)",
-              background: "rgba(255, 138, 120, 0.06)",
-            }}
-          >
-            {formError}
-          </div>
-        )}
+        {formError && <InlineError message={formError} />}
 
         <div className="field">
           <label>Date</label>
@@ -1467,83 +1488,6 @@ function AddExpenseDrawer({
         <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
       </form>
     </Drawer>
-  );
-}
-
-/* ── Shared pieces (mirrors the maintenance page) ──────────────────────── */
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card mono" style={{ padding: 28, color: "var(--text-muted)", fontSize: 13 }}>
-      {children}
-    </div>
-  );
-}
-
-function InlineError({ message }: { message: string }) {
-  return (
-    <div
-      className="mono"
-      style={{
-        color: "var(--danger)",
-        fontSize: 12.5,
-        marginBottom: 20,
-        padding: "12px 16px",
-        borderRadius: "var(--r-md)",
-        border: "1px solid rgba(255, 138, 120, 0.32)",
-        background: "rgba(255, 138, 120, 0.06)",
-      }}
-    >
-      {message}
-    </div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  config,
-  onRetry,
-}: {
-  message: string;
-  config: boolean;
-  onRetry: () => void;
-}) {
-  return (
-    <div
-      className="card"
-      style={{
-        padding: 28,
-        maxWidth: 520,
-        borderColor: "rgba(255, 138, 120, 0.32)",
-        background: "linear-gradient(180deg, rgba(255,138,120,0.06), rgba(255,255,255,0.02))",
-      }}
-    >
-      <div
-        className="mono"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          color: "var(--danger)",
-          marginBottom: 10,
-        }}
-      >
-        {config ? "Not configured" : "Error"}
-      </div>
-      <p style={{ color: "var(--text-2)", fontSize: 14.5, margin: "0 0 20px", lineHeight: 1.6 }}>
-        {message}
-      </p>
-      {!config && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={onRetry}
-          style={{ padding: "12px 22px", fontSize: 14 }}
-        >
-          Try again
-        </button>
-      )}
-    </div>
   );
 }
 

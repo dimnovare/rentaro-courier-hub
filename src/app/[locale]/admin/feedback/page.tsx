@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   FeedbackApiError,
+  FeedbackConfigError,
   listRentalFeedback,
   type AdminRentalFeedback,
   type AdminRentalFeedbackPage,
@@ -10,13 +11,14 @@ import {
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { Notice, ErrorPanel } from "@/components/admin/Feedback";
 import { AdminTable, EmptyRow, Td, Th, fmtDate } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 
 type LoadState =
   | { phase: "loading" }
   | { phase: "ready"; page: AdminRentalFeedbackPage }
-  | { phase: "error"; message: string };
+  | { phase: "error"; message: string; config: boolean };
 
 const PAGE_SIZE = 100;
 
@@ -26,8 +28,11 @@ export default function AdminFeedbackPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setState({ phase: "loading" });
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    // Silent reloads (topbar Refresh) keep the current inbox on screen instead
+    // of blanking the page back to the loading notice.
+    const silent = Boolean(opts?.silent);
+    if (!silent) setState({ phase: "loading" });
     setLoadMoreError(null);
     try {
       setState({
@@ -39,10 +44,8 @@ export default function AdminFeedbackPage() {
         signOut();
         return;
       }
-      setState({
-        phase: "error",
-        message: error instanceof Error ? error.message : "Could not load rental feedback.",
-      });
+      // A failed SILENT refresh keeps the (still-valid) data on screen.
+      if (!silent) setState(toErrorState(error));
     }
   }, [signOut]);
 
@@ -82,21 +85,15 @@ export default function AdminFeedbackPage() {
   useEffect(() => {
     void load();
   }, [load]);
-  useAdminRefresh(load);
+  const silentReload = useCallback(() => void load({ silent: true }), [load]);
+  useAdminRefresh(silentReload);
 
   if (state.phase === "loading") {
-    return <AdminNotice>Loading rental feedback…</AdminNotice>;
+    return <Notice>Loading rental feedback…</Notice>;
   }
 
   if (state.phase === "error") {
-    return (
-      <AdminNotice>
-        <p>{state.message}</p>
-        <button type="button" className="btn btn-ghost" onClick={() => void load()}>
-          Retry
-        </button>
-      </AdminNotice>
-    );
+    return <ErrorPanel message={state.message} config={state.config} onRetry={() => void load()} />;
   }
 
   return (
@@ -107,6 +104,19 @@ export default function AdminFeedbackPage() {
       onLoadMore={loadMore}
     />
   );
+}
+
+/** Map a non-auth thrown error onto an error load state — config problems (API
+ *  base URL unset) get the "Not configured" panel, API failures get "Try again"
+ *  (mirrors the sibling admin pages' toErrorState). */
+function toErrorState(err: unknown): LoadState {
+  if (err instanceof FeedbackConfigError) {
+    return { phase: "error", message: err.message, config: true };
+  }
+  if (err instanceof FeedbackApiError) {
+    return { phase: "error", message: err.message, config: false };
+  }
+  return { phase: "error", message: "Something went wrong loading rental feedback.", config: false };
 }
 
 function FeedbackInbox({
@@ -153,7 +163,10 @@ function FeedbackInbox({
         </thead>
         <tbody>
           {feedback.length === 0 ? (
-            <EmptyRow colSpan={8} label="No rental feedback yet." />
+            <EmptyRow
+              colSpan={8}
+              label="No rental feedback yet — responses appear here after a completed rental's feedback form is submitted."
+            />
           ) : (
             feedback.map((item) => (
               <tr key={item.id}>
@@ -214,8 +227,4 @@ function FeedbackMetric({ value, label }: { value: string; label: string }) {
       <span className="mono">{label}</span>
     </div>
   );
-}
-
-function AdminNotice({ children }: { children: ReactNode }) {
-  return <div className="admin-empty">{children}</div>;
 }
