@@ -64,6 +64,211 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: "completed", label: "Completed" },
 ];
 
+/* ── Per-booking "next action" derivation ──────────────────────────────────
+ *
+ * Turns a booking's own state into the single current blocker / next step, so
+ * the pipeline reads as a worklist ("what is this one waiting on?"). Derived
+ * purely from data each row already carries — status, the per-row payment and
+ * contract, whether online signing is enforced, the held unit, the linked
+ * rental unit, and the same eligible-unit filter the assign control uses. No
+ * new API calls: when the payment/contract haven't been fetched yet (row
+ * collapsed) it degrades to a status-based best guess and the Manage panel
+ * refines it once opened.
+ */
+interface NextAction {
+  key:
+    | "review"
+    | "payment"
+    | "contract"
+    | "assign"
+    | "stock"
+    | "active"
+    | "assigned"
+    | "attention"
+    | "completed"
+    | "rejected"
+    | "cancelled";
+  /** Short pill label, e.g. "Awaiting stock". */
+  label: string;
+  tone: PillTone;
+  /** True when an operator still has something to do — drives the worklist filter. */
+  needsAction: boolean;
+  /** Longer one-line explanation shown in the Manage-panel banner. */
+  detail: string;
+}
+
+/** Units that can actually start this booking's rental: available/reserved and
+ *  matching its model + city. Reserved units are accepted by the backend unless
+ *  held by a different booking; incoming units are (correctly) never eligible. */
+function eligibleUnitsFor(units: AdminFleetUnit[], b: AdminBooking): AdminFleetUnit[] {
+  return units.filter(
+    (u) =>
+      (u.status?.toLowerCase() === "available" || u.status?.toLowerCase() === "reserved") &&
+      u.modelId === b.modelId &&
+      u.cityId === b.cityId,
+  );
+}
+
+/** Count of available units of this booking's model in *other* cities — used to
+ *  explain a "none here" (movable) vs. "none anywhere yet" (awaiting stock). */
+function availableElsewhereCount(units: AdminFleetUnit[], b: AdminBooking): number {
+  return units.filter(
+    (u) => u.status?.toLowerCase() === "available" && u.modelId === b.modelId && u.cityId !== b.cityId,
+  ).length;
+}
+
+function computeNextAction({
+  booking: b,
+  payment,
+  contract,
+  onlineSigning,
+  eligibleCount,
+  availableElsewhere,
+  assignedUnitCode,
+}: {
+  booking: AdminBooking;
+  payment: AdminPayment | null | "loading" | undefined;
+  contract: Contract | undefined;
+  onlineSigning: boolean;
+  eligibleCount: number;
+  availableElsewhere: number;
+  /** Unit code of a linked rental; null = known none; undefined = unknown. */
+  assignedUnitCode: string | null | undefined;
+}): NextAction {
+  const status = (b.status ?? "").toLowerCase().replace(/[_\s-]/g, "");
+  const unit = assignedUnitCode ?? b.heldBikeUnitCode;
+
+  // Terminal / no-action states first.
+  if (status === "rejected")
+    return { key: "rejected", label: "Rejected", tone: "bad", needsAction: false, detail: "Rejected — the held bike was released. No further action." };
+  if (status === "cancelled")
+    return { key: "cancelled", label: "Cancelled", tone: "neutral", needsAction: false, detail: "Cancelled. No further action." };
+  if (status === "completed")
+    return { key: "completed", label: "Completed", tone: "neutral", needsAction: false, detail: "Rental completed. No further action." };
+  if (status === "active")
+    return {
+      key: "active",
+      label: "Active — nothing to do",
+      tone: "good",
+      needsAction: false,
+      detail: `Rental is active${unit ? ` on ${unit}` : ""}. Manage the unit from the Rentals or Fleet view.`,
+    };
+  if (status === "bikeassigned") {
+    // A real assignment carries a linked unit; an unknown rentals lookup keeps
+    // the softer claim. A raw status jump with no unit linked wants attention.
+    if (unit || assignedUnitCode === undefined) {
+      return {
+        key: "assigned",
+        label: "Bike assigned",
+        tone: "good",
+        needsAction: false,
+        detail: `A bike${unit ? ` (${unit})` : ""} is assigned to this booking — the rental starts on pickup.`,
+      };
+    }
+    return {
+      key: "attention",
+      label: "No bike linked",
+      tone: "warn",
+      needsAction: true,
+      detail: "Status is past assignment but no bike is linked. Set it back to approved to assign one.",
+    };
+  }
+
+  // Needs review.
+  if (status === "submitted" || status === "awaitingreview")
+    return { key: "review", label: "Needs review", tone: "warn", needsAction: true, detail: "Review the request, then approve or reject it." };
+
+  // Defensive: a linked rental means it's effectively assigned already.
+  if (assignedUnitCode)
+    return { key: "assigned", label: "Bike assigned", tone: "good", needsAction: false, detail: `A bike (${assignedUnitCode}) is assigned to this booking.` };
+
+  // Pre-assignment pipeline (approved / paymentpending / signaturepending / other).
+  // Mirror the backend assign gate order: settled payment, then signed contract
+  // (only enforced under online signing), then an actual unit to assign.
+  const paymentSettled =
+    payment != null && payment !== "loading" && payment.status.toLowerCase() === "paid";
+  const paymentKnownUnsettled =
+    payment === null || (payment != null && payment !== "loading" && payment.status.toLowerCase() !== "paid");
+  const contractKnownUnsigned = onlineSigning && contract != null && contract.status !== "Signed";
+
+  if (paymentKnownUnsettled)
+    return { key: "payment", label: "Awaiting payment", tone: "warn", needsAction: true, detail: "Confirm the payment before a bike can be assigned." };
+  if (contractKnownUnsigned)
+    return { key: "contract", label: "Contract not signed", tone: "warn", needsAction: true, detail: "The agreement must be signed before a bike can be assigned." };
+  if (eligibleCount === 0)
+    return {
+      key: "stock",
+      label: "Awaiting stock",
+      tone: "warn",
+      needsAction: true,
+      detail:
+        availableElsewhere > 0
+          ? `No ${b.modelId} unit is free in ${b.cityId} yet. ${availableElsewhere} ${availableElsewhere === 1 ? "is" : "are"} available in another city — move one, or it becomes assignable once incoming stock is received.`
+          : `No ${b.modelId} unit is available in ${b.cityId} yet. It becomes assignable automatically as soon as incoming stock is received (see Incoming inventory in the Fleet view).`,
+    };
+  if (paymentSettled)
+    return { key: "assign", label: "Ready to assign a bike", tone: "warn", needsAction: true, detail: `Payment is settled and a unit is free in ${b.cityId} — assign a bike to start the rental.` };
+
+  // Payment not yet fetched (row collapsed): coarse, status-based best guess —
+  // the panel refines it once opened and the payment loads.
+  if (status === "signaturepending")
+    return { key: "contract", label: "Contract not signed", tone: "warn", needsAction: true, detail: "Open the row to confirm payment and the contract, then assign a bike." };
+  return { key: "payment", label: "Awaiting payment", tone: "warn", needsAction: true, detail: "Open the row to confirm payment, then assign a bike." };
+}
+
+/** Fill tones for the Manage-panel next-step banner, keyed to the pill tone. */
+const NEXT_BANNER_TONE: Record<PillTone, { bg: string; bd: string }> = {
+  good: { bg: "rgba(216,255,54,0.06)", bd: "rgba(216,255,54,0.22)" },
+  warn: { bg: "rgba(255,198,90,0.07)", bd: "rgba(255,198,90,0.28)" },
+  bad: { bg: "rgba(255,138,120,0.06)", bd: "rgba(255,138,120,0.24)" },
+  info: { bg: "rgba(111,180,255,0.06)", bd: "rgba(111,180,255,0.24)" },
+  neutral: { bg: "rgba(255,255,255,0.02)", bd: "var(--border)" },
+};
+
+/** Compact "NEXT" chip shown under a booking's status in the table row. */
+function NextActionPill({ action }: { action: NextAction }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span
+        className="mono"
+        style={{ fontSize: 8.5, letterSpacing: "0.12em", color: "var(--text-dim)" }}
+      >
+        NEXT
+      </span>
+      <StatusPill value={action.label} tone={action.tone} />
+    </span>
+  );
+}
+
+/** Full-width next-step banner at the top of a booking's Manage panel. */
+function NextActionBanner({ action }: { action: NextAction }) {
+  const c = NEXT_BANNER_TONE[action.tone];
+  return (
+    <div
+      className="mono"
+      style={{
+        flexBasis: "100%",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: "6px 12px",
+        padding: "10px 13px",
+        borderRadius: "var(--r-sm)",
+        background: c.bg,
+        border: `1px solid ${c.bd}`,
+      }}
+    >
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 9.5, letterSpacing: "0.12em", color: "var(--text-dim)" }}>
+          NEXT STEP
+        </span>
+        <StatusPill value={action.label} tone={action.tone} />
+      </span>
+      <span style={{ fontSize: 12, color: "var(--text-2)", lineHeight: 1.5 }}>{action.detail}</span>
+    </div>
+  );
+}
+
 interface PageData {
   bookings: AdminBooking[];
   units: AdminFleetUnit[];
@@ -115,6 +320,10 @@ export default function AdminBookingsPage() {
   // auto-generates an UNSIGNED "Generated" agreement that must NOT gate assigning.
   // Defaults to false (paper mode) so a missing/failed read never falsely blocks.
   const [onlineSigning, setOnlineSigning] = useState(false);
+  // Worklist filter: show all bookings, only ones needing operator action, or
+  // only ones blocked on incoming stock. Purely a client-side view over the
+  // already-loaded rows — no extra fetches.
+  const [filter, setFilter] = useState<"all" | "attention" | "stock">("all");
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     // A "silent" refresh (after an action) keeps the current bookings on screen
@@ -186,6 +395,55 @@ export default function AdminBookingsPage() {
   }, [authenticated]);
 
   useAdminRefresh(useCallback(() => void load({ silent: true }), [load]));
+
+  // Derive each booking's "next action" once, so the row pill, the Manage-panel
+  // banner and the worklist filter all agree. Recomputes as payments/contracts
+  // are lazily fetched (opening a row sharpens its pill).
+  const nextActions = useMemo(() => {
+    const map = new Map<string, NextAction>();
+    if (state.phase !== "ready") return map;
+    const { bookings, units, rentalUnitByBooking } = state.data;
+    for (const b of bookings) {
+      const assignedUnitCode =
+        rentalUnitByBooking === null ? undefined : (rentalUnitByBooking.get(b.id) ?? null);
+      map.set(
+        b.id,
+        computeNextAction({
+          booking: b,
+          payment: payments[b.id],
+          contract: contracts[b.id],
+          onlineSigning,
+          eligibleCount: eligibleUnitsFor(units, b).length,
+          availableElsewhere: availableElsewhereCount(units, b),
+          assignedUnitCode,
+        }),
+      );
+    }
+    return map;
+  }, [state, payments, contracts, onlineSigning]);
+
+  // Counts per worklist bucket (from the full set, so the tabs stay stable
+  // regardless of the active filter).
+  const filterCounts = useMemo(() => {
+    let attention = 0;
+    let stock = 0;
+    for (const a of nextActions.values()) {
+      if (a.needsAction) attention += 1;
+      if (a.key === "stock") stock += 1;
+    }
+    return { all: nextActions.size, attention, stock };
+  }, [nextActions]);
+
+  const filteredBookings = useMemo(() => {
+    if (state.phase !== "ready") return [];
+    const all = state.data.bookings;
+    if (filter === "all") return all;
+    return all.filter((b) => {
+      const a = nextActions.get(b.id);
+      if (!a) return false;
+      return filter === "attention" ? a.needsAction : a.key === "stock";
+    });
+  }, [state, filter, nextActions]);
 
   // Fetch (once) the latest payment for a booking. Errors are swallowed: the
   // payment readout is non-critical, so a hiccup just leaves it unknown rather
@@ -547,8 +805,17 @@ export default function AdminBookingsPage() {
           </PageHeader>
 
           <AdminSection title="Bookings" count={state.data.bookings.length}>
+            <BookingFilterBar filter={filter} counts={filterCounts} onChange={setFilter} />
             <BookingsManageTable
-              bookings={state.data.bookings}
+              bookings={filteredBookings}
+              nextActions={nextActions}
+              emptyLabel={
+                filter === "attention"
+                  ? "No bookings need action right now."
+                  : filter === "stock"
+                    ? "No bookings are waiting on stock."
+                    : "No bookings yet."
+              }
               units={state.data.units}
               rentalUnitByBooking={state.data.rentalUnitByBooking}
               contracts={contracts}
@@ -595,15 +862,22 @@ export default function AdminBookingsPage() {
                   "Booking rejected.",
                 );
               }}
-              onAssign={(id, code) =>
-                runAction(
+              onAssign={(id, code) => {
+                // Assigning starts a live rental and marks the unit rented — a
+                // real operational commitment, so confirm before firing (matches
+                // the reject / payment / delete confirms).
+                const ok = window.confirm(
+                  `Assign ${code} to this booking and start the rental now? This creates an active rental and marks the unit rented.`,
+                );
+                if (!ok) return;
+                void runAction(
                   id,
                   async () => {
                     await assignUnit(id, code);
                   },
                   `Assigned ${code} and started a rental.`,
-                )
-              }
+                );
+              }}
               onGenerateContract={onGenerateContract}
               onMarkSigned={onMarkSigned}
               onDownloadContract={onDownloadContract}
@@ -952,8 +1226,73 @@ function NewBookingDrawer({
 
 const COL_COUNT = 8;
 
+/* ── Worklist filter ──────────────────────────────────────────────────────
+ * Lightweight client-side view switch over the already-loaded bookings, so an
+ * operator can jump straight to the rows that need attention. Purely filters
+ * the array fed to the table — no fetches, no change to any row's behaviour.
+ */
+function BookingFilterBar({
+  filter,
+  counts,
+  onChange,
+}: {
+  filter: "all" | "attention" | "stock";
+  counts: { all: number; attention: number; stock: number };
+  onChange: (f: "all" | "attention" | "stock") => void;
+}) {
+  const tabs: { key: "all" | "attention" | "stock"; label: string; count: number }[] = [
+    { key: "all", label: "All", count: counts.all },
+    { key: "attention", label: "Needs action", count: counts.attention },
+    { key: "stock", label: "Awaiting stock", count: counts.stock },
+  ];
+  return (
+    <div
+      role="tablist"
+      aria-label="Filter bookings"
+      style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}
+    >
+      {tabs.map((t) => {
+        const active = filter === t.key;
+        return (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            className={active ? "btn btn-primary" : "btn btn-ghost"}
+            onClick={() => onChange(t.key)}
+            style={{
+              padding: "7px 14px",
+              fontSize: 12.5,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            {t.label}
+            <span
+              className="mono"
+              style={{
+                fontSize: 11,
+                padding: "1px 7px",
+                borderRadius: "var(--r-full)",
+                background: active ? "rgba(0,0,0,0.18)" : "var(--surface)",
+                color: active ? "inherit" : "var(--text-dim)",
+              }}
+            >
+              {t.count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function BookingsManageTable({
   bookings,
+  nextActions,
+  emptyLabel,
   units,
   rentalUnitByBooking,
   contracts,
@@ -976,6 +1315,8 @@ function BookingsManageTable({
   onDelete,
 }: {
   bookings: AdminBooking[];
+  nextActions: Map<string, NextAction>;
+  emptyLabel: string;
   units: AdminFleetUnit[];
   rentalUnitByBooking: Map<string, string> | null;
   contracts: Record<string, Contract>;
@@ -1013,7 +1354,7 @@ function BookingsManageTable({
       </thead>
       <tbody>
         {bookings.length === 0 ? (
-          <EmptyRow colSpan={COL_COUNT} label="No bookings yet." />
+          <EmptyRow colSpan={COL_COUNT} label={emptyLabel} />
         ) : (
           bookings.map((b) => {
             const open = openId === b.id;
@@ -1021,6 +1362,7 @@ function BookingsManageTable({
               <BookingRow
                 key={b.id}
                 booking={b}
+                nextAction={nextActions.get(b.id)}
                 units={units}
                 // undefined = rentals unknown (fetch failed); null = known: no rental.
                 assignedUnitCode={
@@ -1060,6 +1402,7 @@ function BookingsManageTable({
 
 function BookingRow({
   booking: b,
+  nextAction,
   units,
   assignedUnitCode,
   contract,
@@ -1082,6 +1425,7 @@ function BookingRow({
   onDelete,
 }: {
   booking: AdminBooking;
+  nextAction: NextAction | undefined;
   units: AdminFleetUnit[];
   /** Unit code of this booking's rental; null = known none; undefined = unknown. */
   assignedUnitCode: string | null | undefined;
@@ -1112,6 +1456,11 @@ function BookingRow({
         </Td>
         <Td nowrap>
           <StatusPill value={b.status} />
+          {nextAction && (
+            <div style={{ marginTop: 6 }}>
+              <NextActionPill action={nextAction} />
+            </div>
+          )}
         </Td>
         <Td>
           <div>
@@ -1149,6 +1498,7 @@ function BookingRow({
           <td colSpan={COL_COUNT} style={{ padding: 0, borderBottom: "1px solid var(--border)" }}>
             <ManagePanel
               booking={b}
+              nextAction={nextAction}
               units={units}
               assignedUnitCode={assignedUnitCode}
               contract={contract}
@@ -1182,6 +1532,7 @@ function BookingRow({
  */
 function ManagePanel({
   booking: b,
+  nextAction,
   units,
   assignedUnitCode,
   contract,
@@ -1202,6 +1553,7 @@ function ManagePanel({
   onDelete,
 }: {
   booking: AdminBooking;
+  nextAction: NextAction | undefined;
   units: AdminFleetUnit[];
   /** Unit code of this booking's rental; null = known none; undefined = unknown. */
   assignedUnitCode: string | null | undefined;
@@ -1250,6 +1602,8 @@ function ManagePanel({
           {error}
         </div>
       )}
+
+      {nextAction && <NextActionBanner action={nextAction} />}
 
       {referralCodeOf(b) && (
         <div
@@ -2015,27 +2369,13 @@ function AssignControl({
   // Units that can start this rental: status "available" OR "reserved" (the
   // backend accepts a reserved unit unless it's held by a *different* booking),
   // and matching the booking's model + city. Reserved ones are labelled
-  // distinctly so the operator knows what they're picking.
-  const eligible = useMemo(
-    () =>
-      units.filter(
-        (u) =>
-          (u.status?.toLowerCase() === "available" || u.status?.toLowerCase() === "reserved") &&
-          u.modelId === b.modelId &&
-          u.cityId === b.cityId,
-      ),
-    [units, b.modelId, b.cityId],
-  );
+  // distinctly so the operator knows what they're picking. Shares the exact
+  // eligibility rule the row's next-action pill uses.
+  const eligible = useMemo(() => eligibleUnitsFor(units, b), [units, b]);
 
   // Are there available units of this model in *other* cities? Helps explain a
   // "none here" situation (vs. genuinely none free anywhere).
-  const availableElsewhere = useMemo(
-    () =>
-      units.filter(
-        (u) => u.status?.toLowerCase() === "available" && u.modelId === b.modelId && u.cityId !== b.cityId,
-      ).length,
-    [units, b.modelId, b.cityId],
-  );
+  const availableElsewhere = useMemo(() => availableElsewhereCount(units, b), [units, b]);
 
   // Once a bike is assigned (or the rental is running/finished) this panel's
   // job is done — the previously-eligible unit is now rented, so without this
@@ -2077,12 +2417,12 @@ function AssignControl({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <span className="mono" style={{ fontSize: 11.5, color: "var(--warn)" }}>
-          No assignable <b>{b.modelId}</b> unit in <b>{b.cityId}</b>.
+          Awaiting stock — no <b>{b.modelId}</b> unit available in <b>{b.cityId}</b> yet.
         </span>
         <p style={hintStyle}>
           {availableElsewhere > 0
-            ? `${availableElsewhere} available in another city. Move a unit to ${b.cityId} or free one up in the Fleet view.`
-            : "Free up or add a unit in the Fleet view, then reopen this row."}
+            ? `${availableElsewhere} ${b.modelId} ${availableElsewhere === 1 ? "unit is" : "units are"} available in another city — move one to ${b.cityId} in the Fleet view. Otherwise this booking becomes assignable automatically as soon as incoming stock is received.`
+            : `Nothing else is blocking this booking — it becomes assignable as soon as a ${b.modelId} unit is received in ${b.cityId} (add or receive one under Incoming inventory in the Fleet view).`}
         </p>
       </div>
     );

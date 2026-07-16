@@ -8,8 +8,47 @@ import type { Accessory } from "@/types";
  * under-quotes real ones (the old 8-item list priced the extra battery €29 vs
  * the real €60).
  */
+// Tiers are null so each item falls back to parsing its legacy `price` string
+// (the resolver's backward-compatible path), and no bundles are invented here —
+// admin-managed tiered prices and bundles arrive from the live API.
 export const accessories: Accessory[] = [
-  { id: "battery", name: "Extra battery", price: "€60 / 30d", icon: "battery" },
-  { id: "phone", name: "Phone holder", price: "€15 / 30d", icon: "phone" },
-  { id: "lock", name: "Heavy-duty lock", price: "€15 / 30d", icon: "lock" },
+  {
+    id: "battery",
+    name: "Extra battery",
+    nameLocalized: {},
+    descriptionLocalized: {},
+    price: "€60 / 30d",
+    price30: null,
+    price6mo: null,
+    price12mo: null,
+    icon: "battery",
+    isBundle: false,
+    componentIds: [],
+  },
+  {
+    id: "phone",
+    name: "Phone holder",
+    nameLocalized: {},
+    descriptionLocalized: {},
+    price: "€15 / 30d",
+    price30: null,
+    price6mo: null,
+    price12mo: null,
+    icon: "phone",
+    isBundle: false,
+    componentIds: [],
+  },
+  {
+    id: "lock",
+    name: "Heavy-duty lock",
+    nameLocalized: {},
+    descriptionLocalized: {},
+    price: "€15 / 30d",
+    price30: null,
+    price6mo: null,
+    price12mo: null,
+    icon: "lock",
+    isBundle: false,
+    componentIds: [],
+  },
 ];

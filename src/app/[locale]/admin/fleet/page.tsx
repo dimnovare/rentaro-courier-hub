@@ -8,6 +8,7 @@ import {
   updateUnit,
   createUnit,
   deleteUnit,
+  receiveUnit,
   FleetApiError,
   FleetConfigError,
   FleetAuthError,
@@ -20,6 +21,7 @@ import { AdminTable, Th, Td, fmtDay } from "@/components/admin/Table";
 import { StatusPill } from "@/components/admin/StatusPill";
 import { Drawer } from "@/components/admin/Drawer";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { DateField, formatDateLong } from "@/components/admin/DateField";
 import { useAdminAuth } from "@/components/admin/AdminAuth";
 import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { modelService } from "@/services/modelService";
@@ -32,6 +34,7 @@ import { cityService } from "@/services/cityService";
  * exactly or the select's includes() check fails and duplicates the raw entry.
  */
 const UNIT_STATUSES = [
+  "incoming",
   "available",
   "reserved",
   "rented",
@@ -45,6 +48,7 @@ const UNIT_STATUSES = [
 
 /** Human-readable labels for the squashed lowercase wire values. */
 const UNIT_STATUS_LABELS: Record<string, string> = {
+  incoming: "incoming (on order)",
   available: "available",
   reserved: "reserved",
   rented: "rented",
@@ -159,6 +163,52 @@ export default function AdminFleetPage() {
           err instanceof FleetApiError
             ? err.message
             : `Could not update ${internalCode}.`;
+        setUpdateError(msg);
+      }
+    } finally {
+      setPending((p) => {
+        const next = { ...p };
+        delete next[internalCode];
+        return next;
+      });
+    }
+  }
+
+  async function receiveIncoming(internalCode: string) {
+    if (state.phase !== "ready") return;
+    const current = state.data.units.find((u) => u.internalCode === internalCode);
+    if (!current || current.status !== "incoming") return;
+    if (
+      !window.confirm(
+        `Receive ${internalCode} into live stock? It becomes available for assignment.`,
+      )
+    ) {
+      return;
+    }
+
+    setUpdateError(null);
+    setPending((p) => ({ ...p, [internalCode]: true }));
+    try {
+      const updated = await receiveUnit(internalCode);
+      setState((s) =>
+        s.phase === "ready"
+          ? {
+              ...s,
+              data: {
+                ...s.data,
+                units: s.data.units.map((u) =>
+                  u.internalCode === internalCode ? updated : u,
+                ),
+              },
+            }
+          : s,
+      );
+    } catch (err) {
+      if (err instanceof FleetAuthError || (err instanceof FleetApiError && err.unauthorized)) {
+        signOut();
+      } else {
+        const msg =
+          err instanceof FleetApiError ? err.message : `Could not receive ${internalCode}.`;
         setUpdateError(msg);
       }
     } finally {
@@ -303,8 +353,17 @@ export default function AdminFleetPage() {
             </button>
           </PageHeader>
 
+          <IncomingInventory
+            units={state.data.units.filter((u) => u.status === "incoming")}
+            pending={pending}
+            onReceive={receiveIncoming}
+            onChangeStatus={changeStatus}
+            onEdit={setEditingUnit}
+            onDelete={removeUnit}
+          />
+
           <UnitsByCity
-            units={state.data.units}
+            units={state.data.units.filter((u) => u.status !== "incoming")}
             pending={pending}
             onChangeStatus={changeStatus}
             onEdit={setEditingUnit}
@@ -360,6 +419,7 @@ function NewUnitDrawer({
   const [lockId, setLockId] = useState("");
   const [lastServiceDate, setLastServiceDate] = useState("");
   const [nextServiceDueDate, setNextServiceDueDate] = useState("");
+  const [expectedArrivalDate, setExpectedArrivalDate] = useState("");
   const [notes, setNotes] = useState("");
   const [condition, setCondition] = useState<"new" | "used">("new");
   const [forSale, setForSale] = useState(false);
@@ -394,6 +454,7 @@ function NewUnitDrawer({
       lockId: lockId.trim() || undefined,
       lastServiceDate: lastServiceDate || undefined,
       nextServiceDueDate: nextServiceDueDate || undefined,
+      expectedArrivalDate: expectedArrivalDate || undefined,
       notes: notes.trim() || undefined,
       condition,
       forSale,
@@ -411,6 +472,7 @@ function NewUnitDrawer({
       setLockId("");
       setLastServiceDate("");
       setNextServiceDueDate("");
+      setExpectedArrivalDate("");
       setNotes("");
       setCondition("new");
       setForSale(false);
@@ -534,6 +596,19 @@ function NewUnitDrawer({
               aria-label="Serial number"
             />
           </div>
+        </div>
+
+        {/* Expected arrival — for units created on order (status "incoming"). */}
+        <div className="field">
+          <label>
+            Expected arrival{status === "incoming" ? "" : " (incoming units)"}
+          </label>
+          <DateField value={expectedArrivalDate} onChange={setExpectedArrivalDate} />
+          {status === "incoming" && !expectedArrivalDate && (
+            <p className="mono" style={{ fontSize: 11, color: "var(--text-dim)", margin: "6px 0 0" }}>
+              Optional, but helps plan when this bike joins the fleet.
+            </p>
+          )}
         </div>
 
         <div className="field-row">
@@ -661,6 +736,171 @@ function NewUnitDrawer({
         <button type="submit" style={{ display: "none" }} aria-hidden tabIndex={-1} />
       </form>
     </Drawer>
+  );
+}
+
+/* ── Incoming inventory (units on order from the distributor) ──────────── */
+
+/**
+ * Units with status "incoming" — bikes ordered but not yet physically on hand.
+ * Kept visually distinct from live stock (they never count toward availability)
+ * and grouped by model + city + expected arrival date per the ops contract, so
+ * a whole batch reads as one line. Each row has a one-click "Receive" that flips
+ * it to available the moment it turns up.
+ */
+function IncomingInventory({
+  units,
+  pending,
+  onReceive,
+  onChangeStatus,
+  onEdit,
+  onDelete,
+}: {
+  units: FleetUnit[];
+  pending: Record<string, boolean>;
+  onReceive: (code: string) => void;
+  onChangeStatus: (code: string, status: string) => void;
+  onEdit: (unit: FleetUnit) => void;
+  onDelete: (code: string) => void;
+}) {
+  // Group by model + city + expected arrival, preserving first-seen order.
+  const groups = useMemo(() => {
+    const map = new Map<string, { modelId: string; cityId: string; date: string | null; units: FleetUnit[] }>();
+    for (const u of units) {
+      const key = `${u.modelId}|${u.cityId}|${u.expectedArrivalDate ?? ""}`;
+      const g = map.get(key);
+      if (g) g.units.push(u);
+      else map.set(key, { modelId: u.modelId, cityId: u.cityId, date: u.expectedArrivalDate, units: [u] });
+    }
+    return [...map.values()];
+  }, [units]);
+
+  if (units.length === 0) return null;
+
+  return (
+    <section style={{ marginBottom: 48 }}>
+      <SectionHead title="Incoming inventory" count={units.length} />
+      <p
+        className="mono"
+        style={{ fontSize: 11.5, color: "var(--text-dim)", margin: "-8px 0 16px", lineHeight: 1.6 }}
+      >
+        On order from the distributor — not counted as available stock. Receive a unit when it arrives.
+      </p>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        {groups.map((g) => (
+          <div key={`${g.modelId}|${g.cityId}|${g.date ?? ""}`}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                flexWrap: "wrap",
+                marginBottom: 12,
+              }}
+            >
+              <StatusPill value="incoming" tone="warn" />
+              <h3
+                className="mono"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--text-muted)",
+                  fontWeight: 500,
+                  margin: 0,
+                }}
+              >
+                {g.modelId} · {g.cityId} · {g.units.length}
+              </h3>
+              <span className="mono" style={{ fontSize: 11, color: "var(--text-dim)" }}>
+                {g.date ? `expected ${formatDateLong(g.date)}` : "no arrival date"}
+              </span>
+            </div>
+            <AdminTable>
+              <thead>
+                <tr>
+                  <Th>Internal code</Th>
+                  <Th>Serial</Th>
+                  <Th>Expected arrival</Th>
+                  <Th>Notes</Th>
+                  <Th>Change status</Th>
+                  <Th>Actions</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.units.map((u) => {
+                  const busy = Boolean(pending[u.internalCode]);
+                  return (
+                    <tr key={u.internalCode}>
+                      <Td mono nowrap>
+                        {u.internalCode}
+                      </Td>
+                      <Td mono dim>
+                        {u.serialNumber ?? "—"}
+                      </Td>
+                      <Td mono nowrap>
+                        {u.expectedArrivalDate ? formatDateLong(u.expectedArrivalDate) : "—"}
+                      </Td>
+                      <Td dim>{u.notes?.trim() ? u.notes : "—"}</Td>
+                      <Td nowrap>
+                        <StatusSelect
+                          value={u.status}
+                          busy={busy}
+                          onChange={(next) => onChangeStatus(u.internalCode, next)}
+                        />
+                      </Td>
+                      <Td nowrap>
+                        <span style={{ display: "inline-flex", gap: 8 }}>
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => onReceive(u.internalCode)}
+                            disabled={busy}
+                            style={{
+                              padding: "7px 14px",
+                              fontSize: 12,
+                              opacity: busy ? 0.55 : 1,
+                              cursor: busy ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            {busy ? "…" : "Receive"}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            onClick={() => onEdit(u)}
+                            style={{ padding: "7px 14px", fontSize: 12 }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            onClick={() => onDelete(u.internalCode)}
+                            disabled={busy}
+                            style={{
+                              padding: "7px 14px",
+                              fontSize: 12,
+                              color: "var(--danger)",
+                              borderColor: "rgba(255, 138, 120, 0.32)",
+                              opacity: busy ? 0.55 : 1,
+                              cursor: busy ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </span>
+                      </Td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </AdminTable>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -851,6 +1091,7 @@ function EditUnitDrawer({
   const [lockId, setLockId] = useState("");
   const [lastServiceDate, setLastServiceDate] = useState("");
   const [nextServiceDueDate, setNextServiceDueDate] = useState("");
+  const [expectedArrivalDate, setExpectedArrivalDate] = useState("");
   const [notes, setNotes] = useState("");
   const [condition, setCondition] = useState<"new" | "used">("new");
   const [forSale, setForSale] = useState(false);
@@ -870,6 +1111,7 @@ function EditUnitDrawer({
     setLockId(unit.lockId ?? "");
     setLastServiceDate(unit.lastServiceDate ?? "");
     setNextServiceDueDate(unit.nextServiceDueDate ?? "");
+    setExpectedArrivalDate(unit.expectedArrivalDate ?? "");
     setNotes(unit.notes ?? "");
     setCondition(unit.condition);
     setForSale(unit.forSale);
@@ -900,6 +1142,7 @@ function EditUnitDrawer({
       lockId: lockId.trim(),
       lastServiceDate,
       nextServiceDueDate,
+      expectedArrivalDate,
       notes: notes.trim(),
       condition,
       forSale,
@@ -1086,6 +1329,12 @@ function EditUnitDrawer({
               aria-label="Next service due date"
             />
           </div>
+        </div>
+
+        {/* Expected arrival — meaningful while the unit is on order (incoming). */}
+        <div className="field">
+          <label>Expected arrival</label>
+          <DateField value={expectedArrivalDate} onChange={setExpectedArrivalDate} />
         </div>
 
         <div className="field">

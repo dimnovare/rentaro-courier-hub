@@ -205,6 +205,9 @@
     "kicker": "Lisad",
     "heading": "Varustus, mis toob vahetusi.",
     "colors": "Saadaolevad värvid",
+    "bundle": "Komplekt",
+    "includes": "Sisaldab: {items}",
+    "priceFrom": "alates €{price} / 30 p",
     "names": {
       "battery": "Lisaaku",
       "bag": "Tarnekott",

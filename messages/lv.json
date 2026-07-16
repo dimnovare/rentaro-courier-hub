@@ -205,6 +205,9 @@
     "kicker": "Papildinājumi",
     "heading": "Aprīkojums, kas pelna maiņas.",
     "colors": "Pieejamās krāsas",
+    "bundle": "Komplekts",
+    "includes": "Iekļauts: {items}",
+    "priceFrom": "no €{price} / 30d",
     "names": {
       "battery": "Papildu akumulators",
       "bag": "Piegādes soma",

@@ -205,6 +205,9 @@
     "kicker": "Lisävarusteet",
     "heading": "Varusteet, jotka tuovat vuoroja.",
     "colors": "Saatavilla olevat värit",
+    "bundle": "Paketti",
+    "includes": "Sisältää: {items}",
+    "priceFrom": "alkaen €{price} / 30 pv",
     "names": {
       "battery": "Lisäakku",
       "bag": "Lähettilaukku",

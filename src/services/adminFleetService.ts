@@ -26,6 +26,9 @@ export interface FleetUnit {
   condition: "new" | "used";
   forSale: boolean;
   salePrice: number | null;
+  /** ISO yyyy-mm-dd. When a unit is on order (status "incoming"), the date it is
+   *  expected to arrive from the distributor. Null for in-stock units. */
+  expectedArrivalDate: string | null;
 }
 
 export interface FleetRental {
@@ -143,6 +146,9 @@ export interface UpdateUnitInput {
   condition?: "new" | "used";
   forSale?: boolean;
   salePrice?: number | null;
+  /** ISO yyyy-mm-dd to set the expected-arrival date, "" to clear it, or omit
+   *  the key to leave it unchanged (matches the other optional-string fields). */
+  expectedArrivalDate?: string;
 }
 
 /** Update the used/for-sale state of an existing bike unit. Returns the
@@ -178,6 +184,8 @@ export interface CreateUnitInput {
   condition?: "new" | "used";
   forSale?: boolean;
   salePrice?: number | null;
+  /** ISO yyyy-mm-dd — expected arrival for a unit created as "incoming". */
+  expectedArrivalDate?: string;
 }
 
 /** Create a physical bike unit. Returns the created unit for the fleet table. */
@@ -186,3 +194,10 @@ export const createUnit = (input: CreateUnitInput) =>
     method: "POST",
     body: JSON.stringify(input),
   });
+
+/** Receive an incoming (on-order) unit into live stock: PATCH its status from
+ *  "incoming" to "available". Thin wrapper over updateUnitStatus so the fleet
+ *  page's one-click "Receive" reads clearly at the call site. Returns the
+ *  updated unit. */
+export const receiveUnit = (internalCode: string) =>
+  updateUnitStatus(internalCode, "available");

@@ -28,12 +28,41 @@ import type { LocalizedStrings } from "@/types/pricing";
 /** City status enum — must match the backend CityStatus enum (lowercased). */
 export type CityStatusValue = "available" | "limited" | "soon";
 
+/**
+ * Single-value localized text: locale → string (an accessory's name/description
+ * per language). Distinct from `LocalizedStrings` (locale → string[]) which backs
+ * perks/marquee. May be empty; the base field is always the fallback. Consumers
+ * render `nameLocalized[locale] ?? name` (mirrors the pricing perks/marquee rule).
+ */
+export type LocalizedText = Record<string, string>;
+
 export interface AdminAccessory {
   /** Stable business key; this value fills the {code} route segment. */
   id: string;
+  /** Base/EN name — the required fallback used when a locale override is absent. */
   name: string;
-  /** Display price, e.g. "€29 / 30d". */
+  /** Per-locale name overrides (locale → name). May be empty; base `name` is the fallback. */
+  nameLocalized: LocalizedText;
+  /** Base/EN description (optional). */
+  description: string | null;
+  /** Per-locale description overrides (locale → description). May be empty. */
+  descriptionLocalized: LocalizedText;
+  /** Legacy display price, e.g. "€29 / 30d" — the fallback when a tier price is blank. */
   price: string;
+  /** €/30-day period on the 30-day plan (p30). Null → fall back to the legacy `price`. */
+  price30: number | null;
+  /** €/30-day period on the 6-month plan (p180). Null → fall back to the legacy `price`. */
+  price6mo: number | null;
+  /** €/30-day period on the 12-month plan (p365). Null → fall back to the legacy `price`. */
+  price12mo: number | null;
+  /**
+   * When true this accessory is a bundle: it is billed at its OWN resolved tier
+   * price, and its `componentIds` are shown to the customer for information only
+   * (never summed).
+   */
+  isBundle: boolean;
+  /** Codes of the NON-bundle accessories bundled (display-only). Empty for non-bundles. */
+  componentIds: string[];
   /** Icon key (see components/ui/Icon). */
   icon: string;
   sortOrder: number;

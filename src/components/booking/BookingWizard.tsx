@@ -7,7 +7,11 @@ import { useTranslations, useLocale } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
-import { resolvePlanPrice } from "@/services/pricingService";
+import {
+  resolvePlanPrice,
+  resolveAccessoryPrice,
+  accessoryPriceRange,
+} from "@/services/pricingService";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
@@ -192,25 +196,40 @@ export function BookingWizard({
   const deliveryFee = Math.max(0, settings.deliveryFee ?? 0);
   const feeApplied = fulfillment === "delivery" ? deliveryFee : 0;
 
-  // Selected add-ons' per-30-day total. Accessory prices are admin-managed
-  // display strings ("€15 / 30d"), so parse the leading number defensively —
-  // an unparseable price simply contributes 0 rather than breaking the wizard.
-  // The backend (AccessoryPricing) applies the same parse when charging, so
-  // shown = billed — keep the two implementations in lockstep.
+  // Selected add-ons' per-30-day price, resolved through the SINGLE source of
+  // truth (resolveAccessoryPrice): the price tier for the currently selected
+  // plan, falling back to the legacy display string when that tier is unset.
+  // The backend (AccessoryPricing) resolves identically, so shown = billed.
+  // Before a plan is chosen (browsing), show the accessory's "from" price.
   const accessoryPriceOf = (id: string): number => {
-    const raw = accessories.find((a) => a.id === id)?.price ?? "";
-    // Anchored like the backend parser; "€1,299" is thousands, "€12,50" decimal.
-    const m = raw.match(/^\s*(?:[€$]\s*)?(\d+(?:[.,]\d+)?)/);
-    if (!m) return 0;
-    const num = m[1];
-    const comma = num.indexOf(",");
-    const normalized =
-      comma >= 0 && !num.includes(".") && num.length - comma - 1 <= 2
-        ? num.replace(",", ".")
-        : num.replace(",", "");
-    return parseFloat(normalized);
+    const acc = accessories.find((a) => a.id === id);
+    if (!acc) return 0;
+    return planId
+      ? resolveAccessoryPrice(acc, planId)
+      : accessoryPriceRange(acc).minMonthly;
   };
   const gearMonthly = accessoryIds.reduce((sum, id) => sum + accessoryPriceOf(id), 0);
+
+  // Localized accessory name/description: prefer the seeded message key, then
+  // the API's per-locale map, then the base name (mirrors the model/plan copy).
+  const accName = (a: Accessory): string =>
+    ta.has(`names.${a.id}`) ? ta(`names.${a.id}`) : a.nameLocalized?.[locale] ?? a.name;
+  const accNameById = (id: string): string => {
+    const a = accessories.find((x) => x.id === id);
+    return a ? accName(a) : id;
+  };
+  const accDesc = (a: Accessory): string | undefined =>
+    a.descriptionLocalized?.[locale] ?? a.description ?? undefined;
+  // A bundle's component names, resolved to their localized names (display-only).
+  const accComponentNames = (a: Accessory): string[] =>
+    a.componentIds.map(accNameById).filter(Boolean);
+  // Static labels not yet in messages/*.json — graceful English fallback until
+  // the keys land (see the reported key list). All under the `accessories` ns.
+  const bundleLabel = ta.has("bundle") ? ta("bundle") : "Bundle";
+  const includesLabel = (items: string) =>
+    ta.has("includes") ? ta("includes", { items }) : `Includes: ${items}`;
+  const priceFromLabel = (price: number) =>
+    ta.has("priceFrom") ? ta("priceFrom", { price }) : `from €${price} / 30d`;
 
   // Model the visitor is previewing in the info popup (null = closed). The popup
   // is informational only and never changes the selection.
@@ -433,9 +452,7 @@ export function BookingWizard({
         city: city?.name ?? "",
         startDate,
         firstName: first.trim(),
-        accessories: accessoryIds
-          .map((id) => accessories.find((a) => a.id === id)?.name)
-          .filter(Boolean),
+        accessories: accessoryIds.map((id) => accNameById(id)).filter(Boolean),
         // Deep link to the rental portal (success page reads summary.portalUrl).
         // Defensive: the backend may not return a token (e.g. mock mode).
         portalUrl: result.portalToken
@@ -839,6 +856,13 @@ export function BookingWizard({
                   <div className="opt-grid">
                     {accessories.map((a) => {
                       const on = accessoryIds.includes(a.id);
+                      const price = accessoryPriceOf(a.id);
+                      // Exact per-30d price once a plan is picked; "from" while browsing.
+                      const priceText = planId
+                        ? t("plan.per30", { price })
+                        : priceFromLabel(price);
+                      const desc = accDesc(a);
+                      const components = a.isBundle ? accComponentNames(a) : [];
                       return (
                         <button
                           key={a.id}
@@ -848,9 +872,27 @@ export function BookingWizard({
                         >
                           <span>
                             <span className="opt-t" style={{ display: "block" }}>
-                              {ta.has(`names.${a.id}`) ? ta(`names.${a.id}`) : a.name}
+                              {accName(a)}
+                              {a.isBundle && (
+                                <span
+                                  className="chip accent"
+                                  style={{ marginLeft: 8, verticalAlign: "middle" }}
+                                >
+                                  {bundleLabel}
+                                </span>
+                              )}
                             </span>
-                            <span className="opt-p">{a.price}</span>
+                            {desc && (
+                              <span className="opt-m" style={{ display: "block" }}>
+                                {desc}
+                              </span>
+                            )}
+                            {components.length > 0 && (
+                              <span className="opt-m" style={{ display: "block" }}>
+                                {includesLabel(components.join(", "))}
+                              </span>
+                            )}
+                            <span className="opt-p">{priceText}</span>
                           </span>
                           <span className="opt-check">{on && <Ic.check s={12} />}</span>
                         </button>
@@ -891,9 +933,7 @@ export function BookingWizard({
                       ? accessoryIds
                           .map((id) => {
                             const price = accessoryPriceOf(id);
-                            const name = ta.has(`names.${id}`)
-                              ? ta(`names.${id}`)
-                              : accessories.find((a) => a.id === id)?.name ?? id;
+                            const name = accNameById(id);
                             return price > 0 ? `${name} · €${price}` : name;
                           })
                           .join(", ")

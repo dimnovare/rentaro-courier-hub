@@ -205,6 +205,9 @@
     "kicker": "Add-ons",
     "heading": "Gear that earns shifts.",
     "colors": "Available colours",
+    "bundle": "Bundle",
+    "includes": "Includes: {items}",
+    "priceFrom": "from €{price} / 30d",
     "names": {
       "battery": "Extra battery",
       "bag": "Delivery bag",

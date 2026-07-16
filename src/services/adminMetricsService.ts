@@ -23,6 +23,33 @@ export interface AdminMetrics {
   bikesRented: number;
   bikesReturningSoon: number;
   mrrEstimate: number;
+
+  /* ── Ops-dashboard superset (GET /api/admin/metrics, see CONTRACT.md) ─────
+   * The backend returns a superset: the legacy fields above are kept for
+   * existing readers (MetricsCards), and these newer, action-oriented figures
+   * are added. Names here are authoritative per the shared contract. Some
+   * duplicate a legacy field (e.g. availableBikes === bikesAvailable); the
+   * dashboard prefers these names. Optional in the type so an older backend
+   * that hasn't shipped them yet degrades gracefully rather than throwing.
+   * (activeRentals + pendingBookings already declared above.) */
+  /** Active/extended rentals with plannedEnd within 7 days. */
+  endingSoon?: number;
+  /** Active/extended rentals past plannedEnd and not returned. */
+  overdue?: number;
+  /** Approved/payment-pending/signature-pending bookings with no live rental and no assigned unit. */
+  awaitingBike?: number;
+  /** BikeUnit count in Available status. */
+  availableBikes?: number;
+  /** BikeUnit count in Rented status. */
+  rentedBikes?: number;
+  /** BikeUnit count in Incoming status (on order from distributor). */
+  incomingBikes?: number;
+  /** Maintenance tickets not yet resolved. */
+  maintenanceOpen?: number;
+  /** Sum of active + extended rentals' MonthlyPrice. */
+  estMonthlyRevenueEur?: number;
+  /** Currency of estMonthlyRevenueEur — "EUR". */
+  currency?: string;
 }
 
 /* ── Typed errors ──────────────────────────────────────────────────────── */
