@@ -325,7 +325,13 @@ function PortalView({
 
       <ContractCard token={token} showOnlineSigning={settings.showOnlineSigning} />
 
-      {settings.showPayConfirm && (
+      {/* Pay card only once the booking is actually approved (or later in the
+          pipeline) — a merely-submitted request must never be asked for money;
+          payment details arrive together with the rental agreement. */}
+      {settings.showPayConfirm &&
+        ["approved", "contractpending", "signaturepending", "paymentpending"].includes(
+          (rental.status ?? "").toLowerCase().replace(/[_\s-]/g, ""),
+        ) && (
         <PayCard
           bookingId={rental.bookingId ?? rental.reference}
           paymentStatus={rental.paymentStatus ?? null}
