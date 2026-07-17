@@ -2,7 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { getIcon } from "@/components/ui/Icon";
-import { accessoryService } from "@/services/accessoryService";
+import { accessoryService, customerVisibleAccessories } from "@/services/accessoryService";
 import { accessoryPriceRange } from "@/services/pricingService";
 import type { Accessory } from "@/types";
 
@@ -36,7 +36,7 @@ export async function Accessories() {
           <h2 className="h-section">{t("heading")}</h2>
         </Reveal>
         <div className="acc-grid">
-          {accessories.map((a, i) => {
+          {customerVisibleAccessories(accessories).map((a, i) => {
             const Glyph = getIcon(a.icon);
             const colors = a.colors ?? [];
             const desc = a.descriptionLocalized?.[locale] ?? a.description ?? undefined;

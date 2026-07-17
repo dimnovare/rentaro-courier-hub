@@ -12,6 +12,7 @@ import {
   resolveAccessoryPrice,
   accessoryPriceRange,
 } from "@/services/pricingService";
+import { customerVisibleAccessories } from "@/services/accessoryService";
 import { submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
@@ -854,7 +855,10 @@ export function BookingWizard({
                 <div id="addons-grid" className="addons-body">
                   <p className="sub">{t("addons.sub")}</p>
                   <div className="opt-grid">
-                    {accessories.map((a) => {
+                    {/* Bundle components are absorbed into their bundle — only
+                        the bundle (and standalone add-ons) are selectable. The
+                        FULL accessories array still backs name/price lookups. */}
+                    {customerVisibleAccessories(accessories).map((a) => {
                       const on = accessoryIds.includes(a.id);
                       const price = accessoryPriceOf(a.id);
                       // Exact per-30d price once a plan is picked; "from" while browsing.

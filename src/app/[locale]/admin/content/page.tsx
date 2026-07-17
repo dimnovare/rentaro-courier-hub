@@ -381,6 +381,16 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
               <Td nowrap>
                 {row.isBundle ? (
                   <StatusPill value="Bundle" tone="info" />
+                ) : bundleOf(rows, row.id) ? (
+                  // Component of a bundle: kept here for editing, but absorbed
+                  // into its bundle on the public site (not separately listed).
+                  <span
+                    className="mono"
+                    style={{ color: "var(--text-dim)", fontSize: 11.5 }}
+                    title={`Part of "${bundleOf(rows, row.id)!.name}" — hidden from the customer-facing list; customers select the bundle instead.`}
+                  >
+                    in {bundleOf(rows, row.id)!.id}
+                  </span>
                 ) : (
                   <span className="mono" style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
                 )}
@@ -1628,6 +1638,12 @@ function parseLeadingAmount(price: string | null | undefined): number | null {
  * "From" price for the list view: the lowest set tier, or the legacy display
  * price when no tier is set (matches the contract's no-plan-context rule).
  */
+/** The bundle (if any) that lists this accessory as a component — such rows are
+ *  hidden from the customer-facing lists and selectable only via their bundle. */
+function bundleOf(rows: AdminAccessory[], id: string): AdminAccessory | null {
+  return rows.find((r) => r.isBundle && r.componentIds.includes(id)) ?? null;
+}
+
 function fromPriceLabel(acc: AdminAccessory): string {
   const tiers = [acc.price30, acc.price6mo, acc.price12mo].filter(
     (v): v is number => v != null && !Number.isNaN(v),
