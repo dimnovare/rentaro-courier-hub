@@ -313,7 +313,7 @@
       "heading": "Vali pakett",
       "sub": "Mida pikem periood, seda madalam päevahind. Vähemalt 30 päeva.",
       "perDay": "€{price}/päev",
-      "per30": "€{price} 30 päeva eest",
+      "per30": "€{price} / 30 päeva",
       "depositBadge": "Tagastatav tagatisraha €{deposit} — saad selle tagasi",
       "dueLine": "€{total} alustamiseks — esimesed 30 päeva + tagastatav tagatisraha",
       "dayRange": "€{min}–{max}/päev"

@@ -313,7 +313,7 @@
       "heading": "Choose a plan",
       "sub": "The longer the term, the lower the daily price. Minimum 30 days.",
       "perDay": "€{price}/day",
-      "per30": "€{price} per 30 days",
+      "per30": "€{price} / 30 days",
       "depositBadge": "Refundable deposit €{deposit} — you get it back",
       "dueLine": "€{total} to start — first 30 days + refundable deposit",
       "dayRange": "€{min}–{max}/day"

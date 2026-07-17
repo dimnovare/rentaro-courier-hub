@@ -313,7 +313,7 @@
       "heading": "Izvēlies plānu",
       "sub": "Jo ilgāks termiņš, jo zemāka dienas cena. Minimālais termiņš 30 dienas.",
       "perDay": "€{price}/dienā",
-      "per30": "€{price} par 30 dienām",
+      "per30": "€{price} / 30 dienām",
       "depositBadge": "Atmaksājama drošības nauda €{deposit} — to saņemsi atpakaļ",
       "dueLine": "€{total} sākumam — pirmās 30 dienas + atmaksājams depozīts",
       "dayRange": "€{min}–{max}/dienā"

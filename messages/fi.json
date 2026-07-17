@@ -313,7 +313,7 @@
       "heading": "Valitse suunnitelma",
       "sub": "Mitä pidempi aika, sitä edullisempi päivähinta. Vähintään 30 päivää.",
       "perDay": "€{price}/pv",
-      "per30": "€{price} per 30 päivää",
+      "per30": "€{price} / 30 päivää",
       "depositBadge": "Palautettava vakuus €{deposit} — saat sen takaisin",
       "dueLine": "€{total} aloitukseen — ensimmäiset 30 päivää + palautettava vakuus",
       "dayRange": "€{min}–{max}/päivä"
