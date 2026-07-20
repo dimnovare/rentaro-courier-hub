@@ -8,11 +8,18 @@ import { Ic } from "@/components/ui/Icon";
 import { operatingCityNames } from "@/lib/cities";
 import type { City, LocalizedStrings } from "@/types";
 
+export function formatDailyPrice(price: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price);
+}
+
 export function Hero({
   liveAvailable,
   cities = [],
   marquee,
-  startingDailyPrice = 3.9,
+  startingDailyPrice,
 }: {
   liveAvailable?: number;
   cities?: City[];
@@ -25,10 +32,12 @@ export function Hero({
   const tc = useTranslations("cities");
   const showBikes = typeof liveAvailable === "number" && liveAvailable > 0;
   const marqueeItems = marquee?.[locale] ?? marquee?.en ?? [];
-  const formattedStartingDailyPrice = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(startingDailyPrice);
+  const formattedStartingDailyPrice =
+    typeof startingDailyPrice === "number" &&
+    Number.isFinite(startingDailyPrice) &&
+    startingDailyPrice > 0
+      ? formatDailyPrice(startingDailyPrice, locale)
+      : undefined;
 
   // A city counts as live once it is no longer "soon". Derived from the LIVE
   // city list (passed from the server) with LOCALIZED names so the pill, the
@@ -80,13 +89,15 @@ export function Hero({
           </Reveal>
           <Reveal delay={240}>
             <div className="hero-stats">
-              <div className="hero-stat">
-                <div className="n">
-                  {t("stats.priceValue", { price: formattedStartingDailyPrice })}
-                  <span className="u">{t("stats.priceUnit")}</span>
+              {formattedStartingDailyPrice ? (
+                <div className="hero-stat">
+                  <div className="n">
+                    {t("stats.priceValue", { price: formattedStartingDailyPrice })}
+                    <span className="u">{t("stats.priceUnit")}</span>
+                  </div>
+                  <div className="l">{t("stats.priceLabel")}</div>
                 </div>
-                <div className="l">{t("stats.priceLabel")}</div>
-              </div>
+              ) : null}
               <div className="hero-stat">
                 <div className="n">
                   {t("stats.termValue")}<span className="u">{t("stats.termUnit")}</span>

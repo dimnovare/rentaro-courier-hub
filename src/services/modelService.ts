@@ -1,7 +1,7 @@
 import type { SyntheticEvent } from "react";
 import { bikeModels, popularModels, getModelBySlug } from "@/data/bikeModels";
 import type { BikeModel } from "@/types";
-import { API_BASE, apiGet, apiGetOrNotFound } from "./api";
+import { API_BASE, apiGet, apiGetOptional, apiGetOrNotFound } from "./api";
 
 /**
  * Resolve a model image `src` for use in `<img>`.
@@ -41,6 +41,8 @@ export function handleModelImgError(
 
 export const modelService = {
   getModels: () => apiGet<BikeModel[]>("/api/public/models", bikeModels),
+  getModelsFromApi: () =>
+    apiGetOptional<BikeModel[]>("/api/public/models"),
   getPopular: () =>
     apiGet<BikeModel[]>("/api/public/models?popular=true", popularModels),
   // A live-API 404 means the model was deleted/deactivated in admin — resolve

@@ -34,6 +34,30 @@ export async function apiGet<T>(path: string, fallback: T): Promise<T> {
 }
 
 /**
+ * Fetch data that must never fall back to a potentially stale local value.
+ * This is used for public price claims: when the live API is unavailable, the
+ * caller can omit the claim instead of advertising an outdated amount.
+ */
+export async function apiGetOptional<T>(path: string): Promise<T | undefined> {
+  if (!API_BASE) return undefined;
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 20 },
+      signal: AbortSignal.timeout(API_TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
+    return (await res.json()) as T;
+  } catch (err) {
+    console.error(
+      `[rentaro] API GET ${path} failed; omitting data that must stay current.`,
+      err,
+    );
+    return undefined;
+  }
+}
+
+/**
  * Like {@link apiGet}, but for single-resource endpoints where a live-API 404
  * is a definitive "this resource does not exist" (e.g. an admin-deleted or
  * deactivated model) — it resolves to `undefined` so the caller can render a

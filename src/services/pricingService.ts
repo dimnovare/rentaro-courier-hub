@@ -1,9 +1,11 @@
 import { pricingPlans } from "@/data/pricingPlans";
 import type { Accessory, BikeModel, PlanId, PricingPlan } from "@/types";
-import { apiGet } from "./api";
+import { apiGet, apiGetOptional } from "./api";
 
 export const pricingService = {
   getPlans: () => apiGet<PricingPlan[]>("/api/public/pricing", pricingPlans),
+  getPlansFromApi: () =>
+    apiGetOptional<PricingPlan[]>("/api/public/pricing"),
 };
 
 /** The per-model override field that backs each plan tier. */

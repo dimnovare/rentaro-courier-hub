@@ -5,8 +5,8 @@ const serviceMocks = vi.hoisted(() => ({
   getLiveModelTotals: vi.fn(),
   getCities: vi.fn(),
   getMarquee: vi.fn(),
-  getModels: vi.fn(),
-  getPlans: vi.fn(),
+  getModelsFromApi: vi.fn(),
+  getPlansFromApi: vi.fn(),
 }));
 
 vi.mock("@/services/availabilityService", () => ({
@@ -19,7 +19,7 @@ vi.mock("@/services/marqueeService", () => ({
   marqueeService: { getMarquee: serviceMocks.getMarquee },
 }));
 vi.mock("@/services/modelService", () => ({
-  modelService: { getModels: serviceMocks.getModels },
+  modelService: { getModelsFromApi: serviceMocks.getModelsFromApi },
 }));
 vi.mock("@/services/pricingService", async () => {
   const actual = await vi.importActual<typeof import("@/services/pricingService")>(
@@ -27,7 +27,7 @@ vi.mock("@/services/pricingService", async () => {
   );
   return {
     ...actual,
-    pricingService: { getPlans: serviceMocks.getPlans },
+    pricingService: { getPlansFromApi: serviceMocks.getPlansFromApi },
   };
 });
 
@@ -38,7 +38,17 @@ describe("HeroServer pricing", () => {
     serviceMocks.getLiveModelTotals.mockResolvedValue(new Map());
     serviceMocks.getCities.mockResolvedValue([]);
     serviceMocks.getMarquee.mockResolvedValue({});
-    serviceMocks.getPlans.mockResolvedValue([
+    serviceMocks.getPlansFromApi.mockResolvedValue([
+      {
+        id: "p30",
+        term: "30 days",
+        months: 1,
+        daily: 5.9,
+        monthly: 177,
+        tag: "Flexible",
+        featured: false,
+        perks: { en: [] },
+      },
       {
         id: "p365",
         term: "12 months",
@@ -50,7 +60,7 @@ describe("HeroServer pricing", () => {
         perks: { en: [] },
       },
     ]);
-    serviceMocks.getModels.mockResolvedValue([
+    serviceMocks.getModelsFromApi.mockResolvedValue([
       { price12mo: 199 },
       { price12mo: 169 },
       { price12mo: 229 },
@@ -63,5 +73,56 @@ describe("HeroServer pricing", () => {
     }>;
 
     expect(element.props.startingDailyPrice).toBe(5.63);
+  });
+
+  it("uses the live plan rate when a model has no 12-month override", async () => {
+    serviceMocks.getModelsFromApi.mockResolvedValue([{}]);
+
+    const element = (await HeroServer()) as ReactElement<{
+      startingDailyPrice?: number;
+    }>;
+
+    expect(element.props.startingDailyPrice).toBe(3.9);
+  });
+
+  it.each([
+    ["models are unavailable", undefined, undefined],
+    ["the model list is empty", [], undefined],
+  ])("omits the price when %s", async (_case, models, expected) => {
+    serviceMocks.getModelsFromApi.mockResolvedValue(models);
+
+    const element = (await HeroServer()) as ReactElement<{
+      startingDailyPrice?: number;
+    }>;
+
+    expect(element.props.startingDailyPrice).toBe(expected);
+  });
+
+  it.each([
+    ["plans are unavailable", undefined],
+    ["the plan list is empty", []],
+    [
+      "the p365 plan is missing",
+      [
+        {
+          id: "p30",
+          term: "30 days",
+          months: 1,
+          daily: 5.9,
+          monthly: 177,
+          tag: "Flexible",
+          featured: false,
+          perks: { en: [] },
+        },
+      ],
+    ],
+  ])("omits the price when %s", async (_case, plans) => {
+    serviceMocks.getPlansFromApi.mockResolvedValue(plans);
+
+    const element = (await HeroServer()) as ReactElement<{
+      startingDailyPrice?: number;
+    }>;
+
+    expect(element.props.startingDailyPrice).toBeUndefined();
   });
 });
