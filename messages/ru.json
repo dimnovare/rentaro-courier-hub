@@ -60,7 +60,7 @@
     "ctaReserve": "Забронировать байк",
     "ctaExplore": "Смотреть автопарк",
     "stats": {
-      "priceValue": "от €3.90",
+      "priceValue": "от €{price}",
       "priceUnit": "/день",
       "priceLabel": "План на 12 мес.",
       "termValue": "30",

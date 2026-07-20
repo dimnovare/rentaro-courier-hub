@@ -60,7 +60,7 @@
     "ctaReserve": "Reserve a bike",
     "ctaExplore": "Explore the fleet",
     "stats": {
-      "priceValue": "from €3.90",
+      "priceValue": "from €{price}",
       "priceUnit": "/day",
       "priceLabel": "12-mo plan",
       "termValue": "30",

@@ -60,7 +60,7 @@
     "ctaReserve": "Varaa pyörä",
     "ctaExplore": "Tutustu kalustoon",
     "stats": {
-      "priceValue": "alk. €3.90",
+      "priceValue": "alk. €{price}",
       "priceUnit": "/pv",
       "priceLabel": "12 kk suunnitelma",
       "termValue": "30",

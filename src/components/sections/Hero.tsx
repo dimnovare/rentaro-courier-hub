@@ -12,13 +12,23 @@ export function Hero({
   liveAvailable,
   cities = [],
   marquee,
-}: { liveAvailable?: number; cities?: City[]; marquee?: LocalizedStrings } = {}) {
+  startingDailyPrice = 3.9,
+}: {
+  liveAvailable?: number;
+  cities?: City[];
+  marquee?: LocalizedStrings;
+  startingDailyPrice?: number;
+} = {}) {
   const { reserve, goModels } = useInteractions();
   const locale = useLocale();
   const t = useTranslations("hero");
   const tc = useTranslations("cities");
   const showBikes = typeof liveAvailable === "number" && liveAvailable > 0;
   const marqueeItems = marquee?.[locale] ?? marquee?.en ?? [];
+  const formattedStartingDailyPrice = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(startingDailyPrice);
 
   // A city counts as live once it is no longer "soon". Derived from the LIVE
   // city list (passed from the server) with LOCALIZED names so the pill, the
@@ -72,7 +82,8 @@ export function Hero({
             <div className="hero-stats">
               <div className="hero-stat">
                 <div className="n">
-                  {t("stats.priceValue")}<span className="u">{t("stats.priceUnit")}</span>
+                  {t("stats.priceValue", { price: formattedStartingDailyPrice })}
+                  <span className="u">{t("stats.priceUnit")}</span>
                 </div>
                 <div className="l">{t("stats.priceLabel")}</div>
               </div>

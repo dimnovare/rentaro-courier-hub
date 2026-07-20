@@ -60,7 +60,7 @@
     "ctaReserve": "Broneeri ratas",
     "ctaExplore": "Tutvu pargiga",
     "stats": {
-      "priceValue": "al. €3.90",
+      "priceValue": "al. €{price}",
       "priceUnit": "/päev",
       "priceLabel": "12-kuu pakett",
       "termValue": "30",

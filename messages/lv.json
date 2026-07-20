@@ -60,7 +60,7 @@
     "ctaReserve": "Rezervēt velosipēdu",
     "ctaExplore": "Apskatīt parku",
     "stats": {
-      "priceValue": "no €3.90",
+      "priceValue": "no €{price}",
       "priceUnit": "/dienā",
       "priceLabel": "12 mēn. plāns",
       "termValue": "30",
