@@ -217,6 +217,23 @@
       "helmet": "Kypärä",
       "rain": "Sadesuoja",
       "winter": "Talvirenkaat"
+    },
+    "packages": {
+      "planLabel": "Vuokra-aika",
+      "cityLabel": "Saatavuus kaupungissa",
+      "policy": "Jokaisen pyörän mukana tulee vain laturi. Kaikki alla olevat varusteet ovat valinnaisia ja maksullisia 30 päivän jaksoissa.",
+      "loading": "Ladataan ajantasaisia pakettihintoja...",
+      "loadError": "Ajantasaisia pakettihintoja ei voitu ladata.",
+      "retry": "Yritä uudelleen",
+      "recommended": "Suositeltu",
+      "includes": "Sisältää: {items}",
+      "unavailable": "{component} ei ole saatavilla kaupungissa {city}.",
+      "per30": "30 päivältä",
+      "saving": "Säästä €{amount}",
+      "choose": "Valitse {offer}",
+      "chooseShort": "Valitse",
+      "unavailableShort": "Ei saatavilla",
+      "compareAll": "Vertaa kaikkia varustevaihtoehtoja"
     }
   },
   "service": {

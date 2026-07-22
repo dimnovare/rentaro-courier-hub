@@ -217,6 +217,23 @@
       "helmet": "Ķivere",
       "rain": "Lietus pārvalks",
       "winter": "Ziemas riepas"
+    },
+    "packages": {
+      "planLabel": "Nomas termiņš",
+      "cityLabel": "Pieejamība pilsētā",
+      "policy": "Katram velosipēdam ir iekļauts tikai lādētājs. Viss zemāk norādītais aprīkojums ir izvēles un maksas papildinājums par katrām 30 dienām.",
+      "loading": "Ielādējam aktuālās komplektu cenas...",
+      "loadError": "Neizdevās ielādēt aktuālās komplektu cenas.",
+      "retry": "Mēģināt vēlreiz",
+      "recommended": "Ieteikts",
+      "includes": "Iekļauts: {items}",
+      "unavailable": "{component} pilsētā {city} nav pieejams.",
+      "per30": "par 30 dienām",
+      "saving": "Ietaupi €{amount}",
+      "choose": "Izvēlēties {offer}",
+      "chooseShort": "Izvēlēties",
+      "unavailableShort": "Nav pieejams",
+      "compareAll": "Salīdzināt visas aprīkojuma iespējas"
     }
   },
   "service": {

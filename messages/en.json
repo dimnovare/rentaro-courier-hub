@@ -217,6 +217,23 @@
       "helmet": "Helmet",
       "rain": "Rain cover",
       "winter": "Winter tires"
+    },
+    "packages": {
+      "planLabel": "Rental term",
+      "cityLabel": "City availability",
+      "policy": "Only the charger is included with every bike. All gear below is optional and paid per 30-day period.",
+      "loading": "Loading current package prices...",
+      "loadError": "Current package prices could not be loaded.",
+      "retry": "Try again",
+      "recommended": "Recommended",
+      "includes": "Includes: {items}",
+      "unavailable": "{component} unavailable in {city}.",
+      "per30": "per 30 days",
+      "saving": "Save €{amount}",
+      "choose": "Choose {offer}",
+      "chooseShort": "Choose",
+      "unavailableShort": "Unavailable",
+      "compareAll": "Compare every gear option"
     }
   },
   "service": {

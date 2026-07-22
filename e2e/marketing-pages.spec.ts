@@ -114,6 +114,22 @@ test.describe("marketing pages render heading + CTA, no errors", () => {
     await expect(page.getByRole("button", { name: /choose 12 months/i })).toBeVisible();
   });
 
+  test("/accessories compares live packages without invented inclusion claims", async ({ page }) => {
+    await expectNoPageErrors(page, "/accessories");
+
+    await expect(page.getByRole("group", { name: /rental term/i })).toBeVisible();
+    await expect(page.getByText("Bike Only")).toBeVisible();
+    await expect(page.getByText("Courier Essentials")).toBeVisible();
+    await expect(page.getByText("Courier Pro")).toBeVisible();
+    await expect(page.getByText("Battery Only")).toBeVisible();
+    await expect(page.getByText("Recommended")).toBeVisible();
+    await expect(page.getByText(/only the charger is included/i)).toBeVisible();
+    await expect(page.getByText(/most popular/i)).toHaveCount(0);
+
+    await page.getByRole("button", { name: "30 days" }).click();
+    await expect(page.getByText("€109")).toBeVisible();
+  });
+
   // SEO landing pages: each leads with an <h1> hero and a reserve/book CTA in
   // the hero CTA row.
   const seoPages: { path: string; heading: RegExp; cta: RegExp }[] = [

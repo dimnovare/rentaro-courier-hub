@@ -48,7 +48,7 @@ export default async function Home() {
       <Fleet />
       <HowItWorks />
       <Cities />
-      {settings.showAccessories && <Accessories />}
+      {settings.showAccessories && <Accessories compact />}
       <Service />
       <Faq />
       <FinalCta />

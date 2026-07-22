@@ -36,7 +36,7 @@ export default async function AccessoriesPage() {
           </Reveal>
         </div>
       </section>
-      <Accessories />
+      <Accessories showHeading={false} />
     </main>
   );
 }

@@ -217,6 +217,23 @@
       "helmet": "Kiiver",
       "rain": "Vihmakate",
       "winter": "Talverehvid"
+    },
+    "packages": {
+      "planLabel": "Rendiperiood",
+      "cityLabel": "Saadavus linnas",
+      "policy": "Iga rattaga on kaasas ainult laadija. Kõik alltoodud lisad on valikulised ja tasulised iga 30 päeva eest.",
+      "loading": "Laadime kehtivaid paketihindu...",
+      "loadError": "Kehtivaid paketihindu ei õnnestunud laadida.",
+      "retry": "Proovi uuesti",
+      "recommended": "Soovitatud",
+      "includes": "Sisaldab: {items}",
+      "unavailable": "{component} ei ole linnas {city} saadaval.",
+      "per30": "30 päeva eest",
+      "saving": "Säästad €{amount}",
+      "choose": "Vali {offer}",
+      "chooseShort": "Vali",
+      "unavailableShort": "Pole saadaval",
+      "compareAll": "Võrdle kõiki varustusvalikuid"
     }
   },
   "service": {
