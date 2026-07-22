@@ -264,7 +264,9 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
       ...row,
       nameLocalized: { ...(row.nameLocalized ?? {}) },
       descriptionLocalized: { ...(row.descriptionLocalized ?? {}) },
+      benefitLocalized: { ...(row.benefitLocalized ?? {}) },
       componentIds: [...(row.componentIds ?? [])],
+      compareAtOfferCodes: [...(row.compareAtOfferCodes ?? [])],
       colors: (row.colors ?? []).map((c) => ({ ...c })),
     };
     setDraft(next);
@@ -294,8 +296,23 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
       }
     }
     const componentIds = draft.isBundle ? draft.componentIds : [];
-    if (draft.isBundle && componentIds.length === 0) {
-      setFormError("A bundle needs at least one component accessory.");
+    const isCustomerOffer = draft.customerOfferPlacement !== "hidden";
+    if (draft.isActive && isCustomerOffer && draft.isBundle && componentIds.length === 0) {
+      setFormError("An active customer bundle must include at least one component.");
+      return;
+    }
+    const invalidComponents = componentIds.filter((code) => {
+      const component = rows.find((row) => row.id === code);
+      return isCustomerOffer && draft.isActive && (!component?.isActive || !component.inventoryTracked);
+    });
+    if (invalidComponents.length > 0) {
+      setFormError(
+        `Customer-offer components must be active and inventory-tracked: ${invalidComponents.join(", ")}.`,
+      );
+      return;
+    }
+    if (draft.replacementValue < 0) {
+      setFormError("Replacement value cannot be negative.");
       return;
     }
 
@@ -309,7 +326,13 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
         description: (draft.description ?? "").trim() || null,
         nameLocalized: cleanLocalizedText(draft.nameLocalized),
         descriptionLocalized: cleanLocalizedText(draft.descriptionLocalized),
+        benefit: draft.benefit.trim(),
+        benefitLocalized: cleanLocalizedText(draft.benefitLocalized),
         componentIds,
+        isRecommended: isCustomerOffer ? draft.isRecommended : false,
+        inventoryTracked: draft.isBundle ? false : draft.inventoryTracked,
+        replacementValue: Number.isFinite(draft.replacementValue) ? draft.replacementValue : 0,
+        compareAtOfferCodes: [...new Set(draft.compareAtOfferCodes.filter((code) => code !== draft.id))],
         colors: cleanColors(draft.colors ?? []),
       };
       if (editor.mode === "create") {
@@ -354,7 +377,17 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
   // Non-bundle accessories are the only valid bundle components; a bundle can
   // never contain itself or another bundle.
   const componentChoices = rows.filter((r) => !r.isBundle && r.id !== draft.id);
+  const compareChoices = rows.filter(
+    (r) =>
+      r.id !== draft.id &&
+      (draft.compareAtOfferCodes.includes(r.id) ||
+        (r.isActive &&
+          r.customerOfferPlacement !== "hidden" &&
+          (r.compareAtOfferCodes ?? []).length === 0)),
+  );
   const legacyAmount = parseLeadingAmount(draft.price);
+  const isCustomerOffer = draft.customerOfferPlacement !== "hidden";
+  const comparisonWarnings = compareAtWarnings(draft, rows);
 
   return (
     <Section id="accessories" title="Accessories" count={rows.length}>
@@ -365,6 +398,8 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
             <Th>Name</Th>
             <Th>From / 30d</Th>
             <Th>Type</Th>
+            <Th>Offer</Th>
+            <Th>Inventory</Th>
             <Th>Icon</Th>
             <Th>Sort</Th>
             <Th>Actions</Th>
@@ -373,7 +408,7 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
         <tbody>
           {rows.length === 0 && (
             <EmptyRow
-              colSpan={7}
+              colSpan={9}
               label="No accessories yet — use “+ Add accessory” below to create the first one."
             />
           )}
@@ -401,6 +436,25 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
                   </span>
                 ) : (
                   <span className="mono" style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
+                )}
+              </Td>
+              <Td nowrap>
+                {row.customerOfferPlacement === "hidden" ? (
+                  <StatusPill value={row.isActive ? "internal" : "inactive"} tone="neutral" />
+                ) : (
+                  <StatusPill
+                    value={`${row.customerOfferPlacement}${row.isRecommended ? " · recommended" : ""}`}
+                    tone={row.isActive ? "good" : "neutral"}
+                  />
+                )}
+              </Td>
+              <Td nowrap>
+                {row.isBundle ? (
+                  <span className="mono" style={{ color: "var(--text-dim)", fontSize: 11.5 }}>
+                    components
+                  </span>
+                ) : (
+                  <StatusPill value={row.inventoryTracked ? "tracked" : "untracked"} tone={row.inventoryTracked ? "info" : "neutral"} />
                 )}
               </Td>
               <Td mono dim>{row.icon}</Td>
@@ -484,11 +538,117 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
           hint="Fallback for any blank tier above. Kept for backward compatibility."
         />
 
+        <GroupLabel hint="Controls whether this row is offered to customers. Primary offers lead the booking step; secondary offers remain available as a simpler alternative.">
+          Customer offer
+        </GroupLabel>
+        <FieldCheckbox
+          label="Active"
+          checked={draft.isActive}
+          onChange={(checked) => setDraft({ ...draft, isActive: checked })}
+          hint="Inactive rows stay in the catalog but cannot be selected by customers or assigned as new equipment."
+        />
+        <FieldSelect
+          label="Customer placement"
+          value={draft.customerOfferPlacement}
+          onChange={(value) =>
+            setDraft((current) => ({
+              ...current,
+              customerOfferPlacement: value as AccessoryInput["customerOfferPlacement"],
+              isRecommended: value === "hidden" ? false : current.isRecommended,
+            }))
+          }
+          options={[
+            { value: "hidden", label: "Hidden / internal component" },
+            { value: "primary", label: "Primary customer offer" },
+            { value: "secondary", label: "Secondary customer offer" },
+          ]}
+        />
+        <FieldCheckbox
+          label="Recommended offer"
+          checked={draft.isRecommended}
+          disabled={!isCustomerOffer}
+          onChange={(checked) => setDraft({ ...draft, isRecommended: checked })}
+          hint="Adds the editorial Recommended label. Hidden rows cannot be recommended."
+        />
+        <LocalizedSingleTextEditor
+          label="Benefit"
+          baseValue={draft.benefit}
+          localized={draft.benefitLocalized}
+          onChange={(locale, value) =>
+            setDraft((current) =>
+              locale === "en"
+                ? { ...current, benefit: value }
+                : {
+                    ...current,
+                    benefitLocalized: { ...current.benefitLocalized, [locale]: value },
+                  },
+            )
+          }
+        />
+
+        <div className="field">
+          <label>Compare-at offers</label>
+          <p className="mono" style={{ margin: "0 0 10px", fontSize: 11, lineHeight: 1.6, color: "var(--text-dim)" }}>
+            Select the standalone customer offers whose combined price is shown beside this package. Comparisons never change the amount charged.
+          </p>
+          {compareChoices.length === 0 ? (
+            <p className="mono" style={{ margin: 0, fontSize: 12, color: "var(--text-dim)" }}>
+              No eligible customer offers are available for comparison.
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {compareChoices.map((choice) => (
+                <ComponentCheckbox
+                  key={choice.id}
+                  id={choice.id}
+                  name={choice.name}
+                  suffix="compare price"
+                  checked={draft.compareAtOfferCodes.includes(choice.id)}
+                  onToggle={(checked) =>
+                    setDraft((current) => ({
+                      ...current,
+                      compareAtOfferCodes: checked
+                        ? [...current.compareAtOfferCodes, choice.id]
+                        : current.compareAtOfferCodes.filter((code) => code !== choice.id),
+                    }))
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        {comparisonWarnings.map((warning) => (
+          <div
+            key={warning}
+            role="status"
+            className="mono"
+            style={{
+              marginBottom: 10,
+              padding: "10px 12px",
+              border: "1px solid rgba(255, 194, 71, 0.36)",
+              borderRadius: "var(--r-sm)",
+              color: "#ffd071",
+              background: "rgba(255, 194, 71, 0.06)",
+              fontSize: 11.5,
+              lineHeight: 1.55,
+            }}
+          >
+            {warning}
+          </div>
+        ))}
+
         <GroupLabel>Bundle</GroupLabel>
         <FieldCheckbox
           label="This accessory is a bundle"
           checked={draft.isBundle}
-          onChange={(checked) => setDraft({ ...draft, isBundle: checked })}
+          onChange={(checked) =>
+            setDraft({
+              ...draft,
+              isBundle: checked,
+              componentIds: checked ? draft.componentIds : [],
+              inventoryTracked: checked ? false : draft.inventoryTracked,
+            })
+          }
           hint="A bundle is billed at its own tier price above. Its components are shown to the customer for information only — their prices are never added up."
         />
         {draft.isBundle && (
@@ -505,12 +665,20 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {componentChoices.map((choice) => {
                   const on = draft.componentIds.includes(choice.id);
+                  const unavailableForCustomerOffer =
+                    draft.isActive && isCustomerOffer && (!choice.isActive || !choice.inventoryTracked);
                   return (
                     <ComponentCheckbox
                       key={choice.id}
                       id={choice.id}
                       name={choice.name}
                       checked={on}
+                      disabled={unavailableForCustomerOffer && !on}
+                      hint={
+                        unavailableForCustomerOffer
+                          ? "Must be active and inventory-tracked before this component can be added to a live customer offer."
+                          : undefined
+                      }
                       onToggle={(next) =>
                         setDraft((d) => ({
                           ...d,
@@ -526,6 +694,23 @@ function AccessoriesSection({ rows, onError, clearError, patch }: SectionProps<A
             )}
           </div>
         )}
+
+        <GroupLabel hint="Physical leaf accessories can be tracked by serial number through handover and return. Bundle rows inherit tracking from their components.">
+          Inventory
+        </GroupLabel>
+        <FieldCheckbox
+          label="Track physical units"
+          checked={draft.inventoryTracked}
+          disabled={draft.isBundle}
+          onChange={(checked) => setDraft({ ...draft, inventoryTracked: checked })}
+          hint={draft.isBundle ? "Bundles cannot be inventory-tracked directly." : "Enable for batteries, locks, phone holders, bags, and other serialized equipment."}
+        />
+        <FieldNumber
+          label="Replacement value (€)"
+          value={draft.replacementValue}
+          step="0.01"
+          onChange={(value) => setDraft({ ...draft, replacementValue: value })}
+        />
 
         <GroupLabel>Appearance</GroupLabel>
         <div className="field-row">
@@ -660,17 +845,104 @@ function LocalizedTextEditor({
   );
 }
 
+/** Compact localized editor for short customer-facing accessory benefit copy. */
+function LocalizedSingleTextEditor({
+  label,
+  baseValue,
+  localized,
+  onChange,
+}: {
+  label: string;
+  baseValue: string;
+  localized: LocalizedText;
+  onChange: (locale: AdminLocale, value: string) => void;
+}) {
+  const [active, setActive] = useState<AdminLocale>("en");
+  const value = active === "en" ? baseValue : localized[active] ?? "";
+
+  return (
+    <div className="field">
+      <div
+        role="tablist"
+        aria-label={`${label} language`}
+        style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}
+      >
+        {ADMIN_LOCALES.map((locale) => {
+          const selected = locale === active;
+          const filled = (locale === "en" ? baseValue : localized[locale] ?? "").trim().length > 0;
+          return (
+            <button
+              key={locale}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              onClick={() => setActive(locale)}
+              className="mono"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                borderRadius: "var(--r-full)",
+                fontSize: 11,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                background: selected ? "var(--lime)" : "var(--surface)",
+                color: selected ? "var(--lime-ink)" : "var(--text-2)",
+                border: `1px solid ${selected ? "var(--lime)" : "var(--border-strong)"}`,
+                fontWeight: selected ? 600 : 500,
+              }}
+            >
+              {locale.toUpperCase()}
+              {locale !== "en" && (
+                <span
+                  aria-hidden
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: "var(--r-full)",
+                    background: filled
+                      ? selected
+                        ? "var(--lime-ink)"
+                        : "var(--lime)"
+                      : "transparent",
+                    border: filled ? "none" : "1px solid var(--border-strong)",
+                  }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <FieldTextArea
+        label={`${label} (${active.toUpperCase()})`}
+        value={value}
+        onChange={(next) => onChange(active, next)}
+        rows={2}
+        placeholder={active === "en" ? "Short reason to choose this offer." : "Blank falls back to English."}
+      />
+    </div>
+  );
+}
+
 /** One checkbox row in the bundle component picker. */
 function ComponentCheckbox({
   id,
   name,
   checked,
   onToggle,
+  disabled = false,
+  suffix,
+  hint,
 }: {
   id: string;
   name: string;
   checked: boolean;
   onToggle: (next: boolean) => void;
+  disabled?: boolean;
+  suffix?: string;
+  hint?: string;
 }) {
   return (
     <label
@@ -682,16 +954,29 @@ function ComponentCheckbox({
         borderRadius: "var(--r-sm)",
         background: checked ? "rgba(216, 255, 54, 0.06)" : "var(--bg-2)",
         border: `1px solid ${checked ? "rgba(216, 255, 54, 0.3)" : "var(--border)"}`,
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.55 : 1,
       }}
     >
       <input
         type="checkbox"
         checked={checked}
+        disabled={disabled}
         onChange={(e) => onToggle(e.target.checked)}
-        style={{ width: 16, height: 16, accentColor: "var(--lime)", cursor: "pointer" }}
+        style={{
+          width: 16,
+          height: 16,
+          accentColor: "var(--lime)",
+          cursor: disabled ? "not-allowed" : "pointer",
+        }}
       />
-      <span style={{ fontSize: 13, color: "var(--text)" }}>{name}</span>
+      <span style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 13, color: "var(--text)" }}>
+        <span>
+          {name}
+          {suffix ? ` · ${suffix}` : ""}
+        </span>
+        {hint && <span className="mono" style={{ fontSize: 10.5, color: "var(--text-dim)" }}>{hint}</span>}
+      </span>
       <span className="mono" style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-dim)" }}>
         {id}
       </span>
@@ -760,20 +1045,37 @@ function FieldCheckbox({
   checked,
   onChange,
   hint,
+  disabled = false,
 }: {
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
   hint?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="field">
-      <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", textTransform: "none" }}>
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.55 : 1,
+          textTransform: "none",
+        }}
+      >
         <input
           type="checkbox"
           checked={checked}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.checked)}
-          style={{ width: 16, height: 16, accentColor: "var(--lime)", cursor: "pointer" }}
+          style={{
+            width: 16,
+            height: 16,
+            accentColor: "var(--lime)",
+            cursor: disabled ? "not-allowed" : "pointer",
+          }}
         />
         <span style={{ fontSize: 13, color: "var(--text)", letterSpacing: "0.01em" }}>{label}</span>
       </label>
@@ -1666,4 +1968,37 @@ function tierPreview(value: number | null, legacyAmount: number | null): string 
   if (value != null && !Number.isNaN(value)) return `Charges ${eur(value)} / 30d`;
   if (legacyAmount != null) return `Blank → ${eur(legacyAmount)} / 30d (legacy)`;
   return "Blank → no price set";
+}
+
+/** Warn editors when a package no longer delivers a visible tier saving. */
+function compareAtWarnings(draft: AccessoryInput, rows: AdminAccessory[]): string[] {
+  if (draft.compareAtOfferCodes.length === 0) return [];
+
+  const comparisons = draft.compareAtOfferCodes
+    .map((code) => rows.find((row) => row.id === code))
+    .filter((row): row is AdminAccessory => row != null);
+  if (comparisons.length !== draft.compareAtOfferCodes.length) return [];
+
+  const offerName = draft.name.trim() || draft.id.trim() || "This offer";
+  return ACCESSORY_TIERS.flatMap((tier) => {
+    const packagePrice = resolvedTierPrice(draft, tier.key);
+    const componentPrices = comparisons.map((row) => resolvedTierPrice(row, tier.key));
+    if (packagePrice == null || componentPrices.some((price) => price == null)) return [];
+
+    const comparisonTotal = componentPrices.reduce<number>((sum, price) => sum + (price ?? 0), 0);
+    return packagePrice >= comparisonTotal
+      ? [
+          `${offerName} is not cheaper than its comparison offers on the ${tier.label} tier ` +
+            `(${eur(packagePrice)} vs ${eur(comparisonTotal)}).`,
+        ]
+      : [];
+  });
+}
+
+function resolvedTierPrice(
+  accessory: Pick<AccessoryInput, "price" | "price30" | "price6mo" | "price12mo">,
+  key: (typeof ACCESSORY_TIERS)[number]["key"],
+): number | null {
+  const tierPrice = accessory[key];
+  return tierPrice != null && Number.isFinite(tierPrice) ? tierPrice : parseLeadingAmount(accessory.price);
 }

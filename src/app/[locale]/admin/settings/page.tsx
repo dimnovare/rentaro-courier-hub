@@ -122,6 +122,8 @@ function sameSettings(a: SiteSettings, b: SiteSettings): boolean {
   if (a.autoSendReturnReminders !== b.autoSendReturnReminders) return false;
   if (a.autoCreateInvoices !== b.autoCreateInvoices) return false;
   if ((a.deliveryFee ?? 0) !== (b.deliveryFee ?? 0)) return false;
+  if ((a.extraBatteryDepositEnabled ?? false) !== (b.extraBatteryDepositEnabled ?? false)) return false;
+  if ((a.extraBatteryDepositAmount ?? 0) !== (b.extraBatteryDepositAmount ?? 0)) return false;
   if ((a.vatRatePercent ?? 0) !== (b.vatRatePercent ?? 0)) return false;
   for (const k of BANK_KEYS) {
     if ((a[k] ?? "") !== (b[k] ?? "")) return false;
@@ -223,6 +225,7 @@ export default function AdminSettingsPage() {
   const data = state.data;
   // Unsaved-changes flag: the on-screen record differs from the last save.
   const dirty = baseline ? !sameSettings(data, baseline) : false;
+  const depositInvalid = data.extraBatteryDepositEnabled && !(data.extraBatteryDepositAmount > 0);
   // Nudge the operator to fill the company requisites before issuing invoices.
   const companyEmpty = COMPANY_KEYS.every((k) => !(data[k] ?? "").trim());
 
@@ -269,6 +272,51 @@ export default function AdminSettingsPage() {
               help="Flat one-time fee when a customer picks delivery instead of free pickup. €0 = free."
               onChange={(v) => setField("deliveryFee", v)}
             />
+          </div>
+        </div>
+      </SettingsCard>
+
+      <SettingsCard
+        title="Extra-battery deposit"
+        help="Optional one-time refundable deposit for packages containing an extra battery. It never repeats on extensions."
+      >
+        <div className="admin-set-card-body">
+          <ToggleRow
+            label="Require a refundable deposit for extra batteries"
+            checked={data.extraBatteryDepositEnabled}
+            first
+            onChange={(enabled) => {
+              setSavedAt(null);
+              setActionError(null);
+              setState((current) =>
+                current.phase === "ready"
+                  ? {
+                      ...current,
+                      data: {
+                        ...current.data,
+                        extraBatteryDepositEnabled: enabled,
+                        extraBatteryDepositAmount: enabled
+                          ? current.data.extraBatteryDepositAmount
+                          : 0,
+                      },
+                    }
+                  : current,
+              );
+            }}
+          />
+          <div style={{ borderTop: "1px solid var(--border)", padding: "16px 0 4px" }}>
+            <EuroField
+              label="Extra-battery deposit (€)"
+              value={data.extraBatteryDepositAmount}
+              help="Collected once before pickup and shown separately from bike rent and the bike deposit."
+              disabled={!data.extraBatteryDepositEnabled}
+              onChange={(value) => setField("extraBatteryDepositAmount", value)}
+            />
+            {depositInvalid && (
+              <p className="admin-error" role="alert">
+                Enter a positive deposit amount before saving.
+              </p>
+            )}
           </div>
         </div>
       </SettingsCard>
@@ -335,8 +383,8 @@ export default function AdminSettingsPage() {
           type="button"
           className="btn btn-primary"
           onClick={() => void save()}
-          disabled={busy || !dirty}
-          style={{ padding: "12px 26px", fontSize: 14, opacity: busy || !dirty ? 0.55 : 1 }}
+          disabled={busy || !dirty || depositInvalid}
+          style={{ padding: "12px 26px", fontSize: 14, opacity: busy || !dirty || depositInvalid ? 0.55 : 1 }}
         >
           {busy ? "Saving…" : "Save settings"}
         </button>
@@ -475,11 +523,13 @@ function EuroField({
   label,
   value,
   help,
+  disabled = false,
   onChange,
 }: {
   label: string;
   value: number;
   help: string;
+  disabled?: boolean;
   onChange: (v: number) => void;
 }) {
   const [text, setText] = useState<string>(() => String(value ?? 0));
@@ -499,6 +549,7 @@ function EuroField({
         step={0.5}
         value={text}
         aria-label={label}
+        disabled={disabled}
         onChange={(e) => {
           const raw = e.target.value;
           setText(raw);
