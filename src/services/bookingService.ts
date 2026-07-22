@@ -24,6 +24,18 @@ export type SubmitBookingInput = BookingRequest & {
   locale?: string;
 };
 
+export class BookingApiError extends Error {
+  readonly status: number;
+  readonly code: string;
+
+  constructor(message: string, status: number, code: string) {
+    super(message);
+    this.name = "BookingApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
 /**
  * Booking submission result. Extends the shared {@link BookingResult} with the
  * optional `portalToken` the backend now returns so the funnel can deep-link the
@@ -39,12 +51,23 @@ export async function submitBooking(
   req: SubmitBookingInput,
 ): Promise<SubmitBookingResult> {
   if (API_BASE) {
-    const res = await fetch(`${API_BASE}/api/bookings`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(req),
-    });
-    if (!res.ok) throw new Error(`Booking failed → ${res.status}`);
+    const currentPayload = { ...req };
+    delete currentPayload.accessoryIds;
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE}/api/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentPayload),
+      });
+    } catch {
+      throw new BookingApiError(
+        "Could not submit the booking. Check your connection and try again.",
+        0,
+        "network_error",
+      );
+    }
+    if (!res.ok) throw await readBookingError(res);
     return (await res.json()) as SubmitBookingResult;
   }
 
@@ -52,4 +75,22 @@ export async function submitBooking(
   await new Promise((r) => setTimeout(r, 450));
   const id = `bk_${Math.random().toString(36).slice(2, 10)}`;
   return { id, status: "submitted", createdAt: new Date().toISOString() };
+}
+
+async function readBookingError(response: Response): Promise<BookingApiError> {
+  let code = `http_${response.status}`;
+  let message = `Booking failed (${response.status}).`;
+  try {
+    const problem = (await response.json()) as {
+      error?: string;
+      code?: string;
+      message?: string;
+      title?: string;
+    };
+    code = problem.code ?? problem.error ?? code;
+    message = problem.message ?? problem.title ?? problem.error ?? message;
+  } catch {
+    // Keep the stable fallback for non-JSON responses.
+  }
+  return new BookingApiError(message, response.status, code);
 }

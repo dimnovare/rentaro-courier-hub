@@ -2,5 +2,8 @@ export * from "./bike";
 export * from "./pricing";
 export * from "./city";
 export * from "./accessory";
+export * from "./accessoryOffer";
+export * from "./accessoryInventory";
 export * from "./content";
 export * from "./booking";
+export * from "./settings";

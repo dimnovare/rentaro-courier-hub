@@ -6,6 +6,7 @@ vi.mock("@/services/api", () => ({
 
 import {
   cancelExtension,
+  getRental,
   listInvoices,
   portalInvoicePdfUrl,
   requestExtension,
@@ -133,5 +134,66 @@ describe("portalService rental extensions", () => {
     expect(portalInvoicePdfUrl("invoice/42", "signed token&locale=ru")).toBe(
       "/api/portal/invoices/invoice%2F42/pdf?token=signed%20token%26locale%3Dru",
     );
+  });
+
+  it("normalizes the package and customer-safe assigned equipment", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          reference: "booking-1",
+          bookingId: "booking-1",
+          customerFirstName: "Ada",
+          status: "active",
+          hasRental: true,
+          cityName: "Tallinn",
+          modelName: "Engine Pro",
+          planTerm: "12 months",
+          preferredLocale: "en",
+          accessoryPackage: {
+            code: "courier-pro",
+            name: "Courier Pro",
+            recurringPrice: 79,
+            refundableDeposit: 150,
+            depositEnabled: true,
+          },
+          accessories: [
+            {
+              componentCode: "battery",
+              name: "Extra battery",
+              assetCode: "TLN-BAT-001",
+              serialNumber: "BAT-001",
+              condition: "good",
+              depositStatus: "collected",
+            },
+          ],
+          extensionEligibility: { eligible: false },
+          extensionOptions: [],
+          currentExtension: null,
+          billingSchedule: [],
+          invoices: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await expect(getRental("signed token")).resolves.toMatchObject({
+      kind: "ok",
+      data: {
+        accessoryPackage: {
+          code: "courier-pro",
+          recurringPrice: 79,
+          refundableDeposit: 150,
+          depositEnabled: true,
+        },
+        accessories: [
+          {
+            componentCode: "battery",
+            assetCode: "TLN-BAT-001",
+            condition: "good",
+            depositStatus: "collected",
+          },
+        ],
+      },
+    });
   });
 });

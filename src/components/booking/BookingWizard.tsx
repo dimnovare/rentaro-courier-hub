@@ -427,6 +427,7 @@ export function BookingWizard({
         cityId,
         modelId,
         planId: planId as PlanId,
+        accessoryOfferCode: null,
         accessoryIds,
         preferredStartDate: startDate,
         customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: `${dialCode} ${phone.trim()}` },

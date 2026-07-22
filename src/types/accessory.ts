@@ -2,6 +2,20 @@
 
 import type { ColorOption } from "./bike";
 
+export type CustomerOfferPlacement = "hidden" | "primary" | "secondary";
+
+/** Admin-only commercial and inventory metadata layered onto an accessory row. */
+export interface AccessoryOfferMetadata {
+  isActive: boolean;
+  customerOfferPlacement: CustomerOfferPlacement;
+  isRecommended: boolean;
+  benefit: string;
+  benefitLocalized: Record<string, string>;
+  inventoryTracked: boolean;
+  replacementValue: number;
+  compareAtOfferCodes: string[];
+}
+
 export interface Accessory {
   id: string;
   /** Base/EN-fallback name. Prefer nameLocalized[locale] ?? name for display. */

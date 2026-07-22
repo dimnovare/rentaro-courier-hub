@@ -21,6 +21,13 @@
  */
 /* ── Contract types (must match the backend exactly) ───────────────────── */
 
+import type {
+  AccessoryDepositUpdateInput,
+  AccessoryHandoverInput,
+  AccessoryInspectionInput,
+  AdminRentalAccessoryResponse,
+} from "@/types/accessoryInventory";
+
 export interface AdminRental {
   id: string;
   bookingId: string | null;
@@ -118,13 +125,15 @@ export interface RentalExtensionActionResult {
 
 export class RentalApiError extends Error {
   readonly status: number;
+  readonly code: string;
   /** True for HTTP 401 — the token is missing or wrong. */
   readonly unauthorized: boolean;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, code = `http_${status}`) {
     super(message);
     this.name = "RentalApiError";
     this.status = status;
+    this.code = code;
     this.unauthorized = status === 401;
   }
 }
@@ -169,11 +178,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     // Surface a server-supplied error message when present (e.g. 400/404 bodies);
     // the proxy flags an unconfigured backend with { notConfigured: true }.
     let detail = "";
+    let code = `http_${res.status}`;
     let notConfigured = false;
     try {
-      const data = (await res.json()) as { error?: string; notConfigured?: boolean };
+      const data = (await res.json()) as {
+        error?: string;
+        code?: string;
+        notConfigured?: boolean;
+      };
       if (data?.notConfigured) notConfigured = true;
       if (data?.error) detail = data.error;
+      if (data?.code) code = data.code;
     } catch {
       /* non-JSON body — ignore. */
     }
@@ -182,7 +197,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     // characters is required…") — show them verbatim, without a technical
     // "Request failed (400):" prefix. Only fall back to a generic line when
     // the body carried nothing usable.
-    throw new RentalApiError(detail || `Something went wrong (${res.status}). Try again.`, res.status);
+    throw new RentalApiError(
+      detail || `Something went wrong (${res.status}). Try again.`,
+      res.status,
+      code,
+    );
   }
 
   // 204 / empty body tolerance (the action endpoints may return the updated
@@ -231,11 +250,43 @@ export const sendReturnReminder = (id: string) =>
   });
 
 /** Records the post-return inspection outcome. */
-export const inspectRental = (id: string, passed: boolean, notes?: string) =>
+export const inspectRental = (
+  id: string,
+  passed: boolean,
+  notes?: string,
+  accessories?: AccessoryInspectionInput[],
+) =>
   request<AdminRental>(`/api/admin/rentals/${encodeURIComponent(id)}/inspect`, {
     method: "POST",
-    body: JSON.stringify(notes && notes.trim() ? { passed, notes: notes.trim() } : { passed }),
+    body: JSON.stringify({
+      passed,
+      ...(notes?.trim() ? { notes: notes.trim() } : {}),
+      ...(accessories ? { accessories } : {}),
+    }),
   });
+
+export const getRentalAccessories = (rentalId: string) =>
+  request<AdminRentalAccessoryResponse>(
+    `/api/admin/rentals/${encodeURIComponent(rentalId)}/accessories`,
+  );
+
+export const confirmRentalAccessoryHandover = (
+  rentalId: string,
+  body: AccessoryHandoverInput,
+) =>
+  request<AdminRentalAccessoryResponse>(
+    `/api/admin/rentals/${encodeURIComponent(rentalId)}/accessories/handover`,
+    { method: "POST", body: JSON.stringify(body) },
+  );
+
+export const updateRentalAccessoryDeposit = (
+  rentalId: string,
+  body: AccessoryDepositUpdateInput,
+) =>
+  request<AdminRentalAccessoryResponse>(
+    `/api/admin/rentals/${encodeURIComponent(rentalId)}/accessories/deposit`,
+    { method: "POST", body: JSON.stringify(body) },
+  );
 
 // NOTE: the former extendRental() (POST /rentals/{id}/extend) was removed — the
 // backend turned that route into a thin alias of the complimentary-extension

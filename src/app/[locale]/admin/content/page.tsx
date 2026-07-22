@@ -223,6 +223,14 @@ const EMPTY_ACCESSORY: AccessoryInput = {
   icon: "",
   sortOrder: 0,
   colors: [],
+  isActive: true,
+  customerOfferPlacement: "hidden",
+  isRecommended: false,
+  benefit: "",
+  benefitLocalized: {},
+  inventoryTracked: false,
+  replacementValue: 0,
+  compareAtOfferCodes: [],
 };
 
 /** The three price tiers, in display order, paired with their draft field + plan code. */

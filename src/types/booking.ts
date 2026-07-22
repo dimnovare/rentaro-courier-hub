@@ -13,7 +13,10 @@ export interface BookingRequest {
   cityId: string;
   modelId: string;
   planId: PlanId;
-  accessoryIds: string[];
+  /** Server-authoritative package selected by current booking clients. */
+  accessoryOfferCode: string | null;
+  /** @deprecated Temporary compatibility for the pre-package booking UI. */
+  accessoryIds?: string[];
   /** ISO date string (yyyy-mm-dd). */
   preferredStartDate: string;
   customer: CustomerDetails;

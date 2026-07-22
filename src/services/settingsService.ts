@@ -17,6 +17,9 @@ export const SAFE_DEFAULT_SETTINGS: SiteSettings = {
   autoSendReturnReminders: true,
   // Fail-safe: no fee when the API is unreachable (delivery reads as free).
   deliveryFee: 0,
+  // Fail-safe OFF: never claim or charge an unconfirmed battery deposit.
+  extraBatteryDepositEnabled: false,
+  extraBatteryDepositAmount: 0,
   bankIban: "",
   bankAccountName: "",
   bankName: "",

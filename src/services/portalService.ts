@@ -48,6 +48,26 @@ export interface PortalRental {
   currentExtension?: PortalExtensionSummary | null;
   billingSchedule?: PortalBillingPeriodSummary[];
   invoices?: PortalInvoiceSummary[];
+  accessoryPackage?: PortalAccessoryPackage | null;
+  accessories?: PortalAccessoryUnit[];
+}
+
+export interface PortalAccessoryPackage {
+  code: string;
+  name: string;
+  recurringPrice: number;
+  refundableDeposit: number;
+  depositEnabled: boolean;
+}
+
+/** Customer-safe assigned-equipment details; internal notes and cost are absent. */
+export interface PortalAccessoryUnit {
+  componentCode: string;
+  name: string;
+  assetCode: string;
+  serialNumber: string | null;
+  condition: string;
+  depositStatus: string;
 }
 
 export interface PortalExtensionEligibility {
@@ -364,7 +384,27 @@ type RawRecord = Record<string, unknown>;
 function normalizeRental(value: unknown): PortalRental {
   const raw = value as PortalRental & RawRecord;
   const state = normalizeExtensionState(raw);
-  return { ...raw, ...state };
+  const packageRaw = isRecord(raw.accessoryPackage) ? raw.accessoryPackage : null;
+  const accessoryPackage = packageRaw
+    ? {
+        code: String(packageRaw.code ?? ""),
+        name: String(packageRaw.name ?? ""),
+        recurringPrice: numberValue(packageRaw.recurringPrice),
+        refundableDeposit: numberValue(packageRaw.refundableDeposit),
+        depositEnabled: packageRaw.depositEnabled === true,
+      }
+    : null;
+  const accessories = Array.isArray(raw.accessories)
+    ? raw.accessories.filter(isRecord).map((item) => ({
+        componentCode: String(item.componentCode ?? ""),
+        name: String(item.name ?? ""),
+        assetCode: String(item.assetCode ?? ""),
+        serialNumber: stringOrNull(item.serialNumber),
+        condition: String(item.condition ?? ""),
+        depositStatus: String(item.depositStatus ?? ""),
+      }))
+    : [];
+  return { ...raw, accessoryPackage, accessories, ...state };
 }
 
 function normalizeExtensionState(value: unknown): PortalExtensionState {

@@ -20,6 +20,10 @@ export interface SiteSettings {
    * delivery instead of free pickup at booking time. 0 (default) = delivery is free.
    */
   deliveryFee: number;
+  /** Whether offers containing an extra battery require a refundable deposit. */
+  extraBatteryDepositEnabled: boolean;
+  /** One-time refundable deposit amount when the toggle is enabled. */
+  extraBatteryDepositAmount: number;
   bankIban: string;
   bankAccountName: string;
   bankName: string;

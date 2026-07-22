@@ -24,6 +24,7 @@
 
 import type { ColorOption } from "@/types/bike";
 import type { LocalizedStrings } from "@/types/pricing";
+import type { AccessoryOfferMetadata } from "@/types/accessory";
 
 /** City status enum — must match the backend CityStatus enum (lowercased). */
 export type CityStatusValue = "available" | "limited" | "soon";
@@ -36,7 +37,7 @@ export type CityStatusValue = "available" | "limited" | "soon";
  */
 export type LocalizedText = Record<string, string>;
 
-export interface AdminAccessory {
+export interface AdminAccessory extends AccessoryOfferMetadata {
   /** Stable business key; this value fills the {code} route segment. */
   id: string;
   /** Base/EN name — the required fallback used when a locale override is absent. */
