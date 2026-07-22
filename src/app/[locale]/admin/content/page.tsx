@@ -863,7 +863,7 @@ function LocalizedSingleTextEditor({
   return (
     <div className="field">
       <div
-        role="tablist"
+        role="group"
         aria-label={`${label} language`}
         style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}
       >
@@ -874,8 +874,7 @@ function LocalizedSingleTextEditor({
             <button
               key={locale}
               type="button"
-              role="tab"
-              aria-selected={selected}
+              aria-pressed={selected}
               onClick={() => setActive(locale)}
               className="mono"
               style={{

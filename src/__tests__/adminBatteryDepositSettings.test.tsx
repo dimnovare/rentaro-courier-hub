@@ -79,6 +79,41 @@ describe("admin extra-battery deposit settings", () => {
     );
   });
 
+  it("resets a configured amount when disabled and requires a new amount if re-enabled", async () => {
+    settingsApi.getSettings.mockResolvedValue({
+      ...baseSettings,
+      extraBatteryDepositEnabled: true,
+      extraBatteryDepositAmount: 150,
+    });
+    render(<AdminSettingsPage />);
+
+    const toggle = await screen.findByRole("switch", {
+      name: "Require a refundable deposit for extra batteries",
+    });
+    const amount = screen.getByRole("spinbutton", { name: "Extra-battery deposit (€)" });
+    expect(amount).toHaveValue(150);
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-checked", "false");
+    expect(amount).toBeDisabled();
+    expect(amount).toHaveValue(0);
+    fireEvent.click(screen.getByRole("button", { name: "Save settings" }));
+
+    await waitFor(() =>
+      expect(settingsApi.updateSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          extraBatteryDepositEnabled: false,
+          extraBatteryDepositAmount: 0,
+        }),
+      ),
+    );
+
+    fireEvent.click(toggle);
+    expect(amount).toBeEnabled();
+    expect(amount).toHaveValue(0);
+    expect(screen.getByText("Enter a positive deposit amount before saving.")).toBeInTheDocument();
+  });
+
   it("shows server validation without clearing the operator's values", async () => {
     settingsApi.getSettings.mockResolvedValue({
       ...baseSettings,
