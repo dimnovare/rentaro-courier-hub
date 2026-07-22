@@ -6,21 +6,18 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Ic } from "@/components/ui/Icon";
 import { TrustStrip } from "@/components/ui/TrustStrip";
+import { BookingGearStep } from "@/components/booking/BookingGearStep";
 import { pricingPlans, getPlanById } from "@/data/pricingPlans";
-import {
-  resolvePlanPrice,
-  resolveAccessoryPrice,
-  accessoryPriceRange,
-} from "@/services/pricingService";
-import { customerVisibleAccessories } from "@/services/accessoryService";
-import { submitBooking } from "@/services/bookingService";
+import { resolvePlanPrice } from "@/services/pricingService";
+import { getAccessoryOffers } from "@/services/accessoryOfferService";
+import { BookingApiError, submitBooking } from "@/services/bookingService";
 import { track } from "@/services/analytics";
 import { API_BASE } from "@/services/api";
 import { resolveImg, handleModelImgError } from "@/services/modelService";
 import { operatingCityNames } from "@/lib/cities";
 import type { SiteSettings } from "@/services/settingsService";
 import { modelStatus } from "@/services/availabilityService";
-import type { Accessory, BikeModel, City, PlanId } from "@/types";
+import type { AccessoryOfferQuote, BikeModel, City, PlanId } from "@/types";
 
 /** Contact preference captured on the review step. */
 type ContactMethod = "email" | "phone";
@@ -30,7 +27,7 @@ type PaymentMethod = "cash" | "transfer";
 type Fulfillment = "pickup" | "delivery";
 
 /** The single-select steps that a deep link can pre-satisfy and thus skip. */
-type StepKey = "city" | "model" | "plan" | "details" | "review";
+type StepKey = "city" | "model" | "plan" | "gear" | "details" | "review";
 
 /** Map the data `country` value onto its `cities.countries` message key. */
 const countryKey: Record<string, string> = {
@@ -73,13 +70,10 @@ export function BookingWizard({
   settings,
   models,
   cities,
-  accessories,
 }: {
   settings: SiteSettings;
   models: BikeModel[];
   cities: City[];
-  /** Admin-managed accessories (name + price) from /api/public/accessories. */
-  accessories: Accessory[];
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -87,7 +81,6 @@ export function BookingWizard({
   const t = useTranslations("booking");
   const tc = useTranslations("cities");
   const tp = useTranslations("pricing");
-  const ta = useTranslations("accessories");
   const tm = useTranslations("modelItems");
 
   // Localized names of the cities we currently operate in (status !== "soon"),
@@ -114,7 +107,14 @@ export function BookingWizard({
   const [cityId, setCityId] = useState(initialCity);
   const [modelId, setModelId] = useState(initialModel);
   const [planId, setPlanId] = useState<PlanId | "">(initialPlan);
-  const [accessoryIds, setAccessoryIds] = useState<string[]>([]);
+  const [accessoryOfferCode, setAccessoryOfferCode] = useState<
+    string | null | undefined
+  >(settings.showAddGear ? undefined : null);
+  const [accessoryOffers, setAccessoryOffers] = useState<AccessoryOfferQuote[]>([]);
+  const [gearLoading, setGearLoading] = useState(false);
+  const [gearFailed, setGearFailed] = useState(false);
+  const [gearNotice, setGearNotice] = useState<string | null>(null);
+  const [gearReload, setGearReload] = useState(0);
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [email, setEmail] = useState("");
@@ -159,6 +159,52 @@ export function BookingWizard({
       .catch(() => setAvailLoaded(false)); // failed fetch → keep static fallback
   }, []);
 
+  useEffect(() => {
+    if (!settings.showAddGear) {
+      setAccessoryOfferCode(null);
+      setAccessoryOffers([]);
+      setGearLoading(false);
+      setGearFailed(false);
+      return;
+    }
+    if (!cityId || !planId) return;
+
+    let active = true;
+    setAccessoryOfferCode(undefined);
+    setGearLoading(true);
+    setGearFailed(false);
+    getAccessoryOffers({ cityId, planId, locale })
+      .then((offers) => {
+        if (!active) return;
+        setAccessoryOffers(offers);
+        for (const offer of offers) {
+          const offerCode = offer.code ?? "bike-only";
+          track("accessory_offer_viewed", { offer: offerCode, city: cityId, plan: planId });
+          if (!offer.available) {
+            track("accessory_offer_unavailable", {
+              offer: offerCode,
+              city: cityId,
+              plan: planId,
+              component: offer.unavailableComponent ?? "unknown",
+            });
+          }
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setAccessoryOffers([]);
+          setGearFailed(true);
+        }
+      })
+      .finally(() => {
+        if (active) setGearLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [cityId, gearReload, locale, planId, settings.showAddGear]);
+
   // Inline validation: track which required fields the visitor has blurred so
   // errors only appear after interaction (never on a pristine field).
   type DetailField = "first" | "last" | "email" | "phone" | "start";
@@ -177,10 +223,6 @@ export function BookingWizard({
   const markAllTouched = () =>
     setTouched({ first: true, last: true, email: true, phone: true, start: true });
 
-  // Add-ons start OPEN so the optional gear (and its prices) is immediately
-  // visible — a collapsed section hid a real upsell surface.
-  const [addonsOpen, setAddonsOpen] = useState(true);
-
   // Required-fields consent gate on the Review step.
   const [consent, setConsent] = useState(false);
 
@@ -197,52 +239,24 @@ export function BookingWizard({
   const deliveryFee = Math.max(0, settings.deliveryFee ?? 0);
   const feeApplied = fulfillment === "delivery" ? deliveryFee : 0;
 
-  // Selected add-ons' per-30-day price, resolved through the SINGLE source of
-  // truth (resolveAccessoryPrice): the price tier for the currently selected
-  // plan, falling back to the legacy display string when that tier is unset.
-  // The backend (AccessoryPricing) resolves identically, so shown = billed.
-  // Before a plan is chosen (browsing), show the accessory's "from" price.
-  const accessoryPriceOf = (id: string): number => {
-    const acc = accessories.find((a) => a.id === id);
-    if (!acc) return 0;
-    return planId
-      ? resolveAccessoryPrice(acc, planId)
-      : accessoryPriceRange(acc).minMonthly;
-  };
-  const gearMonthly = accessoryIds.reduce((sum, id) => sum + accessoryPriceOf(id), 0);
-
-  // Localized accessory name/description: prefer the seeded message key, then
-  // the API's per-locale map, then the base name (mirrors the model/plan copy).
-  const accName = (a: Accessory): string =>
-    ta.has(`names.${a.id}`) ? ta(`names.${a.id}`) : a.nameLocalized?.[locale] ?? a.name;
-  const accNameById = (id: string): string => {
-    const a = accessories.find((x) => x.id === id);
-    return a ? accName(a) : id;
-  };
-  const accDesc = (a: Accessory): string | undefined =>
-    a.descriptionLocalized?.[locale] ?? a.description ?? undefined;
-  // A bundle's component names, resolved to their localized names (display-only).
-  const accComponentNames = (a: Accessory): string[] =>
-    a.componentIds.map(accNameById).filter(Boolean);
-  // Static labels not yet in messages/*.json — graceful English fallback until
-  // the keys land (see the reported key list). All under the `accessories` ns.
-  const bundleLabel = ta.has("bundle") ? ta("bundle") : "Bundle";
-  const includesLabel = (items: string) =>
-    ta.has("includes") ? ta("includes", { items }) : `Includes: ${items}`;
-  const priceFromLabel = (price: number) =>
-    ta.has("priceFrom") ? ta("priceFrom", { price }) : `from €${price} / 30d`;
+  const selectedAccessoryOffer = accessoryOfferCode === undefined
+    ? undefined
+    : accessoryOffers.find((offer) => offer.code === accessoryOfferCode);
+  const gearMonthly = selectedAccessoryOffer?.recurringPrice ?? 0;
+  const batteryDeposit = selectedAccessoryOffer?.extraBatteryDeposit ?? 0;
 
   // Model the visitor is previewing in the info popup (null = closed). The popup
   // is informational only and never changes the selection.
   const [infoModel, setInfoModel] = useState<BikeModel | null>(null);
 
   // Steps actually shown: skip any single-select already provided by a deep link.
-  // Add-ons are folded into the Details screen, so there is no separate step.
+  // Gear remains a deliberate choice unless the admin disables the feature.
   const steps = (
     [
       !initialCity && "city",
       !initialModel && "model",
       !initialPlan && "plan",
+      settings.showAddGear && "gear",
       "details",
       "review",
     ] as (StepKey | false)[]
@@ -328,6 +342,10 @@ export function BookingWizard({
   // no model chosen yet, fall back to the global tier price.
   const priceFor = (p: (typeof pricingPlans)[number]) =>
     model ? resolvePlanPrice(model, p) : { monthly: p.monthly, daily: p.daily };
+  const bikeMonthly = plan ? priceFor(plan).monthly : 0;
+  const recurringTotal = bikeMonthly + gearMonthly;
+  const bikeDeposit = bikeMonthly;
+  const dueBeforePickup = recurringTotal + bikeDeposit + batteryDeposit + feeApplied;
 
   // Earliest selectable pickup date (today + 3 business days), as YYYY-MM-DD.
   // Computed once on mount (lazy useState initializer) so it doesn't drift across
@@ -393,15 +411,17 @@ export function BookingWizard({
       : key === "model"
         ? !!modelId
         : key === "plan"
-          ? !!planId
+        ? !!planId
+        : key === "gear"
+          ? accessoryOfferCode !== undefined &&
+            selectedAccessoryOffer?.available === true &&
+            !gearLoading &&
+            !gearFailed
           : key === "details"
             ? detailsValid
             : true;
 
   const isLast = step >= steps.length - 1;
-  const toggleAcc = (id: string) =>
-    setAccessoryIds((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
-
   const goNext = () => {
     // The step the visitor is leaving is the current visible `key`.
     track("wizard_step_completed", { step: key });
@@ -421,14 +441,18 @@ export function BookingWizard({
     setSubmitting(true);
     setError("");
     // PII-free: ids only, never the customer's name/email/phone.
-    track("booking_submitted", { city: cityId, model: modelId, plan: planId });
+    track("booking_submitted", {
+      city: cityId,
+      model: modelId,
+      plan: planId,
+      offer: accessoryOfferCode ?? "bike-only",
+    });
     try {
       const result = await submitBooking({
         cityId,
         modelId,
         planId: planId as PlanId,
-        accessoryOfferCode: null,
-        accessoryIds,
+        accessoryOfferCode: settings.showAddGear ? (accessoryOfferCode ?? null) : null,
         preferredStartDate: startDate,
         customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: `${dialCode} ${phone.trim()}` },
         notes: notes.trim() || undefined,
@@ -442,19 +466,21 @@ export function BookingWizard({
         id: result.id,
         model: model?.name ?? "",
         plan: plan?.term ?? "",
-        // Includes selected add-ons — they bill per 30 days alongside the bike.
-        monthly: plan ? priceFor(plan).monthly + gearMonthly : 0,
+        // The recurring 30-day amount includes the selected package.
+        monthly: recurringTotal,
         // Split money fields for the success page: the deposit equals the BIKE's
         // 30-day price only (never add-ons), and the one-time delivery fee is
         // part of the first payment but never of the deposit or recurring price.
-        bikeMonthly: plan ? priceFor(plan).monthly : 0,
+        bikeMonthly,
         gear: gearMonthly,
+        batteryDeposit,
         fee: feeApplied,
         daily: plan ? priceFor(plan).daily : 0,
         city: city?.name ?? "",
         startDate,
         firstName: first.trim(),
-        accessories: accessoryIds.map((id) => accNameById(id)).filter(Boolean),
+        accessories: selectedAccessoryOffer?.code ? [selectedAccessoryOffer.name] : [],
+        accessoryPackage: selectedAccessoryOffer?.name,
         // Deep link to the rental portal (success page reads summary.portalUrl).
         // Defensive: the backend may not return a token (e.g. mock mode).
         portalUrl: result.portalToken
@@ -469,7 +495,20 @@ export function BookingWizard({
       // step). Go straight to the success page.
       track("booking_success", { plan: planId });
       router.push("/booking/success");
-    } catch {
+    } catch (reason) {
+      if (
+        reason instanceof BookingApiError &&
+        reason.status === 409 &&
+        reason.code === "accessory_unavailable"
+      ) {
+        const gearStep = steps.indexOf("gear");
+        if (gearStep >= 0) {
+          setAccessoryOfferCode(undefined);
+          setGearNotice(t("gear.stockChanged"));
+          setGearReload((value) => value + 1);
+          setStep(gearStep);
+        }
+      }
       setError(t("errors.submit"));
       setSubmitting(false);
     }
@@ -512,7 +551,7 @@ export function BookingWizard({
           >
             <div className="bar" />
             <div className="lbl">
-              {i + 1}. {t(`steps.${k === "details" ? "details" : k}`)}
+              {i + 1}. {t(`steps.${k}`)}
             </div>
           </div>
         ))}
@@ -712,6 +751,34 @@ export function BookingWizard({
           </>
         )}
 
+        {key === "gear" && (
+          <>
+            <h3>{t("gear.heading")}</h3>
+            <p className="sub">{t("gear.sub")}</p>
+            {gearNotice && (
+              <p className="gear-notice" role="status">
+                {gearNotice}
+              </p>
+            )}
+            <BookingGearStep
+              offers={accessoryOffers}
+              value={accessoryOfferCode}
+              loading={gearLoading}
+              error={gearFailed ? t("gear.loadError") : null}
+              onRetry={() => setGearReload((value) => value + 1)}
+              onChange={(code) => {
+                setAccessoryOfferCode(code);
+                setGearNotice(null);
+                track("accessory_offer_selected", {
+                  offer: code ?? "bike-only",
+                  city: cityId,
+                  plan: planId,
+                });
+              }}
+            />
+          </>
+        )}
+
         {key === "details" && (
           <>
             <h3>{t("details.heading")}</h3>
@@ -830,84 +897,6 @@ export function BookingWizard({
               </div>
             )}
 
-            {/* Add-ons folded in here (optional), collapsed by default so the
-                Details step stays short above the validation gate. Hidden until
-                the admin enables the add-gear feature. */}
-            {settings.showAddGear && (
-            <div className="wizard-addons">
-              <button
-                type="button"
-                className="addons-toggle"
-                aria-expanded={addonsOpen}
-                aria-controls="addons-grid"
-                onClick={() => setAddonsOpen((o) => !o)}
-              >
-                <span className="addons-toggle-label">
-                  {t("addons.toggle")}
-                  {accessoryIds.length > 0 && (
-                    <span className="addons-count">{accessoryIds.length}</span>
-                  )}
-                </span>
-                <span className={`addons-chevron ${addonsOpen ? "open" : ""}`} aria-hidden>
-                  <Ic.arrow />
-                </span>
-              </button>
-              {addonsOpen && (
-                <div id="addons-grid" className="addons-body">
-                  <p className="sub">{t("addons.sub")}</p>
-                  <div className="opt-grid">
-                    {/* Bundle components are absorbed into their bundle — only
-                        the bundle (and standalone add-ons) are selectable. The
-                        FULL accessories array still backs name/price lookups. */}
-                    {customerVisibleAccessories(accessories).map((a) => {
-                      const on = accessoryIds.includes(a.id);
-                      const price = accessoryPriceOf(a.id);
-                      // Exact per-30d price once a plan is picked; "from" while browsing.
-                      const priceText = planId
-                        ? t("plan.per30", { price })
-                        : priceFromLabel(price);
-                      const desc = accDesc(a);
-                      const components = a.isBundle ? accComponentNames(a) : [];
-                      return (
-                        <button
-                          key={a.id}
-                          type="button"
-                          className={`opt row ${on ? "selected" : ""}`}
-                          onClick={() => toggleAcc(a.id)}
-                        >
-                          <span>
-                            <span className="opt-t" style={{ display: "block" }}>
-                              {accName(a)}
-                              {a.isBundle && (
-                                <span
-                                  className="chip accent"
-                                  style={{ marginLeft: 8, verticalAlign: "middle" }}
-                                >
-                                  {bundleLabel}
-                                </span>
-                              )}
-                            </span>
-                            {desc && (
-                              <span className="opt-m" style={{ display: "block" }}>
-                                {desc}
-                              </span>
-                            )}
-                            {components.length > 0 && (
-                              <span className="opt-m" style={{ display: "block" }}>
-                                {includesLabel(components.join(", "))}
-                              </span>
-                            )}
-                            <span className="opt-p">{priceText}</span>
-                          </span>
-                          <span className="opt-check">{on && <Ic.check s={12} />}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-            )}
           </>
         )}
 
@@ -932,17 +921,12 @@ export function BookingWizard({
               </div>
               {settings.showAddGear && (
                 <div className="summary-row">
-                  <span className="l">{t("review.addons")}</span>
+                  <span className="l">{t("review.gearPackage")}</span>
                   <span className="v summary-v-wrap">
-                    {accessoryIds.length
-                      ? accessoryIds
-                          .map((id) => {
-                            const price = accessoryPriceOf(id);
-                            const name = accNameById(id);
-                            return price > 0 ? `${name} · €${price}` : name;
-                          })
-                          .join(", ")
-                      : t("review.none")}
+                    {selectedAccessoryOffer?.name}
+                    <span className="summary-sub">
+                      {t("review.gearRecurring", { amount: gearMonthly })}
+                    </span>
                   </span>
                 </div>
               )}
@@ -963,12 +947,28 @@ export function BookingWizard({
                 </span>
               </div>
               <div className="summary-row">
-                <span className="l">{t("review.deposit")}</span>
+                <span className="l">{t("review.recurringTotal")}</span>
                 <span className="v">
-                  €{plan ? priceFor(plan).monthly : ""}
+                  €{recurringTotal}
+                  <span className="summary-sub">{t("review.recurringNote")}</span>
+                </span>
+              </div>
+              <div className="summary-row">
+                <span className="l">{t("review.bikeDeposit")}</span>
+                <span className="v">
+                  €{bikeDeposit}
                   <span className="summary-sub">{t("review.depositNote")}</span>
                 </span>
               </div>
+              {batteryDeposit > 0 && (
+                <div className="summary-row">
+                  <span className="l">{t("review.batteryDeposit")}</span>
+                  <span className="v">
+                    €{batteryDeposit}
+                    <span className="summary-sub">{t("review.depositNote")}</span>
+                  </span>
+                </div>
+              )}
               {/* One-time delivery fee — only when the customer chose paid delivery. */}
               {feeApplied > 0 && (
                 <div className="summary-row">
@@ -980,14 +980,8 @@ export function BookingWizard({
                 </div>
               )}
               <div className="summary-total">
-                {/* The headline figure is the FIRST payment: first 30 days + add-ons
-                    + the one-time delivery fee (when chosen). Labelling it by plan
-                    term with "/ 30 days" would wrongly imply the one-time fee
-                    recurs, so it's named for what it is. */}
-                <span className="l">{t("review.firstPayment")}</span>
-                <span className="big">
-                  €{plan ? priceFor(plan).monthly + gearMonthly + feeApplied : ""}
-                </span>
+                <span className="l">{t("review.dueBeforePickup")}</span>
+                <span className="big">€{dueBeforePickup}</span>
               </div>
             </div>
             {selectedIsWaitlist && model && (
@@ -995,19 +989,10 @@ export function BookingWizard({
                 {t("model.waitSelectedNote", { name: model.name })}
               </p>
             )}
-            {plan && (
-              <p className="sub" style={{ marginTop: 12 }}>
-                {t("review.firstPaymentNote", { deposit: priceFor(plan).monthly })}
-              </p>
-            )}
+            {plan && <p className="sub" style={{ marginTop: 12 }}>{t("review.dueNote")}</p>}
             {plan && plan.months > 1 && (
               <p className="sub" style={{ marginTop: 4 }}>
-                {/* Longer plans bill per 30-day period: invoice before each one.
-                    The recurring amount excludes the one-time delivery fee. */}
-                {t(
-                  settings.showAddGear && gearMonthly > 0 ? "review.thenPer30WithGear" : "review.thenPer30",
-                  { amount: priceFor(plan).monthly + gearMonthly },
-                )}
+                {t("review.thenPer30", { amount: recurringTotal })}
               </p>
             )}
             {plan && endDate && (

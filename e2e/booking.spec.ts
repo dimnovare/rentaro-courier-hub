@@ -11,7 +11,9 @@ import { test, expect, type Page } from "@playwright/test";
  *  - Single-select steps (City, Model, Plan) select AND auto-advance on one tap
  *    — there is no separate "Continue" on those steps.
  *  - Deep-link params `?city=&model=&plan=` pre-satisfy and DROP those steps,
- *    collapsing the flow straight to Details → Review.
+ *    collapsing the flow to Gear → Details → Review when Gear is enabled.
+ *  - Gear is a deliberate radio choice with no preselection. Bike Only is an
+ *    explicit choice, while unavailable packages remain visible and disabled.
  *  - Details requires first/last name, a valid email, phone, and a start date
  *    before "Continue" enables.
  *  - The Review step requires a consent checkbox before "Submit request"
@@ -42,11 +44,11 @@ async function fillDetails(page: Page) {
 }
 
 test.describe("booking wizard", () => {
-  test("deep-link collapses to Details, then Review shows the selection + price", async ({
+  test("deep-link collapses to Gear, then Review shows authoritative totals", async ({
     page,
   }) => {
     // Pre-fill city/model/plan via query params so City/Model/Plan steps are
-    // dropped and the wizard opens on Details.
+    // dropped and the wizard opens on Gear.
     await page.goto("/book?city=tallinn&model=engine-pro&plan=p365");
 
     // Sanity: the running-selection chips reflect the deep-linked choices.
@@ -54,6 +56,13 @@ test.describe("booking wizard", () => {
     await expect(page.getByText("rentaro Engine Pro 2.0").first()).toBeVisible();
     // Plan chip combines term + price, e.g. "12 months · €117 per 30 days".
     await expect(page.getByText(/12 months/i).first()).toBeVisible();
+
+    await expect(page.getByRole("heading", { name: /choose your gear/i })).toBeVisible();
+    const bikeOnly = page.getByRole("radio", { name: /bike only/i });
+    await expect(bikeOnly).not.toBeChecked();
+    await expect(page.getByRole("button", { name: /^continue$/i })).toBeDisabled();
+    await bikeOnly.check();
+    await page.getByRole("button", { name: /^continue$/i }).click();
 
     await fillDetails(page);
 
@@ -73,7 +82,8 @@ test.describe("booking wizard", () => {
     await expect(page.getByText("Test Courier")).toBeVisible();
     await expect(page.getByText("test.courier@example.com")).toBeVisible();
 
-    // Price: the 12-month plan is €117 / 30 days (appears as deposit + total).
+    // Bike Only adds no accessory charge; the recurring total remains the bike price.
+    await expect(page.getByText("Bike Only")).toBeVisible();
     await expect(page.getByText(/€117/).first()).toBeVisible();
 
     // Submit is gated on the consent checkbox.
@@ -90,7 +100,7 @@ test.describe("booking wizard", () => {
     //   await expect(page).toHaveURL(/\/booking\/success/);
   });
 
-  test("clicks through City -> Model -> Plan -> Details -> Review", async ({
+  test("clicks through City -> Model -> Plan -> Gear -> Details -> Review", async ({
     page,
   }) => {
     // No deep link: exercise the single-select steps' tap-to-advance behaviour.
@@ -110,17 +120,26 @@ test.describe("booking wizard", () => {
     await expect(page.getByRole("heading", { name: /choose a plan/i })).toBeVisible();
     await page.getByRole("button", { name: /12 months/i }).click();
 
-    // Step 4: Details.
+    // Step 4: Gear. Nothing is preselected, including Bike Only.
+    await expect(page.getByRole("heading", { name: /choose your gear/i })).toBeVisible();
+    const gearContinue = page.getByRole("button", { name: /^continue$/i });
+    await expect(gearContinue).toBeDisabled();
+    await page.getByRole("radio", { name: /bike only/i }).check();
+    await expect(gearContinue).toBeEnabled();
+    await gearContinue.click();
+
+    // Step 5: Details.
     await fillDetails(page);
     const cont = page.getByRole("button", { name: /^continue$/i });
     await expect(cont).toBeEnabled();
     await cont.click();
 
-    // Step 5: Review renders with the selection and price.
+    // Step 6: Review renders with the selection and server-authoritative total.
     await expect(
       page.getByRole("heading", { name: /review & confirm/i }),
     ).toBeVisible();
     await expect(page.getByText("rentaro Engine Pro 2.0").first()).toBeVisible();
+    await expect(page.getByText("Bike Only")).toBeVisible();
     await expect(page.getByText(/€117/).first()).toBeVisible();
   });
 });

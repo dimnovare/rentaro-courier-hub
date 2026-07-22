@@ -12,12 +12,15 @@ type Summary = {
   id: string;
   model: string;
   plan: string;
-  /** Recurring per-30-days total (bike + add-ons). */
+  /** Recurring per-30-days total (bike + selected package). */
   monthly: number;
   /** The bike's own 30-day price — the deposit equals exactly this. */
   bikeMonthly?: number;
-  /** Selected add-ons' per-30-day total. */
+  /** Selected package's per-30-day amount. */
   gear?: number;
+  /** Optional one-time refundable extra-battery deposit. */
+  batteryDeposit?: number;
+  accessoryPackage?: string;
   /** One-time delivery fee (0 for pickup). */
   fee?: number;
   city: string;
@@ -122,6 +125,12 @@ export default function BookingSuccessPage() {
                         <span className="l">{t("city")}</span>
                         <span className="v">{s.city}</span>
                       </div>
+                      {s.accessoryPackage && (
+                        <div className="summary-row">
+                          <span className="l">{t("gearPackage")}</span>
+                          <span className="v">{s.accessoryPackage}</span>
+                        </div>
+                      )}
                       <div className="summary-row" style={{ borderBottom: "none" }}>
                         <span className="l">{t("startDate")}</span>
                         <span className="v">{s.startDate}</span>
@@ -146,10 +155,20 @@ export default function BookingSuccessPage() {
                       maxWidth: 440,
                     }}
                   >
-                    {t("cost", {
-                      deposit: s.bikeMonthly ?? s.monthly,
-                      total: (s.bikeMonthly ?? s.monthly) + s.monthly + (s.fee ?? 0),
-                    })}
+                    {(s.batteryDeposit ?? 0) > 0
+                      ? t("costWithBattery", {
+                          bikeDeposit: s.bikeMonthly ?? s.monthly,
+                          batteryDeposit: s.batteryDeposit ?? 0,
+                          total:
+                            (s.bikeMonthly ?? s.monthly) +
+                            s.monthly +
+                            (s.batteryDeposit ?? 0) +
+                            (s.fee ?? 0),
+                        })
+                      : t("cost", {
+                          deposit: s.bikeMonthly ?? s.monthly,
+                          total: (s.bikeMonthly ?? s.monthly) + s.monthly + (s.fee ?? 0),
+                        })}
                   </p>
                 )}
 
