@@ -548,6 +548,37 @@
     "plannedEnd": "Planeeritud lõpp",
     "assignedBike": "Määratud ratas",
     "notYetAssigned": "Veel määramata",
+    "equipment": {
+      "heading": "Varustus",
+      "selected": "Valitud pakett",
+      "packageBenefit": "Sinu töörütmi jaoks valitud varustus.",
+      "packageBenefits": {
+        "courierEssentials": "Põhivarustus regulaarseks kulleritööks.",
+        "courierPro": "Lisavõimsus ja varustus pikemateks vahetusteks.",
+        "batteryOnly": "Lisavõimsus pikemateks tööpäevadeks."
+      },
+      "awaitingAssignment": "Varustus määratakse enne ratta kättesaamist.",
+      "serial": "Seerianumber: {serial}",
+      "deposit": {
+        "label": "Lisaaku tagatisraha",
+        "status": {
+          "notRequired": "Pole vajalik",
+          "due": "Tasuda",
+          "collected": "Laekunud",
+          "refunded": "Tagastatud",
+          "retained": "Peetud kinni",
+          "partiallyRetained": "Osaliselt kinni peetud"
+        }
+      },
+      "condition": {
+        "new": "Uus seisukord",
+        "good": "Hea seisukord",
+        "fair": "Rahuldav seisukord",
+        "worn": "Kasutatud seisukord",
+        "damaged": "Kahjustatud seisukord",
+        "unknown": "Seisukord täpsustamisel"
+      }
+    },
     "needElsePrefix": "Vajad veel midagi?",
     "needElseLink": "Vaata KKK-d",
     "sending": "Saadan…",

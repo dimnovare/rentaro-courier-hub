@@ -15,6 +15,7 @@ import {
   type PortalRental,
   type PortalReward,
   type PortalResult,
+  type PortalAccessoryUnit,
 } from "@/services/portalService";
 import {
   getContract,
@@ -300,6 +301,8 @@ function PortalView({
         </article>
       </Reveal>
 
+      <EquipmentCard rental={rental} />
+
       <Reveal delay={34}>
         <RentalExtensionCard
           token={token}
@@ -373,6 +376,139 @@ function PortalView({
           under the App Router. */}
     </div>
   );
+}
+
+function EquipmentCard({ rental }: { rental: PortalRental }) {
+  const t = useTranslations("portal");
+  const locale = useLocale();
+  const accessoryPackage = rental.accessoryPackage;
+  const accessories = rental.accessories ?? [];
+
+  if (!accessoryPackage && accessories.length === 0) return null;
+
+  const packageBenefitKey = {
+    "security-kit": "courierEssentials",
+    "courier-essentials": "courierEssentials",
+    "courier-pro": "courierPro",
+    battery: "batteryOnly",
+    "battery-only": "batteryOnly",
+  }[accessoryPackage?.code ?? ""];
+  const benefit = packageBenefitKey
+    ? t(`equipment.packageBenefits.${packageBenefitKey}`)
+    : t("equipment.packageBenefit");
+  const battery = accessories.find((item) => item.componentCode.toLowerCase().includes("battery"));
+  const depositStatus = depositStatusKey(
+    accessoryPackage?.depositEnabled ? battery?.depositStatus ?? "due" : "notRequired",
+  );
+  const depositAmount = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EUR",
+  }).format(accessoryPackage?.depositEnabled ? accessoryPackage.refundableDeposit : 0);
+
+  return (
+    <Reveal delay={22}>
+      <article className="card" style={{ maxWidth: 560, margin: "18px auto 0" }}>
+        <div style={{ padding: "24px 24px 22px" }}>
+          <h3 style={{ fontSize: 18, letterSpacing: 0, marginBottom: 4 }}>
+            {t("equipment.heading")}
+          </h3>
+          {accessoryPackage && (
+            <div style={{ marginBottom: accessories.length > 0 ? 16 : 0 }}>
+              <span className="l">{t("equipment.selected")}</span>
+              <p style={{ fontSize: 15, fontWeight: 650, marginTop: 4 }}>
+                {accessoryPackage.name}
+              </p>
+              <p className="lead" style={{ fontSize: 13.5, marginTop: 3 }}>
+                {benefit}
+              </p>
+            </div>
+          )}
+
+          {accessories.length === 0 ? (
+            <p className="lead" style={{ fontSize: 13.5, marginTop: 14 }}>
+              {t("equipment.awaitingAssignment")}
+            </p>
+          ) : (
+            <div style={{ display: "grid", gap: 8, marginTop: 14 }}>
+              {accessories.map((item) => (
+                <EquipmentUnit key={`${item.componentCode}-${item.assetCode}`} item={item} />
+              ))}
+            </div>
+          )}
+
+          {accessoryPackage && (
+            <div
+              className="summary-row"
+              style={{ marginTop: 16, borderBottom: "none", paddingBottom: 0, gap: 12 }}
+            >
+              <span className="l">{t("equipment.deposit.label")}</span>
+              <span style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 7 }}>
+                <span className="v mono">{depositAmount}</span>
+                <span className={`model-badge ${depositStatus.variant}`} style={{ position: "static" }}>
+                  {t(`equipment.deposit.status.${depositStatus.key}`)}
+                </span>
+              </span>
+            </div>
+          )}
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
+function EquipmentUnit({ item }: { item: PortalAccessoryUnit }) {
+  const t = useTranslations("portal");
+  const conditionKey = item.condition.toLowerCase().replace(/[_\s-]/g, "");
+  const condition = t.has(`equipment.condition.${conditionKey}`)
+    ? t(`equipment.condition.${conditionKey}`)
+    : t("equipment.condition.unknown");
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        gap: 12,
+        padding: "12px 14px",
+        borderRadius: "var(--r-sm)",
+        background: "var(--bg-2)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      <div style={{ minWidth: 0 }}>
+        <p style={{ fontSize: 14, fontWeight: 600, overflowWrap: "anywhere" }}>{item.name}</p>
+        <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 3, overflowWrap: "anywhere" }}>
+          {item.serialNumber ? t("equipment.serial", { serial: item.serialNumber }) : condition}
+        </p>
+      </div>
+      <div style={{ flex: "0 1 auto", minWidth: 0, textAlign: "right" }}>
+        <p className="mono" style={{ fontSize: 12.5, overflowWrap: "anywhere" }}>{item.assetCode}</p>
+        {item.serialNumber && (
+          <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 3 }}>{condition}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function depositStatusKey(status: string | undefined) {
+  const normalized = (status ?? "").toLowerCase().replace(/[_\s-]/g, "");
+  const statuses: Record<string, { key: string; variant: "popular" | "cargo" | "light" }> = {
+    due: { key: "due", variant: "cargo" },
+    pending: { key: "due", variant: "cargo" },
+    unpaid: { key: "due", variant: "cargo" },
+    collected: { key: "collected", variant: "popular" },
+    paid: { key: "collected", variant: "popular" },
+    refunded: { key: "refunded", variant: "popular" },
+    returned: { key: "refunded", variant: "popular" },
+    retained: { key: "retained", variant: "cargo" },
+    partiallyretained: { key: "partiallyRetained", variant: "cargo" },
+    notrequired: { key: "notRequired", variant: "light" },
+    none: { key: "notRequired", variant: "light" },
+    waived: { key: "notRequired", variant: "light" },
+  };
+  return statuses[normalized] ?? statuses.notrequired;
 }
 
 /* ── Earned rewards card ──────────────────────────────────────────────────── */

@@ -53,7 +53,7 @@ describe("admin accessory inventory contracts", () => {
   });
 
   it("posts per-unit handover conditions through the rental custody route", async () => {
-    const custody = { depositDue: false, items: [] };
+    const custody = { depositDue: false, offerCode: null, items: [] };
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(custody));
     vi.stubGlobal("fetch", fetchMock);
     const { confirmRentalAccessoryHandover } = await import(

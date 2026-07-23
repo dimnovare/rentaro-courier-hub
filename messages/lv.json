@@ -548,6 +548,37 @@
     "plannedEnd": "Plānotais beigu datums",
     "assignedBike": "Piešķirtais velosipēds",
     "notYetAssigned": "Vēl nav piešķirts",
+    "equipment": {
+      "heading": "Aprīkojums",
+      "selected": "Izvēlētā pakete",
+      "packageBenefit": "Jūsu piegāžu ritmam izvēlēts aprīkojums.",
+      "packageBenefits": {
+        "courierEssentials": "Pamataprīkojums regulāram kurjera darbam.",
+        "courierPro": "Papildu jauda un aprīkojums garākām maiņām.",
+        "batteryOnly": "Papildu jauda garākām piegāžu dienām."
+      },
+      "awaitingAssignment": "Aprīkojums tiks piešķirts pirms saņemšanas.",
+      "serial": "Sērijas numurs: {serial}",
+      "deposit": {
+        "label": "Papildu akumulatora depozīts",
+        "status": {
+          "notRequired": "Nav nepieciešams",
+          "due": "Jāsamaksā",
+          "collected": "Saņemts",
+          "refunded": "Atmaksāts",
+          "retained": "Ieturēts",
+          "partiallyRetained": "Daļēji ieturēts"
+        }
+      },
+      "condition": {
+        "new": "Jauns stāvoklis",
+        "good": "Labs stāvoklis",
+        "fair": "Apmierinošs stāvoklis",
+        "worn": "Lietots stāvoklis",
+        "damaged": "Bojāts stāvoklis",
+        "unknown": "Stāvoklis tiks apstiprināts"
+      }
+    },
     "needElsePrefix": "Vajag vēl ko citu?",
     "needElseLink": "Apskati BUJ",
     "sending": "Sūta…",

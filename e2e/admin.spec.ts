@@ -146,6 +146,11 @@ test.describe("admin console", () => {
     await expect(page).toHaveURL(/\/admin\/fleet$/);
     await expect(page.getByRole("button", { name: /\+ new unit/i })).toBeVisible();
 
+    await adminGoto(page, "Accessories");
+    await expect(page).toHaveURL(/\/admin\/accessories$/);
+    await expect(page.getByRole("heading", { name: /^Accessories$/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Batch add$/ })).toBeVisible();
+
     await adminGoto(page, "Settings");
     await expect(page).toHaveURL(/\/admin\/settings$/);
     await expect(page.getByRole("heading", { name: /settings/i }).first()).toBeVisible();
@@ -157,6 +162,197 @@ test.describe("admin console", () => {
     // row also carries the model id.
     const row = page.getByRole("row").filter({ hasText: code });
     await expect(row).toContainText(MODEL_ID);
+  });
+
+  test("Accessories → batch add creates, receives, and filters physical units", async ({ page }) => {
+    const suffix = uniqueSuffix();
+    const prefix = `E2E-BAT-${suffix}-`;
+    const firstCode = `${prefix}001`;
+    const secondCode = `${prefix}002`;
+
+    await adminGoto(page, "Accessories");
+    await page.getByRole("button", { name: /^Batch add$/ }).click();
+
+    const drawer = page.getByRole("dialog", { name: "Batch add accessory units" });
+    await expect(drawer).toBeVisible();
+    await drawer.getByLabel("Component", { exact: true }).selectOption({ label: "Extra battery" });
+    await drawer.getByLabel("City", { exact: true }).selectOption({ label: "Tallinn" });
+    await drawer.getByLabel("Asset-code prefix", { exact: true }).fill(prefix);
+    await drawer.getByLabel("Start number", { exact: true }).fill("1");
+    await drawer.getByLabel("Quantity", { exact: true }).fill("2");
+    await expect(drawer.getByText(`${firstCode} · ${secondCode}`)).toBeVisible();
+    await drawer.getByRole("button", { name: "Create 2 units" }).click();
+    await expect(drawer).toBeHidden();
+
+    const firstRow = page.getByRole("row").filter({ hasText: firstCode });
+    await expect(firstRow).toContainText("Incoming");
+    await expect(page.getByRole("row").filter({ hasText: secondCode })).toContainText("Incoming");
+    await firstRow.getByRole("button", { name: `Receive ${firstCode}` }).click();
+    await expect(firstRow).toContainText("Available");
+
+    await page.getByRole("combobox", { name: "City" }).selectOption("tallinn");
+    await page.getByRole("combobox", { name: "Status" }).selectOption("available");
+    await page.getByRole("button", { name: "Apply filters" }).click();
+    await expect(page.getByRole("row").filter({ hasText: firstCode })).toBeVisible();
+    await expect(page.getByText(secondCode, { exact: true })).toHaveCount(0);
+  });
+
+  test("Rentals → completes accessory handover, deposit, return, and inspection", async ({ page }) => {
+    const rentalId = "e2e-accessory-rental";
+    let rentalStatus = "active";
+    let actualEndDate: string | null = null;
+    let custodyOutcome = "assigned";
+    let depositStatus = "due";
+    let handoverBody: unknown = null;
+    let depositBody: unknown = null;
+    let inspectionBody: unknown = null;
+
+    const rental = () => ({
+      id: rentalId,
+      bookingId: "e2e-accessory-booking",
+      customerEmail: "accessory-custody@example.com",
+      bikeUnitInternalCode: "E2E-BIKE-001",
+      modelId: MODEL_ID,
+      planId: "p30",
+      startDate: "2026-06-15",
+      plannedEndDate: "2026-07-15",
+      actualEndDate,
+      returnScheduledDate: null,
+      status: rentalStatus,
+      monthlyPrice: 177,
+      depositAmount: 100,
+      isOverdue: false,
+      createdAt: "2026-06-15T08:00:00Z",
+      lastReturnReminderSentAt: null,
+    });
+    const accessories = () => ({
+      depositDue: depositStatus === "due",
+      offerCode: "courier-pro",
+      items: [
+        {
+          assignmentId: "assignment-battery",
+          accessoryUnitId: 11,
+          assetCode: "BAT-E2E-001",
+          serialNumber: "SN-BAT-E2E-001",
+          cityId: "tallinn",
+          accessoryCode: "battery",
+          accessoryName: "Extra battery",
+          unitStatus: custodyOutcome === "returned" ? "inspectionpending" : "assigned",
+          unitCondition: "good",
+          outcome: custodyOutcome,
+          outboundCondition: "good",
+          outboundNotes: null,
+          inboundCondition: null,
+          inspectionNotes: null,
+          replacementValue: 300,
+          depositAmount: 120,
+          depositStatus,
+          retainedAmount: 0,
+          retainedReason: null,
+          assignedAt: "2026-06-15T08:00:00Z",
+          handedOverAt: custodyOutcome === "assigned" ? null : "2026-06-15T09:00:00Z",
+          returnedAt: custodyOutcome === "returned" ? "2026-07-15T09:00:00Z" : null,
+          completedAt: null,
+        },
+        {
+          assignmentId: "assignment-lock",
+          accessoryUnitId: 12,
+          assetCode: "LOCK-E2E-001",
+          serialNumber: null,
+          cityId: "tallinn",
+          accessoryCode: "lock",
+          accessoryName: "Heavy-duty lock",
+          unitStatus: custodyOutcome === "returned" ? "inspectionpending" : "assigned",
+          unitCondition: "new",
+          outcome: custodyOutcome,
+          outboundCondition: "new",
+          outboundNotes: null,
+          inboundCondition: null,
+          inspectionNotes: null,
+          replacementValue: 45,
+          depositAmount: 0,
+          depositStatus: "notrequired",
+          retainedAmount: 0,
+          retainedReason: null,
+          assignedAt: "2026-06-15T08:00:00Z",
+          handedOverAt: custodyOutcome === "assigned" ? null : "2026-06-15T09:00:00Z",
+          returnedAt: custodyOutcome === "returned" ? "2026-07-15T09:00:00Z" : null,
+          completedAt: null,
+        },
+      ],
+    });
+
+    await page.route("**/api/admin/rentals**", async (route) => {
+      const request = route.request();
+      const path = new URL(request.url()).pathname;
+      const method = request.method();
+      const json = (body: unknown) => route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(body),
+      });
+
+      if (method === "GET" && path.endsWith("/api/admin/rentals")) return json([rental()]);
+      if (method === "GET" && path.endsWith(`/${rentalId}/extensions`)) return json([]);
+      if (method === "GET" && path.endsWith(`/${rentalId}/accessories`)) return json(accessories());
+      if (method === "POST" && path.endsWith(`/${rentalId}/accessories/handover`)) {
+        handoverBody = request.postDataJSON();
+        custodyOutcome = "handedover";
+        return json(accessories());
+      }
+      if (method === "POST" && path.endsWith(`/${rentalId}/accessories/deposit`)) {
+        depositBody = request.postDataJSON();
+        depositStatus = "collected";
+        return json(accessories());
+      }
+      if (method === "POST" && path.endsWith(`/${rentalId}/return`)) {
+        rentalStatus = "returned";
+        actualEndDate = "2026-07-15";
+        custodyOutcome = "returned";
+        return json(rental());
+      }
+      if (method === "POST" && path.endsWith(`/${rentalId}/inspect`)) {
+        inspectionBody = request.postDataJSON();
+        rentalStatus = "closed";
+        return json(rental());
+      }
+      return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
+    });
+
+    await adminGoto(page, "Rentals");
+    const row = page.getByRole("row").filter({ hasText: "accessory-custody@example.com" });
+    await row.getByRole("button", { name: /manage/i }).click();
+    const drawer = page.getByRole("dialog", { name: "Manage rental" });
+    await expect(drawer.getByText("BAT-E2E-001", { exact: false })).toBeVisible();
+
+    await drawer.getByRole("combobox", { name: "LOCK-E2E-001 outbound condition" }).selectOption("worn");
+    await drawer.getByRole("button", { name: "Confirm equipment handover" }).click();
+    await expect.poll(() => handoverBody).toEqual({
+      items: [
+        { accessoryUnitId: 11, condition: "good", notes: null },
+        { accessoryUnitId: 12, condition: "worn", notes: null },
+      ],
+    });
+
+    await drawer.getByRole("button", { name: "Mark deposit collected" }).click();
+    await expect.poll(() => depositBody).toEqual({ status: "collected" });
+
+    page.once("dialog", (dialog) => dialog.accept());
+    await drawer.getByRole("button", { name: "Mark returned" }).click();
+    const passInspection = drawer.getByRole("button", { name: "Pass inspection" });
+    await expect(passInspection).toBeDisabled();
+    await drawer.getByRole("combobox", { name: "BAT-E2E-001 inspection outcome" }).selectOption("returned");
+    await drawer.getByRole("combobox", { name: "LOCK-E2E-001 inspection outcome" }).selectOption("missing");
+    await expect(passInspection).toBeEnabled();
+    page.once("dialog", (dialog) => dialog.accept());
+    await passInspection.click();
+    await expect.poll(() => inspectionBody).toEqual({
+      passed: true,
+      accessories: [
+        { accessoryUnitId: 11, outcome: "returned", condition: "good", notes: null },
+        { accessoryUnitId: 12, outcome: "missing", condition: null, notes: null },
+      ],
+    });
   });
 
   test("Bookings → New booking creates a booking, then it can be approved", async ({ page }) => {

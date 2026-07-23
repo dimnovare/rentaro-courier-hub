@@ -9,6 +9,9 @@ import {
   inspectRental,
   updateRentalDates,
   sendReturnReminder,
+  getRentalAccessories,
+  confirmRentalAccessoryHandover,
+  updateRentalAccessoryDeposit,
   listRentalExtensions,
   createComplimentaryExtension,
   cancelRentalExtension,
@@ -18,6 +21,14 @@ import {
   type AdminRental,
   type RentalExtension,
 } from "@/services/adminRentalService";
+import type {
+  AccessoryAssignmentOutcome,
+  AccessoryCondition,
+  AccessoryDepositStatus,
+  AccessoryInspectionInput,
+  AdminRentalAccessory,
+  AdminRentalAccessoryResponse,
+} from "@/types/accessoryInventory";
 import { invoicePdfPath } from "@/services/adminBillingService";
 import { AdminTable, Th, Td, EmptyRow, AdminSection } from "@/components/admin/Table";
 import { fmtDay, todayIso, isoDay } from "@/lib/dates";
@@ -30,6 +41,7 @@ import { useAdminRefresh } from "@/components/admin/useAdminRefresh";
 import { Drawer } from "@/components/admin/Drawer";
 import { DateField } from "@/components/admin/DateField";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { track } from "@/services/analytics";
 
 /** ISO day `days` after the given ISO day (local, no timezone shifting). */
 function addDays(iso: string, days: number): string {
@@ -142,6 +154,7 @@ export default function AdminRentalsPage() {
         }
         setBanner({ tone: "ok", text: okText });
         await load({ silent: true });
+        return true;
       } catch (err) {
         if (
           err instanceof RentalAuthError ||
@@ -155,6 +168,7 @@ export default function AdminRentalsPage() {
               : "Action failed.";
           setBanner({ tone: "bad", text });
         }
+        return false;
       } finally {
         setPending((p) => {
           const next = { ...p };
@@ -221,10 +235,10 @@ export default function AdminRentalsPage() {
               runAction(id, () => scheduleReturn(id, date), "Return scheduled.")
             }
             onReturn={(id) => runAction(id, () => markReturned(id), "Marked returned.")}
-            onInspect={(id, passed, notes) =>
+            onInspect={(id, passed, notes, accessories) =>
               runAction(
                 id,
-                () => inspectRental(id, passed, notes),
+                () => inspectRental(id, passed, notes, accessories),
                 passed ? "Inspection passed." : "Inspection failed — logged.",
               )
             }
@@ -389,8 +403,13 @@ function ManageRentalDrawer({
   busy: boolean;
   onClose: () => void;
   onScheduleReturn: (id: string, date: string) => void;
-  onReturn: (id: string) => void;
-  onInspect: (id: string, passed: boolean, notes?: string) => void;
+  onReturn: (id: string) => Promise<boolean>;
+  onInspect: (
+    id: string,
+    passed: boolean,
+    notes?: string,
+    accessories?: AccessoryInspectionInput[],
+  ) => Promise<boolean>;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
   onSendReminder: (id: string) => void;
   onExtensionChanged: () => void;
@@ -447,8 +466,13 @@ function ManageRentalBody({
   banner: { tone: "ok" | "bad"; text: string } | null;
   busy: boolean;
   onScheduleReturn: (id: string, date: string) => void;
-  onReturn: (id: string) => void;
-  onInspect: (id: string, passed: boolean, notes?: string) => void;
+  onReturn: (id: string) => Promise<boolean>;
+  onInspect: (
+    id: string,
+    passed: boolean,
+    notes?: string,
+    accessories?: AccessoryInspectionInput[],
+  ) => Promise<boolean>;
   onEditDates: (id: string, body: { startDate?: string; plannedEndDate?: string }) => void;
   onSendReminder: (id: string) => void;
   onExtensionChanged: () => void;
@@ -456,7 +480,6 @@ function ManageRentalBody({
   const id = rental.id;
   // Seed from the saved scheduled return (if any) so re-opening shows it, not today.
   const [returnDate, setReturnDate] = useState(rental.returnScheduledDate ?? todayIso());
-  const [notes, setNotes] = useState("");
   // Edit-dates block, seeded from the rental's current ISO dates.
   const [startDate, setStartDate] = useState(rental.startDate);
   const [plannedEnd, setPlannedEnd] = useState(rental.plannedEndDate ?? "");
@@ -466,7 +489,9 @@ function ManageRentalBody({
   // back into view whenever it (re)appears.
   const bannerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (banner) bannerRef.current?.scrollIntoView({ block: "nearest" });
+    if (banner && typeof bannerRef.current?.scrollIntoView === "function") {
+      bannerRef.current.scrollIntoView({ block: "nearest" });
+    }
   }, [banner]);
 
   return (
@@ -498,81 +523,12 @@ function ManageRentalBody({
         </form>
       </ActionBlock>
 
-      {/* 2 · Mark returned */}
-      <ActionBlock label="2 · Mark returned">
-        <div style={actionRow}>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            style={miniBtn}
-            disabled={busy}
-            onClick={() => {
-              if (
-                !confirmAction(
-                  "Mark this rental as returned? This ends the active rental and frees the bike for inspection.",
-                )
-              ) {
-                return;
-              }
-              onReturn(id);
-            }}
-          >
-            Mark returned
-          </button>
-        </div>
-      </ActionBlock>
-
-      {/* 3 · Inspect: notes + pass/fail */}
-      <ActionBlock label="3 · Inspect">
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <input
-            type="text"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            aria-label="Inspection notes"
-            placeholder="Inspection notes (optional)"
-            style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
-            disabled={busy}
-          />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              style={miniBtn}
-              disabled={busy}
-              onClick={() => {
-                // Inspection is terminal: it permanently CLOSES the rental with
-                // no undo, so a single (mis)click must not be enough.
-                if (!confirmAction("Pass inspection and close this rental?", { finality: "final" })) {
-                  return;
-                }
-                onInspect(id, true, notes);
-              }}
-            >
-              Pass inspection
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              style={miniBtn}
-              disabled={busy}
-              onClick={() => {
-                if (
-                  !confirmAction(
-                    "Fail inspection and close this rental? The bike unit goes to maintenance.",
-                    { finality: "final" },
-                  )
-                ) {
-                  return;
-                }
-                onInspect(id, false, notes);
-              }}
-            >
-              Fail inspection
-            </button>
-          </div>
-        </div>
-      </ActionBlock>
+      <RentalAccessoryOperations
+        rental={rental}
+        busy={busy}
+        onReturn={onReturn}
+        onInspect={onInspect}
+      />
 
       {/* 4 · Extend + extension history (one combined control — see below) */}
       <RentalExtensionAdminSection rental={rental} onChanged={onExtensionChanged} />
@@ -637,6 +593,622 @@ function ManageRentalBody({
       )}
     </div>
   );
+}
+
+type CustodyState =
+  | { phase: "loading" }
+  | { phase: "ready"; data: AdminRentalAccessoryResponse }
+  | { phase: "error"; message: string };
+
+type InspectionOutcome = Extract<
+  AccessoryAssignmentOutcome,
+  "returned" | "damaged" | "missing" | "retained"
+>;
+
+interface HandoverDraft {
+  condition: AccessoryCondition;
+  notes: string;
+}
+
+interface InspectionDraft {
+  outcome: "" | InspectionOutcome;
+  condition: AccessoryCondition;
+  notes: string;
+}
+
+const ACCESSORY_CONDITIONS: readonly AccessoryCondition[] = [
+  "new",
+  "good",
+  "worn",
+  "damaged",
+];
+
+function RentalAccessoryOperations({
+  rental,
+  busy,
+  onReturn,
+  onInspect,
+}: {
+  rental: AdminRental;
+  busy: boolean;
+  onReturn: (id: string) => Promise<boolean>;
+  onInspect: (
+    id: string,
+    passed: boolean,
+    notes?: string,
+    accessories?: AccessoryInspectionInput[],
+  ) => Promise<boolean>;
+}) {
+  const { signOut } = useAdminAuth();
+  const [state, setState] = useState<CustodyState>({ phase: "loading" });
+  const [handover, setHandover] = useState<Record<number, HandoverDraft>>({});
+  const [inspection, setInspection] = useState<Record<number, InspectionDraft>>({});
+  const [bikeNotes, setBikeNotes] = useState("");
+  const [depositAction, setDepositAction] = useState<"" | "refunded" | "partially_retained" | "retained">("");
+  const [retainedAmount, setRetainedAmount] = useState("");
+  const [retentionReason, setRetentionReason] = useState("");
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const applyResponse = useCallback((response: AdminRentalAccessoryResponse) => {
+    setState({ phase: "ready", data: response });
+    setHandover(
+      Object.fromEntries(
+        response.items.map((item) => [
+          item.accessoryUnitId,
+          {
+            condition: item.outboundCondition || item.unitCondition,
+            notes: item.outboundNotes ?? "",
+          },
+        ]),
+      ),
+    );
+    setInspection(
+      Object.fromEntries(
+        response.items.map((item) => [
+          item.accessoryUnitId,
+          {
+            outcome: "",
+            condition: item.inboundCondition ?? item.unitCondition,
+            notes: item.inspectionNotes ?? "",
+          },
+        ]),
+      ),
+    );
+  }, []);
+
+  const loadCustody = useCallback(async () => {
+    setState({ phase: "loading" });
+    setError(null);
+    try {
+      applyResponse(await getRentalAccessories(rental.id));
+    } catch (err) {
+      if (isRentalUnauthorized(err)) signOut();
+      else setState({ phase: "error", message: rentalActionError(err, "Could not load assigned equipment.") });
+    }
+  }, [applyResponse, rental.id, signOut]);
+
+  useEffect(() => {
+    void loadCustody();
+  }, [loadCustody, rental.status]);
+
+  const data = state.phase === "ready" ? state.data : null;
+  const liveItems = data?.items.filter((item) => item.completedAt == null) ?? [];
+  const awaitingHandover =
+    liveItems.length > 0 &&
+    liveItems.every((item) => item.outcome === "assigned" || item.outcome === "handedover") &&
+    liveItems.some((item) => item.outcome === "assigned");
+  const deposit = data?.items.find((item) => item.depositAmount > 0) ?? null;
+  const inspectionItems = liveItems.filter((item) => item.outcome === "returned");
+  const returned = rental.status.toLowerCase() === "returned";
+  const canMarkReturned = !["returned", "closed"].includes(rental.status.toLowerCase());
+  const inspectionReady =
+    state.phase === "ready" &&
+    inspectionItems.every((item) => validInspectionDraft(inspection[item.accessoryUnitId]));
+
+  async function confirmHandover() {
+    if (!awaitingHandover || working) return;
+    const newlyHandedOver = liveItems.filter((item) => item.outcome === "assigned");
+    setWorking(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const response = await confirmRentalAccessoryHandover(rental.id, {
+        items: liveItems.map((item) => {
+          const draft = handover[item.accessoryUnitId] ?? {
+            condition: item.outboundCondition,
+            notes: "",
+          };
+          return {
+            accessoryUnitId: item.accessoryUnitId,
+            condition: draft.condition,
+            notes: draft.notes.trim() || null,
+          };
+        }),
+      });
+      applyResponse(response);
+      setNotice("Equipment handover confirmed.");
+      newlyHandedOver.forEach((item) =>
+        track(
+          "admin_accessory_handover",
+          accessoryCustodyAnalytics(response, item, "handedover"),
+        ),
+      );
+    } catch (err) {
+      if (isRentalUnauthorized(err)) signOut();
+      else setError(rentalActionError(err, "Could not confirm equipment handover."));
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function markReturnedWithEquipment() {
+    if (!canMarkReturned || working) return;
+    if (
+      !confirmAction(
+        "Mark this rental as returned? This ends the active rental and frees the bike for inspection.",
+      )
+    ) {
+      return;
+    }
+
+    const returningItems = liveItems.filter((item) => item.completedAt == null);
+    setWorking(true);
+    const ok = await onReturn(rental.id);
+    setWorking(false);
+    if (ok && data) {
+      returningItems.forEach((item) =>
+        track(
+          "admin_accessory_return",
+          accessoryCustodyAnalytics(data, item, "returned"),
+        ),
+      );
+    }
+  }
+
+  async function updateDeposit(status: AccessoryDepositStatus) {
+    if (!deposit || working) return;
+    setError(null);
+    setNotice(null);
+
+    let body:
+      | { status: AccessoryDepositStatus }
+      | { status: AccessoryDepositStatus; retainedAmount: number; reason: string } = { status };
+    if (status === "partially_retained" || status === "retained") {
+      const amount = Number(retainedAmount);
+      const reason = retentionReason.trim();
+      const validAmount =
+        amount > 0 &&
+        (status === "partially_retained" ? amount < deposit.depositAmount : amount <= deposit.depositAmount);
+      if (!validAmount) {
+        setError(
+          status === "partially_retained"
+            ? `A partial retention must be greater than zero and less than ${formatEur(deposit.depositAmount)}.`
+            : `A retained amount must be greater than zero and no more than ${formatEur(deposit.depositAmount)}.`,
+        );
+        return;
+      }
+      if (!reason) {
+        setError("A retention reason is required.");
+        return;
+      }
+      body = { status, retainedAmount: amount, reason };
+    }
+
+    setWorking(true);
+    try {
+      applyResponse(await updateRentalAccessoryDeposit(rental.id, body));
+      setDepositAction("");
+      setRetainedAmount("");
+      setRetentionReason("");
+      setNotice("Deposit status updated.");
+    } catch (err) {
+      if (isRentalUnauthorized(err)) signOut();
+      else setError(rentalActionError(err, "Could not update the deposit."));
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  function inspectionPayload(): AccessoryInspectionInput[] | null {
+    if (!inspectionReady) {
+      setError("Choose an outcome for every returned accessory.");
+      return null;
+    }
+    return inspectionItems.map((item) => {
+      const draft = inspection[item.accessoryUnitId];
+      const needsCondition = draft.outcome === "returned" || draft.outcome === "damaged";
+      return {
+        accessoryUnitId: item.accessoryUnitId,
+        outcome: draft.outcome as InspectionOutcome,
+        condition: needsCondition ? draft.condition : null,
+        notes: draft.notes.trim() || null,
+      };
+    });
+  }
+
+  async function completeInspection(passed: boolean) {
+    const accessories = inspectionPayload();
+    if (accessories == null || working) return;
+    const prompt = passed
+      ? "Pass inspection and close this rental?"
+      : "Fail inspection and close this rental? The bike unit goes to maintenance.";
+    if (!confirmAction(prompt, { finality: "final" })) return;
+
+    setWorking(true);
+    const ok = await onInspect(rental.id, passed, bikeNotes.trim() || undefined, accessories);
+    setWorking(false);
+    if (ok) {
+      accessories.forEach((item) => {
+        const source = inspectionItems.find((row) => row.accessoryUnitId === item.accessoryUnitId);
+        if (!source) return;
+        const event = accessoryInspectionEvent(item.outcome);
+        if (event && data) {
+          track(event, accessoryCustodyAnalytics(data, source, item.outcome));
+        }
+      });
+    }
+  }
+
+  return (
+    <>
+      <ActionBlock label="2 · Mark returned">
+        {canMarkReturned ? (
+          <div style={actionRow}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={miniBtn}
+              disabled={busy || working}
+              onClick={() => void markReturnedWithEquipment()}
+            >
+              Mark returned
+            </button>
+          </div>
+        ) : (
+          <span className="mono" style={editDateHint}>Return recorded.</span>
+        )}
+      </ActionBlock>
+
+      <ActionBlock label="3 · Equipment custody">
+      <span style={{ fontSize: 14, fontWeight: 650 }}>Equipment custody</span>
+      {error && <Banner tone="bad" text={error} />}
+      {notice && <Banner tone="ok" text={notice} />}
+
+      {state.phase === "loading" ? (
+        <span className="mono" style={editDateHint}>Loading assigned equipment…</span>
+      ) : state.phase === "error" ? (
+        <div style={actionRow}>
+          <span className="mono" style={{ ...editDateHint, color: "var(--danger)" }}>{state.message}</span>
+          <button type="button" className="btn btn-ghost" style={miniBtn} onClick={() => void loadCustody()}>Try again</button>
+        </div>
+      ) : state.phase !== "ready" ? null : state.data.items.length === 0 ? (
+        <span className="mono" style={editDateHint}>No optional equipment is assigned to this rental.</span>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {state.data.items.map((item) => (
+            <div key={item.assignmentId} style={custodyItemStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ display: "block", fontSize: 13.5 }}>{item.accessoryName}</strong>
+                  <span className="mono" style={{ fontSize: 11, color: "var(--text-dim)", overflowWrap: "anywhere" }}>
+                    {item.assetCode}{item.serialNumber ? ` · ${item.serialNumber}` : ""}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                  <StatusPill value={item.outcome} />
+                  <StatusPill value={item.unitCondition} />
+                </div>
+              </div>
+
+              <AccessoryCustodyHistory item={item} />
+
+              {awaitingHandover && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+                  <label style={compactRentalLabel}>
+                    Outbound condition
+                    <select
+                      aria-label={`${item.assetCode} outbound condition`}
+                      value={(handover[item.accessoryUnitId]?.condition ?? item.outboundCondition)}
+                      disabled={busy || working}
+                      onChange={(event) =>
+                        setHandover((current) => ({
+                          ...current,
+                          [item.accessoryUnitId]: {
+                            condition: event.target.value as AccessoryCondition,
+                            notes: current[item.accessoryUnitId]?.notes ?? "",
+                          },
+                        }))
+                      }
+                      style={rentalSelectStyle}
+                    >
+                      {ACCESSORY_CONDITIONS.map((condition) => <option key={condition} value={condition}>{statusLabel(condition)}</option>)}
+                    </select>
+                  </label>
+                  <label style={compactRentalLabel}>
+                    Handover notes
+                    <input
+                      aria-label={`${item.assetCode} handover notes`}
+                      value={handover[item.accessoryUnitId]?.notes ?? ""}
+                      disabled={busy || working}
+                      onChange={(event) =>
+                        setHandover((current) => ({
+                          ...current,
+                          [item.accessoryUnitId]: {
+                            condition: current[item.accessoryUnitId]?.condition ?? item.outboundCondition,
+                            notes: event.target.value,
+                          },
+                        }))
+                      }
+                      style={rentalSelectStyle}
+                    />
+                  </label>
+                </div>
+              )}
+
+              {returned && item.outcome === "returned" && item.completedAt == null && (
+                <InspectionUnitFields
+                  item={item}
+                  draft={inspection[item.accessoryUnitId]}
+                  disabled={busy || working}
+                  onChange={(next) => setInspection((current) => ({ ...current, [item.accessoryUnitId]: next }))}
+                />
+              )}
+            </div>
+          ))}
+
+          {awaitingHandover && (
+            <button type="button" className="btn btn-primary" style={miniBtn} disabled={busy || working} onClick={() => void confirmHandover()}>
+              Confirm equipment handover
+            </button>
+          )}
+
+          {deposit && <DepositControls deposit={deposit} action={depositAction} amount={retainedAmount} reason={retentionReason} disabled={busy || working} onAction={setDepositAction} onAmount={setRetainedAmount} onReason={setRetentionReason} onCollect={() => void updateDeposit("collected")} onUpdate={() => depositAction && void updateDeposit(depositAction)} />}
+        </div>
+      )}
+
+      {returned && state.phase === "ready" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 8, borderTop: "1px solid var(--border)" }}>
+          <input
+            type="text"
+            value={bikeNotes}
+            onChange={(event) => setBikeNotes(event.target.value)}
+            aria-label="Inspection notes"
+            placeholder="Bike inspection notes (optional)"
+            style={{ ...dateStyle, minWidth: 0, flex: "unset" }}
+            disabled={busy || working}
+          />
+          {inspectionItems.length > 0 && !inspectionReady && (
+            <span className="mono" style={{ ...editDateHint, color: "var(--warn)" }}>Choose an outcome for every returned accessory.</span>
+          )}
+          <div style={actionRow}>
+            <button type="button" className="btn btn-primary" style={miniBtn} disabled={busy || working || !inspectionReady} onClick={() => void completeInspection(true)}>
+              Pass inspection
+            </button>
+            <button type="button" className="btn btn-ghost" style={miniBtn} disabled={busy || working || !inspectionReady} onClick={() => void completeInspection(false)}>
+              Fail inspection
+            </button>
+          </div>
+        </div>
+      )}
+      </ActionBlock>
+    </>
+  );
+}
+
+function AccessoryCustodyHistory({ item }: { item: AdminRentalAccessory }) {
+  const events = [
+    `Assigned ${fmtDay(item.assignedAt.slice(0, 10))}`,
+    item.handedOverAt ? `Handed over ${fmtDay(item.handedOverAt.slice(0, 10))}` : null,
+    item.returnedAt ? `Returned ${fmtDay(item.returnedAt.slice(0, 10))}` : null,
+    item.completedAt ? `Completed ${fmtDay(item.completedAt.slice(0, 10))}` : null,
+  ].filter((event): event is string => event != null);
+
+  return (
+    <div
+      aria-label={`${item.assetCode} custody history`}
+      className="mono"
+      style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: 10.5, color: "var(--text-dim)" }}
+    >
+      <span style={{ overflowWrap: "anywhere" }}>{events.join(" · ")}</span>
+      {item.outboundNotes && <span style={{ overflowWrap: "anywhere" }}>Handover note: {item.outboundNotes}</span>}
+      {item.inspectionNotes && <span style={{ overflowWrap: "anywhere" }}>Inspection note: {item.inspectionNotes}</span>}
+    </div>
+  );
+}
+
+function InspectionUnitFields({
+  item,
+  draft,
+  disabled,
+  onChange,
+}: {
+  item: AdminRentalAccessory;
+  draft: InspectionDraft | undefined;
+  disabled: boolean;
+  onChange: (draft: InspectionDraft) => void;
+}) {
+  const current = draft ?? { outcome: "", condition: item.unitCondition, notes: "" };
+  const showCondition = current.outcome === "returned" || current.outcome === "damaged";
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+      <label style={compactRentalLabel}>
+        Inspection outcome
+        <select
+          aria-label={`${item.assetCode} inspection outcome`}
+          value={current.outcome}
+          disabled={disabled}
+          onChange={(event) => {
+            const outcome = event.target.value as "" | InspectionOutcome;
+            onChange({
+              ...current,
+              outcome,
+              condition: outcome === "damaged"
+                ? "damaged"
+                : outcome === "returned" && current.condition === "damaged"
+                  ? "good"
+                  : current.condition,
+            });
+          }}
+          style={rentalSelectStyle}
+        >
+          <option value="">Choose outcome</option>
+          <option value="returned">Returned / serviceable</option>
+          <option value="damaged">Damaged</option>
+          <option value="missing">Missing</option>
+          <option value="retained">Retained by customer</option>
+        </select>
+      </label>
+      {showCondition && (
+        <label style={compactRentalLabel}>
+          Inbound condition
+          <select
+            aria-label={`${item.assetCode} inbound condition`}
+            value={current.condition}
+            disabled={disabled || current.outcome === "damaged"}
+            onChange={(event) => onChange({ ...current, condition: event.target.value as AccessoryCondition })}
+            style={rentalSelectStyle}
+          >
+            {(current.outcome === "damaged" ? ["damaged"] : ["new", "good", "worn"]).map((condition) => (
+              <option key={condition} value={condition}>{statusLabel(condition)}</option>
+            ))}
+          </select>
+        </label>
+      )}
+      <label style={{ ...compactRentalLabel, gridColumn: "1 / -1" }}>
+        Accessory inspection notes
+        <input
+          aria-label={`${item.assetCode} inspection notes`}
+          value={current.notes}
+          disabled={disabled}
+          onChange={(event) => onChange({ ...current, notes: event.target.value })}
+          style={rentalSelectStyle}
+        />
+      </label>
+    </div>
+  );
+}
+
+function DepositControls({
+  deposit,
+  action,
+  amount,
+  reason,
+  disabled,
+  onAction,
+  onAmount,
+  onReason,
+  onCollect,
+  onUpdate,
+}: {
+  deposit: AdminRentalAccessory;
+  action: "" | "refunded" | "partially_retained" | "retained";
+  amount: string;
+  reason: string;
+  disabled: boolean;
+  onAction: (action: "" | "refunded" | "partially_retained" | "retained") => void;
+  onAmount: (amount: string) => void;
+  onReason: (reason: string) => void;
+  onCollect: () => void;
+  onUpdate: () => void;
+}) {
+  const retention = action === "partially_retained" || action === "retained";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 9, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>Extra-battery deposit · {formatEur(deposit.depositAmount)}</span>
+        <StatusPill value={deposit.depositStatus} />
+      </div>
+      {deposit.depositStatus === "due" && (
+        <button type="button" className="btn btn-primary" style={miniBtn} disabled={disabled} onClick={onCollect}>Mark deposit collected</button>
+      )}
+      {deposit.depositStatus === "collected" && (
+        <>
+          <label style={compactRentalLabel}>
+            Deposit outcome
+            <select
+              aria-label="Deposit outcome"
+              value={action}
+              disabled={disabled}
+              onChange={(event) =>
+                onAction(event.target.value as "" | "refunded" | "partially_retained" | "retained")
+              }
+              style={rentalSelectStyle}
+            >
+              <option value="">Choose outcome</option>
+              <option value="refunded">Refunded in full</option>
+              <option value="partially_retained">Partly retained</option>
+              <option value="retained">Retained</option>
+            </select>
+          </label>
+          {retention && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+              <label style={compactRentalLabel}>
+                Amount retained (€)
+                <input aria-label="Amount retained (€)" type="number" min={0} max={deposit.depositAmount} step="0.01" value={amount} disabled={disabled} onChange={(event) => onAmount(event.target.value)} style={rentalSelectStyle} />
+              </label>
+              <label style={compactRentalLabel}>
+                Retention reason
+                <input aria-label="Retention reason" value={reason} disabled={disabled} onChange={(event) => onReason(event.target.value)} style={rentalSelectStyle} />
+              </label>
+            </div>
+          )}
+          <button type="button" className="btn btn-ghost" style={miniBtn} disabled={disabled || !action} onClick={onUpdate}>Update deposit</button>
+        </>
+      )}
+      {(deposit.depositStatus === "partially_retained" || deposit.depositStatus === "retained") && (
+        <span className="mono" style={editDateHint}>
+          {formatEur(deposit.retainedAmount)} retained{deposit.retainedReason ? ` · ${deposit.retainedReason}` : ""}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function validInspectionDraft(draft: InspectionDraft | undefined): boolean {
+  if (!draft?.outcome) return false;
+  if (draft.outcome === "returned") return draft.condition !== "damaged";
+  if (draft.outcome === "damaged") return draft.condition === "damaged";
+  return true;
+}
+
+function accessoryInspectionEvent(outcome: AccessoryAssignmentOutcome): string | null {
+  switch (outcome) {
+    case "returned":
+      return null;
+    case "damaged":
+      return "admin_accessory_damage";
+    case "missing":
+      return "admin_accessory_loss";
+    case "retained":
+      return "admin_accessory_retained";
+    default:
+      return "admin_accessory_inspection";
+  }
+}
+
+function accessoryCustodyAnalytics(
+  data: AdminRentalAccessoryResponse,
+  item: AdminRentalAccessory,
+  outcome: AccessoryAssignmentOutcome,
+): Record<string, string> {
+  return {
+    ...(data.offerCode ? { offer_code: data.offerCode } : {}),
+    component_code: item.accessoryCode,
+    city: item.cityId,
+    outcome,
+  };
+}
+
+function isRentalUnauthorized(error: unknown): boolean {
+  return error instanceof RentalAuthError || (error instanceof RentalApiError && error.unauthorized);
+}
+
+function rentalActionError(error: unknown, fallback: string): string {
+  return error instanceof RentalApiError || error instanceof RentalConfigError || error instanceof RentalAuthError
+    ? error.message
+    : fallback;
 }
 
 /**
@@ -928,6 +1500,36 @@ const editDateHint: React.CSSProperties = {
   fontSize: 11,
   lineHeight: 1.5,
   color: "var(--text-dim)",
+};
+
+const custodyItemStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  padding: "12px 0",
+  borderBottom: "1px solid var(--border)",
+};
+
+const compactRentalLabel: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 5,
+  fontSize: 11,
+  color: "var(--text-muted)",
+  fontFamily: "var(--font-mono)",
+};
+
+const rentalSelectStyle: React.CSSProperties = {
+  width: "100%",
+  minWidth: 0,
+  padding: "8px 10px",
+  borderRadius: "var(--r-sm)",
+  background: "var(--bg-2)",
+  border: "1px solid var(--border)",
+  color: "var(--text)",
+  fontFamily: "var(--font-mono)",
+  fontSize: 12,
+  letterSpacing: 0,
 };
 
 const extensionHintStyle: React.CSSProperties = {

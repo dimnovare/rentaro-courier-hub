@@ -70,6 +70,11 @@ const I = {
       <circle cx="6" cy="17" r="3" /><circle cx="18" cy="17" r="3" /><path d="M9 17 H13 L9.5 9 H7.5" /><path d="M13 17 L16.5 10 H13.5" /><path d="M11 9 H8" /><circle cx="12" cy="6.5" r="1.3" />
     </svg>
   ),
+  accessories: ({ s = 17 }: IcoProps): ReactElement => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="6" width="8" height="12" rx="2" /><rect x="13" y="3" width="8" height="7" rx="2" /><rect x="13" y="13" width="8" height="8" rx="2" />
+    </svg>
+  ),
   contracts: ({ s = 17 }: IcoProps): ReactElement => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M7 3 H14 L19 8 V21 H7 Z" /><path d="M14 3 V8 H19" /><path d="M10 13 H16" /><path d="M10 17 H14" />
@@ -142,7 +147,10 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: "Fleet",
-    items: [{ label: "Fleet", href: "/admin/fleet", icon: "fleet" }],
+    items: [
+      { label: "Fleet", href: "/admin/fleet", icon: "fleet" },
+      { label: "Accessories", href: "/admin/accessories", icon: "accessories" },
+    ],
   },
   {
     label: "Contracts",

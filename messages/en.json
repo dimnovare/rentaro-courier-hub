@@ -548,6 +548,37 @@
     "plannedEnd": "Planned end",
     "assignedBike": "Assigned bike",
     "notYetAssigned": "Not yet assigned",
+    "equipment": {
+      "heading": "Equipment",
+      "selected": "Selected package",
+      "packageBenefit": "Equipment selected for your delivery routine.",
+      "packageBenefits": {
+        "courierEssentials": "Core equipment for regular courier work.",
+        "courierPro": "Extra power and essentials for longer shifts.",
+        "batteryOnly": "Extra power for longer delivery days."
+      },
+      "awaitingAssignment": "Equipment will be assigned before pickup.",
+      "serial": "Serial: {serial}",
+      "deposit": {
+        "label": "Extra battery deposit",
+        "status": {
+          "notRequired": "Not required",
+          "due": "Due",
+          "collected": "Collected",
+          "refunded": "Refunded",
+          "retained": "Retained",
+          "partiallyRetained": "Partly retained"
+        }
+      },
+      "condition": {
+        "new": "New condition",
+        "good": "Good condition",
+        "fair": "Fair condition",
+        "worn": "Used condition",
+        "damaged": "Damaged condition",
+        "unknown": "Condition to be confirmed"
+      }
+    },
     "needElsePrefix": "Need something else?",
     "needElseLink": "Check the FAQ",
     "sending": "Sending…",

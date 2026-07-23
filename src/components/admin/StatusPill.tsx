@@ -48,12 +48,25 @@ export const STATUS_LABELS: Record<string, string> = {
   incoming: "Incoming",
   available: "Available",
   reserved: "Reserved",
+  assigned: "Assigned",
   rented: "Rented",
   returningsoon: "Returning soon",
   maintenance: "Maintenance",
   damaged: "Damaged",
   stolen: "Stolen",
+  lost: "Lost",
   retired: "Retired",
+  // Accessory condition / custody / deposit
+  new: "New",
+  good: "Good",
+  worn: "Worn",
+  handedover: "Handed over",
+  missing: "Missing",
+  retained: "Retained",
+  notrequired: "Not required",
+  due: "Due",
+  collected: "Collected",
+  partially_retained: "Partially retained",
   // Maintenance status / priority / issue type
   open: "Open",
   inprogress: "In progress",
@@ -119,15 +132,15 @@ export function toneFor(value: string): PillTone {
   // Checked before the good bucket, whose standalone "in" would otherwise
   // swallow "in progress".
   if (/\b(?:inprogress|in[ _]progress)\b/.test(v)) return "warn";
-  if (/\b(?:active|approved|available|completed|resolved|closed|done|in)\b/.test(v)) return "good";
+  if (/\b(?:active|approved|available|completed|resolved|closed|done|in|new|good|collected|refunded)\b/.test(v)) return "good";
   if (
-    /\b(?:pending|awaiting|review|submitted|reserved|low|limited|scheduled|medium|returning|open|waitlist|wait)\b/.test(
+    /\b(?:pending|awaiting|review|submitted|reserved|low|limited|scheduled|medium|returning|open|waitlist|wait|due|worn)\b/.test(
       v,
     )
   )
     return "warn";
   if (
-    /\b(?:rejected|cancelled|canceled|damaged|stolen|overdue|defaulted|failed|urgent|high|maintenance|retired)\b/.test(
+    /\b(?:rejected|cancelled|canceled|damaged|stolen|lost|missing|retained|overdue|defaulted|failed|urgent|high|maintenance|retired)\b/.test(
       v,
     )
   )

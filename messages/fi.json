@@ -548,6 +548,37 @@
     "plannedEnd": "Suunniteltu päättymispäivä",
     "assignedBike": "Osoitettu pyörä",
     "notYetAssigned": "Ei vielä osoitettu",
+    "equipment": {
+      "heading": "Varusteet",
+      "selected": "Valittu paketti",
+      "packageBenefit": "Toimitusrytmiisi valitut varusteet.",
+      "packageBenefits": {
+        "courierEssentials": "Perusvarusteet säännölliseen kuriirityöhön.",
+        "courierPro": "Lisätehoa ja varusteet pidemmille työvuoroille.",
+        "batteryOnly": "Lisätehoa pidemmille toimituspäiville."
+      },
+      "awaitingAssignment": "Varusteet osoitetaan ennen noutoa.",
+      "serial": "Sarjanumero: {serial}",
+      "deposit": {
+        "label": "Lisäakun vakuus",
+        "status": {
+          "notRequired": "Ei vaadita",
+          "due": "Maksettavana",
+          "collected": "Maksettu",
+          "refunded": "Palautettu",
+          "retained": "Pidätetty",
+          "partiallyRetained": "Osittain pidätetty"
+        }
+      },
+      "condition": {
+        "new": "Uudenveroinen",
+        "good": "Hyvä kunto",
+        "fair": "Tyydyttävä kunto",
+        "worn": "Kulunut kunto",
+        "damaged": "Vaurioitunut kunto",
+        "unknown": "Kunto vahvistetaan myöhemmin"
+      }
+    },
     "needElsePrefix": "Tarvitsetko jotain muuta?",
     "needElseLink": "Katso UKK",
     "sending": "Lähetetään…",

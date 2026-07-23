@@ -16,7 +16,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const API_PROJECT = resolve(__dirname, "../../Rentaro/src/Rentaro.Api");
+const API_PROJECT = process.env.RENTARO_E2E_API_PROJECT
+  ? resolve(process.env.RENTARO_E2E_API_PROJECT)
+  : resolve(__dirname, "../../Rentaro/src/Rentaro.Api");
 
 const DB_CONTAINER = "rentaro-e2e-postgres";
 const DB_PORT = "5437";

@@ -25,7 +25,7 @@ export type AccessoryDepositStatus =
   | "due"
   | "collected"
   | "refunded"
-  | "partiallyretained"
+  | "partially_retained"
   | "retained";
 
 export interface AdminAccessoryUnit {
@@ -134,6 +134,7 @@ export interface AdminRentalAccessory {
   accessoryUnitId: number;
   assetCode: string;
   serialNumber: string | null;
+  cityId: string;
   accessoryCode: string;
   accessoryName: string;
   unitStatus: AccessoryUnitStatus;
@@ -156,6 +157,7 @@ export interface AdminRentalAccessory {
 
 export interface AdminRentalAccessoryResponse {
   depositDue: boolean;
+  offerCode: string | null;
   items: AdminRentalAccessory[];
 }
 

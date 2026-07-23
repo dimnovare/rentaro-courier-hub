@@ -24,6 +24,9 @@ const rentals = vi.hoisted(() => ({
   inspectRental: vi.fn(),
   updateRentalDates: vi.fn(),
   sendReturnReminder: vi.fn(),
+  getRentalAccessories: vi.fn(),
+  confirmRentalAccessoryHandover: vi.fn(),
+  updateRentalAccessoryDeposit: vi.fn(),
 }));
 
 const bookings = vi.hoisted(() => ({ listBookings: vi.fn() }));
@@ -178,6 +181,7 @@ beforeEach(() => {
     },
   ]);
   rentals.listRentals.mockResolvedValue([rental]);
+  rentals.getRentalAccessories.mockResolvedValue({ depositDue: false, offerCode: null, items: [] });
   rentals.listRentalExtensions.mockResolvedValue([extension]);
   rentals.createComplimentaryExtension.mockResolvedValue({
     extensionId: "extension-2",
