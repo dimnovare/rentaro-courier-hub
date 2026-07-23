@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { company } from "@/data/company";
 import { cities } from "@/data/cities";
+import { isWindDownMode } from "@/lib/windDown";
 
 /** Footer link tree. Hrefs are stable; labels are resolved from the
  *  `footer.links` namespace so copy lives in the catalog. */
@@ -46,6 +47,23 @@ const columns: {
   },
 ];
 
+/**
+ * Reduced footer link tree for wind-down mode. Every commercial column
+ * (Product / Cities / Get started) is dropped; only the customer portal and the
+ * legal pages — the surfaces that stay live during wind-down — remain.
+ */
+const windDownColumns: typeof columns = [
+  {
+    headingKey: "company",
+    links: [
+      { labelKey: "myRental", href: "/my-rental" },
+      { labelKey: "rules", href: "/rules" },
+      { labelKey: "privacy", href: "/privacy" },
+      { labelKey: "terms", href: "/terms" },
+    ],
+  },
+];
+
 /** Social profiles rendered as icon links in the footer bar. Hrefs come from
  *  company.ts; any empty one is filtered out so no dead icon renders. Icons use
  *  currentColor so they inherit the link colour + hover state. */
@@ -84,6 +102,12 @@ const socials = [
 export async function Footer() {
   const t = await getTranslations("footer");
 
+  // Wind-down mode drops the commercial footer columns and the "cities soon"
+  // marketing line, leaving only the keep-active links (customer portal + legal
+  // pages) and the legal identity/contact block. Normal mode is unchanged.
+  const windDown = isWindDownMode(process.env.NEXT_PUBLIC_BUSINESS_MODE);
+  const navColumns = windDown ? windDownColumns : columns;
+
   // Derive the meta city line from data so it never implies a "soon" market is
   // already live. Live cities first, then each "soon" city tagged as such.
   const live = cities.filter((c) => c.status !== "soon").map((c) => c.name);
@@ -96,7 +120,7 @@ export async function Footer() {
     <div className="wrap">
       <footer className="foot">
         <nav className="foot-nav" aria-label={t("navAriaLabel")}>
-          {columns.map((col) => (
+          {navColumns.map((col) => (
             <div className="foot-col" key={col.headingKey}>
               <h5>{t(`columns.${col.headingKey}`)}</h5>
               {col.links.map((link) => (
@@ -137,7 +161,7 @@ export async function Footer() {
         </div>
         <div className="foot-grid">
           <div className="foot-left">
-            <Link className="brand" href="/">
+            <Link className="brand" href={windDown ? "/wind-down" : "/"}>
               <LogoMark size={32} />
               <span className="word">rentaro</span>
             </Link>
@@ -161,7 +185,7 @@ export async function Footer() {
             <span>
               © {new Date().getFullYear()} {company.legalName} · {company.brandName}
             </span>
-            <span>{cityLine}</span>
+            {!windDown && <span>{cityLine}</span>}
             <span>{t("independent")}</span>
           </div>
         </div>

@@ -6,7 +6,8 @@
     "cities": "Города",
     "viewFleet": "Смотреть автопарк",
     "reserve": "Забронировать",
-    "menu": "Меню"
+    "menu": "Меню",
+    "portal": "Моя аренда"
   },
   "trustStrip": {
     "freeToReserve": "Бронь бесплатно",
@@ -37,7 +38,8 @@
       "terms": "Условия",
       "reserveBike": "Забронировать байк",
       "monthlyRental": "Аренда помесячно",
-      "forCouriers": "Для курьеров"
+      "forCouriers": "Для курьеров",
+      "myRental": "Моя аренда"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Таллинн · Рига · Хельсинки",

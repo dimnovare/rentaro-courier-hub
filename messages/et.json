@@ -6,7 +6,8 @@
     "cities": "Linnad",
     "viewFleet": "Vaata parki",
     "reserve": "Broneeri",
-    "menu": "Menüü"
+    "menu": "Menüü",
+    "portal": "Minu rent"
   },
   "trustStrip": {
     "freeToReserve": "Broneerimine on tasuta",
@@ -37,7 +38,8 @@
       "terms": "Tingimused",
       "reserveBike": "Broneeri ratas",
       "monthlyRental": "Kuurent",
-      "forCouriers": "Kulleritele"
+      "forCouriers": "Kulleritele",
+      "myRental": "Minu rent"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riia · Helsingi",

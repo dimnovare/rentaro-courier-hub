@@ -6,7 +6,8 @@
     "cities": "Pilsētas",
     "viewFleet": "Skatīt parku",
     "reserve": "Rezervēt",
-    "menu": "Izvēlne"
+    "menu": "Izvēlne",
+    "portal": "Mana noma"
   },
   "trustStrip": {
     "freeToReserve": "Rezervēšana bez maksas",
@@ -37,7 +38,8 @@
       "terms": "Noteikumi",
       "reserveBike": "Rezervēt velosipēdu",
       "monthlyRental": "Mēneša noma",
-      "forCouriers": "Kurjeriem"
+      "forCouriers": "Kurjeriem",
+      "myRental": "Mana noma"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallina · Rīga · Helsinki",

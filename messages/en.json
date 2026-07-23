@@ -6,7 +6,8 @@
     "cities": "Cities",
     "viewFleet": "View fleet",
     "reserve": "Reserve",
-    "menu": "Menu"
+    "menu": "Menu",
+    "portal": "My rental"
   },
   "trustStrip": {
     "freeToReserve": "Free to reserve",
@@ -37,7 +38,8 @@
       "terms": "Terms",
       "reserveBike": "Reserve a bike",
       "monthlyRental": "Monthly rental",
-      "forCouriers": "For couriers"
+      "forCouriers": "For couriers",
+      "myRental": "My rental"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riga · Helsinki",

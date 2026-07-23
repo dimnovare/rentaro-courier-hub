@@ -6,7 +6,8 @@
     "cities": "Kaupungit",
     "viewFleet": "Katso kalusto",
     "reserve": "Varaa",
-    "menu": "Valikko"
+    "menu": "Valikko",
+    "portal": "Oma vuokra"
   },
   "trustStrip": {
     "freeToReserve": "Varaus maksutta",
@@ -37,7 +38,8 @@
       "terms": "Käyttöehdot",
       "reserveBike": "Varaa pyörä",
       "monthlyRental": "Kuukausivuokraus",
-      "forCouriers": "Läheteille"
+      "forCouriers": "Läheteille",
+      "myRental": "Oma vuokra"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinna · Riika · Helsinki",
