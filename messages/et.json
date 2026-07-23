@@ -1429,6 +1429,17 @@
     "howItWorks": {
       "title": "Kuidas see töötab — kuupõhine e-jalgratta rent | rentaro",
       "description": "Broneeri tasuta, allkirjasta rendileping, maksa esimene 30 päeva ja deposiit ning võta vastu tarnevalmis e-jalgratas koos laadija ja teenindustoega."
+    },
+    "windDown": {
+      "title": "Rent on suletud — rentaro",
+      "description": "Rentaro ei võta enam vastu uusi rendibroneeringuid. Olemasolevad kliendid saavad jätkata oma kliendiportaali kasutamist."
     }
+  },
+  "windDown": {
+    "kicker": "Teenuse teade",
+    "heading": "Uued rendid on praegu suletud",
+    "body": "Rentaro ei võta enam vastu uusi rendibroneeringuid. Olemasolevad rendid ja juba kinnitatud üleandmised jätkuvad vastavalt kokkulepitud tingimustele. Aktiivse rendiga kliendid saavad jätkata oma kliendiportaali kasutamist.",
+    "contactLead": "Olemasoleva rendiga seotud küsimustega pöördu:",
+    "portalCta": "Ava kliendiportaal"
   }
 }
