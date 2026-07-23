@@ -6,7 +6,8 @@
     "cities": "Cities",
     "viewFleet": "View fleet",
     "reserve": "Reserve",
-    "menu": "Menu"
+    "menu": "Menu",
+    "portal": "My rental"
   },
   "trustStrip": {
     "freeToReserve": "Free to reserve",
@@ -37,7 +38,8 @@
       "terms": "Terms",
       "reserveBike": "Reserve a bike",
       "monthlyRental": "Monthly rental",
-      "forCouriers": "For couriers"
+      "forCouriers": "For couriers",
+      "myRental": "My rental"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinn · Riga · Helsinki",
@@ -1429,6 +1431,17 @@
     "howItWorks": {
       "title": "How it works — monthly e-bike rental | rentaro",
       "description": "Reserve free, sign the rental agreement, pay your first 30 days plus deposit, then collect a delivery-ready e-bike with charger and service support included."
+    },
+    "windDown": {
+      "title": "Rentals closed — rentaro",
+      "description": "Rentaro is no longer accepting new rental bookings. Existing customers can continue to use their customer portal."
     }
+  },
+  "windDown": {
+    "kicker": "Service update",
+    "heading": "New rentals are currently closed",
+    "body": "Rentaro is no longer accepting new rental bookings. Existing rentals and already confirmed handovers will continue according to the agreed terms. Customers with an active rental can continue using their customer portal.",
+    "contactLead": "For questions concerning an existing rental, contact:",
+    "portalCta": "Open customer portal"
   }
 }

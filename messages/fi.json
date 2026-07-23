@@ -6,7 +6,8 @@
     "cities": "Kaupungit",
     "viewFleet": "Katso kalusto",
     "reserve": "Varaa",
-    "menu": "Valikko"
+    "menu": "Valikko",
+    "portal": "Oma vuokra"
   },
   "trustStrip": {
     "freeToReserve": "Varaus maksutta",
@@ -37,7 +38,8 @@
       "terms": "Käyttöehdot",
       "reserveBike": "Varaa pyörä",
       "monthlyRental": "Kuukausivuokraus",
-      "forCouriers": "Läheteille"
+      "forCouriers": "Läheteille",
+      "myRental": "Oma vuokra"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallinna · Riika · Helsinki",
@@ -1429,6 +1431,17 @@
     "howItWorks": {
       "title": "Näin se toimii — sähköpyörän kuukausivuokra | rentaro",
       "description": "Varaa ilmaiseksi, allekirjoita vuokrasopimus, maksa ensimmäiset 30 päivää ja talletus, ja nouda toimitusvalmis sähköpyörä laturilla ja huoltotuella."
+    },
+    "windDown": {
+      "title": "Vuokraukset suljettu — rentaro",
+      "description": "Rentaro ei enää ota vastaan uusia vuokravarauksia. Nykyiset asiakkaat voivat jatkaa asiakasportaalinsa käyttöä."
     }
+  },
+  "windDown": {
+    "kicker": "Palveluilmoitus",
+    "heading": "Uudet vuokraukset ovat tällä hetkellä suljettu",
+    "body": "Rentaro ei enää ota vastaan uusia vuokravarauksia. Voimassa olevat vuokraukset ja jo vahvistetut luovutukset jatkuvat sovittujen ehtojen mukaisesti. Asiakkaat, joilla on voimassa oleva vuokraus, voivat jatkaa asiakasportaalinsa käyttöä.",
+    "contactLead": "Voimassa olevaa vuokrausta koskevissa kysymyksissä ota yhteyttä:",
+    "portalCta": "Avaa asiakasportaali"
   }
 }

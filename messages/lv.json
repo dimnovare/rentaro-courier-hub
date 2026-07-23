@@ -6,7 +6,8 @@
     "cities": "Pilsētas",
     "viewFleet": "Skatīt parku",
     "reserve": "Rezervēt",
-    "menu": "Izvēlne"
+    "menu": "Izvēlne",
+    "portal": "Mana noma"
   },
   "trustStrip": {
     "freeToReserve": "Rezervēšana bez maksas",
@@ -37,7 +38,8 @@
       "terms": "Noteikumi",
       "reserveBike": "Rezervēt velosipēdu",
       "monthlyRental": "Mēneša noma",
-      "forCouriers": "Kurjeriem"
+      "forCouriers": "Kurjeriem",
+      "myRental": "Mana noma"
     },
     "copyright": "© 2026 rentaro",
     "cityLine": "Tallina · Rīga · Helsinki",
@@ -1429,6 +1431,17 @@
     "howItWorks": {
       "title": "Kā tas darbojas — e-velosipēda noma uz mēnesi | rentaro",
       "description": "Rezervē bez maksas, paraksti nomas līgumu, samaksā pirmās 30 dienas un depozītu, tad saņem piegādēm gatavu e-velosipēdu ar lādētāju un servisa atbalstu."
+    },
+    "windDown": {
+      "title": "Noma slēgta — rentaro",
+      "description": "Rentaro vairs nepieņem jaunus nomas pieteikumus. Esošie klienti var turpināt izmantot savu klientu portālu."
     }
+  },
+  "windDown": {
+    "kicker": "Pakalpojuma paziņojums",
+    "heading": "Jaunas nomas šobrīd ir slēgtas",
+    "body": "Rentaro vairs nepieņem jaunus nomas pieteikumus. Esošās nomas un jau apstiprinātās nodošanas turpināsies saskaņā ar saskaņotajiem noteikumiem. Klienti ar aktīvu nomu var turpināt izmantot savu klientu portālu.",
+    "contactLead": "Jautājumos par esošu nomu sazinieties:",
+    "portalCta": "Atvērt klientu portālu"
   }
 }

@@ -7,11 +7,37 @@ import { useInteractions } from "@/components/providers/Interactions";
 import { LogoMark } from "@/components/ui/LogoMark";
 import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import { Ic } from "@/components/ui/Icon";
+import { isWindDownMode } from "@/lib/windDown";
 
 export function Nav() {
   const { reserve, nav, goModels } = useInteractions();
   const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
+
+  // Wind-down mode: every commercial (acquisition) surface redirects to the
+  // /wind-down notice, so the shared header must drop all commercial chrome —
+  // the Models/Pricing/How/Cities links, the View-fleet + Reserve CTAs and the
+  // hamburger menu that mirrors them. Only the brand, the language switcher and
+  // a customer-portal link remain. Normal mode is completely unaffected.
+  const windDown = isWindDownMode(process.env.NEXT_PUBLIC_BUSINESS_MODE);
+  if (windDown) {
+    return (
+      <nav className="nav">
+        <div className="nav-inner">
+          <Link className="brand" href="/wind-down" aria-label="rentaro — home">
+            <LogoMark size={38} />
+            <span className="word">rentaro</span>
+          </Link>
+          <div className="nav-cta">
+            <Link className="btn btn-primary" href="/my-rental">
+              {t("portal")}
+            </Link>
+            <LocaleSwitcher variant="bar" />
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   // Run a nav action and close the mobile menu in one go.
   const go = (fn: () => void) => {

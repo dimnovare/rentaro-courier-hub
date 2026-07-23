@@ -126,8 +126,14 @@ vi.mock("next-intl/server", async () => {
   const enMessages = (await import("./messages/en.json"))
     .default as Record<string, unknown>;
   return {
-    getTranslations: async (namespace?: string) =>
-      intl.makeT(enMessages, namespace),
+    // Supports both call forms: getTranslations("ns") (page bodies) and
+    // getTranslations({ locale, namespace }) (generateMetadata).
+    getTranslations: async (
+      arg?: string | { locale?: string; namespace?: string },
+    ) => {
+      const namespace = typeof arg === "string" ? arg : arg?.namespace;
+      return intl.makeT(enMessages, namespace);
+    },
     getLocale: async () => "en",
     getMessages: async () => enMessages,
     setRequestLocale: vi.fn(), // no-op in tests

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { withSentryConfig } from "@sentry/nextjs";
+import { buildWindDownRedirects } from "./src/lib/windDown";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -27,6 +28,12 @@ const nextConfig: NextConfig = {
         destination: "/:locale/models",
         permanent: true,
       },
+      // Wind-down mode: temporary (307) redirects from every commercial route
+      // (all locales) to /wind-down. Empty unless NEXT_PUBLIC_BUSINESS_MODE is
+      // "wind_down", so the code ships inert and the normal site is unaffected.
+      // KEEP-ACTIVE routes (portal, booking status/success, admin, api, legal)
+      // are never sources — see src/lib/windDown.ts.
+      ...buildWindDownRedirects(process.env.NEXT_PUBLIC_BUSINESS_MODE),
     ];
   },
 
