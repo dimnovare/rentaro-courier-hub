@@ -508,8 +508,13 @@ export function BookingWizard({
           setGearReload((value) => value + 1);
           setStep(gearStep);
         }
+        // Sent back to re-pick gear — the stock-changed notice explains this. Clear
+        // any prior submit error so a stale "submit failed" banner doesn't follow
+        // the user forward to Review after they choose a new package.
+        setError("");
+      } else {
+        setError(t("errors.submit"));
       }
-      setError(t("errors.submit"));
       setSubmitting(false);
     }
   };
