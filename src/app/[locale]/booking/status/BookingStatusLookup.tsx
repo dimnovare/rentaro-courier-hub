@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/Reveal";
 import { Kicker } from "@/components/ui/Kicker";
 import { Ic } from "@/components/ui/Icon";
+import { isWindDownMode } from "@/lib/windDown";
 import {
   lookupBookingStatus,
   type BookingStatus,
@@ -28,6 +29,7 @@ function statusVariant(status: string) {
 
 export function BookingStatusLookup() {
   const t = useTranslations("bookingStatus");
+  const tWindDown = useTranslations("windDown");
   const params = useSearchParams();
   const prefill = params.get("ref") ?? params.get("id") ?? "";
 
@@ -108,11 +110,24 @@ export function BookingStatusLookup() {
           className="lead"
           style={{ maxWidth: 520, margin: "18px auto 0", textAlign: "center", fontSize: 14 }}
         >
-          {t("cantFindPrefix")}{" "}
-          <Link href="/book" style={{ color: "var(--lime)" }}>
-            {t("cantFindLink")}
-          </Link>
-          .
+          {isWindDownMode(process.env.NEXT_PUBLIC_BUSINESS_MODE) ? (
+            // Wind-down: never offer a new reservation (the wizard redirects to
+            // the closed notice) — point existing customers at support instead.
+            <>
+              {tWindDown("contactLead")}{" "}
+              <a href="mailto:info@rentaro.ee" style={{ color: "var(--lime)" }}>
+                info@rentaro.ee
+              </a>
+            </>
+          ) : (
+            <>
+              {t("cantFindPrefix")}{" "}
+              <Link href="/book" style={{ color: "var(--lime)" }}>
+                {t("cantFindLink")}
+              </Link>
+              .
+            </>
+          )}
         </p>
       </Reveal>
     </>
