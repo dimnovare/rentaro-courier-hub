@@ -57,7 +57,15 @@ export async function getAccessoryOffers(
   if (!response.ok) {
     throw await readOfferError(response);
   }
-  return (await response.json()) as AccessoryOfferQuote[];
+  const offers = (await response.json()) as AccessoryOfferQuote[];
+  // The API omits null-valued fields, so restore the explicit nulls the
+  // contract promises (undefined `code` would read as "no decision yet").
+  return offers.map((offer) => ({
+    ...offer,
+    code: offer.code ?? null,
+    unavailableComponent: offer.unavailableComponent ?? null,
+    extraBatteryDeposit: offer.extraBatteryDeposit ?? null,
+  }));
 }
 
 async function readOfferError(response: Response): Promise<AccessoryOfferApiError> {

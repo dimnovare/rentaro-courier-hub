@@ -57,6 +57,34 @@ describe("accessory offer and booking contracts", () => {
     expect(result).toEqual(offers);
   });
 
+  it("normalizes omitted nullable fields so the Bike Only offer has an explicit null code", async () => {
+    // The backend serializer omits null-valued properties, so the Bike Only
+    // offer arrives without a "code" key at all.
+    const bikeOnly = {
+      name: "Bike Only",
+      benefit: "Ride with your own gear.",
+      components: [],
+      recurringPrice: 0,
+      savingAmount: 0,
+      recommended: false,
+      placement: "primary",
+      available: true,
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse([bikeOnly]));
+    vi.stubGlobal("fetch", fetchMock);
+    const { getAccessoryOffers } = await import("@/services/accessoryOfferService");
+
+    const [offer] = await getAccessoryOffers({
+      planId: "p365",
+      cityId: "tallinn",
+      locale: "en",
+    });
+
+    expect(offer.code).toBeNull();
+    expect(offer.unavailableComponent).toBeNull();
+    expect(offer.extraBatteryDeposit).toBeNull();
+  });
+
   it("preserves a server status and error code", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse({ error: "accessory_unavailable" }, 409),
